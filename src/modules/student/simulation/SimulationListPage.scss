@@ -1,0 +1,71 @@
+.simulation-list-page {
+    padding: 24px;
+    
+    .simulation-card {
+        height: 100%;
+        border-radius: 12px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        
+        &:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-cover {
+            position: relative;
+            height: 200px;
+            overflow: hidden;
+            
+            img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+            
+            &:hover img {
+                transform: scale(1.1);
+            }
+            
+            .card-overlay {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+            }
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a1a;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            min-height: 48px;
+        }
+        
+        .card-description {
+            .info-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 8px;
+                font-size: 14px;
+                color: #666;
+                
+                .anticon {
+                    color: #1890ff;
+                }
+            }
+            
+            .progress-section {
+                margin-top: 12px;
+                padding-top: 12px;
+                border-top: 1px solid #f0f0f0;
+            }
+        }
+    }
+}

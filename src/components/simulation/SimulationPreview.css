@@ -1,0 +1,46 @@
+.preview-content h1,
+.preview-content h2,
+.preview-content h3 {
+    margin-top: 24px;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+.preview-content h1 { 
+    font-size: 24px; 
+}
+
+.preview-content h2 { 
+    font-size: 20px; 
+}
+
+.preview-content h3 { 
+    font-size: 18px; 
+}
+
+.preview-content p {
+    margin-bottom: 12px;
+}
+
+.preview-content ul,
+.preview-content ol {
+    margin: 12px 0;
+    padding-left: 24px;
+}
+
+.preview-content li {
+    margin-bottom: 8px;
+}
+
+.preview-content strong {
+    font-weight: 600;
+}
+
+.preview-content a {
+    color: #1890ff;
+    text-decoration: none;
+}
+
+.preview-content a:hover {
+    text-decoration: underline;
+}

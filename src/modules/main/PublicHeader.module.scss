@@ -1,0 +1,167 @@
+.publicHeader {
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    padding: 0 24px !important;
+    height: 70px !important;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.headerContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+}
+
+.logoLink {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.logoBrand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.brandName {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.5px;
+}
+
+.desktopNav {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin: 0 40px;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+.navMenu {
+    border: none;
+    background: transparent;
+    font-size: 16px;
+}
+
+.navItem {
+    font-weight: 500;
+    color: #333;
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: #1890ff;
+    }
+}
+
+.desktopButtons {
+    flex: 0 0 auto;
+    display: flex;
+    gap: 16px;
+
+    @media (max-width: 768px) {
+        display: none;
+    }
+}
+
+.signInBtn {
+    font-size: 14px;
+    font-weight: 500;
+    color: #333;
+    height: 40px;
+    padding: 0 24px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #f0f0f0;
+        color: #1890ff;
+    }
+}
+
+.signUpBtn {
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    padding: 0 24px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    border: none;
+    transition: all 0.3s ease;
+
+    &:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(24, 144, 255, 0.4);
+    }
+}
+
+.mobileMenuBtn {
+    display: none;
+
+    @media (max-width: 768px) {
+        display: flex;
+        flex: 0 0 auto;
+    }
+}
+
+.mobileDrawer {
+    :global(.ant-drawer-content-wrapper) {
+        width: 100% !important;
+        max-width: 300px !important;
+    }
+}
+
+.mobileMenu {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.mobileButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.signInBtnMobile {
+    color: #1890ff;
+    font-weight: 500;
+
+    &:hover {
+        color: #096dd9;
+    }
+}
+
+.signUpBtnMobile {
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+    border: none;
+}

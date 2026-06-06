@@ -1,0 +1,12 @@
+REACT_APP_API = https://auth-ilms.thsolution.net/
+REACT_APP_API_MEDIA = https://media-ilms.thsolution.net/
+REACT_APP_API_AVATAR = https://api-sso.thsolution.net/
+REACT_APP_PORTAL_VIDEO = https://vbook.thsolution.net/
+REACT_APP_ENV = prod
+GENERATE_SOURCEMAP = true
+CI = false
+IMAGE_INLINE_SIZE_LIMIT = 0
+REACT_APP_ENABLE_EXPOSURE = true
+REACT_APP_WEB_SOCKET_URL = wss://noti-ilms.thsolution.net/ws
+REACT_APP_NAME = cms-elms-app
+REACT_APP_TYPE = cms

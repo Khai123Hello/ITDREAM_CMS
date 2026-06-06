@@ -1,0 +1,30 @@
+.body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-flow: column;
+}
+
+.footer {
+    background: #fff;
+}
+
+
+.icon {
+    width: 12.6rem;
+    height: 12.6rem;
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 3rem;
+    color: #1D1D1D;
+    margin-top: 2rem;
+}
+
+.description {
+    font-size: 1.6rem;
+    line-height: 2.4rem;
+    margin-top: .8rem;
+}

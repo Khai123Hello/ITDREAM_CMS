@@ -1,0 +1,124 @@
+* {
+  font-family: 'Inter', sans-serif;
+  box-sizing: border-box;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f4f7fd;
+  padding: 40px 20px;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 1200px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+.left {
+  flex: 1;
+  background: linear-gradient(135deg, #6b73ff 0%, #000dff 100%);
+  color: white;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    text-align: center;
+  }
+
+  .leftContent {
+    h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .illustration {
+      max-width: 100%;
+      margin: 20px 0;
+    }
+  }
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem;
+
+  @media (max-width: 768px) {
+    padding: 2rem 1rem;
+  }
+
+  .formBox {
+    width: 100%;
+    max-width: 400px;
+
+    .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 1.5rem;
+      font-size: 14px;
+    }
+
+    .steps {
+      margin-bottom: 2rem;
+    }
+
+    .form {
+      margin-top: 1.5rem;
+    }
+
+    .backToLogin {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #f0f0f0;
+
+      a {
+        color: #1677ff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.3s;
+
+        &:hover {
+          color: #0958d9;
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}

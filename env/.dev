@@ -1,0 +1,14 @@
+REACT_APP_API = http://localhost:8787/
+REACT_APP_API_MEDIA = https://media.itdreamcareer.io.vn/
+REACT_APP_API_AVATAR = https://sso-api-vbook.itz.io.vn/
+REACT_APP_PORTAL_VIDEO = https://portal-vbook.itz.io.vn/
+REACT_APP_ENV = dev
+GENERATE_SOURCEMAP = true
+CI = false
+IMAGE_INLINE_SIZE_LIMIT = 0
+REACT_APP_TENANT_ID = cntt
+REACT_APP_WEB_SOCKET_URL = wss://noti-elms.itz.io.vn/ws
+REACT_APP_NAME = cms-elms-app
+REACT_APP_TYPE = cms
+REACT_APP_USERNAME = abc_client
+REACT_APP_PASSWORD = abc123

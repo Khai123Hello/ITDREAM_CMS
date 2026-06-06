@@ -1,0 +1,12 @@
+REACT_APP_API = https://auth-lms.itz.edu.vn/
+REACT_APP_API_MEDIA = https://media-lms.itz.edu.vn/
+REACT_APP_API_AVATAR = https://api-sso.itz.edu.vn/
+REACT_APP_PORTAL_VIDEO = https://vbook.itz.edu.vn/
+REACT_APP_ENV = partner
+GENERATE_SOURCEMAP = true
+CI = false
+IMAGE_INLINE_SIZE_LIMIT = 0
+REACT_APP_ENABLE_EXPOSURE = true
+REACT_APP_WEB_SOCKET_URL = wss://noti-lms.itz.edu.vn/ws
+REACT_APP_NAME = cms-elms-app
+REACT_APP_TYPE = cms

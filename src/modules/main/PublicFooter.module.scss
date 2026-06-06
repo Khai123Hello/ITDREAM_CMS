@@ -1,0 +1,165 @@
+.publicFooter {
+    background: #1f1f1f;
+    color: #e0e0e0;
+    padding: 48px 24px 24px !important;
+    margin-top: 60px;
+}
+
+.footerContainer {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.footerContent {
+    margin-bottom: 24px;
+}
+
+.footerSection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footerTitle {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.footerText {
+    font-size: 14px;
+    color: #a0a0a0;
+    margin: 0;
+    line-height: 1.6;
+}
+
+.socialLinks {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.socialLink {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(102, 126, 234, 0.2);
+    color: #667eea;
+    transition: all 0.3s ease;
+    font-size: 16px;
+
+    &:hover {
+        background: #667eea;
+        color: white;
+        transform: translateY(-4px);
+    }
+}
+
+.footerLinks {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+        margin: 0;
+
+        a {
+            color: #a0a0a0;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.3s ease;
+
+            &:hover {
+                color: #667eea;
+            }
+        }
+    }
+}
+
+.contactItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 14px;
+
+    a,
+    span {
+        color: #a0a0a0;
+        text-decoration: none;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: #667eea;
+        }
+    }
+}
+
+.contactIcon {
+    flex: 0 0 20px;
+    color: #667eea;
+    margin-top: 2px;
+}
+
+.footerDivider {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+    margin: 24px 0 !important;
+}
+
+.footerBottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.copyright {
+    font-size: 14px;
+    color: #707070;
+    margin: 0;
+    text-align: left;
+
+    @media (max-width: 768px) {
+        text-align: center;
+        width: 100%;
+    }
+}
+
+.legalLinks {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+    text-align: right;
+
+    @media (max-width: 768px) {
+        justify-content: center;
+        width: 100%;
+    }
+
+    a {
+        color: #a0a0a0;
+        text-decoration: none;
+        font-size: 12px;
+        transition: color 0.3s ease;
+
+        &:hover {
+            color: #667eea;
+        }
+    }
+}
+
+.separator {
+    color: #505050;
+}
