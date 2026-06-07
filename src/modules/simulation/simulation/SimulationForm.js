@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Card, Col, Row, Button, Space, Modal, Divider, Input } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
+import OverviewEditor from './OverviewEditor';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -17,6 +18,41 @@ import { UserTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import { storageKeys } from '@constants';
 import SimulationPreview from '@components/simulation/SimulationPreview.js';
+
+const DEFAULT_OVERVIEW_TEMPLATE = {
+    hero: {
+        title: 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
+        description: 'Một cách an toàn để trải nghiệm công việc thực tế cùng Skyscanner. Luyện tập kỹ năng của bạn với các bài tập mẫu và xây dựng sự tự tin để vượt qua các vòng phỏng vấn.',
+        badges: [
+            'Tự học theo tốc độ riêng',
+            '1–2 giờ',
+            'Không có điểm số',
+            'Không có bài kiểm tra nào',
+            'Giới thiệu',
+        ],
+        button: 'Xem tất cả',
+    },
+    intro: {
+        content: '<p>Chào mừng bạn đến với mô phỏng công việc Kỹ sư phần mềm giao diện người dùng của Skyscanner. Chúng tôi rất vui mừng được chào đón bạn.</p>',
+    },
+    howItWorks: {
+        title: 'Cách thức hoạt động',
+        items: [
+            {
+                icon: '💡',
+                text: 'Hoàn thành các nhiệm vụ được hướng dẫn bằng video ghi sẵn và các câu trả lời mẫu từ nhóm của chúng tôi.',
+            },
+            {
+                icon: '📄',
+                text: 'Nhận chứng chỉ và thêm vào CV cũng như LinkedIn của bạn.',
+            },
+            {
+                icon: '👥',
+                text: 'Tự tin trả lời các câu hỏi phỏng vấn và giải thích lý do tại sao bạn phù hợp.',
+            },
+        ],
+    },
+};
 
 const SimulationForm = (props) => {
     const {
@@ -42,9 +78,8 @@ const SimulationForm = (props) => {
     const [descriptionTitle, setDescriptionTitle] = useState('');
     const [descriptionContent, setDescriptionContent] = useState('');
 
-    // Overview fields
-    const [overviewTitle, setOverviewTitle] = useState('');
-    const [overviewContent, setOverviewContent] = useState('');
+    // Overview fields (Skyscanner style)
+    const [overviewData, setOverviewData] = useState(DEFAULT_OVERVIEW_TEMPLATE);
 
     const { execute: executeUpFile } = useFetch(apiConfig.file.upload, { immediate: false });
     const { form, mixinFuncs, onValuesChange } = useBasicForm({ onSubmit, setIsChangedFormValues });
@@ -197,6 +232,95 @@ const SimulationForm = (props) => {
         return cleaned;
     };
 
+    const parseOverviewData = (overviewStr) => {
+        if (!overviewStr) {
+            return DEFAULT_OVERVIEW_TEMPLATE;
+        }
+        
+        try {
+            const parsed = JSON.parse(overviewStr);
+            // Check if it is the new structure
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.hero || parsed.intro || parsed.howItWorks)) {
+                return {
+                    hero: {
+                        title: parsed.hero?.title || '',
+                        description: parsed.hero?.description || '',
+                        badges: Array.isArray(parsed.hero?.badges) ? parsed.hero.badges : [],
+                        button: parsed.hero?.button || '',
+                    },
+                    intro: {
+                        content: parsed.intro?.content || '',
+                    },
+                    howItWorks: {
+                        title: parsed.howItWorks?.title || 'Cách thức hoạt động',
+                        items: Array.isArray(parsed.howItWorks?.items) ? parsed.howItWorks.items : [],
+                    },
+                };
+            }
+            
+            // If it is the old format array: [{ title, content }]
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                const title = parsed[0].title || '';
+                const content = parsed[0].content || '';
+                return {
+                    hero: {
+                        title: title || 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
+                        description: content ? content.replace(/<[^>]*>/g, '').substring(0, 200) : '',
+                        badges: [],
+                        button: 'Xem tất cả',
+                    },
+                    intro: {
+                        content: content,
+                    },
+                    howItWorks: {
+                        title: 'Cách thức hoạt động',
+                        items: [],
+                    },
+                };
+            }
+            
+            // If it's a simple JSON object like { title, content }
+            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+                return {
+                    hero: {
+                        title: parsed.title || 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
+                        description: parsed.content ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 200) : '',
+                        badges: [],
+                        button: 'Xem tất cả',
+                    },
+                    intro: {
+                        content: parsed.content || '',
+                    },
+                    howItWorks: {
+                        title: 'Cách thức hoạt động',
+                        items: [],
+                    },
+                };
+            }
+        } catch (e) {
+            console.error('Error parsing overview JSON:', e);
+        }
+        
+        return {
+            ...DEFAULT_OVERVIEW_TEMPLATE,
+            intro: {
+                content: overviewStr,
+            },
+        };
+    };
+
+    const uploadIconFile = (file, onSuccess, onError) => {
+        executeUpFile({
+            data: { file, type: 'IMAGE' },
+            onCompleted: (response) => {
+                if (response.result === true) {
+                    onSuccess(response.data.filePath);
+                }
+            },
+            onError,
+        });
+    };
+
     useEffect(() => {
         if (dataDetail && Object.keys(dataDetail).length > 0) {
             form.setFieldsValue({
@@ -213,26 +337,28 @@ const SimulationForm = (props) => {
             }
 
             if (dataDetail.overview) {
-                const overviewData = parseJsonData(dataDetail.overview);
-                setOverviewTitle(overviewData.title);
-                setOverviewContent(convertContentToHtml(overviewData.content));
+                const parsedOverview = parseOverviewData(dataDetail.overview);
+                setOverviewData(parsedOverview);
             }
         }
     }, [dataDetail]);
 
     const handleSubmit = (values) => {
         const cleanedDescriptionContent = cleanQuillHtml(descriptionContent);
-        const cleanedOverviewContent = cleanQuillHtml(overviewContent);
+        const cleanedIntroContent = cleanQuillHtml(overviewData.intro.content);
 
         const descriptionJson = JSON.stringify({
             title: descriptionTitle || '',
             content: cleanedDescriptionContent || '',
         });
 
-        const overviewJson = JSON.stringify([{
-            title: overviewTitle || '',
-            content: cleanedOverviewContent || '',
-        }]);
+        const submissionOverview = {
+            ...overviewData,
+            intro: {
+                content: cleanedIntroContent,
+            },
+        };
+        const overviewJson = JSON.stringify(submissionOverview);
 
         mixinFuncs.handleSubmit({
             ...values,
@@ -251,8 +377,7 @@ const SimulationForm = (props) => {
             videoPath: videoUrl,
             descriptionTitle,
             descriptionContent,
-            overviewTitle,
-            overviewContent,
+            overviewData,
             category: categories?.find((item) => item.value === formValues.categoryId),
             level: levels?.find(l => l.value === formValues.level),
         };
@@ -303,34 +428,11 @@ const SimulationForm = (props) => {
                         </Col>
                     </Row>
 
-                    <Divider orientation="left">Mô tả khóa học</Divider>
+                    <Divider orientation="left">Mô tả</Divider>
 
                     <Row gutter={16}>
                         <Col span={24}>
                             <div style={{ marginBottom: 16 }}>
-                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Tiêu đề mô tả <span style={{ color: 'red' }}>*</span>
-                                </label>
-                                <Input
-                                    value={descriptionTitle}
-                                    onChange={(e) => {
-                                        setDescriptionTitle(e.target.value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="VD: Tại sao phải hoàn thành Mô phỏng công việc này"
-                                    size="large"
-                                    disabled={!canEdit}
-                                />
-                            </div>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Nội dung mô tả <span style={{ color: 'red' }}>*</span>
-                                </label>
                                 <ReactQuill
                                     theme="snow"
                                     value={descriptionContent}
@@ -340,7 +442,7 @@ const SimulationForm = (props) => {
                                     }}
                                     modules={quillModules}
                                     formats={quillFormats}
-                                    placeholder="Nhập nội dung mô tả chi tiết về khóa học..."
+                                    placeholder="Nhập nội dung mô tả chi tiết..."
                                     readOnly={!canEdit}
                                     style={{
                                         background: 'white',
@@ -348,73 +450,28 @@ const SimulationForm = (props) => {
                                         minHeight: '200px',
                                     }}
                                 />
-                                <div style={{ marginTop: 8, color: '#888', fontSize: 12 }}>
-                                    💡 Tip: Sử dụng thanh công cụ để định dạng text, tạo heading, bullet list, và nhiều hơn nữa.
-                                </div>
                             </div>
                         </Col>
                     </Row>
 
-                    <Divider orientation="left">Tổng quan khóa học</Divider>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Tiêu đề tổng quan <span style={{ color: 'red' }}>*</span>
-                                </label>
-                                <Input
-                                    value={overviewTitle}
-                                    onChange={(e) => {
-                                        setOverviewTitle(e.target.value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="VD: Nó hoạt động như thế nào"
-                                    size="large"
-                                    disabled={!canEdit}
-                                />
-                            </div>
-                        </Col>
-                    </Row>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Nội dung tổng quan <span style={{ color: 'red' }}>*</span>
-                                </label>
-                                <ReactQuill
-                                    theme="snow"
-                                    value={overviewContent}
-                                    onChange={(value) => {
-                                        setOverviewContent(value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    modules={quillModules}
-                                    formats={quillFormats}
-                                    placeholder="Nhập nội dung tổng quan về khóa học..."
-                                    readOnly={!canEdit}
-                                    style={{
-                                        background: 'white',
-                                        borderRadius: '4px',
-                                        minHeight: '200px',
-                                    }}
-                                />
-                                <div style={{ marginTop: 8, color: '#888', fontSize: 12 }}>
-                                    💡 Tip: Sử dụng thanh công cụ để định dạng text, tạo bullet list, numbered list, và nhiều hơn nữa.
-                                </div>
-                            </div>
-                        </Col>
-                    </Row>
+                    <OverviewEditor
+                        value={overviewData}
+                        onChange={(newValue) => {
+                            setOverviewData(newValue);
+                            setIsChangedFormValues(true);
+                        }}
+                        canEdit={canEdit}
+                        uploadFile={uploadIconFile}
+                    />
 
                     <Divider orientation="left">Media</Divider>
 
-                    <Row gutter={16}>
+                    <Row gutter={24}>
                         <Col span={12}>
                             <CropImageField
                                 label={translate.formatMessage(commonMessage.image)}
                                 name="imagePath"
-                                imageUrl={imagePath && `${AppConstants.contentRootUrl}${imagePath}`}
+                                imageUrl={imagePath && (imagePath.startsWith('http') ? imagePath : `${AppConstants.contentRootUrl}${imagePath}`)}
                                 aspect={16 / 9}
                                 uploadFile={(file, onSuccess, onError) =>
                                     uploadFile(file, onSuccess, onError, 'IMAGE')
@@ -423,6 +480,22 @@ const SimulationForm = (props) => {
                             />
                         </Col>
                         <Col span={12}>
+                            <div style={{ marginBottom: 16 }}>
+                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
+                                    URL ảnh trực tiếp (Link ảnh)
+                                </label>
+                                <Input
+                                    value={imagePath}
+                                    onChange={(e) => {
+                                        setImagePath(e.target.value);
+                                        form.setFieldsValue({ imagePath: e.target.value });
+                                        setIsChangedFormValues(true);
+                                    }}
+                                    placeholder="Nhập link ảnh (ví dụ: https://example.com/image.png)"
+                                    size="large"
+                                    disabled={!canEdit}
+                                />
+                            </div>
                             <div style={{ marginBottom: 16 }}>
                                 <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
                                     Video URL
