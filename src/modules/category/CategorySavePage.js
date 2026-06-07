@@ -5,6 +5,8 @@ import PageWrapper from '@components/common/layout/PageWrapper';
 import apiConfig from '@constants/apiConfig';
 import useSaveBase from '@hooks/useSaveBase';
 import useTranslate from '@hooks/useTranslate';
+import useQueryParams from '@hooks/useQueryParams';
+import { CATEGORY_KIND_SPECIALIZATION } from '@constants';
 import { commonMessage } from '@locales/intl';
 import CategoryForm from './CategoryForm';
 
@@ -13,13 +15,14 @@ const CategorySavePage = ({ pageOptions = {} }) => {
     const { id } = useParams();
     const location = useLocation();
     const isCreating = id === 'create';
+    const { params: queryParams } = useQueryParams();
+    const kind = parseInt(queryParams.get('kind')) || CATEGORY_KIND_SPECIALIZATION;
 
-    // Lấy detail từ navigate state (được truyền từ ListPage)
     const detailFromState = location.state?.detail;
 
-    const { mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing } = useSaveBase({
+    const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing } = useSaveBase({
         apiConfig: {
-            getById: null, // Không có API getById
+            getById: apiConfig.category.getById,
             create: apiConfig.category.create,
             update: apiConfig.category.update,
         },
@@ -27,16 +30,18 @@ const CategorySavePage = ({ pageOptions = {} }) => {
             getListUrl: '/category',
             objectName: pageOptions.objectName
                 ? translate.formatMessage(pageOptions.objectName)?.toLowerCase()
-                : 'category',
+                : 'danh mục',
         },
         override: (funcs) => {
             funcs.prepareUpdateData = (data) => ({
                 ...data,
                 id: parseInt(id),
+                kind: detail?.kind || detailFromState?.kind || kind,
             });
 
             funcs.prepareCreateData = (data) => ({
                 ...data,
+                kind: kind,
             });
         },
     });
@@ -44,7 +49,7 @@ const CategorySavePage = ({ pageOptions = {} }) => {
     // Xác định title cho breadcrumb
     const title = isCreating
         ? translate.formatMessage(commonMessage.create)
-        : detailFromState?.name || translate.formatMessage(commonMessage.update);
+        : detail?.name || detailFromState?.name || translate.formatMessage(commonMessage.update);
 
     // Safe render breadcrumbs
     const breadcrumbs = pageOptions.renderBreadcrumbs
@@ -52,7 +57,7 @@ const CategorySavePage = ({ pageOptions = {} }) => {
         : [
             { breadcrumbName: translate.formatMessage(commonMessage.home) },
             {
-                breadcrumbName: translate.formatMessage(commonMessage.category),
+                breadcrumbName: 'Danh mục',
                 path: '/category',
             },
             { breadcrumbName: title },
@@ -65,11 +70,12 @@ const CategorySavePage = ({ pageOptions = {} }) => {
         >
             <CategoryForm
                 setIsChangedFormValues={setIsChangedFormValues}
-                dataDetail={isCreating ? {} : (detailFromState || {})}
+                dataDetail={isCreating ? {} : (detail?.name ? detail : (detailFromState || {}))}
                 formId={mixinFuncs.getFormId()}
                 isEditing={isEditing}
                 actions={mixinFuncs.renderActions()}
                 onSubmit={onSave}
+                kind={isCreating ? kind : (detail?.kind || detailFromState?.kind || kind)}
             />
         </PageWrapper>
     );

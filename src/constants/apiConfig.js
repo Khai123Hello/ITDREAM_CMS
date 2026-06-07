@@ -330,19 +330,19 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/task_question/create`,
             method: 'POST',
             headers: baseHeader,
-            permissionCode: 'TQ_C',
+            permissionCode: 'TQ_ED_C',
         },
         update: {
             baseURL: `${apiUrl}v1/task_question/update`,
             method: 'PUT',
             headers: baseHeader,
-            permissionCode: 'TQ_U',
+            permissionCode: 'TQ_ED_U',
         },
         delete: {
             baseURL: `${apiUrl}v1/task_question/delete/:id`,
             method: 'DELETE',
             headers: baseHeader,
-            permissionCode: 'TQ_D',
+            permissionCode: 'TQ_ED_D',
         },
         educatorList: {
             baseURL: `${apiUrl}v1/task_question/educator_list`,

@@ -19,7 +19,7 @@ export default {
         pageOptions: {
             objectName: commonMessage.category,
             renderBreadcrumbs: (messages, t, title, options = {}) => {
-                return [{ breadcrumbName: t.formatMessage(commonMessage.category) }];
+                return [{ breadcrumbName: 'Danh mục' }];
             },
         },
     },
@@ -34,7 +34,7 @@ export default {
             listPageUrl: paths.categoryListPage,
             renderBreadcrumbs: (messages, t, title, options = {}) => {
                 return [
-                    { breadcrumbName: t.formatMessage(messages.category), path: paths.categoryListPage },
+                    { breadcrumbName: 'Danh mục', path: paths.categoryListPage },
                     { breadcrumbName: title },
                 ];
             },

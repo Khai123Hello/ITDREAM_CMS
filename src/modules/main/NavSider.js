@@ -27,7 +27,7 @@ const NavSider = ({ collapsed, onCollapse, width }) => {
             selectedKeys: [],
             openKeys: [],
         };
-    }, [location.pathname]);
+    }, [location.pathname, location.search]);
 
     function makeNavs(navs) {
         return navs.map((nav) => {
@@ -64,6 +64,7 @@ const NavSider = ({ collapsed, onCollapse, width }) => {
     }
 
     function findActiveNav(navs) {
+        let matchedFallback = null;
         for (const nav of navs) {
             if (nav.children) {
                 const activeItem = findActiveNav(nav.children);
@@ -73,15 +74,36 @@ const NavSider = ({ collapsed, onCollapse, width }) => {
                         openKeys: [nav.key, ...activeItem.openKeys],
                     };
                 }
-            } else if (matchPath(nav.path + '/*', location.pathname)) {
-                return {
-                    selectedKeys: [nav.key],
-                    openKeys: [],
-                };
+            } else if (nav.path) {
+                const [navPathname, navSearch] = nav.path.split('?');
+                if (matchPath(navPathname + '/*', location.pathname)) {
+                    if (navSearch) {
+                        const currentParams = new URLSearchParams(location.search);
+                        const navParams = new URLSearchParams(navSearch);
+                        let isQueryMatch = true;
+                        for (const [key, value] of navParams.entries()) {
+                            if (currentParams.get(key) !== value) {
+                                isQueryMatch = false;
+                                break;
+                            }
+                        }
+                        if (isQueryMatch) {
+                            return {
+                                selectedKeys: [nav.key],
+                                openKeys: [],
+                            };
+                        }
+                    } else {
+                        matchedFallback = {
+                            selectedKeys: [nav.key],
+                            openKeys: [],
+                        };
+                    }
+                }
             }
         }
 
-        // return defaultOpenNav;
+        return matchedFallback;
     }
 
     return (

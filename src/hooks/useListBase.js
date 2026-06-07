@@ -448,8 +448,12 @@ const useListBase = ({
         const isRender = checkPermission(action);
         if (!isRender) return;
         return {
-            align: 'center',
+            align: 'left',
             title: intl.formatMessage(message.tableColumn.action),
+            onCell: () => ({
+                className: 'action-column-cell-left',
+                style: { textAlign: 'left', justifyContent: 'flex-start' },
+            }),
             ...columnsProps,
             render: (data) => {
                 const actionButtons = mixinFuncs.actionColumnButtons(mixinFuncs.additionalActionColumnButtons());
@@ -459,9 +463,10 @@ const useListBase = ({
                 return (
                     <span
                         style={{
-                            display: 'inline-flex',
+                            display: 'flex',
+                            width: '100%',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            justifyContent: 'flex-start',
                             gap: 12,
                             whiteSpace: 'nowrap',
                         }}
