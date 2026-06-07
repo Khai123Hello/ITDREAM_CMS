@@ -6,6 +6,8 @@ import { useLocation } from 'react-router-dom';
 import { BaseForm } from '@components/common/form/BaseForm';
 import CropImageField from '@components/common/form/CropImageField';
 import TextField from '@components/common/form/TextField';
+import SelectField from '@components/common/form/SelectField';
+import BlockEditor from '@components/common/editor/BlockEditor';
 // import TiptapEditor from '@components/common/editor/TiptapEditor';
 
 import useBasicForm from '@hooks/useBasicForm';
@@ -14,7 +16,7 @@ import useTranslate from '@hooks/useTranslate';
 
 import { AppConstants, TaskTypes } from '@constants';
 import apiConfig from '@constants/apiConfig';
-import { taskKindOptions } from '@constants/masterData';
+import { taskKindOptions, taskTypeOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
 // Helper functions removed as introduction sections are replaced by TiptapEditor.
@@ -26,6 +28,7 @@ import { commonMessage } from '@locales/intl';
 const TaskForm = (props) => {
     const translate = useTranslate();
     const kindValues = translate.formatKeys(taskKindOptions, ['label']);
+    const typeValues = translate.formatKeys(taskTypeOptions, ['label']);
     const location = useLocation();
 
     const parentTaskFromState = location.state?.parentTask;
@@ -38,9 +41,32 @@ const TaskForm = (props) => {
     const [imagePath, setImagePath] = useState(null);
     const [videoUrl, setVideoUrl] = useState('');
     const [filePath, setFilePath] = useState(null);
-    const [taskKind, setTaskKind] = useState(null);
+    const [parentTaskInfo, setParentTaskInfo] = useState(() => {
+        if (!isEditing) {
+            return parentTaskFromState || null;
+        }
+        if (dataDetail) {
+            if (dataDetail.kind === TaskTypes.SUBTASK || dataDetail.parentId) {
+                return dataDetail.parent || parentTaskFromState || { id: dataDetail.parentId, name: '' };
+            }
+        }
+        return null;
+    });
+
+    const [taskKind, setTaskKind] = useState(() => {
+        if (!isEditing) {
+            return parentTaskFromState ? TaskTypes.SUBTASK : TaskTypes.TASK;
+        }
+        if (dataDetail) {
+            if (dataDetail.kind === TaskTypes.SUBTASK || dataDetail.parentId) {
+                return TaskTypes.SUBTASK;
+            }
+            return TaskTypes.TASK;
+        }
+        return null;
+    });
+
     const [previewVisible, setPreviewVisible] = useState(false);
-    const [parentTaskInfo, setParentTaskInfo] = useState(null);
     const [content, setContent] = useState('');
     const [submitError, setSubmitError] = useState(null);
 
@@ -56,11 +82,12 @@ const TaskForm = (props) => {
             } else {
                 setTaskKind(TaskTypes.TASK);
                 setParentTaskInfo(null);
+                setTimeout(() => form.setFieldsValue({ type: 0 }), 100);
             }
         } else {
-            if (dataDetail?.kind === TaskTypes.SUBTASK && dataDetail?.parent) {
+            if (dataDetail?.kind === TaskTypes.SUBTASK || dataDetail?.parentId) {
                 setTaskKind(TaskTypes.SUBTASK);
-                setParentTaskInfo(dataDetail.parent);
+                setParentTaskInfo(dataDetail.parent || parentTaskFromState || { id: dataDetail.parentId, name: '' });
             } else {
                 setTaskKind(TaskTypes.TASK);
                 setParentTaskInfo(null);
@@ -77,6 +104,12 @@ const TaskForm = (props) => {
                 name: dataDetail.name || '',
                 title: dataDetail.title || '',
                 description: dataDetail.description || '',
+                type:
+                    dataDetail.type !== undefined
+                        ? dataDetail.type
+                        : dataDetail.kind === TaskTypes.TASK
+                            ? 0
+                            : undefined,
             });
 
             setImagePath(dataDetail.imagePath || '');
@@ -114,6 +147,19 @@ const TaskForm = (props) => {
         try {
             setSubmitError(null);
 
+            if (!values.title?.trim()) {
+                message.error('Vui lòng nhập tiêu đề nhiệm vụ.');
+                return false;
+            }
+            if (!values.description?.trim()) {
+                message.error('Vui lòng nhập mô tả nhiệm vụ.');
+                return false;
+            }
+            if (values.type === undefined || values.type === null) {
+                message.error('Vui lòng chọn thể loại nội dung.');
+                return false;
+            }
+
             const submitData = {
                 name: values.name?.trim() || '',
                 title: values.title?.trim() || '',
@@ -124,6 +170,7 @@ const TaskForm = (props) => {
                 imagePath: imagePath || null,
                 videoPath: videoUrl || null,
                 filePath: filePath || null,
+                type: values.type,
             };
 
             if (submitData.kind === TaskTypes.SUBTASK) {
@@ -218,7 +265,13 @@ const TaskForm = (props) => {
                         </Col>
                     </Row>
 
-                    {/* Name + Title */}
+                    {/* Register title and description in Ant form store */}
+                    <div style={{ display: 'none' }}>
+                        <TextField name="title" />
+                        <TextField name="description" />
+                    </div>
+
+                    {/* Name & Thể loại nội dung */}
                     <Row gutter={16}>
                         <Col span={12}>
                             <TextField
@@ -227,62 +280,21 @@ const TaskForm = (props) => {
                                 name="name"
                                 requiredMsg={translate.formatMessage(commonMessage.required)}
                                 placeholder="Nhập tên nhiệm vụ"
-                                disabled={taskKind === TaskTypes.SUBTASK}
                             />
                         </Col>
                         <Col span={12}>
-                            <TextField
-                                label={translate.formatMessage(commonMessage.title)}
+                            <SelectField
+                                label="Thể loại nội dung"
                                 required
-                                name="title"
-                                requiredMsg={translate.formatMessage(commonMessage.required)}
-                                placeholder="Tiêu đề nhiệm vụ"
+                                name="type"
+                                requiredMsg="Vui lòng chọn thể loại nội dung"
+                                options={typeValues}
+                                disabled={taskKind === TaskTypes.TASK}
                             />
                         </Col>
                     </Row>
 
-                    {/* Description */}
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <TextField
-                                label="Mô tả"
-                                required
-                                name="description"
-                                type="textarea"
-                                rows={3}
-                                placeholder="Mô tả ngắn gọn về nhiệm vụ"
-                            />
-                        </Col>
-                    </Row>
-
-                    {/* TiptapEditor for Content */}
-                    <Row gutter={16} style={{ marginBottom: 12 }}>
-                        <Col span={24}>
-                            <Button
-                                style={{ marginBottom: 12 }}
-                                onClick={() => {
-                                    setContent(`
-                                        <h2>Bạn sẽ học được gì?</h2>
-                                        <ul>
-                                            <li></li>
-                                            <li></li>
-                                            <li></li>
-                                        </ul>
-
-                                        <h2>Bạn sẽ làm gì?</h2>
-                                        <ul>
-                                            <li></li>
-                                            <li></li>
-                                            <li></li>
-                                        </ul>
-                                    `);
-                                }}
-                            >
-                                Chèn mẫu Skyscanner
-                            </Button>
-                        </Col>
-                    </Row>
-
+                    {/* BlockEditor for Title, Description & Content */}
                     <Row gutter={16} style={{ marginBottom: 16 }}>
                         <Col span={24}>
                             <label
@@ -292,10 +304,26 @@ const TaskForm = (props) => {
                                     marginBottom: 8,
                                 }}
                             >
-                                Nội dung
+                                Chi tiết nhiệm vụ (Tiêu đề, Mô tả & Nội dung)
                             </label>
-
-                            {/* <TiptapEditor value={content} onChange={setContent} /> */}
+                            {!isEditing || (isEditing && dataDetail && Object.keys(dataDetail).length > 0) ? (
+                                <BlockEditor
+                                    key={dataDetail?.id || 'new'}
+                                    initialTitle={dataDetail?.title || ''}
+                                    initialDescription={dataDetail?.description || ''}
+                                    initialContent={dataDetail?.content || ''}
+                                    autoLoadTemplate={taskKind === TaskTypes.TASK && !isEditing}
+                                    defaultTemplate="task"
+                                    onChange={({ title: newTitle, description: newDesc, content: newContent }) => {
+                                        form.setFieldsValue({
+                                            title: newTitle,
+                                            description: newDesc,
+                                        });
+                                        setContent(newContent);
+                                        setIsChangedFormValues(true);
+                                    }}
+                                />
+                            ) : null}
                         </Col>
                     </Row>
 
@@ -380,6 +408,160 @@ const TaskForm = (props) => {
 // TaskPreviewModal
 // ─────────────────────────────────────────────
 
+const RenderPreviewBlocks = ({ content }) => {
+    if (!content) return null;
+    try {
+        const blocks = JSON.parse(content);
+        if (!Array.isArray(blocks)) {
+            return <div dangerouslySetInnerHTML={{ __html: content }} />;
+        }
+
+        const elements = [];
+        let currentList = null;
+
+        const pushCurrentList = () => {
+            if (currentList) {
+                if (currentList.type === 'bullet') {
+                    elements.push(
+                        <ul key={`list-${elements.length}`} className="out-ul">
+                            {currentList.items.map((item, i) => (
+                                <li key={i}>{item}</li>
+                            ))}
+                        </ul>,
+                    );
+                } else {
+                    elements.push(
+                        <ol key={`list-${elements.length}`} className="out-ol">
+                            {currentList.items.map((item, i) => (
+                                <li key={i}>{item}</li>
+                            ))}
+                        </ol>,
+                    );
+                }
+                currentList = null;
+            }
+        };
+
+        blocks.forEach((b, idx) => {
+            if (b.type === 'bullet') {
+                if (!currentList || currentList.type !== 'bullet') {
+                    pushCurrentList();
+                    currentList = { type: 'bullet', items: [] };
+                }
+                currentList.items.push(b.content);
+                return;
+            }
+            if (b.type === 'numbered') {
+                if (!currentList || currentList.type !== 'numbered') {
+                    pushCurrentList();
+                    currentList = { type: 'numbered', items: [] };
+                }
+                currentList.items.push(b.content);
+                return;
+            }
+
+            pushCurrentList();
+
+            switch (b.type) {
+                            case 'text':
+                                elements.push(
+                                    <div key={idx} className="out-text">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'h1':
+                                elements.push(
+                                    <div key={idx} className="out-h1">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'h2':
+                                elements.push(
+                                    <div key={idx} className="out-h2">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'h3':
+                                elements.push(
+                                    <div key={idx} className="out-h3">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'divider':
+                                elements.push(<hr key={idx} className="out-divider" />);
+                                break;
+                            case 'callout':
+                                elements.push(
+                                    <div key={idx} className="out-callout">
+                                        <span className="out-callout-icon-preview">{b.icon}</span>
+                                        <div style={{ flex: 1 }}>{b.content}</div>
+                                    </div>,
+                                );
+                                break;
+                            case 'meta':
+                                elements.push(
+                                    <div key={idx} className="out-meta">
+                                        <span>{b.duration}</span>
+                                        <span className="out-meta-sep">·</span>
+                                        <span>{b.level}</span>
+                                    </div>,
+                                );
+                                break;
+                            case 'section':
+                                elements.push(
+                                    <div key={idx} className="out-section">
+                                        <div className="out-sec-hdr">
+                                            <span className="out-sec-icon">{b.icon}</span>
+                                            {b.title}
+                                        </div>
+                                        <ul className="out-sec-bullets">
+                                            {b.bullets
+                                                ?.filter((x) => x)
+                                                .map((bullet, bi) => (
+                                                    <li key={bi}>{bullet}</li>
+                                                ))}
+                                        </ul>
+                                    </div>,
+                                );
+                                break;
+                            case 'step': {
+                                const renderStepBody = (text) => {
+                                    if (!text) return '';
+                                    const parts = text.split(/(`[^`]+`)/g);
+                                    return parts.map((part, pi) => {
+                                        if (part.startsWith('`') && part.endsWith('`')) {
+                                            return <code key={pi}>{part.slice(1, -1)}</code>;
+                                        }
+                                        return part;
+                                    });
+                                };
+                                elements.push(
+                                    <div key={idx} className="out-step">
+                                        <div className="out-step-row">
+                                            <span className="out-step-label">{b.label}: </span>
+                                            <span className="out-step-body">{renderStepBody(b.body)}</span>
+                                        </div>
+                                    </div>,
+                                );
+                                break;
+                            }
+                            default:
+                                break;
+            }
+        });
+
+        pushCurrentList();
+
+        return <div className="block-editor-preview-container">{elements}</div>;
+    } catch (e) {
+        return <div dangerouslySetInnerHTML={{ __html: content }} />;
+    }
+};
+
 const TaskPreviewModal = ({ visible, onClose, data }) => (
     <Modal
         title={
@@ -443,11 +625,7 @@ const TaskPreviewModal = ({ visible, onClose, data }) => (
 
             {/* Content HTML Preview */}
             <div style={previewCardStyle}>
-                <div
-                    dangerouslySetInnerHTML={{
-                        __html: data.content || '',
-                    }}
-                />
+                <RenderPreviewBlocks content={data.content || ''} />
             </div>
 
             {/* Media links */}

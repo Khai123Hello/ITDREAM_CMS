@@ -22,26 +22,17 @@ import {
 
 import { AppConstants, GROUP_KIND_EDUCATOR } from '@constants';
 import apiConfig from '@constants/apiConfig';
-import { educatorStatusOptions, genderOptions } from '@constants/masterData';
+import { localEducatorStatusOptions, genderOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 import { showErrorMessage } from '@services/notifyService';
 
 const EducatorForm = (props) => {
     const translate = useTranslate();
     const genderValues = translate.formatKeys(genderOptions, ['label']);
-    const statusValues = translate.formatKeys(educatorStatusOptions, ['label']);
+    const statusValues = translate.formatKeys(localEducatorStatusOptions, ['label']);
     const [group, setGroup] = useState(null);
 
-    const {
-        formId,
-        actions,
-        dataDetail,
-        onSubmit,
-        setIsChangedFormValues,
-        groups,
-        branchs,
-        isEditing,
-    } = props;
+    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, groups, branchs, isEditing } = props;
 
     const { execute: executeGetGroupId } = useFetch(apiConfig.groupPermission.getList, {
         immediate: false,
@@ -96,7 +87,9 @@ const EducatorForm = (props) => {
         if (!isEditing) {
             const existingUsername = educators.find((item) => item.account.username === values.username);
             if (existingUsername) {
-                form.setFields([{ name: 'username', errors: [translate.formatMessage(commonMessage.usernameExisted)] }]);
+                form.setFields([
+                    { name: 'username', errors: [translate.formatMessage(commonMessage.usernameExisted)] },
+                ]);
                 hasError = true;
             }
         }
@@ -229,12 +222,14 @@ const EducatorForm = (props) => {
                             type="password"
                             required={!isEditing}
                             requiredMsg={translate.formatMessage(commonMessage.required)}
-                            rules={[{
-                                validator: (_, value) =>
-                                    isEditing
-                                        ? passwordValidatorWithOldPassword(_, value, form, translate)
-                                        : passwordValidator(form, translate),
-                            }]}
+                            rules={[
+                                {
+                                    validator: (_, value) =>
+                                        isEditing
+                                            ? passwordValidatorWithOldPassword(_, value, form, translate)
+                                            : passwordValidator(form, translate),
+                                },
+                            ]}
                         />
                     </Col>
                     <Col span={12}>
@@ -258,6 +253,7 @@ const EducatorForm = (props) => {
                             requiredMsg={translate.formatMessage(commonMessage.required)}
                             label={translate.formatMessage(commonMessage.status)}
                             allowClear={false}
+                            disabled={isEditing}
                         />
                     </Col>
                 </Row>

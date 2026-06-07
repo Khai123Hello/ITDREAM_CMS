@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Empty, Tag, Button } from 'antd';
-import { QuestionCircleOutlined, RightOutlined, PlusOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined, RightOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
 
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
@@ -93,73 +93,86 @@ const TaskListPage = ({ pageOptions }) => {
             });
 
             const originalActionColumnButtons = funcs.actionColumnButtons;
-            funcs.actionColumnButtons = (additionalButtons = {}) => ({
-                ...originalActionColumnButtons(additionalButtons),
-                createSubTask: (dataRow) => {
-                    if (dataRow.kind !== TaskTypes.TASK) {
-                        return null;
-                    }
+            funcs.actionColumnButtons = (additionalButtons = {}) => {
+                const buttons = originalActionColumnButtons(additionalButtons);
+                return {
+                    ...buttons,
+                    edit: (dataRow) => {
+                        if (!isEducator || !mixinFuncs.hasPermission([apiConfig.task.update.permissionCode])) {
+                            return null;
+                        }
 
-                    return (
-                        <Button
-                            type="link"
-                            style={{ padding: 0, color: '#52c41a' }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                // Navigate với state
-                                navigate(`/simulation/${simulationId}/task/create`, {
-                                    state: {
-                                        parentTask: {
-                                            id: dataRow.id,
-                                            name: dataRow.name,
+                        return (
+                            <Button
+                                type="link"
+                                style={{ padding: 0 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/simulation/${simulationId}/task/${dataRow.id}`, {
+                                        state: {
+                                            action: 'edit',
+                                            prevPath: location.pathname,
+                                            parentTask:
+                                                dataRow.kind === TaskTypes.SUBTASK
+                                                    ? dataRow.parent
+                                                        ? {
+                                                            id: dataRow.parent.id,
+                                                            name: dataRow.parent.name,
+                                                        }
+                                                        : {
+                                                            id: dataRow.parentId,
+                                                            name: '',
+                                                        }
+                                                    : null,
                                         },
-                                    },
-                                });
-                            }}
-                            title={labels.createSubTask}
-                        >
-                            <PlusOutlined />
-                        </Button>
-                    );
-                },
-                question: (dataRow) => {
-                    if (dataRow.kind !== TaskTypes.SUBTASK) {
-                        return null;
-                    }
+                                    });
+                                }}
+                                title={translate.formatMessage(commonMessage.edit)}
+                            >
+                                <EditOutlined color="red" />
+                            </Button>
+                        );
+                    },
+                    createSubTask: (dataRow) => {
+                        if (dataRow.kind !== TaskTypes.TASK) {
+                            return null;
+                        }
 
-                    return (
-                        <Button
-                            type="link"
-                            style={{ padding: 0 }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/simulation/${simulationId}/task/${dataRow.id}/question`, {
-                                    state: dataRow.parent
-                                        ? {
+                        return (
+                            <Button
+                                type="link"
+                                style={{ padding: 0, color: '#52c41a' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    // Navigate với state
+                                    navigate(`/simulation/${simulationId}/task/create`, {
+                                        state: {
                                             parentTask: {
-                                                id: dataRow.parent.id,
-                                                name: dataRow.parent.name,
+                                                id: dataRow.id,
+                                                name: dataRow.name,
                                             },
-                                        }
-                                        : null,
-                                });
-                            }}
-                            title={labels.question}
-                        >
-                            <QuestionCircleOutlined />
-                        </Button>
-                    );
-                },
-                viewDetails: (dataRow) => {
-                    return (
-                        <Button
-                            type="link"
-                            style={{ padding: 0 }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/simulation/${simulationId}/task/${dataRow.id}`, {
-                                    state:
-                                        dataRow.kind === TaskTypes.SUBTASK && dataRow.parent
+                                        },
+                                    });
+                                }}
+                                title={labels.createSubTask}
+                            >
+                                <PlusOutlined />
+                            </Button>
+                        );
+                    },
+                    question: (dataRow) => {
+                        if (dataRow.kind !== TaskTypes.SUBTASK) {
+                            return null;
+                        }
+
+                        return (
+                            <Button
+                                type="link"
+                                style={{ padding: 0 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/simulation/${simulationId}/task/${dataRow.id}/question`, {
+                                        state: dataRow.parent
                                             ? {
                                                 parentTask: {
                                                     id: dataRow.parent.id,
@@ -167,15 +180,46 @@ const TaskListPage = ({ pageOptions }) => {
                                                 },
                                             }
                                             : null,
-                                });
-                            }}
-                            title={labels.viewDetails}
-                        >
-                            <RightOutlined />
-                        </Button>
-                    );
-                },
-            });
+                                    });
+                                }}
+                                title={labels.question}
+                            >
+                                <QuestionCircleOutlined />
+                            </Button>
+                        );
+                    },
+                    viewDetails: (dataRow) => {
+                        return (
+                            <Button
+                                type="link"
+                                style={{ padding: 0 }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigate(`/simulation/${simulationId}/task/${dataRow.id}`, {
+                                        state:
+                                            dataRow.kind === TaskTypes.SUBTASK
+                                                ? {
+                                                    parentTask: dataRow.parent
+                                                        ? {
+                                                            id: dataRow.parent.id,
+                                                            name: dataRow.parent.name,
+                                                        }
+                                                        : {
+                                                            id: dataRow.parentId,
+                                                            name: '',
+                                                        },
+                                                }
+                                                : null,
+                                    });
+                                }}
+                                title={labels.viewDetails}
+                            >
+                                <RightOutlined />
+                            </Button>
+                        );
+                    },
+                };
+            };
 
             const originalRenderActionBar = funcs.renderActionBar;
             funcs.renderActionBar = () => {
@@ -231,12 +275,17 @@ const TaskListPage = ({ pageOptions }) => {
     const handleRowClick = (record) => {
         navigate(`/simulation/${simulationId}/task/${record.id}`, {
             state:
-                record.kind === TaskTypes.SUBTASK && record.parent
+                record.kind === TaskTypes.SUBTASK
                     ? {
-                        parentTask: {
-                            id: record.parent.id,
-                            name: record.parent.name,
-                        },
+                        parentTask: record.parent
+                            ? {
+                                id: record.parent.id,
+                                name: record.parent.name,
+                            }
+                            : {
+                                id: record.parentId,
+                                name: '',
+                            },
                     }
                     : null,
         });

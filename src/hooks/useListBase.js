@@ -231,7 +231,10 @@ const useListBase = ({
     const handleDeleteItemError = (error) => {
         if (!error || !error?.response) return;
         const { response } = error;
-        notification({ type: 'error', message: response?.data?.message || error.message || `Delete ${options.objectName} failed` });
+        notification({
+            type: 'error',
+            message: response?.data?.message || error.message || `Delete ${options.objectName} failed`,
+        });
     };
 
     const onDeleteItemCompleted = (id) => {
@@ -356,7 +359,10 @@ const useListBase = ({
             );
         },
         edit: ({ buttonProps, ...dataRow }) => {
-            if (!isProjectToken && !mixinFuncs.hasPermission([apiConfig.update?.permissionCode, apiConfig.getById?.permissionCode]))
+            if (
+                !isProjectToken &&
+                !mixinFuncs.hasPermission([apiConfig.update?.permissionCode, apiConfig.getById?.permissionCode])
+            )
                 return null;
 
             return (
@@ -414,7 +420,11 @@ const useListBase = ({
                                 case 'edit':
                                     if (isProjectToken) {
                                         isShow = true;
-                                    } else mixinFuncs.hasPermission([apiConfig.update?.permissionCode, apiConfig.getById?.permissionCode]);
+                                    } else
+                                        mixinFuncs.hasPermission([
+                                            apiConfig.update?.permissionCode,
+                                            apiConfig.getById?.permissionCode,
+                                        ]);
                                     {
                                         isShow = true;
                                     }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Form, Button, Input, message as antMessage, DatePicker, Select } from 'antd';
 import useFetch from '@hooks/useFetch';
 import apiConfig from '@constants/apiConfig';
+import { DEFAULT_FORMAT } from '@constants';
 import {
     LockOutlined,
     MailOutlined,
@@ -39,6 +40,7 @@ const RegisterPage = () => {
     const { register: registerEducator, loading: educatorRegistering } = useRegisterEducator();
     const { register: registerStudent, loading: studentRegistering } = useRegisterStudent();
     const { verifyOtp, loading: verifying } = useVerifyOtpEducator();
+    const { execute: executeResendVerify, loading: resendingOtp } = useFetch(apiConfig.account.resendVerify);
 
     // Fetch organization list on mount/when role changes to educator
     React.useEffect(() => {
@@ -63,6 +65,7 @@ const RegisterPage = () => {
 
     const onRegisterFinish = (values) => {
         let payload;
+        const formattedBirthday = dayjs(values.birthday).format(DEFAULT_FORMAT);
         if (role === 'student') {
             payload = {
                 fullName: values.fullName,
@@ -70,7 +73,7 @@ const RegisterPage = () => {
                 email: values.email,
                 password: values.password,
                 phone: values.phone,
-                birthday: dayjs(values.birthday).format('DD/MM/YYYY HH:mm:ss'),
+                birthday: formattedBirthday,
             };
         } else {
             payload = {
@@ -79,7 +82,7 @@ const RegisterPage = () => {
                 email: values.email,
                 password: values.password,
                 phone: values.phone,
-                birthday: dayjs(values.birthday).toISOString(), // ISO for educator
+                birthday: formattedBirthday,
                 organizationId: values.organizationId,
             };
         }
@@ -119,6 +122,29 @@ const RegisterPage = () => {
         );
     };
 
+    const handleResendVerify = () => {
+        if (!email) {
+            antMessage.error('Không tìm thấy địa chỉ email!');
+            return;
+        }
+        executeResendVerify({
+            data: { email },
+            onCompleted: (res) => {
+                if (res?.result === true) {
+                    antMessage.success(res?.message || 'Gửi lại mã OTP thành công!');
+                    if (res?.data?.idHash) {
+                        setIdHash(res.data.idHash);
+                    }
+                } else {
+                    antMessage.error(res?.message || 'Gửi lại mã OTP thất bại!');
+                }
+            },
+            onError: (err) => {
+                antMessage.error(err?.message || 'Có lỗi xảy ra khi gửi lại mã OTP!');
+            },
+        });
+    };
+
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
@@ -147,12 +173,16 @@ const RegisterPage = () => {
                             <>
                                 <div className={styles.formHeader}>
                                     <h2>Đăng ký tài khoản Educator!</h2>
+                                    <p>Rất vui được gặp bạn! Vui lòng đăng ký tài khoản.</p>
+                                </div>
+
+                                <Form layout="vertical" form={form} onFinish={onRegisterFinish} requiredMark={false}>
                                     {role === 'educator' && (
                                         <Form.Item
                                             name="organizationId"
                                             label="Tổ chức/Doanh nghiệp"
                                             rules={[{ required: true, message: 'Vui lòng chọn tổ chức' }]}
-                                            style={{ marginBottom: 8 }}
+                                            style={{ marginBottom: 16 }}
                                         >
                                             <Select
                                                 showSearch
@@ -175,11 +205,6 @@ const RegisterPage = () => {
                                             </Select>
                                         </Form.Item>
                                     )}
-
-                                    <p>Rất vui được gặp bạn! Vui lòng đăng ký tài khoản.</p>
-                                </div>
-
-                                <Form layout="vertical" form={form} onFinish={onRegisterFinish} requiredMark={false}>
                                     <Row gutter={16}>
                                         <Col xs={24} md={12}>
                                             <Form.Item
@@ -370,9 +395,14 @@ const RegisterPage = () => {
 
                                     <div className={styles.resendSection}>
                                         Không nhận được mã?{' '}
-                                        <a href="#" onClick={(e) => e.preventDefault()}>
+                                        <Button
+                                            type="link"
+                                            onClick={handleResendVerify}
+                                            loading={resendingOtp}
+                                            style={{ padding: 0, height: 'auto', lineHeight: 'inherit' }}
+                                        >
                                             Gửi lại
-                                        </a>
+                                        </Button>
                                     </div>
                                 </Form>
                             </>
