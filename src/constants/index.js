@@ -53,7 +53,7 @@ export const DATE_SHORT_MONTH_FORMAT = 'DD MMM YYYY';
 export const TIME_FORMAT_DISPLAY = 'HH:mm';
 export const DATE_FORMAT_VALUE = 'DD/MM/YYYY';
 export const DATE_FORMAT_DISPLAY = 'DD/MM/YYYY';
-export const DEFAULT_FORMAT = "DD/MM/YYYY HH:mm:ss";
+export const DEFAULT_FORMAT = 'DD/MM/YYYY HH:mm:ss';
 export const TIME_FORMAT_FULL = 'HH:mm:ss';
 export const DATE_FORMAT_ZERO_TIME = 'DD/MM/YYYY 00:00:00';
 export const DATE_FORMAT_END_OF_DAY_TIME = 'DD/MM/YYYY 23:59:59';
@@ -83,8 +83,26 @@ export const UploadFileTypes = {
 
 export const LIMIT_IMAGE_SIZE = 512000;
 
+export const ACCOUNT_STATUS_ACTIVE = 1;
+export const ACCOUNT_STATUS_FORGET_PASSWORD = 0;
+export const ACCOUNT_STATUS_VERIFY = 3;
+export const ACCOUNT_STATUS_WAITING_APPROVE = 2;
+export const ACCOUNT_STATUS_LOCK = -1;
+export const ACCOUNT_STATUS_REJECT = -2;
+
+export const accountStatus = {
+    ACTIVE: 1,
+    REJECT: -2,
+    LOCK: -1,
+    VERIFY: 3,
+    WAITING_APPROVE: 2,
+    FORGET_PASSWORD: 0,
+};
+
 export const STATUS_ACTIVE = 1;
+export const STATUS_FORGET_PASSWORD = 0;
 export const STATUS_PENDING = 0;
+export const STATUS_VERIFY = 3;
 export const STATUS_WAITING_APPROVE = 2;
 export const STATUS_WAITING_APPROVE_DELETE = 3;
 export const STATUS_LOCK = -1;
@@ -92,9 +110,6 @@ export const STATUS_REJECT = -2;
 export const STATE_WAITING_OTP = 0;
 export const STATUS_INACTIVE = -1;
 export const STATUS_DELETE = -2;
-
-export const DEFAULT_TABLE_ITEM_SIZE = 100;
-export const DEFAULT_TABLE_PAGE_START = 0;
 
 export const commonStatus = {
     PENDING: 0,
@@ -104,9 +119,12 @@ export const commonStatus = {
     LOCK: -1,
 };
 
+export const DEFAULT_TABLE_ITEM_SIZE = 100;
+export const DEFAULT_TABLE_PAGE_START = 0;
+
 export const UserTypes = {
     ADMIN: 1,
-    EDUCATOR:2,
+    EDUCATOR: 2,
     STUDENT: 3,
 };
 
@@ -127,6 +145,15 @@ export const commonStatusColor = {
     [commonStatus.ACTIVE]: 'green',
     [commonStatus.INACTIVE]: 'red',
     [commonStatus.LOCK]: 'red',
+};
+
+export const accountStatusColor = {
+    [accountStatus.ACTIVE]: 'green',
+    [accountStatus.REJECT]: 'red',
+    [accountStatus.LOCK]: 'red',
+    [accountStatus.VERIFY]: 'blue',
+    [accountStatus.WAITING_APPROVE]: 'orange',
+    [accountStatus.FORGET_PASSWORD]: 'gray',
 };
 
 export const categoryKind = {

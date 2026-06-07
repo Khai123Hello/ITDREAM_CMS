@@ -25,7 +25,7 @@ const apiConfig = {
             method: 'POST',
             headers: baseHeader,
         },
-        loginGoogle:{
+        loginGoogle: {
             baseURL: `${apiUrl}v1/google/educator-login`,
             method: 'POST',
             headers: baseHeader,
@@ -42,7 +42,7 @@ const apiConfig = {
         },
         get getProfile() {
             const userType = getData(storageKeys.USER_TYPE);
-            
+
             if (userType === UserTypes.EDUCATOR) {
                 return {
                     baseURL: `${apiUrl}v1/educator/profile`,
@@ -51,7 +51,7 @@ const apiConfig = {
                     permissionCode: 'ED_U_P',
                 };
             }
-            
+
             if (userType === UserTypes.STUDENT) {
                 return {
                     baseURL: `${apiUrl}v1/student/profile`,
@@ -60,7 +60,7 @@ const apiConfig = {
                     permissionCode: 'ST_U_P',
                 };
             }
-            
+
             return {
                 baseURL: `${apiUrl}v1/account/profile`,
                 method: 'GET',
@@ -69,7 +69,7 @@ const apiConfig = {
         },
         get updateProfile() {
             const userType = getData(storageKeys.USER_TYPE);
-            
+
             if (userType === UserTypes.EDUCATOR) {
                 return {
                     baseURL: `${apiUrl}v1/educator/client_update`,
@@ -78,7 +78,7 @@ const apiConfig = {
                     permissionCode: 'ED_U_U',
                 };
             }
-            
+
             if (userType === UserTypes.STUDENT) {
                 return {
                     baseURL: `${apiUrl}v1/student/update`,
@@ -87,7 +87,7 @@ const apiConfig = {
                     permissionCode: 'ST_U',
                 };
             }
-            
+
             return {
                 baseURL: `${apiUrl}v1/account/update_profile_admin`,
                 method: 'PUT',
@@ -146,6 +146,21 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'ACC_C',
         },
+        verifyOtp: {
+            baseURL: `${apiUrl}v1/account/verify`,
+            method: `POST`,
+            headers: baseHeader,
+        },
+        resendOtp: {
+            baseURL: `${apiUrl}v1/account/resend-otp`,
+            method: `POST`,
+            headers: baseHeader,
+        },
+        resendVerify: {
+            baseURL: `${apiUrl}v1/account/resend_verify`,
+            method: `POST`,
+            headers: baseHeader,
+        },
     },
     simulation: {
         approve: {
@@ -164,7 +179,7 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/simulation/create`,
             method: `POST`,
             headers: baseHeader,
-            permissionCode: 'SI_C',
+            permissionCode: 'SI_ED_C',
         },
         getSimulationForEducator: {
             baseURL: `${apiUrl}v1/simulation/educator_get/:id`,
@@ -237,9 +252,8 @@ const apiConfig = {
             method: `DELETE`,
             headers: baseHeader,
             permissionCode: 'SI_ED_D',
-        },   
+        },
     },
-
 
     // Task APIs
     task: {
@@ -504,11 +518,6 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'ST_U',
         },
-        otp: {
-            baseURL: `${apiUrl}v1/student/verify`,
-            method: `POST`,
-            headers: baseHeader,
-        },
     },
     educator: {
         approve: {
@@ -569,11 +578,6 @@ const apiConfig = {
             method: `PUT`,
             headers: baseHeader,
             permissionCode: 'ED_U',
-        },
-        otp: {
-            baseURL: `${apiUrl}v1/educator/verify`,
-            method: `POST`,
-            headers: baseHeader,
         },
     },
     user: {
@@ -816,7 +820,7 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/review-submission/educator-get/:simulationId/student/:username`,
             method: 'GET',
             headers: baseHeader,
-            permissionCode: 'RESUB_ED_V', 
+            permissionCode: 'RESUB_ED_V',
         },
         getForStudent: {
             baseURL: `${apiUrl}v1/review-submission/student-get/:simulationId`,
@@ -1303,6 +1307,5 @@ const apiConfig = {
         },
     },
 };
-
 
 export default apiConfig;

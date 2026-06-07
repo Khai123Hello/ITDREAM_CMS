@@ -9,7 +9,7 @@ import AvatarField from '@components/common/form/AvatarField';
 import BaseTable from '@components/common/table/BaseTable';
 import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
-import { educatorStatusOptions } from '@constants/masterData';
+import { localEducatorStatusOptions } from '@constants/masterData';
 
 import { UserOutlined } from '@ant-design/icons';
 import { Empty, Tag } from 'antd';
@@ -19,7 +19,7 @@ import { FieldTypes } from '@constants/formConfig';
 const AdminListPage = ({ pageOptions }) => {
     const translate = useTranslate();
 
-    const formattedStatusOptions = translate.formatKeys(educatorStatusOptions, ['label']);
+    const formattedStatusOptions = translate.formatKeys(localEducatorStatusOptions, ['label']);
     const statusMap = Object.fromEntries(
         formattedStatusOptions.map(item => [item.value, item]),
     );

@@ -3,7 +3,7 @@ import apiConfig from '@constants/apiConfig';
 import { message } from 'antd';
 
 const useVerifyOtpEducator = () => {
-    const { loading, execute } = useFetch(apiConfig.educator.otp, {
+    const { loading, execute } = useFetch(apiConfig.account.verifyOtp, {
         immediate: false,
     });
 

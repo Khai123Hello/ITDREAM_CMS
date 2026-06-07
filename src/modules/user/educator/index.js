@@ -8,13 +8,10 @@ import useFetch from '@hooks/useFetch';
 import useTranslate from '@hooks/useTranslate';
 import useNotification from '@hooks/useNotification';
 
-import {
-    AppConstants,
-    DEFAULT_TABLE_ITEM_SIZE,
-} from '@constants';
+import { AppConstants, DEFAULT_TABLE_ITEM_SIZE, ACCOUNT_STATUS_WAITING_APPROVE, accountStatus } from '@constants';
+import { localEducatorStatusOptions } from '@constants/masterData';
 import apiConfig from '@constants/apiConfig';
 import { FieldTypes } from '@constants/formConfig';
-import { educatorStatusOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
 import AvatarField from '@components/common/form/AvatarField';
@@ -24,33 +21,26 @@ import PageWrapper from '@components/common/layout/PageWrapper';
 
 import { calculateIndex, getColumnWidth } from '@utils';
 
-// Định nghĩa status constants
-const STATUS_ACTIVE = 1;
-const STATUS_WAITING_APPROVE = 2;
-const STATUS_REJECT = -2;
-
 const EducatorListPage = ({ pageOptions }) => {
     const translate = useTranslate();
     const navigate = useNavigate();
     const notificationApi = useNotification();
 
-    const formattedStatusOptions = translate.formatKeys(educatorStatusOptions, ['label']);
-    const statusMap = Object.fromEntries(
-        formattedStatusOptions.map(item => [item.value, item]),
-    );
+    const formattedStatusOptions = translate.formatKeys(localEducatorStatusOptions, ['label']);
+    const statusMap = Object.fromEntries(formattedStatusOptions.map((item) => [item.value, item]));
 
     const labels = {
-        fullName:       translate.formatMessage(commonMessage.fullName),
-        email:          translate.formatMessage(commonMessage.email),
-        phone:          translate.formatMessage(commonMessage.phone),
-        avatar:         translate.formatMessage(commonMessage.avatar),
-        status:         translate.formatMessage(commonMessage.status),
-        noData:         translate.formatMessage(commonMessage.noData),
-        action:         translate.formatMessage(commonMessage.action),
-        educator:       'khoa chuyên môn',
+        fullName: translate.formatMessage(commonMessage.fullName),
+        email: translate.formatMessage(commonMessage.email),
+        phone: translate.formatMessage(commonMessage.phone),
+        avatar: translate.formatMessage(commonMessage.avatar),
+        status: translate.formatMessage(commonMessage.status),
+        noData: translate.formatMessage(commonMessage.noData),
+        action: translate.formatMessage(commonMessage.action),
+        educator: 'khoa chuyên môn',
     };
 
-    const statusValues = formattedStatusOptions.map(item => ({
+    const statusValues = formattedStatusOptions.map((item) => ({
         value: item.value,
         label: item.label,
     }));
@@ -61,15 +51,15 @@ const EducatorListPage = ({ pageOptions }) => {
 
     const { data, mixinFuncs, queryFilter, loading, pagination, setData, setLoading } = useListBase({
         apiConfig: {
-            getList:      apiConfig.educator.getList,
-            delete:       apiConfig.educator.delete,
-            update:       apiConfig.educator.update,
-            approve:      apiConfig.educator.approve,
-            reject:       apiConfig.educator.reject,
+            getList: apiConfig.educator.getList,
+            delete: apiConfig.educator.delete,
+            update: apiConfig.educator.update,
+            approve: apiConfig.educator.approve,
+            reject: apiConfig.educator.reject,
         },
         options: {
             objectName: labels.educator,
-            pageSize:   DEFAULT_TABLE_ITEM_SIZE,
+            pageSize: DEFAULT_TABLE_ITEM_SIZE,
         },
         override: (funcs) => {
             // ============ HELPER FUNCTIONS ============
@@ -132,14 +122,14 @@ const EducatorListPage = ({ pageOptions }) => {
                                         // Cập nhật status thành ACTIVE
                                         setData((prevData) =>
                                             prevData.map((item) =>
-                                                item.id === id 
-                                                    ? { 
-                                                        ...item, 
-                                                        account: { 
-                                                            ...item.account, 
-                                                            status: STATUS_ACTIVE, 
-                                                        }, 
-                                                    } 
+                                                item.id === id
+                                                    ? {
+                                                        ...item,
+                                                        account: {
+                                                            ...item.account,
+                                                            status: accountStatus.ACTIVE,
+                                                        },
+                                                    }
                                                     : item,
                                             ),
                                         );
@@ -180,14 +170,14 @@ const EducatorListPage = ({ pageOptions }) => {
                                         // Cập nhật status thành REJECT
                                         setData((prevData) =>
                                             prevData.map((item) =>
-                                                item.id === id 
-                                                    ? { 
-                                                        ...item, 
-                                                        account: { 
-                                                            ...item.account, 
-                                                            status: STATUS_REJECT, 
-                                                        }, 
-                                                    } 
+                                                item.id === id
+                                                    ? {
+                                                        ...item,
+                                                        account: {
+                                                            ...item.account,
+                                                            status: accountStatus.REJECT,
+                                                        },
+                                                    }
                                                     : item,
                                             ),
                                         );
@@ -227,7 +217,7 @@ const EducatorListPage = ({ pageOptions }) => {
                     ...originalActionColumnButtons(additionalButtons),
                     // Nút Approve
                     approve: ({ id, account, buttonProps }) =>
-                        account?.status === STATUS_WAITING_APPROVE ? (
+                        account?.status === ACCOUNT_STATUS_WAITING_APPROVE ? (
                             <Button
                                 type="link"
                                 onClick={(e) => {
@@ -242,7 +232,7 @@ const EducatorListPage = ({ pageOptions }) => {
                         ) : null,
                     // Nút Reject
                     reject: ({ id, account, buttonProps }) =>
-                        account?.status === STATUS_WAITING_APPROVE ? (
+                        account?.status === ACCOUNT_STATUS_WAITING_APPROVE ? (
                             <Button
                                 type="link"
                                 danger
@@ -276,7 +266,7 @@ const EducatorListPage = ({ pageOptions }) => {
             title: labels.avatar,
             dataIndex: ['account', 'avatar'],
             align: 'center',
-            render: avatar => (
+            render: (avatar) => (
                 <AvatarField
                     size="large"
                     icon={<UserOutlined />}
@@ -302,16 +292,14 @@ const EducatorListPage = ({ pageOptions }) => {
         mixinFuncs.renderStatusColumn({ width: '120px' }),
         mixinFuncs.renderActionColumn(
             {
-                edit: record =>
-                    mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
-                delete: record =>
-                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) &&
-                    !record.isSuperAdmin,
-                approve: record =>
-                    record.account?.status === STATUS_WAITING_APPROVE &&
+                edit: (record) => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
+                delete: (record) =>
+                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
+                approve: (record) =>
+                    record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
                     mixinFuncs.hasPermission([apiConfig.educator.approve?.permissionCode]),
-                reject: record =>
-                    record.account?.status === STATUS_WAITING_APPROVE &&
+                reject: (record) =>
+                    record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
                     mixinFuncs.hasPermission([apiConfig.educator.reject?.permissionCode]),
             },
             {
@@ -323,8 +311,8 @@ const EducatorListPage = ({ pageOptions }) => {
 
     const searchFields = [
         { key: 'fullName', placeholder: labels.fullName },
-        { key: 'phone',    placeholder: labels.phone, type: FieldTypes.NUMBER },
-        { key: 'email',    placeholder: labels.email },
+        { key: 'phone', placeholder: labels.phone, type: FieldTypes.NUMBER },
+        { key: 'email', placeholder: labels.email },
         {
             key: 'status',
             placeholder: labels.status,
@@ -347,7 +335,7 @@ const EducatorListPage = ({ pageOptions }) => {
                         columns={columns}
                         dataSource={data}
                         loading={loading}
-                        rowKey={record => record.id}
+                        rowKey={(record) => record.id}
                         pagination={pagination}
                         onRow={(record, idx) => ({
                             style: { backgroundColor: idx % 2 ? '#f9f9f9' : '#ffffff' },

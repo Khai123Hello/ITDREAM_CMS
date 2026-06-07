@@ -11,7 +11,7 @@ import useSaveBase from '@hooks/useSaveBase';
 import useTranslate from '@hooks/useTranslate';
 
 import { commonMessage } from '@locales/intl';
-import StudentForm from "@modules/user/student/StudentForm";
+import StudentForm from '@modules/user/student/StudentForm';
 
 const StudentSavePage = ({ pageOptions }) => {
     const translate = useTranslate();
@@ -25,15 +25,7 @@ const StudentSavePage = ({ pageOptions }) => {
         },
     });
 
-    const {
-        detail,
-        mixinFuncs,
-        loading,
-        onSave,
-        setIsChangedFormValues,
-        isEditing,
-        title,
-    } = useSaveBase({
+    const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing, title } = useSaveBase({
         apiConfig: {
             getById: apiConfig.student.getById,
             create: apiConfig.student.create,
@@ -68,10 +60,7 @@ const StudentSavePage = ({ pageOptions }) => {
 
             funcs.handleShowErrorMessage = (err, showErrorMessage) => {
                 if (err?.code === ERROR_USERNAME_EXISTED) {
-                    showErrorMessage(
-                        translate.formatMessage(commonMessage.usernameExisted) || err?.message,
-                        translate,
-                    );
+                    showErrorMessage(translate.formatMessage(commonMessage.usernameExisted) || err?.message, translate);
                 } else {
                     showErrorMessage(`${mixinFuncs.getActionName()} failed. Please try again!`);
                 }

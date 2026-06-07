@@ -7,11 +7,7 @@ import dayjs from 'dayjs';
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
 
-import {
-    AppConstants,
-    commonStatus,
-    DEFAULT_TABLE_ITEM_SIZE,
-} from '@constants';
+import { AppConstants, commonStatus, DEFAULT_TABLE_ITEM_SIZE } from '@constants';
 import apiConfig from '@constants/apiConfig';
 import { FieldTypes } from '@constants/formConfig';
 import { studentStatusOptions, genderOptions } from '@constants/masterData';
@@ -29,39 +25,36 @@ const StudentListPage = ({ pageOptions }) => {
     const navigate = useNavigate();
 
     const formattedStatusOptions = translate.formatKeys(studentStatusOptions, ['label']);
-    const statusMap = Object.fromEntries(
-        formattedStatusOptions.map(item => [item.value, item]),
-    );
+    const statusMap = Object.fromEntries(formattedStatusOptions.map((item) => [item.value, item]));
 
     const labels = {
-        fullName:  translate.formatMessage(commonMessage.fullName),
-        email:     translate.formatMessage(commonMessage.email),
-        phone:     translate.formatMessage(commonMessage.phone),
-        avatar:    translate.formatMessage(commonMessage.avatar),
-        gender:    translate.formatMessage(commonMessage.gender),
-        birthday:  translate.formatMessage(commonMessage.birthday),
-        status:    translate.formatMessage(commonMessage.status),
-        noData:    translate.formatMessage(commonMessage.noData),
+        fullName: translate.formatMessage(commonMessage.fullName),
+        email: translate.formatMessage(commonMessage.email),
+        phone: translate.formatMessage(commonMessage.phone),
+        avatar: translate.formatMessage(commonMessage.avatar),
+        gender: translate.formatMessage(commonMessage.gender),
+        birthday: translate.formatMessage(commonMessage.birthday),
+        status: translate.formatMessage(commonMessage.status),
+        noData: translate.formatMessage(commonMessage.noData),
     };
 
-    const statusValues = formattedStatusOptions.map(item => ({
+    const statusValues = formattedStatusOptions.map((item) => ({
         value: item.value,
         label: item.label,
     }));
 
     const { data, mixinFuncs, queryFilter, loading, pagination } = useListBase({
         apiConfig: {
-            getList:      apiConfig.student.getList,
-            delete:       apiConfig.student.delete,
-            update:       apiConfig.student.update,
+            getList: apiConfig.student.getList,
+            delete: apiConfig.student.delete,
+            update: apiConfig.student.update,
             changeStatus: apiConfig.student.changeStatus,
         },
         options: {
             objectName: 'học viên',
-            pageSize:   DEFAULT_TABLE_ITEM_SIZE,
+            pageSize: DEFAULT_TABLE_ITEM_SIZE,
         },
         override: (funcs) => {
-
             funcs.renderStatusColumn = (columnsProps) => ({
                 title: translate.formatMessage(commonMessage.status),
                 dataIndex: ['account', 'status'],
@@ -92,7 +85,7 @@ const StudentListPage = ({ pageOptions }) => {
             title: labels.avatar,
             dataIndex: ['account', 'avatar'],
             align: 'center',
-            render: avatar => (
+            render: (avatar) => (
                 <AvatarField
                     size="large"
                     icon={<UserOutlined />}
@@ -125,11 +118,9 @@ const StudentListPage = ({ pageOptions }) => {
 
         mixinFuncs.renderActionColumn(
             {
-                edit: record =>
-                    mixinFuncs.hasPermission([apiConfig.student.update.permissionCode]),
-                delete: record =>
-                    mixinFuncs.hasPermission([apiConfig.student.delete.permissionCode]) &&
-                    !record.isSuperAdmin,
+                edit: (record) => mixinFuncs.hasPermission([apiConfig.student.update.permissionCode]),
+                delete: (record) =>
+                    mixinFuncs.hasPermission([apiConfig.student.delete.permissionCode]) && !record.isSuperAdmin,
             },
             {
                 width: '120px',
@@ -139,8 +130,8 @@ const StudentListPage = ({ pageOptions }) => {
 
     const searchFields = [
         { key: 'fullName', placeholder: labels.fullName },
-        { key: 'phone',    placeholder: labels.phone, type: FieldTypes.NUMBER },
-        { key: 'email',    placeholder: labels.email },
+        { key: 'phone', placeholder: labels.phone, type: FieldTypes.NUMBER },
+        { key: 'email', placeholder: labels.email },
         {
             key: 'status',
             placeholder: labels.status,
@@ -163,7 +154,7 @@ const StudentListPage = ({ pageOptions }) => {
                         columns={columns}
                         dataSource={data}
                         loading={loading}
-                        rowKey={record => record.id}
+                        rowKey={(record) => record.id}
                         pagination={pagination}
                         onRow={(record, idx) => ({
                             style: { backgroundColor: idx % 2 ? '#f9f9f9' : '#ffffff' },

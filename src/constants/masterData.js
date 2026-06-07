@@ -26,6 +26,7 @@ import {
     STATUS_LOCK,
     STATE_WAITING_OTP,
     TaskTypes,
+    accountStatus,
 } from '@constants';
 import { defineMessages } from 'react-intl';
 import { actionMessage } from './intl';
@@ -50,11 +51,13 @@ export const statusOptions = [
     { value: STATUS_INACTIVE, label: commonMessage.statusInactive, color: '#CC0000' },
 ];
 
-export const educatorStatusOptions = [
-    { value: 1, label: commonMessage.statusActive, color: '#00A648' },
-    { value: 2, label: commonMessage.statusWaitingApproveSinup, color: '#FFBF00' },
-    { value: 0, label: commonMessage.statusWaitingOtp, color: '#007accff' },
-    { value: -2, label: commonMessage.statusReject, color: '#CC0000' },
+export const localEducatorStatusOptions = [
+    { value: accountStatus.ACTIVE, label: commonMessage.statusActive, color: '#00A648' },
+    { value: accountStatus.WAITING_APPROVE, label: commonMessage.statusWaitingApproveSinup, color: '#FFBF00' },
+    { value: accountStatus.FORGET_PASSWORD, label: commonMessage.statusForgetPassword, color: '#007accff' },
+    { value: accountStatus.REJECT, label: commonMessage.statusReject, color: '#CC0000' },
+    { value: accountStatus.LOCK, label: commonMessage.statusLock, color: '#CC0000' },
+    { value: accountStatus.VERIFY, label: commonMessage.statusVerify, color: '#007accff' },
 ];
 
 export const studentStatusOptions = [
