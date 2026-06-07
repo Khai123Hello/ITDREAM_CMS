@@ -2,7 +2,6 @@ import { apiUrl, apiTenantUrl, apiMediaUrl } from '.';
 import { UserTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import { storageKeys } from '@constants';
-import { create, update } from 'lodash';
 const baseHeader = {
     'Content-Type': 'application/json',
 };
@@ -438,51 +437,45 @@ const apiConfig = {
         },
     },
 
-    specialization: {
-        getList: {
-            baseURL: `${apiUrl}v1/specialization/list`,
+    category: {
+        autoComplete: {
+            baseURL: `${apiUrl}v1/category/auto-complete`,
             method: `GET`,
             headers: baseHeader,
-            permissionCode: 'SP_L',
+            permissionCode: 'CA_L',
+        },
+        getList: {
+            baseURL: `${apiUrl}v1/category/list`,
+            method: `GET`,
+            headers: baseHeader,
+            permissionCode: 'CA_L',
         },
         create: {
-            baseURL: `${apiUrl}v1/specialization/create`,
+            baseURL: `${apiUrl}v1/category/create`,
             method: `POST`,
             headers: baseHeader,
-            permissionCode: 'SP_C',
+            permissionCode: 'CA_C',
         },
         update: {
-            baseURL: `${apiUrl}v1/specialization/update`,
+            baseURL: `${apiUrl}v1/category/update`,
             method: `PUT`,
             headers: baseHeader,
-            permissionCode: 'SP_U',
+            permissionCode: 'CA_U',
         },
         delete: {
-            baseURL: `${apiUrl}v1/specialization/delete/:id`,
+            baseURL: `${apiUrl}v1/category/delete/:id`,
             method: `DELETE`,
             headers: baseHeader,
-            permissionCode: 'SP_D',
+            permissionCode: 'CA_D',
         },
         getById: {
-            baseURL: `${apiUrl}v1/specialization/get/:id`,
+            baseURL: `${apiUrl}v1/category/get/:id`,
             method: `GET`,
             headers: baseHeader,
-            permissionCode: 'SP_L',
+            permissionCode: 'CA_V',
         },
     },
     student: {
-        autoComplete: {
-            baseURL: `${apiUrl}v1/student/auto-complete`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'ST_AP',
-        },
-        clientUpdate: {
-            baseURL: `${apiUrl}v1/student/client_update`,
-            method: `PUT`,
-            headers: baseHeader,
-            permissionCode: 'ST_U_U',
-        },
         delete: {
             baseURL: `${apiUrl}v1/student/delete/:id`,
             method: `DELETE`,
@@ -500,17 +493,6 @@ const apiConfig = {
             method: `GET`,
             headers: baseHeader,
             permissionCode: 'ST_L',
-        },
-        profile: {
-            baseURL: `${apiUrl}v1/student/profile`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'ST_U_P',
-        },
-        register: {
-            baseURL: `${apiUrl}v1/student/signup`,
-            method: `POST`,
-            headers: baseHeader,
         },
         update: {
             baseURL: `${apiUrl}v1/student/update`,
@@ -659,112 +641,6 @@ const apiConfig = {
             headers: baseHeader,
         },
     },
-    category: {
-        getListForBrand: {
-            baseURL: `${apiUrl}v1/category/list?kind=2`,
-            method: 'GET',
-            headers: baseHeader,
-            isRequiredTenantId: true,
-            permissionCode: 'CATE_L',
-        },
-        getList: {
-            baseURL: `${apiUrl}v1/category/list`,
-            method: 'GET',
-            headers: baseHeader,
-            isRequiredTenantId: true,
-            permissionCode: 'CATE_L',
-        },
-        getById: {
-            baseURL: `${apiUrl}v1/category/get/:id`,
-            method: 'GET',
-            headers: baseHeader,
-            isRequiredTenantId: true,
-            permissionCode: 'CATE_V',
-        },
-        create: {
-            baseURL: `${apiUrl}v1/category/create`,
-            method: 'POST',
-            headers: baseHeader,
-            isRequiredTenantId: true,
-            permissionCode: 'CATE_C',
-        },
-        update: {
-            baseURL: `${apiUrl}v1/category/update`,
-            method: 'PUT',
-            headers: baseHeader,
-            isRequiredTenantId: true,
-            permissionCode: 'CATE_U',
-        },
-        delete: {
-            baseURL: `${apiUrl}v1/category/delete/:id`,
-            method: 'DELETE',
-            headers: baseHeader,
-            isRequiredTenantId: true,
-            permissionCode: 'CATE_D',
-        },
-        // autocomplete: {
-        //     baseURL: `${apiUrl}v1/category/auto-complete`,
-        //     method: 'GET',
-        //     headers: baseHeader,
-        //     isRequiredTenantId: true,
-        // },
-        autocomplete: {
-            baseURL: `${apiUrl}v1/category/auto-complete`,
-            method: 'GET',
-            headers: baseHeader,
-        },
-    },
-    device: {
-        getListForClient: {
-            baseURL: `${apiUrl}v1/device/client_list`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'DEV_L',
-        },
-        getListForAdmin: {
-            baseURL: `${apiUrl}v1/device/list`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'DEV_L_AD',
-        },
-        getByIdForClient: {
-            baseURL: `${apiUrl}v1/device/client-get/:id`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'DEV_V',
-        },
-        getByIdForAdmin: {
-            baseURL: `${apiUrl}v1/device/get/:id`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'DEV_V_AD',
-        },
-        create: {
-            baseURL: `${apiUrl}v1/device/create`,
-            method: `POST`,
-            headers: baseHeader,
-            permissionCode: 'DEV_C',
-        },
-        update: {
-            baseURL: `${apiUrl}v1/device/update`,
-            method: `PUT`,
-            headers: baseHeader,
-            permissionCode: 'DEV_U',
-        },
-        delete: {
-            baseURL: `${apiUrl}v1/device/delete/:id`,
-            method: `DELETE`,
-            headers: baseHeader,
-            permissionCode: 'DEV_D',
-        },
-        autocomplete: {
-            baseURL: `${apiUrl}v1/device/auto-complete`,
-            method: `GET`,
-            headers: baseHeader,
-            permissionCode: 'DEV_L',
-        },
-    },
-
     review: {
         create: {
             baseURL: `${apiUrl}v1/review/create`,

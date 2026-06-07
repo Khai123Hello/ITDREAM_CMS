@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
 
+import { CATEGORY_KIND_SPECIALIZATION } from '@constants';
 import apiConfig from '@constants/apiConfig';
 import { levelOptions } from '@constants/masterData';
 
@@ -25,9 +26,12 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
     const translate = useTranslate();
     const { id } = useParams();
 
-    // Fetch specializations for the dropdown select field
-    const { data: specializations } = useFetch(apiConfig.specialization.getList, {
+    // Fetch categories for the specialization dropdown select field
+    const { data: categories } = useFetch(apiConfig.category.autoComplete, {
         immediate: true,
+        params: {
+            kind: CATEGORY_KIND_SPECIALIZATION,
+        },
         mappingData: (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name })),
     });
 
@@ -56,8 +60,8 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
             // Chuẩn bị data cho update
             funcs.prepareUpdateData = (data) => {
                 const payload = { ...data, id: id };
-                if (!payload.specializationId) {
-                    delete payload.specializationId;
+                if (!payload.categoryId) {
+                    delete payload.categoryId;
                 }
                 return payload;
             };
@@ -88,7 +92,7 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
                 isEditing={isEditing}
                 actions={mixinFuncs.renderActions()}
                 onSubmit={onSave}
-                specializations={specializations || []}
+                categories={categories || []}
                 levels={levels || []}
             />
         </PageWrapper>

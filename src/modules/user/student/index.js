@@ -10,7 +10,7 @@ import useTranslate from '@hooks/useTranslate';
 import { AppConstants, commonStatus, DEFAULT_TABLE_ITEM_SIZE } from '@constants';
 import apiConfig from '@constants/apiConfig';
 import { FieldTypes } from '@constants/formConfig';
-import { studentStatusOptions, genderOptions } from '@constants/masterData';
+import { localAccountStatusOptions, genderOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
 import AvatarField from '@components/common/form/AvatarField';
@@ -24,7 +24,7 @@ const StudentListPage = ({ pageOptions }) => {
     const translate = useTranslate();
     const navigate = useNavigate();
 
-    const formattedStatusOptions = translate.formatKeys(studentStatusOptions, ['label']);
+    const formattedStatusOptions = translate.formatKeys(localAccountStatusOptions, ['label']);
     const statusMap = Object.fromEntries(formattedStatusOptions.map((item) => [item.value, item]));
 
     const labels = {

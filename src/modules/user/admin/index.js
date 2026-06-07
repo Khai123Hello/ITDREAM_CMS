@@ -9,7 +9,7 @@ import AvatarField from '@components/common/form/AvatarField';
 import BaseTable from '@components/common/table/BaseTable';
 import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
-import { localEducatorStatusOptions } from '@constants/masterData';
+import { localAccountStatusOptions } from '@constants/masterData';
 
 import { UserOutlined } from '@ant-design/icons';
 import { Empty, Tag } from 'antd';
@@ -19,7 +19,7 @@ import { FieldTypes } from '@constants/formConfig';
 const AdminListPage = ({ pageOptions }) => {
     const translate = useTranslate();
 
-    const formattedStatusOptions = translate.formatKeys(localEducatorStatusOptions, ['label']);
+    const formattedStatusOptions = translate.formatKeys(localAccountStatusOptions, ['label']);
     const statusMap = Object.fromEntries(
         formattedStatusOptions.map(item => [item.value, item]),
     );
@@ -42,7 +42,6 @@ const AdminListPage = ({ pageOptions }) => {
         override: (funcs) => {
             const originalActionColumnButtons = funcs.actionColumnButtons;
 
-            // ✅ Ghi đè hàm renderStatusColumn
             funcs.renderStatusColumn = (columnsProps) => ({
                 title: translate.formatMessage(commonMessage.status),
                 dataIndex: 'status',
@@ -148,7 +147,7 @@ const AdminListPage = ({ pageOptions }) => {
 
     return (
         <PageWrapper
-            routes={pageOptions.renderBreadcrumbs(commonMessage,translate)}
+            routes={pageOptions.renderBreadcrumbs(commonMessage, translate)}
         >
             <ListPage
                 searchForm={mixinFuncs.renderSearchForm({

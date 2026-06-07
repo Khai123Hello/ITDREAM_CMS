@@ -14,14 +14,14 @@ import educatorRoutes from '@modules/user/educator/routes';
 import studentRoutes from '@modules/user/student/routes';
 import educatorDashboardRoutes from '@modules/educatorDashboard/routes';
 import simulationRoutes from '@modules/simulation/routes';
-import specializationRoutes from '@modules/specialization/routes';
+import categoryRoutes from '@modules/category/routes';
 import reviewSubmissionRoutes from '@modules/reviewSubmission/routes';
 
 /*
-	auth
-		+ null: access login and not login
-		+ true: access login only
-		+ false: access not login only
+    auth
+        + null: access login and not login
+        + true: access login only
+        + false: access not login only
 */
 const routes = {
     landingPage: {
@@ -86,7 +86,7 @@ const routes = {
     ...studentRoutes,
     ...educatorDashboardRoutes,
     ...simulationRoutes,
-    ...specializationRoutes,
+    ...categoryRoutes,
     ...reviewSubmissionRoutes,
     // keep this at last
     notFound: {

@@ -51,7 +51,7 @@ export const statusOptions = [
     { value: STATUS_INACTIVE, label: commonMessage.statusInactive, color: '#CC0000' },
 ];
 
-export const localEducatorStatusOptions = [
+export const localAccountStatusOptions = [
     { value: accountStatus.ACTIVE, label: commonMessage.statusActive, color: '#00A648' },
     { value: accountStatus.WAITING_APPROVE, label: commonMessage.statusWaitingApproveSinup, color: '#FFBF00' },
     { value: accountStatus.FORGET_PASSWORD, label: commonMessage.statusForgetPassword, color: '#007accff' },

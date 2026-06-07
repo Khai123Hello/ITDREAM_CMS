@@ -3,7 +3,6 @@ import { Card, Col, Row } from 'antd';
 
 import { BaseForm } from '@components/common/form/BaseForm';
 import CropImageField from '@components/common/form/CropImageField';
-import SelectField from '@components/common/form/SelectField';
 import TextField from '@components/common/form/TextField';
 import AutoCompleteField from '@components/common/form/AutoCompleteField';
 
@@ -22,14 +21,11 @@ import {
 
 import { AppConstants, GROUP_KIND_EDUCATOR } from '@constants';
 import apiConfig from '@constants/apiConfig';
-import { localEducatorStatusOptions, genderOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 import { showErrorMessage } from '@services/notifyService';
 
 const EducatorForm = (props) => {
     const translate = useTranslate();
-    const genderValues = translate.formatKeys(genderOptions, ['label']);
-    const statusValues = translate.formatKeys(localEducatorStatusOptions, ['label']);
     const [group, setGroup] = useState(null);
 
     const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, groups, branchs, isEditing } = props;
@@ -122,11 +118,9 @@ const EducatorForm = (props) => {
         form.setFieldsValue({
             email: dataDetail?.account?.email,
             fullName: dataDetail?.account?.fullName,
-            gender: dataDetail?.gender,
             phone: dataDetail?.account?.phone,
             username: dataDetail?.account?.username,
             groupId: dataDetail?.account?.group?.id,
-            status: dataDetail?.account?.status,
             departmentId: dataDetail?.department?.id,
         });
         setImageUrl(dataDetail?.account?.avatar);
@@ -156,27 +150,27 @@ const EducatorForm = (props) => {
                             requiredMsg={translate.formatMessage(commonMessage.required)}
                             rules={[{ validator: (_, value) => emailValidator(_, value, translate) }]}
                             placeholder="example@gmail.com"
+                            disabled
                         />
                     </Col>
                     <Col span={12}>
                         <TextField
-                            label={translate.formatMessage(commonMessage.fullName)}
+                            label={translate.formatMessage(commonMessage.username)}
+                            name="username"
                             required
-                            name="fullName"
                             requiredMsg={translate.formatMessage(commonMessage.required)}
+                            enable={isEditing}
                         />
                     </Col>
                 </Row>
 
                 <Row gutter={16}>
                     <Col span={12}>
-                        <SelectField
-                            label={translate.formatMessage(commonMessage.gender)}
+                        <TextField
+                            label={translate.formatMessage(commonMessage.fullName)}
                             required
-                            name="gender"
+                            name="fullName"
                             requiredMsg={translate.formatMessage(commonMessage.required)}
-                            allowClear={false}
-                            options={genderValues}
                         />
                     </Col>
                     <Col span={12}>
@@ -193,16 +187,7 @@ const EducatorForm = (props) => {
                 </Row>
 
                 <Row gutter={16}>
-                    <Col span={12}>
-                        <TextField
-                            label={translate.formatMessage(commonMessage.username)}
-                            name="username"
-                            required
-                            requiredMsg={translate.formatMessage(commonMessage.required)}
-                            disabled={isEditing}
-                        />
-                    </Col>
-                    <Col span={12}>
+                    <Col span={24}>
                         <TextField
                             label={translate.formatMessage(commonMessage.oldPassword)}
                             name="oldPassword"
@@ -240,20 +225,6 @@ const EducatorForm = (props) => {
                             required={!isEditing}
                             requiredMsg={translate.formatMessage(commonMessage.required)}
                             rules={[{ validator: () => confirmPasswordValidator(form, translate) }]}
-                        />
-                    </Col>
-                </Row>
-
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <SelectField
-                            options={statusValues}
-                            name="status"
-                            required
-                            requiredMsg={translate.formatMessage(commonMessage.required)}
-                            label={translate.formatMessage(commonMessage.status)}
-                            allowClear={false}
-                            disabled={isEditing}
                         />
                     </Col>
                 </Row>

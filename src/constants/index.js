@@ -122,6 +122,14 @@ export const commonStatus = {
 export const DEFAULT_TABLE_ITEM_SIZE = 100;
 export const DEFAULT_TABLE_PAGE_START = 0;
 
+export const CATEGORY_KIND_SPECIALIZATION = 1;
+export const CATEGORY_KIND_BLOG = 2;
+
+export const CategoryKind = {
+    SPECIALIZATION: 1,
+    BLOG: 2,
+};
+
 export const UserTypes = {
     ADMIN: 1,
     EDUCATOR: 2,

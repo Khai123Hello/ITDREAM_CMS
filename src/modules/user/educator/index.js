@@ -1,7 +1,6 @@
 import React from 'react';
 import { Empty, Tag, Button, Modal } from 'antd';
 import { UserOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
 
 import useListBase from '@hooks/useListBase';
 import useFetch from '@hooks/useFetch';
@@ -9,7 +8,7 @@ import useTranslate from '@hooks/useTranslate';
 import useNotification from '@hooks/useNotification';
 
 import { AppConstants, DEFAULT_TABLE_ITEM_SIZE, ACCOUNT_STATUS_WAITING_APPROVE, accountStatus } from '@constants';
-import { localEducatorStatusOptions } from '@constants/masterData';
+import { localAccountStatusOptions } from '@constants/masterData';
 import apiConfig from '@constants/apiConfig';
 import { FieldTypes } from '@constants/formConfig';
 import { commonMessage } from '@locales/intl';
@@ -23,10 +22,9 @@ import { calculateIndex, getColumnWidth } from '@utils';
 
 const EducatorListPage = ({ pageOptions }) => {
     const translate = useTranslate();
-    const navigate = useNavigate();
     const notificationApi = useNotification();
 
-    const formattedStatusOptions = translate.formatKeys(localEducatorStatusOptions, ['label']);
+    const formattedStatusOptions = translate.formatKeys(localAccountStatusOptions, ['label']);
     const statusMap = Object.fromEntries(formattedStatusOptions.map((item) => [item.value, item]));
 
     const labels = {
@@ -292,19 +290,19 @@ const EducatorListPage = ({ pageOptions }) => {
         mixinFuncs.renderStatusColumn({ width: '120px' }),
         mixinFuncs.renderActionColumn(
             {
-                edit: (record) => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
-                delete: (record) =>
-                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
                 approve: (record) =>
                     record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
                     mixinFuncs.hasPermission([apiConfig.educator.approve?.permissionCode]),
                 reject: (record) =>
                     record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
                     mixinFuncs.hasPermission([apiConfig.educator.reject?.permissionCode]),
+                edit: () => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
+                delete: (record) =>
+                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
             },
             {
-                width: '180px',
-                title: labels.action,
+                width: '240px',
+                title: <span style={{ display: 'inline-block', marginLeft: '16px' }}>{labels.action}</span>,
             },
         ),
     ];

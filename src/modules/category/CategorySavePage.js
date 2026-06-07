@@ -6,28 +6,28 @@ import apiConfig from '@constants/apiConfig';
 import useSaveBase from '@hooks/useSaveBase';
 import useTranslate from '@hooks/useTranslate';
 import { commonMessage } from '@locales/intl';
-import SpecializationForm from './SpecializationForm';
+import CategoryForm from './CategoryForm';
 
-const SpecializationSavePage = ({ pageOptions = {} }) => {
+const CategorySavePage = ({ pageOptions = {} }) => {
     const translate = useTranslate();
     const { id } = useParams();
     const location = useLocation();
     const isCreating = id === 'create';
-    
+
     // Lấy detail từ navigate state (được truyền từ ListPage)
     const detailFromState = location.state?.detail;
 
     const { mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing } = useSaveBase({
         apiConfig: {
             getById: null, // Không có API getById
-            create: apiConfig.specialization.create,
-            update: apiConfig.specialization.update,
+            create: apiConfig.category.create,
+            update: apiConfig.category.update,
         },
         options: {
-            getListUrl: '/specialization',
-            objectName: pageOptions.objectName 
+            getListUrl: '/category',
+            objectName: pageOptions.objectName
                 ? translate.formatMessage(pageOptions.objectName)?.toLowerCase()
-                : 'specialization',
+                : 'category',
         },
         override: (funcs) => {
             funcs.prepareUpdateData = (data) => ({
@@ -42,18 +42,18 @@ const SpecializationSavePage = ({ pageOptions = {} }) => {
     });
 
     // Xác định title cho breadcrumb
-    const title = isCreating 
+    const title = isCreating
         ? translate.formatMessage(commonMessage.create)
         : detailFromState?.name || translate.formatMessage(commonMessage.update);
 
     // Safe render breadcrumbs
-    const breadcrumbs = pageOptions.renderBreadcrumbs 
+    const breadcrumbs = pageOptions.renderBreadcrumbs
         ? pageOptions.renderBreadcrumbs(commonMessage, translate, title)
         : [
             { breadcrumbName: translate.formatMessage(commonMessage.home) },
-            { 
-                breadcrumbName: translate.formatMessage(commonMessage.specialization),
-                path: '/specialization',
+            {
+                breadcrumbName: translate.formatMessage(commonMessage.category),
+                path: '/category',
             },
             { breadcrumbName: title },
         ];
@@ -63,7 +63,7 @@ const SpecializationSavePage = ({ pageOptions = {} }) => {
             loading={loading}
             routes={breadcrumbs}
         >
-            <SpecializationForm
+            <CategoryForm
                 setIsChangedFormValues={setIsChangedFormValues}
                 dataDetail={isCreating ? {} : (detailFromState || {})}
                 formId={mixinFuncs.getFormId()}
@@ -75,4 +75,4 @@ const SpecializationSavePage = ({ pageOptions = {} }) => {
     );
 };
 
-export default SpecializationSavePage;
+export default CategorySavePage;

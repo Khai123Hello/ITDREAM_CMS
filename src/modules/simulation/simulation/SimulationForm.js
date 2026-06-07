@@ -25,7 +25,7 @@ const SimulationForm = (props) => {
         dataDetail,
         onSubmit,
         setIsChangedFormValues,
-        specializations,
+        categories,
         levels,
         isEditing,
     } = props;
@@ -77,7 +77,7 @@ const SimulationForm = (props) => {
                     if (type === 'IMAGE') {
                         setImagePath(response.data.filePath);
                         form.setFieldsValue({ imagePath: response.data.filePath });
-                    } 
+                    }
                     setIsChangedFormValues(true);
                 }
             },
@@ -99,7 +99,7 @@ const SimulationForm = (props) => {
 
     const parseJsonData = (jsonData) => {
         if (!jsonData) return { title: '', content: '' };
-        
+
         if (!isJsonString(jsonData)) {
             if (typeof jsonData === 'string' && jsonData.includes('<')) {
                 const h2Match = jsonData.match(/<h2>(.*?)<\/h2>/);
@@ -112,14 +112,14 @@ const SimulationForm = (props) => {
 
         try {
             const parsed = JSON.parse(jsonData);
-            
+
             if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                 return {
                     title: parsed.title || '',
                     content: parsed.content || '',
                 };
             }
-            
+
             if (Array.isArray(parsed) && parsed.length > 0) {
                 if (parsed.length === 1) {
                     return {
@@ -146,7 +146,7 @@ const SimulationForm = (props) => {
                     };
                 }
             }
-            
+
             return { title: '', content: '' };
         } catch (e) {
             console.error('Error parsing JSON:', e);
@@ -156,15 +156,15 @@ const SimulationForm = (props) => {
 
     const convertContentToHtml = (content) => {
         if (!content) return '';
-        
+
         if (content.includes('<')) {
             return content;
         }
-        
+
         const lines = content.split('\n').filter(line => line.trim());
         let html = '';
         let inList = false;
-        
+
         lines.forEach(line => {
             const trimmed = line.trim();
             if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
@@ -182,11 +182,11 @@ const SimulationForm = (props) => {
                 html += `<p>${trimmed}</p>`;
             }
         });
-        
+
         if (inList) {
             html += '</ul>';
         }
-        
+
         return html || '<p><br></p>';
     };
 
@@ -201,7 +201,7 @@ const SimulationForm = (props) => {
         if (dataDetail && Object.keys(dataDetail).length > 0) {
             form.setFieldsValue({
                 ...dataDetail,
-                specializationId: dataDetail.specialization?.id,
+                categoryId: dataDetail.category?.id || dataDetail.specialization?.id,
             });
             setImagePath(dataDetail.imagePath);
             setVideoUrl(dataDetail.videoPath || '');
@@ -253,7 +253,7 @@ const SimulationForm = (props) => {
             descriptionContent,
             overviewTitle,
             overviewContent,
-            specialization: specializations?.find(s => s.value === formValues.specializationId),
+            category: categories?.find((item) => item.value === formValues.categoryId),
             level: levels?.find(l => l.value === formValues.level),
         };
     };
@@ -274,10 +274,8 @@ const SimulationForm = (props) => {
                         <Col span={12}>
                             <SelectField
                                 label={translate.formatMessage(commonMessage.specialization)}
-                                name="specializationId"
-                                options={specializations}
-                                valuePropName="id"
-                                labelPropName="name"
+                                name="categoryId"
+                                options={categories}
                                 required
                                 disabled={!canEdit}
                             />
@@ -344,7 +342,7 @@ const SimulationForm = (props) => {
                                     formats={quillFormats}
                                     placeholder="Nhập nội dung mô tả chi tiết về khóa học..."
                                     readOnly={!canEdit}
-                                    style={{ 
+                                    style={{
                                         background: 'white',
                                         borderRadius: '4px',
                                         minHeight: '200px',
@@ -396,7 +394,7 @@ const SimulationForm = (props) => {
                                     formats={quillFormats}
                                     placeholder="Nhập nội dung tổng quan về khóa học..."
                                     readOnly={!canEdit}
-                                    style={{ 
+                                    style={{
                                         background: 'white',
                                         borderRadius: '4px',
                                         minHeight: '200px',
@@ -427,7 +425,7 @@ const SimulationForm = (props) => {
                         <Col span={12}>
                             <div style={{ marginBottom: 16 }}>
                                 <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Video URL 
+                                    Video URL
                                 </label>
                                 <Input
                                     value={videoUrl}
@@ -471,7 +469,7 @@ const SimulationForm = (props) => {
                 onCancel={() => setPreviewVisible(false)}
                 width="100%"
                 style={{ top: 0, paddingBottom: 0 }}
-                bodyStyle={{ 
+                bodyStyle={{
                     height: 'calc(100vh - 110px)',
                     padding: 0,
                     overflow: 'auto',

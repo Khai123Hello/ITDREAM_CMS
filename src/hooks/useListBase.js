@@ -9,7 +9,7 @@ import {
     storageKeys,
 } from '@constants';
 
-import { Modal, Button, Divider, Tag } from 'antd';
+import { Modal, Button, Tag } from 'antd';
 import { DeleteOutlined, LockOutlined, CheckOutlined, EditOutlined } from '@ant-design/icons';
 
 import { defineMessages, useIntl } from 'react-intl';
@@ -452,26 +452,42 @@ const useListBase = ({
             title: intl.formatMessage(message.tableColumn.action),
             ...columnsProps,
             render: (data) => {
-                const buttons = [];
-                const actionButtons = mixinFuncs.createActionColumnButtons(action, data);
-                actionButtons.forEach((ActionItem, index) => {
-                    if (ActionItem({ ...data, ...buttonProps })) {
-                        buttons.push(ActionItem);
-                    }
-                });
+                const actionButtons = mixinFuncs.actionColumnButtons(mixinFuncs.additionalActionColumnButtons());
+                const actionKeys = Object.keys(action);
+                const slotWidth = 28;
 
                 return (
-                    <span>
-                        {buttons.map((ActionItem, index) => (
-                            <React.Fragment key={index}>
-                                {index > 0 && <Divider type="vertical" />}
-                                <span>
-                                    {ActionItem({ ...data, ...buttonProps }) ? (
-                                        <ActionItem {...data} {...buttonProps} />
-                                    ) : null}
+                    <span
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 12,
+                            whiteSpace: 'nowrap',
+                        }}
+                    >
+                        {actionKeys.map((key) => {
+                            const ActionItem = actionButtons[key];
+                            if (!ActionItem) return null;
+
+                            const isVisible = typeof action[key] === 'function' ? action[key](data) : action[key];
+
+                            return (
+                                <span
+                                    key={key}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        width: slotWidth,
+                                        flex: `0 0 ${slotWidth}px`,
+                                        visibility: isVisible ? 'visible' : 'hidden',
+                                    }}
+                                >
+                                    {isVisible ? <ActionItem {...data} {...buttonProps} /> : <span>&nbsp;</span>}
                                 </span>
-                            </React.Fragment>
-                        ))}
+                            );
+                        })}
                     </span>
                 );
             },

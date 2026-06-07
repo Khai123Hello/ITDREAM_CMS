@@ -86,8 +86,8 @@ export const navMenuConfig = [
             {
                 label: <FormattedMessage defaultMessage="Danh sách chuyên ngành" />,
                 key: 'specialization',
-                path: routes.specializationListPage.path,
-                permission: [apiConfig.specialization.getList.permissionCode],
+                path: routes.categoryListPage.path,
+                permission: [apiConfig.category.getList.permissionCode],
             },
             // {
             //     label: <FormattedMessage defaultMessage="Test" />,
