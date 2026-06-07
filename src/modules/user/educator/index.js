@@ -290,19 +290,15 @@ const EducatorListPage = ({ pageOptions }) => {
         mixinFuncs.renderStatusColumn({ width: '120px' }),
         mixinFuncs.renderActionColumn(
             {
+                edit: () => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
+                delete: (record) =>
+                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
                 approve: (record) =>
                     record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
                     mixinFuncs.hasPermission([apiConfig.educator.approve?.permissionCode]),
                 reject: (record) =>
                     record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
                     mixinFuncs.hasPermission([apiConfig.educator.reject?.permissionCode]),
-                edit: () => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
-                delete: (record) =>
-                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
-            },
-            {
-                width: '240px',
-                title: <span style={{ display: 'inline-block', marginLeft: '16px' }}>{labels.action}</span>,
             },
         ),
     ];

@@ -5,15 +5,16 @@ import { Empty } from 'antd';
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
 
-import { DEFAULT_TABLE_ITEM_SIZE } from '@constants';
+import { DEFAULT_TABLE_ITEM_SIZE, CATEGORY_KIND_SPECIALIZATION, CATEGORY_KIND_BLOG } from '@constants';
 import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
+import { FieldTypes } from '@constants/formConfig';
 
 import BaseTable from '@components/common/table/BaseTable';
 import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
 
-const SpecializationListPage = ({ pageOptions = {} }) => {
+const CategoryListPage = ({ pageOptions = {} }) => {
     const translate = useTranslate();
     const navigate = useNavigate();
 
@@ -21,30 +22,34 @@ const SpecializationListPage = ({ pageOptions = {} }) => {
         name: translate.formatMessage(commonMessage.name),
         noData: translate.formatMessage(commonMessage.noData),
         action: translate.formatMessage(commonMessage.action),
-        specialization: translate.formatMessage(commonMessage.specialization),
+        category: 'Danh mục',
     };
 
     const { data, mixinFuncs, queryFilter, loading, pagination } = useListBase({
         apiConfig: {
-            getList: apiConfig.specialization.getList,
-            delete: apiConfig.specialization.delete,
-            create: apiConfig.specialization.create,
-            update: apiConfig.specialization.update,
+            getList: apiConfig.category.getList,
+            delete: apiConfig.category.delete,
+            create: apiConfig.category.create,
+            update: apiConfig.category.update,
         },
         options: {
-            objectName: labels.specialization,
+            objectName: labels.category,
             pageSize: DEFAULT_TABLE_ITEM_SIZE,
         },
         override: (funcs) => {
             funcs.prepareGetListParams = (params) => ({
                 ...params,
+                kind: params.kind || CATEGORY_KIND_SPECIALIZATION,
             });
 
-            // Override để truyền data qua navigate state khi edit
-            funcs.onEdit = (record) => {
-                navigate(`/specialization/${record.id}`, {
-                    state: { detail: record },
-                });
+            funcs.getCreateLink = () => {
+                const kind = queryFilter.kind || CATEGORY_KIND_SPECIALIZATION;
+                return `/category/create?kind=${kind}`;
+            };
+
+            funcs.getItemDetailLink = (record) => {
+                localStorage.setItem('edit_category_name', record.name);
+                return `/category/${record.id}?kind=${record.kind}`;
             };
         },
     });
@@ -65,8 +70,8 @@ const SpecializationListPage = ({ pageOptions = {} }) => {
         },
         mixinFuncs.renderActionColumn(
             {
-                edit: () => mixinFuncs.hasPermission([apiConfig.specialization.update.permissionCode]),
-                delete: () => mixinFuncs.hasPermission([apiConfig.specialization.delete.permissionCode]),
+                edit: () => mixinFuncs.hasPermission([apiConfig.category.update.permissionCode]),
+                delete: () => mixinFuncs.hasPermission([apiConfig.category.delete.permissionCode]),
             },
             { width: '150px', title: labels.action },
         ),
@@ -84,7 +89,7 @@ const SpecializationListPage = ({ pageOptions = {} }) => {
         ? pageOptions.renderBreadcrumbs(commonMessage, translate)
         : [
             { breadcrumbName: translate.formatMessage(commonMessage.home) },
-            { breadcrumbName: translate.formatMessage(commonMessage.specialization) },
+            { breadcrumbName: labels.category },
         ];
 
     return (
@@ -92,7 +97,10 @@ const SpecializationListPage = ({ pageOptions = {} }) => {
             <ListPage
                 searchForm={mixinFuncs.renderSearchForm({
                     fields: searchFields,
-                    initialValues: queryFilter,
+                    initialValues: {
+                        kind: CATEGORY_KIND_SPECIALIZATION,
+                        ...queryFilter,
+                    },
                 })}
                 actionBar={mixinFuncs.renderActionBar()}
                 baseTable={
@@ -111,4 +119,4 @@ const SpecializationListPage = ({ pageOptions = {} }) => {
     );
 };
 
-export default SpecializationListPage;
+export default CategoryListPage;

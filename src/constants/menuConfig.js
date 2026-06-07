@@ -79,14 +79,20 @@ export const navMenuConfig = [
         ],
     },
     {
-        label: <FormattedMessage defaultMessage="Quản lý chuyên ngành" />,
+        label: <FormattedMessage defaultMessage="Quản lý Danh mục" />,
         key: 'quan-ly-chuyen-mon',
         icon: <IconSettings size={16} />,
         children: [
             {
-                label: <FormattedMessage defaultMessage="Danh sách chuyên ngành" />,
-                key: 'specialization',
-                path: routes.categoryListPage.path,
+                label: <FormattedMessage defaultMessage="Quản lý Chuyên ngành" />,
+                key: 'category-specialization',
+                path: '/category?kind=1',
+                permission: [apiConfig.category.getList.permissionCode],
+            },
+            {
+                label: <FormattedMessage defaultMessage="Quản lý Thể loại Blog" />,
+                key: 'category-blog',
+                path: '/category?kind=2',
                 permission: [apiConfig.category.getList.permissionCode],
             },
             // {

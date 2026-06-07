@@ -11,7 +11,7 @@ import useTranslate from '@hooks/useTranslate';
 import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
 
-const SpecializationForm = (props) => {
+const CategoryForm = (props) => {
     const translate = useTranslate();
 
     const {
@@ -21,6 +21,7 @@ const SpecializationForm = (props) => {
         onSubmit,
         setIsChangedFormValues,
         isEditing,
+        kind,
     } = props;
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({
@@ -29,10 +30,10 @@ const SpecializationForm = (props) => {
     });
 
     // Hook để gọi API check duplicate
-    const { execute: checkDuplicate, loading: checkingDuplicate } = useFetch(apiConfig.specialization.getList);
+    const { execute: checkDuplicate, loading: checkingDuplicate } = useFetch(apiConfig.category.getList);
 
-    // Lấy tên ban đầu để so sánh
-    const originalName = dataDetail?.name || '';
+    // Ref để lưu tên ban đầu cố định của category khi edit
+    const originalNameRef = React.useRef('');
 
     // Custom validator để kiểm tra tên mới
     const validateNameChanged = async (_, value) => {
@@ -41,11 +42,12 @@ const SpecializationForm = (props) => {
         }
 
         const trimmedValue = value.trim();
+        const originalNameVal = originalNameRef.current || dataDetail?.name || '';
 
         // Nếu đang edit, kiểm tra tên mới phải khác tên cũ (không phân biệt hoa thường)
-        if (isEditing && originalName) {
+        if (isEditing && originalNameVal) {
             const newNameLower = trimmedValue.toLowerCase();
-            const oldNameLower = originalName.trim().toLowerCase();
+            const oldNameLower = originalNameVal.trim().toLowerCase();
             
             if (newNameLower === oldNameLower) {
                 return Promise.reject(
@@ -57,7 +59,7 @@ const SpecializationForm = (props) => {
         // Kiểm tra trùng lặp với database
         return new Promise((resolve, reject) => {
             checkDuplicate({
-                params: { name: trimmedValue },
+                params: { name: trimmedValue, kind: kind || dataDetail?.kind },
                 onCompleted: (response) => {
                     if (response.result === true) {
                         const { content } = response.data || {};
@@ -74,7 +76,7 @@ const SpecializationForm = (props) => {
                                     resolve();
                                 } else {
                                     // Trùng với record khác
-                                    reject(new Error('Tên chuyên ngành này đã tồn tại trong hệ thống!'));
+                                    reject(new Error('Tên category này đã tồn tại trong hệ thống!'));
                                 }
                             } else {
                                 resolve();
@@ -98,10 +100,24 @@ const SpecializationForm = (props) => {
     };
 
     useEffect(() => {
-        if (dataDetail) {
+        const localName = localStorage.getItem('edit_category_name');
+        if (localName) {
             form.setFieldsValue({
-                name: dataDetail?.name,
+                name: localName,
             });
+            originalNameRef.current = localName; // Lưu tên cũ ban đầu từ localStorage
+            localStorage.removeItem('edit_category_name');
+        }
+    }, []);
+
+    useEffect(() => {
+        if (dataDetail?.name) {
+            form.setFieldsValue({
+                name: dataDetail.name,
+            });
+            if (!originalNameRef.current) {
+                originalNameRef.current = dataDetail.name; // Lưu tên cũ từ API nếu chưa có
+            }
         }
     }, [dataDetail]);
 
@@ -118,14 +134,14 @@ const SpecializationForm = (props) => {
                                     validator: validateNameChanged,
                                 },
                             ]}
-                            placeholder="Nhập tên chuyên ngành"
+                            placeholder="Nhập tên"
                             validateTrigger={['onBlur', 'onChange']}
                         />
                     </Col>
                 </Row>
 
                 {/* Hiển thị tên hiện tại khi đang edit */}
-                {isEditing && originalName && (
+                {isEditing && originalNameRef.current && (
                     <Row gutter={16} style={{ marginTop: 8 }}>
                         <Col span={24}>
                             <div style={{
@@ -135,7 +151,7 @@ const SpecializationForm = (props) => {
                                 fontSize: '13px',
                                 color: '#666',
                             }}>
-                                <strong>Tên hiện tại:</strong> {originalName}
+                                <strong>Tên hiện tại:</strong> {originalNameRef.current}
                             </div>
                         </Col>
                     </Row>
@@ -147,4 +163,4 @@ const SpecializationForm = (props) => {
     );
 };
 
-export default SpecializationForm;
+export default CategoryForm;

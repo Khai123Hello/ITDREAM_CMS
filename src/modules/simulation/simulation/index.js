@@ -582,7 +582,7 @@ const SimulationListPage = ({ pageOptions }) => {
             render: (imagePath) => (
                 <AvatarField
                     icon={<UnorderedListOutlined />}
-                    src={imagePath ? `${AppConstants.contentRootUrl}${imagePath}` : null}
+                    src={imagePath ? (imagePath.startsWith('http') ? imagePath : `${AppConstants.contentRootUrl}${imagePath}`) : null}
                     shape="square"
                 />
             ),
