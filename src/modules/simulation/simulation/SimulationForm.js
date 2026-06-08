@@ -1,558 +1,342 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { Card, Col, Row, Button, Space, Modal, Divider, Input } from 'antd';
-import { EyeOutlined } from '@ant-design/icons';
-import OverviewEditor from './OverviewEditor';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Space, Switch, Tooltip, Form } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import { BaseForm } from '@components/common/form/BaseForm';
-import CropImageField from '@components/common/form/CropImageField';
-import SelectField from '@components/common/form/SelectField';
-import TextField from '@components/common/form/TextField';
 import useBasicForm from '@hooks/useBasicForm';
-import useFetch from '@hooks/useFetch';
-import useTranslate from '@hooks/useTranslate';
-import { AppConstants } from '@constants';
-import apiConfig from '@constants/apiConfig';
-import { commonMessage } from '@locales/intl';
 import { UserTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import { storageKeys } from '@constants';
-import SimulationPreview from '@components/simulation/SimulationPreview.js';
+import SimulationDetailPreview from '@components/simulation/SimulationDetailPreview';
 
 const DEFAULT_OVERVIEW_TEMPLATE = {
-    hero: {
-        title: 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
-        description: 'Một cách an toàn để trải nghiệm công việc thực tế cùng Skyscanner. Luyện tập kỹ năng của bạn với các bài tập mẫu và xây dựng sự tự tin để vượt qua các vòng phỏng vấn.',
-        badges: [
-            'Tự học theo tốc độ riêng',
-            '1–2 giờ',
-            'Không có điểm số',
-            'Không có bài kiểm tra nào',
-            'Giới thiệu',
-        ],
-        button: 'Xem tất cả',
-    },
-    intro: {
-        content: '<p>Chào mừng bạn đến với mô phỏng công việc Kỹ sư phần mềm giao diện người dùng của Skyscanner. Chúng tôi rất vui mừng được chào đón bạn.</p>',
-    },
-    howItWorks: {
-        title: 'Cách thức hoạt động',
-        items: [
-            {
-                icon: '💡',
-                text: 'Hoàn thành các nhiệm vụ được hướng dẫn bằng video ghi sẵn và các câu trả lời mẫu từ nhóm của chúng tôi.',
-            },
-            {
-                icon: '📄',
-                text: 'Nhận chứng chỉ và thêm vào CV cũng như LinkedIn của bạn.',
-            },
-            {
-                icon: '👥',
-                text: 'Tự tin trả lời các câu hỏi phỏng vấn và giải thích lý do tại sao bạn phù hợp.',
-            },
-        ],
-    },
+    introduction: '',
+    bager: ['Tự học theo tốc độ riêng', '1–2 giờ', 'Không có điểm số', 'Không có bài kiểm tra nào', 'Giới thiệu'],
+    content: '',
+    skills: ['Chú ý chi tiết', 'Giải quyết vấn đề', 'Giao tiếp', 'Tư duy phản biện', 'Làm việc nhóm'],
 };
 
 const SimulationForm = (props) => {
     const {
-        formId,
-        actions,
-        dataDetail,
-        onSubmit,
-        setIsChangedFormValues,
-        categories,
-        levels,
-        isEditing,
+        formId, actions, dataDetail, onSubmit,
+        setIsChangedFormValues, categories, levels,
     } = props;
 
     const userType = getData(storageKeys.USER_TYPE);
-    const canEdit = userType === UserTypes.EDUCATOR;
+    const canEdit  = userType === UserTypes.EDUCATOR;
 
-    const translate = useTranslate();
-    const [imagePath, setImagePath] = useState(null);
-    const [videoUrl, setVideoUrl] = useState('');
-    const [previewVisible, setPreviewVisible] = useState(false);
+    // ── State + ref sync ─────────────────────────────────────────────────────
+    // Mỗi setter ghi đồng thời vào React state (re-render) và ref (không stale)
+    const latestState = React.useRef({
+        imagePath:          null,
+        videoUrl:           '',
+        overviewData:       DEFAULT_OVERVIEW_TEMPLATE,
+    });
 
-    // Description fields
-    const [descriptionTitle, setDescriptionTitle] = useState('');
-    const [descriptionContent, setDescriptionContent] = useState('');
+    const setImagePath = (val) => { _setImagePath(val); latestState.current.imagePath = val; };
+    const setVideoUrl  = (val) => { _setVideoUrl(val);  latestState.current.videoUrl  = val; };
+    const setOverviewData       = (val) => { _setOverviewData(val);       latestState.current.overviewData       = val; };
 
-    // Overview fields (Skyscanner style)
-    const [overviewData, setOverviewData] = useState(DEFAULT_OVERVIEW_TEMPLATE);
+    const [_imagePath,          _setImagePath]          = useState(null);
+    const [_videoUrl,           _setVideoUrl]           = useState('');
+    const [_overviewData,       _setOverviewData]       = useState(DEFAULT_OVERVIEW_TEMPLATE);
 
-    const { execute: executeUpFile } = useFetch(apiConfig.file.upload, { immediate: false });
+    const imagePath          = _imagePath;
+    const videoUrl           = _videoUrl;
+    const overviewData       = _overviewData;
+
+    // ── UI state ─────────────────────────────────────────────────────────────
+    const [previewEditable, setPreviewEditable] = useState(true); // mặc định bật
+    const [previewData,     setPreviewData]     = useState({});
+
     const { form, mixinFuncs, onValuesChange } = useBasicForm({ onSubmit, setIsChangedFormValues });
 
-    const quillModules = useMemo(() => ({
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['link'],
-            ['clean'],
-        ],
-    }), []);
-
-    const quillFormats = [
-        'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
-        'color', 'background',
-        'link',
-    ];
-
-    const uploadFile = (file, onSuccess, onError, type) => {
-        executeUpFile({
-            data: { file, type },
-            onCompleted: (response) => {
-                if (response.result === true) {
-                    onSuccess();
-                    if (type === 'IMAGE') {
-                        setImagePath(response.data.filePath);
-                        form.setFieldsValue({ imagePath: response.data.filePath });
-                    }
-                    setIsChangedFormValues(true);
-                }
-            },
-            onError,
-        });
-    };
-
-    const isJsonString = (str) => {
-        if (!str || typeof str !== 'string') return false;
-        const trimmed = str.trim();
-        if (!trimmed.startsWith('{') && !trimmed.startsWith('[')) return false;
-        try {
-            JSON.parse(str);
-            return true;
-        } catch (e) {
-            return false;
-        }
-    };
-
-    const parseJsonData = (jsonData) => {
-        if (!jsonData) return { title: '', content: '' };
-
-        if (!isJsonString(jsonData)) {
-            if (typeof jsonData === 'string' && jsonData.includes('<')) {
-                const h2Match = jsonData.match(/<h2>(.*?)<\/h2>/);
-                const title = h2Match ? h2Match[1] : '';
-                const content = jsonData.replace(/<h2>.*?<\/h2>/, '').trim();
-                return { title, content };
-            }
-            return { title: '', content: jsonData };
-        }
-
-        try {
-            const parsed = JSON.parse(jsonData);
-
-            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-                return {
-                    title: parsed.title || '',
-                    content: parsed.content || '',
-                };
-            }
-
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                if (parsed.length === 1) {
-                    return {
-                        title: parsed[0].title || '',
-                        content: parsed[0].content || '',
-                    };
-                } else {
-                    let html = '';
-                    parsed.forEach((section, index) => {
-                        if (section.title && index > 0) {
-                            html += `<h3>${section.title}</h3>`;
-                        }
-                        if (section.content) {
-                            if (section.content.includes('<')) {
-                                html += section.content;
-                            } else {
-                                html += `<p>${section.content.replace(/\n/g, '<br>')}</p>`;
-                            }
-                        }
-                    });
-                    return {
-                        title: parsed[0].title || '',
-                        content: html,
-                    };
-                }
-            }
-
-            return { title: '', content: '' };
-        } catch (e) {
-            console.error('Error parsing JSON:', e);
-            return { title: '', content: jsonData };
-        }
-    };
-
-    const convertContentToHtml = (content) => {
-        if (!content) return '';
-
-        if (content.includes('<')) {
-            return content;
-        }
-
-        const lines = content.split('\n').filter(line => line.trim());
-        let html = '';
-        let inList = false;
-
-        lines.forEach(line => {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('•') || trimmed.startsWith('-') || trimmed.startsWith('*')) {
-                if (!inList) {
-                    html += '<ul>';
-                    inList = true;
-                }
-                const text = trimmed.replace(/^[•\-*]\s*/, '');
-                html += `<li>${text}</li>`;
-            } else if (trimmed) {
-                if (inList) {
-                    html += '</ul>';
-                    inList = false;
-                }
-                html += `<p>${trimmed}</p>`;
-            }
-        });
-
-        if (inList) {
-            html += '</ul>';
-        }
-
-        return html || '<p><br></p>';
-    };
-
+    // ── Parse helpers ────────────────────────────────────────────────────────
     const cleanQuillHtml = (html) => {
         if (!html || html === '<p><br></p>') return '';
-        let cleaned = html.trim();
-        cleaned = cleaned.replace(/(<p><br><\/p>|<p><\/p>)+$/g, '');
-        return cleaned;
+        return html.trim().replace(/(<p><br><\/p>|<p><\/p>)+$/g, '');
     };
 
     const parseOverviewData = (overviewStr) => {
-        if (!overviewStr) {
-            return DEFAULT_OVERVIEW_TEMPLATE;
-        }
-        
+        const fallbackTemplate = {
+            introduction: '',
+            bager: ['Tự học theo tốc độ riêng', '1–2 giờ', 'Không có điểm số', 'Không có bài kiểm tra nào', 'Giới thiệu'],
+            content: '',
+            skills: ['Chú ý chi tiết', 'Giải quyết vấn đề', 'Giao tiếp', 'Tư duy phản biện', 'Làm việc nhóm'],
+        };
+        if (!overviewStr) return fallbackTemplate;
         try {
             const parsed = JSON.parse(overviewStr);
-            // Check if it is the new structure
-            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.hero || parsed.intro || parsed.howItWorks)) {
-                return {
-                    hero: {
-                        title: parsed.hero?.title || '',
-                        description: parsed.hero?.description || '',
-                        badges: Array.isArray(parsed.hero?.badges) ? parsed.hero.badges : [],
-                        button: parsed.hero?.button || '',
-                    },
-                    intro: {
-                        content: parsed.intro?.content || '',
-                    },
-                    howItWorks: {
-                        title: parsed.howItWorks?.title || 'Cách thức hoạt động',
-                        items: Array.isArray(parsed.howItWorks?.items) ? parsed.howItWorks.items : [],
-                    },
-                };
-            }
-            
-            // If it is the old format array: [{ title, content }]
-            if (Array.isArray(parsed) && parsed.length > 0) {
-                const title = parsed[0].title || '';
-                const content = parsed[0].content || '';
-                return {
-                    hero: {
-                        title: title || 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
-                        description: content ? content.replace(/<[^>]*>/g, '').substring(0, 200) : '',
-                        badges: [],
-                        button: 'Xem tất cả',
-                    },
-                    intro: {
-                        content: content,
-                    },
-                    howItWorks: {
-                        title: 'Cách thức hoạt động',
-                        items: [],
-                    },
-                };
-            }
-            
-            // If it's a simple JSON object like { title, content }
             if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                 return {
-                    hero: {
-                        title: parsed.title || 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
-                        description: parsed.content ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 200) : '',
-                        badges: [],
-                        button: 'Xem tất cả',
-                    },
-                    intro: {
-                        content: parsed.content || '',
-                    },
-                    howItWorks: {
-                        title: 'Cách thức hoạt động',
-                        items: [],
-                    },
+                    introduction: parsed.introduction || parsed.hero?.description || '',
+                    bager: Array.isArray(parsed.bager)
+                        ? parsed.bager
+                        : (Array.isArray(parsed.barger)
+                            ? parsed.barger
+                            : (Array.isArray(parsed.hero?.badges) ? parsed.hero.badges : fallbackTemplate.bager)),
+                    content: parsed.content || parsed.intro?.content || '',
+                    skills: Array.isArray(parsed.skills)
+                        ? parsed.skills
+                        : fallbackTemplate.skills,
                 };
             }
         } catch (e) {
-            console.error('Error parsing overview JSON:', e);
+            // ignore
         }
-        
-        return {
-            ...DEFAULT_OVERVIEW_TEMPLATE,
-            intro: {
-                content: overviewStr,
-            },
-        };
+        return { ...fallbackTemplate, content: overviewStr };
     };
 
-    const uploadIconFile = (file, onSuccess, onError) => {
-        executeUpFile({
-            data: { file, type: 'IMAGE' },
-            onCompleted: (response) => {
-                if (response.result === true) {
-                    onSuccess(response.data.filePath);
-                }
-            },
-            onError,
-        });
-    };
-
-    useEffect(() => {
-        if (dataDetail && Object.keys(dataDetail).length > 0) {
-            form.setFieldsValue({
-                ...dataDetail,
-                categoryId: dataDetail.category?.id || dataDetail.specialization?.id,
-            });
-            setImagePath(dataDetail.imagePath);
-            setVideoUrl(dataDetail.videoPath || '');
-
-            if (dataDetail.description) {
-                const descData = parseJsonData(dataDetail.description);
-                setDescriptionTitle(descData.title);
-                setDescriptionContent(convertContentToHtml(descData.content));
-            }
-
-            if (dataDetail.overview) {
-                const parsedOverview = parseOverviewData(dataDetail.overview);
-                setOverviewData(parsedOverview);
-            }
-        }
-    }, [dataDetail]);
-
-    const handleSubmit = (values) => {
-        const cleanedDescriptionContent = cleanQuillHtml(descriptionContent);
-        const cleanedIntroContent = cleanQuillHtml(overviewData.intro.content);
-
-        const descriptionJson = JSON.stringify({
-            title: descriptionTitle || '',
-            content: cleanedDescriptionContent || '',
-        });
-
-        const submissionOverview = {
-            ...overviewData,
-            intro: {
-                content: cleanedIntroContent,
-            },
-        };
-        const overviewJson = JSON.stringify(submissionOverview);
-
-        mixinFuncs.handleSubmit({
-            ...values,
-            imagePath: imagePath || null,
-            videoPath: videoUrl || null,
-            description: descriptionJson,
-            overview: overviewJson,
-        });
-    };
-
-    const getPreviewData = () => {
-        const formValues = form.getFieldsValue();
+    // ── Build & refresh preview ──────────────────────────────────────────────
+    const buildPreviewData = useCallback((overrides = {}) => {
+        const formValues = form.getFieldsValue(true);
+        const latest     = latestState.current;
         return {
             ...formValues,
-            imagePath,
-            videoPath: videoUrl,
-            descriptionTitle,
-            descriptionContent,
-            overviewData,
-            category: categories?.find((item) => item.value === formValues.categoryId),
-            level: levels?.find(l => l.value === formValues.level),
+            imagePath:          overrides.imagePath          ?? latest.imagePath,
+            videoPath:          overrides.videoUrl           ?? latest.videoUrl,
+            overviewData:       overrides.overviewData       ?? latest.overviewData,
+            category:           categories?.find(c => c.value === formValues.categoryId),
+            level:              levels?.find(l => l.value === formValues.level),
         };
+    }, [form, categories, levels]);
+
+    const refreshPreview = useCallback((overrides = {}) => {
+        setPreviewData(buildPreviewData(overrides));
+    }, [buildPreviewData]);
+
+    // ── Load dataDetail ──────────────────────────────────────────────────────
+    useEffect(() => {
+        if (!dataDetail || !Object.keys(dataDetail).length) return;
+
+        form.setFieldsValue({
+            ...dataDetail,
+            categoryId: dataDetail.category?.id || dataDetail.specialization?.id,
+            totalEstimatedTime: dataDetail.duration || dataDetail.totalEstimatedTime,
+            description: dataDetail.description || '',
+        });
+
+        const newImagePath          = dataDetail.thumbnail || dataDetail.imagePath || null;
+        const newVideoUrl           = dataDetail.videoPath || '';
+        const newOverviewData = dataDetail.overview
+            ? parseOverviewData(dataDetail.overview)
+            : DEFAULT_OVERVIEW_TEMPLATE;
+
+        // Ghi ref trước để buildPreviewData đọc đúng ngay
+        latestState.current = {
+            imagePath:          newImagePath,
+            videoUrl:           newVideoUrl,
+            overviewData:       newOverviewData,
+        };
+
+        _setImagePath(newImagePath);
+        _setVideoUrl(newVideoUrl);
+        _setOverviewData(newOverviewData);
+
+        setPreviewData(buildPreviewData());
+    }, [dataDetail]); // eslint-disable-line
+
+    // ────────────────────────────────────────────────────────────────────────
+    // handleFieldChange — nhận edit từ preview, sync về form + state
+    //
+    // Lưu ý: các field form (title, notice, totalEstimatedTime) cần
+    // setFieldsValue TRƯỚC KHI gọi refreshPreview, vì buildPreviewData
+    // đọc formValues qua form.getFieldsValue() — nếu set sau thì preview
+    // sẽ hiển thị giá trị cũ một lần trước khi update.
+    // ────────────────────────────────────────────────────────────────────────
+    const handleFieldChange = useCallback((fieldPath, value) => {
+        setIsChangedFormValues(true);
+
+        // ── Form fields đơn giản ─────────────────────────────────────────────
+        if (['title', 'description', 'totalEstimatedTime', 'level', 'categoryId'].includes(fieldPath)) {
+            const finalValue = ['level', 'categoryId'].includes(fieldPath) ? Number(value) : value;
+            form.setFieldsValue({ [fieldPath]: finalValue });
+            refreshPreview();
+            return;
+        }
+
+        // ── imagePath / thumbnail ────────────────────────────────────────────
+        if (fieldPath === 'imagePath' || fieldPath === 'thumbnail') {
+            setImagePath(value);
+            refreshPreview({ imagePath: value });
+            return;
+        }
+
+        // ── videoPath / videoUrl ─────────────────────────────────────────────
+        if (fieldPath === 'videoPath' || fieldPath === 'videoUrl') {
+            setVideoUrl(value);
+            refreshPreview({ videoUrl: value });
+            return;
+        }
+
+        // ── overview.introduction ─────────────────────────────────────────────
+        if (fieldPath === 'overview.introduction') {
+            const current = { ...latestState.current.overviewData };
+            const updated = {
+                ...current,
+                introduction: value,
+            };
+            setOverviewData(updated);
+            refreshPreview({ overviewData: updated });
+            return;
+        }
+
+        // ── overview.content ──────────────────────────────────────────────────
+        if (fieldPath === 'overview.content') {
+            const current = { ...latestState.current.overviewData };
+            const updated = {
+                ...current,
+                content: value,
+            };
+            setOverviewData(updated);
+            refreshPreview({ overviewData: updated });
+            return;
+        }
+
+        // ── overview.bager ────────────────────────────────────────────────────
+        if (fieldPath === 'overview.bager') {
+            const current = { ...latestState.current.overviewData };
+            const updated = {
+                ...current,
+                bager: value.split(',').map(s => s.trim()).filter(Boolean),
+            };
+            setOverviewData(updated);
+            refreshPreview({ overviewData: updated });
+            return;
+        }
+
+        // ── overview.skills ───────────────────────────────────────────────────
+        if (fieldPath === 'overview.skills') {
+            const current = { ...latestState.current.overviewData };
+            const updated = {
+                ...current,
+                skills: value.split(',').map(s => s.trim()).filter(Boolean),
+            };
+            setOverviewData(updated);
+            refreshPreview({ overviewData: updated });
+            return;
+        }
+
+        console.warn('[SimulationForm] handleFieldChange: unknown fieldPath', fieldPath);
+    }, [form, setIsChangedFormValues, refreshPreview, setImagePath, setVideoUrl, setOverviewData]);
+
+    // ── Submit ───────────────────────────────────────────────────────────────
+    const handleSubmit = (values) => {
+        mixinFuncs.handleSubmit({
+            ...values,
+            thumbnail:   imagePath || null,
+            videoPath:   videoUrl  || null,
+            duration:    values.totalEstimatedTime || '',
+            description: values.description || '',
+            overview:    JSON.stringify({
+                introduction: cleanQuillHtml(overviewData.introduction),
+                bager:  overviewData.bager || [],
+                content: cleanQuillHtml(overviewData.content),
+                skills:  overviewData.skills || [],
+            }),
+        });
     };
 
+    // ─────────────────────────────────────────────────────────────────────────
+    // RENDER — chỉ có preview panel, edit panel đã bỏ
+    // BaseForm ẩn (display:none) vẫn cần để submit hoạt động đúng
+    // ─────────────────────────────────────────────────────────────────────────
     return (
-        <>
-            <BaseForm id={formId} onFinish={handleSubmit} form={form} onValuesChange={onValuesChange}>
-                <Card className="card-form" bordered={false}>
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <TextField
-                                label={translate.formatMessage(commonMessage.title)}
-                                name="title"
-                                required
-                                disabled={!canEdit}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <SelectField
-                                label={translate.formatMessage(commonMessage.specialization)}
-                                name="categoryId"
-                                options={categories}
-                                required
-                                disabled={!canEdit}
-                            />
-                        </Col>
-                    </Row>
+        <div style={styles.root}>
 
-                    <Row gutter={16}>
-                        <Col span={12}>
-                            <SelectField
-                                label={translate.formatMessage(commonMessage.level)}
-                                name="level"
-                                options={levels}
-                                required
-                                disabled={!canEdit}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <TextField
-                                label={translate.formatMessage(commonMessage.totalEstimatedTime)}
-                                name="totalEstimatedTime"
-                                placeholder="VD: 1 - 2 giờ"
-                                required
-                                disabled={!canEdit}
-                            />
-                        </Col>
-                    </Row>
-
-                    <Divider orientation="left">Mô tả</Divider>
-
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <div style={{ marginBottom: 16 }}>
-                                <ReactQuill
-                                    theme="snow"
-                                    value={descriptionContent}
-                                    onChange={(value) => {
-                                        setDescriptionContent(value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    modules={quillModules}
-                                    formats={quillFormats}
-                                    placeholder="Nhập nội dung mô tả chi tiết..."
-                                    readOnly={!canEdit}
-                                    style={{
-                                        background: 'white',
-                                        borderRadius: '4px',
-                                        minHeight: '200px',
-                                    }}
-                                />
-                            </div>
-                        </Col>
-                    </Row>
-
-                    <OverviewEditor
-                        value={overviewData}
-                        onChange={(newValue) => {
-                            setOverviewData(newValue);
-                            setIsChangedFormValues(true);
-                        }}
-                        canEdit={canEdit}
-                        uploadFile={uploadIconFile}
-                    />
-
-                    <Divider orientation="left">Media</Divider>
-
-                    <Row gutter={24}>
-                        <Col span={12}>
-                            <CropImageField
-                                label={translate.formatMessage(commonMessage.image)}
-                                name="imagePath"
-                                imageUrl={imagePath && (imagePath.startsWith('http') ? imagePath : `${AppConstants.contentRootUrl}${imagePath}`)}
-                                aspect={16 / 9}
-                                uploadFile={(file, onSuccess, onError) =>
-                                    uploadFile(file, onSuccess, onError, 'IMAGE')
-                                }
-                                disabled={!canEdit}
-                            />
-                        </Col>
-                        <Col span={12}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    URL ảnh trực tiếp (Link ảnh)
-                                </label>
-                                <Input
-                                    value={imagePath}
-                                    onChange={(e) => {
-                                        setImagePath(e.target.value);
-                                        form.setFieldsValue({ imagePath: e.target.value });
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="Nhập link ảnh (ví dụ: https://example.com/image.png)"
-                                    size="large"
-                                    disabled={!canEdit}
-                                />
-                            </div>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={{ fontWeight: 600, marginBottom: 8, display: 'block' }}>
-                                    Video URL
-                                </label>
-                                <Input
-                                    value={videoUrl}
-                                    onChange={(e) => {
-                                        setVideoUrl(e.target.value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="Nhập URL hoặc mã embed video (YouTube, Vimeo, etc.)"
-                                    size="large"
-                                    disabled={!canEdit}
-                                />
-                                {videoUrl && (
-                                    <div style={{ marginTop: 8, color: '#888', fontSize: 12 }}>
-                                        📹 Video: {videoUrl}
-                                    </div>
-                                )}
-                            </div>
-                        </Col>
-                    </Row>
-
-                    <div className="footer-card-form">
-                        <Space>
-                            <Button
-                                icon={<EyeOutlined />}
-                                onClick={() => setPreviewVisible(true)}
-                                type="default"
-                                size="large"
-                            >
-                                Xem trước
-                            </Button>
-                            {canEdit && actions}
-                        </Space>
-                    </div>
-                </Card>
+            {/* BaseForm ẩn — chỉ để submit, validation, không render UI */}
+            <BaseForm
+                id={formId}
+                onFinish={handleSubmit}
+                form={form}
+                onValuesChange={onValuesChange}
+                style={{ display: 'none' }}
+            >
+                <Form.Item name="title" />
+                <Form.Item name="description" />
+                <Form.Item name="totalEstimatedTime" />
+                <Form.Item name="categoryId" />
+                <Form.Item name="level" />
             </BaseForm>
 
-            {/* Preview Modal with Full-Screen Content */}
-            <Modal
-                title="Xem trước Simulation"
-                open={previewVisible}
-                onCancel={() => setPreviewVisible(false)}
-                width="100%"
-                style={{ top: 0, paddingBottom: 0 }}
-                bodyStyle={{
-                    height: 'calc(100vh - 110px)',
-                    padding: 0,
-                    overflow: 'auto',
-                }}
-                footer={null}
-            >
-                <SimulationPreview data={getPreviewData()} />
-            </Modal>
-        </>
+            {/* ══ PREVIEW PANEL (100%) ═════════════════════════════════════════ */}
+            <div style={styles.panel}>
+
+                {/* Sticky header */}
+                <div style={styles.header}>
+                    {/* Trạng thái */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <EditOutlined style={{ color: previewEditable ? '#1677ff' : '#aaa' }} />
+                        <span style={{ fontWeight: 700, fontSize: 13, color: previewEditable ? '#1677ff' : '#555' }}>
+                            {previewEditable ? 'Chế độ chỉnh sửa trực tiếp' : 'Xem trước'}
+                        </span>
+                        {previewEditable && (
+                            <span style={{ fontSize: 11, color: '#888' }}>
+                                — Click vào bất kỳ text nào để sửa
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Actions bên phải */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginLeft: 'auto' }}>
+                        {/* Toggle chế độ */}
+                        {canEdit && (
+                            <Tooltip title={previewEditable ? 'Tắt chỉnh sửa' : 'Bật chỉnh sửa trực tiếp'}>
+                                <Switch
+                                    size="small"
+                                    checked={previewEditable}
+                                    onChange={setPreviewEditable}
+                                    checkedChildren="✏️"
+                                    unCheckedChildren="👁"
+                                />
+                            </Tooltip>
+                        )}
+
+                        {/* Nút submit */}
+                        {canEdit && (
+                            <Space>{actions}</Space>
+                        )}
+                    </div>
+                </div>
+
+                {/* Preview content */}
+                <SimulationDetailPreview
+                    previewData={previewData}
+                    tasks={[]}
+                    editable={previewEditable && canEdit}
+                    onFieldChange={handleFieldChange}
+                    categories={categories}
+                />
+            </div>
+        </div>
     );
+};
+
+const styles = {
+    root: {
+        height:   'calc(100vh - 64px)',
+        overflow: 'hidden',
+        display:  'flex',
+        flexDirection: 'column',
+    },
+    panel: {
+        flex:      1,
+        overflowY: 'auto',
+        background: '#f5f5f5',
+        display:   'flex',
+        flexDirection: 'column',
+    },
+    header: {
+        position:     'sticky',
+        top:          0,
+        zIndex:       20,
+        background:   '#fff',
+        borderBottom: '1px solid #f0f0f0',
+        padding:      '10px 20px',
+        display:      'flex',
+        alignItems:   'center',
+        gap:          8,
+        boxShadow:    '0 1px 4px rgba(0,0,0,0.06)',
+    },
 };
 
 export default SimulationForm;

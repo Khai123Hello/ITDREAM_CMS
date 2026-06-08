@@ -237,7 +237,10 @@ const TaskListPage = ({ pageOptions }) => {
         const subTasks = [];
 
         data.forEach((item) => {
-            const isSubtask = item.parent || item.parentId || item.kind === TaskTypes.SUBTASK || item.kind === 0;
+            const isSubtask =
+                Number(item.kind) === TaskTypes.SUBTASK ||
+                (item.parentId && Number(item.parentId) !== 0) ||
+                (item.parent && item.parent.id);
 
             if (isSubtask) {
                 subTasks.push({
@@ -245,7 +248,7 @@ const TaskListPage = ({ pageOptions }) => {
                     kind: TaskTypes.SUBTASK,
                 });
             } else {
-                tasksMap.set(item.id, {
+                tasksMap.set(String(item.id), {
                     ...item,
                     kind: TaskTypes.TASK,
                     children: [],
@@ -255,9 +258,10 @@ const TaskListPage = ({ pageOptions }) => {
 
         subTasks.forEach((subTask) => {
             const parentId = subTask.parent?.id || subTask.parentId;
-            if (parentId && tasksMap.has(parentId)) {
-                const parentTask = tasksMap.get(parentId);
-                tasksMap.get(parentId).children.push({
+            const parentIdStr = parentId ? String(parentId) : null;
+            if (parentIdStr && tasksMap.has(parentIdStr)) {
+                const parentTask = tasksMap.get(parentIdStr);
+                parentTask.children.push({
                     ...subTask,
                     parent: {
                         id: parentTask.id,
