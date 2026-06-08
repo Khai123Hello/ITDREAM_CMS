@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
 
-import { CATEGORY_KIND_SPECIALIZATION } from '@constants';
 import apiConfig from '@constants/apiConfig';
 import { levelOptions } from '@constants/masterData';
 
@@ -30,7 +29,7 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
     const { data: categories } = useFetch(apiConfig.category.autoComplete, {
         immediate: true,
         params: {
-            kind: CATEGORY_KIND_SPECIALIZATION,
+            kind: 1,
         },
         mappingData: (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name })),
     });

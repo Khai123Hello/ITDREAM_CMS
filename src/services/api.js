@@ -98,12 +98,18 @@ const sendRequest = (options, payload, cancelToken) => {
             formData.append(item, data[item]);
         });
 
+        const reqHeaders = {
+            Authorization: headers.Authorization,
+            'Content-type': 'multipart/form-data',
+        };
+        const tenantId = getData(storageKeys.TENANT_HEADER);
+        if (tenantId) {
+            reqHeaders[storageKeys.TENANT_HEADER] = tenantId;
+        }
+
         return axios
             .post(options.path, formData, {
-                headers: {
-                    Authorization: headers.Authorization,
-                    'Content-type': 'multipart/form-data',
-                },
+                headers: reqHeaders,
             })
             .then((res) => {
                 return { data: res.data };

@@ -1,0 +1,815 @@
+// ═══════════════════════════════════════════
+// TOKENS
+// ═══════════════════════════════════════════
+$cream:       #faf9f6;
+$cream2:      #f3f1ec;
+$cream3:      #e8e4dc;
+$ink:         #1a1814;
+$ink2:        #45433e;
+$ink3:        #8a877f;
+$amber:       #d97706;
+$amber-soft:  rgba(217, 119, 6, 0.1);
+$amber-mid:   rgba(217, 119, 6, 0.18);
+$green:       #059669;
+$green-soft:  rgba(5, 150, 105, 0.1);
+$red:         #dc2626;
+$white:       #ffffff;
+
+$shadow-sm:   0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+$shadow-md:   0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+$shadow-lg:   0 12px 48px rgba(0,0,0,.14), 0 4px 16px rgba(0,0,0,.07);
+$shadow-card: 0 2px 12px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.05);
+
+$font-display: 'Lora', 'Georgia', serif;
+$font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
+$font-mono:    'JetBrains Mono', monospace;
+
+$radius-sm: 6px;
+$radius-md: 10px;
+$radius-lg: 16px;
+$radius-xl: 22px;
+
+$max-w: 1160px;
+
+// ═══════════════════════════════════════════
+// MIXINS
+// ═══════════════════════════════════════════
+@mixin inner {
+  max-width: $max-w;
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+@mixin card {
+  background: $white;
+  border: 1px solid $cream3;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+}
+
+
+// ═══════════════════════════════════════════
+// BASE
+// ═══════════════════════════════════════════
+.page {
+  background: $cream;
+  min-height: 100vh;
+  font-family: $font-body;
+  color: $ink;
+}
+
+// ── State wrappers ──
+.stateWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 16px;
+}
+
+.retryBtn {
+  margin-top: 8px;
+  padding: 8px 24px;
+  border-radius: $radius-md;
+  border: 1.5px solid $cream3;
+  background: $white;
+  font-family: $font-body;
+  font-size: 14px;
+  font-weight: 600;
+  color: $ink2;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+
+  &:hover {
+    border-color: $amber;
+    color: $amber;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+// HERO
+// ═══════════════════════════════════════════
+.hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 460px;
+  display: flex;
+  align-items: center;
+}
+
+.heroBg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.heroBgImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  filter: saturate(0.7) brightness(0.55);
+}
+
+.heroBgGradient {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #2d2418 0%, #1a1410 40%, #2a1f14 100%);
+}
+
+.heroBgOverlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(to right, rgba(20,16,10,.92) 0%, rgba(20,16,10,.55) 55%, rgba(20,16,10,.15) 100%),
+    linear-gradient(to top, rgba(20,16,10,.6) 0%, transparent 50%);
+}
+
+.changeBgBtn {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  outline: none;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.85);
+  }
+}
+
+.heroInner {
+  @include inner;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+// LEFT
+.heroLeft {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orgBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 100px;
+  padding: 5px 12px 5px 6px;
+  backdrop-filter: blur(8px);
+  width: fit-content;
+}
+
+.orgLogo {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: contain;
+  background: $white;
+}
+
+.orgName {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255,255,255,.85);
+  letter-spacing: .02em;
+}
+
+.heroTitle {
+  font-family: $font-display;
+  font-size: clamp(26px, 3.5vw, 42px);
+  font-weight: 700;
+  color: $white;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  margin: 0;
+}
+
+.heroNotice {
+  font-size: 16px;
+  color: rgba(255,255,255,.7);
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0;
+}
+
+.heroMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.heroMetaItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255,255,255,.65);
+}
+
+.heroMetaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.35);
+  flex-shrink: 0;
+}
+
+.heroStar {
+  color: #fbbf24;
+}
+
+// ENROLL CARD
+.enrollCard {
+  width: 340px;
+  flex-shrink: 0;
+  @include card;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: $shadow-lg;
+}
+
+.enrollCardBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  background: $amber-soft;
+  border: 1px solid $amber-mid;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 700;
+  color: $amber;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.enrollCardTitle {
+  font-family: $font-display;
+  font-size: 20px;
+  font-weight: 700;
+  color: $ink;
+  line-height: 1.25;
+}
+
+.enrollChecklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 13.5px;
+  color: $ink2;
+  line-height: 1.5;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.checkIcon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: $green-soft;
+  color: $green;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+// CTA BUTTON
+.ctaBtn {
+  width: 100%;
+  height: 46px;
+  background: $amber;
+  color: $white;
+  border: none;
+  border-radius: $radius-md;
+  font-family: $font-body;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: background .15s, transform .1s, box-shadow .15s;
+  letter-spacing: .01em;
+
+  &:hover:not(:disabled) {
+    background: darken(#d97706, 6%);
+    box-shadow: 0 4px 16px rgba(217,119,6,.35);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.ctaBtnSuccess {
+  background: $green;
+
+  &:hover:not(:disabled) {
+    background: darken(#059669, 6%);
+    box-shadow: 0 4px 16px rgba(5,150,105,.35);
+  }
+}
+
+.ctaBtnDisabled {
+  background: $cream3;
+  color: $ink3;
+  cursor: not-allowed;
+
+  &:hover {
+    background: $cream3;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+.ctaBtnIcon {
+  font-size: 11px;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,.35);
+  border-top-color: $white;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.enrollNote {
+  font-size: 11.5px;
+  color: $ink3;
+  text-align: center;
+  margin: 0;
+}
+
+
+// ═══════════════════════════════════════════
+// TABS BAR
+// ═══════════════════════════════════════════
+.tabsBar {
+  position: sticky;
+  top: 0; // adjust if AppHeader has height, e.g. top: 60px
+  z-index: 50;
+  background: rgba(250,249,246,.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid $cream3;
+}
+
+.tabsInner {
+  @include inner;
+  display: flex;
+  gap: 0;
+}
+
+.tabBtn {
+  padding: 0 20px;
+  height: 48px;
+  border: none;
+  background: transparent;
+  font-family: $font-body;
+  font-size: 14px;
+  font-weight: 500;
+  color: $ink3;
+  cursor: pointer;
+  position: relative;
+  transition: color .15s;
+  white-space: nowrap;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 20px; right: 20px;
+    height: 2px;
+    background: $amber;
+    border-radius: 2px 2px 0 0;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: opacity .15s, transform .2s;
+  }
+
+  &:hover {
+    color: $ink2;
+  }
+}
+
+.tabBtnActive {
+  color: $ink;
+  font-weight: 700;
+
+  &::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+
+// ═══════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════
+.main {
+  @include inner;
+  padding-top: 48px;
+  padding-bottom: 80px;
+}
+
+
+// ═══════════════════════════════════════════
+// OVERVIEW TAB
+// ═══════════════════════════════════════════
+.overviewLayout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.overviewBody {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  & + .section {
+    padding-top: 40px;
+    border-top: 1px solid $cream3;
+  }
+}
+
+.sectionTitle {
+  font-family: $font-display;
+  font-size: 22px;
+  font-weight: 700;
+  color: $ink;
+  letter-spacing: -.01em;
+  margin: 0;
+}
+
+.bodyText {
+  font-size: 15px;
+  color: $ink2;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.tagRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  background: $cream2;
+  border: 1px solid $cream3;
+  border-radius: 100px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: $ink2;
+}
+
+.tagOutline {
+  @extend .tag;
+  background: #fef9c3;
+  border-color: #fef08a;
+  color: #ca8a04;
+  font-weight: 700;
+}
+
+// Task preview list in overview
+.taskPreviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.taskPreviewItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: $radius-md;
+  cursor: default;
+  transition: background .12s;
+
+  &:hover {
+    background: $cream2;
+
+    .taskPreviewArrow {
+      color: $amber;
+      transform: translateX(2px);
+    }
+  }
+}
+
+.taskPreviewNum {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $cream2;
+  border: 1.5px solid $cream3;
+  font-size: 12px;
+  font-weight: 700;
+  color: $ink3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.taskPreviewInfo {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.taskPreviewName {
+  font-size: 14px;
+  font-weight: 500;
+  color: $ink;
+}
+
+.taskPreviewDuration {
+  font-size: 12px;
+  color: $ink3;
+}
+
+.taskPreviewArrow {
+  color: $ink3;
+  transition: color .12s, transform .12s;
+  flex-shrink: 0;
+}
+
+// Overview sidebar
+.overviewSidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 72px; // tabsBar height + margin
+}
+
+.sideCard {
+  @include card;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sideCardTitle {
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.skillPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.skillPill {
+  padding: 4px 11px;
+  background: $cream;
+  border: 1.5px solid $cream3;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  color: $ink2;
+  transition: border-color .12s, color .12s;
+
+  &:hover {
+    border-color: $amber;
+    color: $amber;
+  }
+}
+
+.sideCardLink {
+  background: none;
+  border: none;
+  font-family: $font-body;
+  font-size: 13px;
+  font-weight: 600;
+  color: $amber;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  transition: opacity .12s;
+
+  &:hover { opacity: .75; }
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.infoLabel {
+  color: $ink3;
+}
+
+.infoVal {
+  font-weight: 600;
+  color: $ink;
+}
+
+
+// ═══════════════════════════════════════════
+// TASKS TAB
+// ═══════════════════════════════════════════
+.tasksLayout {
+  min-height: 500px;
+  width: 100%;
+}
+
+.emptyWrap {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 0;
+}
+
+
+// ═══════════════════════════════════════════
+// REVIEWS TAB
+// ═══════════════════════════════════════════
+.reviewsLayout {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 720px;
+}
+
+.reviewsSummary {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 32px;
+  @include card;
+}
+
+.reviewsScore {
+  font-family: $font-display;
+  font-size: 52px;
+  font-weight: 700;
+  color: $ink;
+  line-height: 1;
+  letter-spacing: -.03em;
+}
+
+.reviewsStars {
+  display: flex;
+  gap: 3px;
+  font-size: 22px;
+}
+
+.starFilled { color: #f59e0b; }
+.starEmpty  { color: $cream3; }
+
+.reviewsTotal {
+  font-size: 13px;
+  color: $ink3;
+  margin-top: 2px;
+}
+
+.reviewsCarousel {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 28px 32px;
+  @include card;
+}
+
+.reviewArrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid $cream3;
+  background: $white;
+  color: $ink2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color .12s, color .12s;
+
+  &:hover {
+    border-color: $amber;
+    color: $amber;
+  }
+}
+
+.reviewQuote {
+  flex: 1;
+  font-style: normal;
+  text-align: center;
+
+  p {
+    font-family: $font-display;
+    font-size: 17px;
+    color: $ink;
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  footer {
+    margin-top: 12px;
+    font-size: 13px;
+    color: $ink3;
+  }
+}
+
+
+// ═══════════════════════════════════════════
+// BOTTOM CTA
+// ═══════════════════════════════════════════
+.bottomCta {
+  border-top: 1px solid $cream3;
+  background: $white;
+  padding: 20px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-size: 14px;
+  color: $ink2;
+}
+
+.bottomCtaLink {
+  font-size: 14px;
+  font-weight: 700;
+  color: $amber;
+  text-decoration: none;
+  transition: opacity .12s;
+
+  &:hover { opacity: .75; }
+}

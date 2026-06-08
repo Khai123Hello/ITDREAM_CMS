@@ -18,7 +18,7 @@ const Dashboard = () => {
         return <Navigate to="/not-allowed" />;
     }
     // fallback (e.g. admin or unknown)
-    return <Navigate to="/profile" />;
+    return <Navigate to="/simulation" />;
 };
 
 export default Dashboard;
