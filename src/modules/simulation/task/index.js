@@ -69,7 +69,25 @@ const TaskListPage = ({ pageOptions }) => {
             getList: apiConfig.task.getList,
         };
 
-    const { data, mixinFuncs, queryFilter, loading, pagination } = useListBase({
+    const [taskItems, setTaskItems] = useState([]);
+
+    const getTaskOrderInfo = (record) => {
+        if (record.kind === TaskTypes.SUBTASK) {
+            const parentId = record.parent?.id || record.parentId;
+            const parentIndex = taskItems.findIndex((t) => String(t.id) === String(parentId));
+            const parentOrder = parentIndex !== -1 ? parentIndex + 1 : 1;
+            const parentTaskItem = taskItems[parentIndex];
+            const subTaskIndex = parentTaskItem ? parentTaskItem.children?.findIndex((s) => String(s.id) === String(record.id)) : -1;
+            const taskOrder = subTaskIndex !== -1 ? subTaskIndex + 1 : 1;
+            return { parentOrder, taskOrder };
+        } else {
+            const taskIndex = taskItems.findIndex((t) => String(t.id) === String(record.id));
+            const taskOrder = taskIndex !== -1 ? taskIndex + 1 : 1;
+            return { taskOrder };
+        }
+    };
+
+    const { data, mixinFuncs, queryFilter } = useListBase({
         apiConfig: apiConfiguration,
         options: {
             objectName: labels.task,
@@ -113,6 +131,7 @@ const TaskListPage = ({ pageOptions }) => {
                                 style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    const { parentOrder, taskOrder } = getTaskOrderInfo(dataRow);
                                     navigate(`/simulation/${simulationId}/task/${dataRow.id}`, {
                                         state: {
                                             action: 'edit',
@@ -123,12 +142,16 @@ const TaskListPage = ({ pageOptions }) => {
                                                         ? {
                                                             id: dataRow.parent.id,
                                                             name: dataRow.parent.name,
+                                                            title: dataRow.parent.title,
                                                         }
                                                         : {
                                                             id: dataRow.parentId,
                                                             name: '',
+                                                            title: '',
                                                         }
                                                     : null,
+                                            parentOrder,
+                                            taskOrder,
                                         },
                                     });
                                 }}
@@ -149,13 +172,18 @@ const TaskListPage = ({ pageOptions }) => {
                                 style={{ padding: 0, color: '#52c41a' }}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    // Navigate với state
+                                    const parentIndex = taskItems.findIndex((t) => String(t.id) === String(dataRow.id));
+                                    const parentOrder = parentIndex !== -1 ? parentIndex + 1 : 1;
+                                    const taskOrder = (dataRow.children?.length || 0) + 1;
                                     navigate(`/simulation/${simulationId}/task/create`, {
                                         state: {
                                             parentTask: {
                                                 id: dataRow.id,
                                                 name: dataRow.name,
+                                                title: dataRow.title,
                                             },
+                                            parentOrder,
+                                            taskOrder,
                                         },
                                     });
                                 }}
@@ -182,6 +210,7 @@ const TaskListPage = ({ pageOptions }) => {
                                                 parentTask: {
                                                     id: dataRow.parent.id,
                                                     name: dataRow.parent.name,
+                                                    title: dataRow.parent.title,
                                                 },
                                             }
                                             : null,
@@ -200,6 +229,7 @@ const TaskListPage = ({ pageOptions }) => {
                                 style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
+                                    const { parentOrder, taskOrder } = getTaskOrderInfo(dataRow);
                                     navigate(`/simulation/${simulationId}/task/${dataRow.id}`, {
                                         state:
                                             dataRow.kind === TaskTypes.SUBTASK
@@ -208,13 +238,19 @@ const TaskListPage = ({ pageOptions }) => {
                                                         ? {
                                                             id: dataRow.parent.id,
                                                             name: dataRow.parent.name,
+                                                            title: dataRow.parent.title,
                                                         }
                                                         : {
                                                             id: dataRow.parentId,
                                                             name: '',
+                                                            title: '',
                                                         },
+                                                    parentOrder,
+                                                    taskOrder,
                                                 }
-                                                : null,
+                                                : {
+                                                    taskOrder,
+                                                },
                                     });
                                 }}
                                 title={labels.viewDetails}
@@ -222,6 +258,15 @@ const TaskListPage = ({ pageOptions }) => {
                                 <RightOutlined />
                             </Button>
                         );
+                    },
+                };
+            };
+
+            funcs.getCreateLink = () => {
+                return {
+                    pathname: `/simulation/${simulationId}/task/create`,
+                    state: {
+                        taskOrder: taskItems.length + 1,
                     },
                 };
             };
@@ -239,7 +284,6 @@ const TaskListPage = ({ pageOptions }) => {
         immediate: false,
     });
 
-    const [taskItems, setTaskItems] = useState([]);
     const [activeId, setActiveId] = useState(null);
     const [activeType, setActiveType] = useState(null);
 
@@ -313,6 +357,7 @@ const TaskListPage = ({ pageOptions }) => {
                     parent: {
                         id: parentTask.id,
                         name: parentTask.name,
+                        title: parentTask.title,
                     },
                 });
             } else {
@@ -503,6 +548,7 @@ const TaskListPage = ({ pageOptions }) => {
             return {
                 id: record.parent.id,
                 name: record.parent.name,
+                title: record.parent.title,
             };
         }
 
@@ -510,6 +556,7 @@ const TaskListPage = ({ pageOptions }) => {
             return {
                 id: record.parentId,
                 name: '',
+                title: '',
             };
         }
 
@@ -517,18 +564,34 @@ const TaskListPage = ({ pageOptions }) => {
     };
 
     const handleRowClick = (record) => {
+        const { parentOrder, taskOrder } = getTaskOrderInfo(record);
         navigate(`/simulation/${simulationId}/task/${record.id}`, {
-            state: record.kind === TaskTypes.SUBTASK ? { parentTask: getParentTaskState(record) } : null,
+            state:
+                record.kind === TaskTypes.SUBTASK
+                    ? {
+                        parentTask: getParentTaskState(record),
+                        parentOrder,
+                        taskOrder,
+                    }
+                    : {
+                        taskOrder,
+                    },
         });
     };
 
     const createSubTaskForTask = (task) => {
+        const parentIndex = taskItems.findIndex((t) => String(t.id) === String(task.id));
+        const parentOrder = parentIndex !== -1 ? parentIndex + 1 : 1;
+        const taskOrder = (task.children?.length || 0) + 1;
         navigate(`/simulation/${simulationId}/task/create`, {
             state: {
                 parentTask: {
                     id: task.id,
                     name: task.name || task.title,
+                    title: task.title,
                 },
+                parentOrder,
+                taskOrder,
             },
         });
     };
@@ -547,7 +610,7 @@ const TaskListPage = ({ pageOptions }) => {
         };
 
         const isSubTask = task.kind === TaskTypes.SUBTASK;
-        const taskTitle = task.title || task.name;
+        const taskTitle = task.title || 'Nhiệm vụ không có tiêu đề';
 
         return (
             <div
@@ -565,7 +628,7 @@ const TaskListPage = ({ pageOptions }) => {
                             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                                 <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'SubTask' : 'Task'}</Tag>
-                                {isSubTask && task.parent?.name && <Tag color="default">Parent: {task.parent.name}</Tag>}
+                                {isSubTask && task.parent?.title && <Tag color="default">Parent: {task.parent.title}</Tag>}
                                 {isSubTask && typeof task.totalQuestion !== 'undefined' && (
                                     <Tag color="default">Câu hỏi: {task.totalQuestion || 0}</Tag>
                                 )}
@@ -645,11 +708,11 @@ const TaskListPage = ({ pageOptions }) => {
                     <span style={{ color: '#9ca3af', fontSize: 14 }}>└─</span>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
                         <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>
-                            {subtask.name || subtask.title}
+                            {subtask.title || 'SubTask không có tiêu đề'}
                         </div>
-                        {subtask.parent?.name && (
+                        {subtask.parent?.title && (
                             <div style={{ fontSize: 12, color: '#64748b' }}>
-                                Thuộc Task: {subtask.parent.name}
+                                Thuộc Task: {subtask.parent.title}
                             </div>
                         )}
                     </div>
@@ -693,7 +756,7 @@ const TaskListPage = ({ pageOptions }) => {
                                         <span className="drag-handle-btn">
                                             <MenuOutlined />
                                         </span>
-                                        <span>{taskItems.find((task) => task.id === activeId)?.name || ''}</span>
+                                        <span>{taskItems.find((task) => task.id === activeId)?.title || ''}</span>
                                     </div>
                                 </div>
                             </div>
@@ -702,7 +765,7 @@ const TaskListPage = ({ pageOptions }) => {
                         <div className="subtask-item-card dragging-overlay-subtask">
                             <div className="subtask-left">
                                 <span className="subtask-drag-handle" />
-                                <span>{findSubtaskById(activeId)?.name || ''}</span>
+                                <span>{findSubtaskById(activeId)?.title || ''}</span>
                             </div>
                         </div>
                     )
@@ -712,7 +775,6 @@ const TaskListPage = ({ pageOptions }) => {
     );
 
     const searchFields = [
-        { key: 'name', placeholder: labels.name },
         { key: 'title', placeholder: labels.title },
         {
             key: 'kind',

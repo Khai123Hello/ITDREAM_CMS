@@ -11,6 +11,7 @@ function CheckboxField({
     labelAlign,
     optionLabel,
     onChange,
+    disabled,
     formItemProps,
     fieldProps,
     ...props
@@ -27,7 +28,7 @@ function CheckboxField({
             rules={rules}
             valuePropName="checked"
         >
-            <Checkbox {...fieldProps} onChange={onChange}>
+            <Checkbox disabled={disabled} {...fieldProps} onChange={onChange}>
                 {optionLabel}
             </Checkbox>
         </Form.Item>

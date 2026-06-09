@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Modal, Dropdown, Button } from 'antd';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Modal, Dropdown, Button, Checkbox } from 'antd';
 import './BlockEditor.scss';
 
 // Unique ID helper
@@ -19,6 +19,7 @@ const BLOCK_TYPES = {
     meta: { label: 'Meta (giờ · cấp)', desc: 'Dòng thông tin ngắn màu xanh', icon: '🏷', group: 'Nâng cao' },
     section: { label: 'Section', desc: 'Khung section với icon & bullets', icon: '☰', group: 'Nâng cao' },
     step: { label: 'Step', desc: 'Bước hướng dẫn label: body', icon: '→', group: 'Nâng cao' },
+    quiz: { label: 'Trắc nghiệm', desc: 'Câu hỏi trắc nghiệm một lựa chọn', icon: '❓', group: 'Nâng cao' },
 };
 
 // Emoji set definitions
@@ -43,6 +44,13 @@ const makeBlock = (type, data = {}) => {
         meta: { duration: '1–2 hours', level: 'Introductory' },
         section: { icon: '🎓', title: '', bullets: [''] },
         step: { label: 'Step One', body: '' },
+        quiz: {
+            question: '',
+            options: [
+                { option: '', answer: false },
+                { option: '', answer: false },
+            ],
+        },
     };
     return { id: uid(), type, ...defaults[type], ...data };
 };
@@ -129,6 +137,22 @@ const TEMPLATES = {
             }),
         ],
     },
+    quiz: {
+        label: 'Trắc nghiệm',
+        title: 'Kiểm tra kiến thức (ví dụ: Trắc nghiệm nhanh)',
+        description: 'Trả lời các câu hỏi trắc nghiệm dưới đây để hoàn thành bài học.',
+        blocks: () => [
+            makeBlock('text', { content: 'Hãy chọn đáp án đúng nhất cho từng câu hỏi.' }),
+            makeBlock('quiz', {
+                question: 'Thủ đô của Việt Nam là gì?',
+                options: [
+                    { option: 'Hà Nội', answer: true },
+                    { option: 'TP. Hồ Chí Minh', answer: false },
+                    { option: 'Đà Nẵng', answer: false },
+                ],
+            }),
+        ],
+    },
 };
 
 // Custom Editable Text component to solve caret jumping in contenteditable React
@@ -163,6 +187,10 @@ export default function BlockEditor({
     initialDescription = '',
     initialContent = '',
     onChange,
+    onTitleChange,        // lightweight: called immediately on title keystroke (no JSON.stringify)
+    onDescriptionChange,  // lightweight: called immediately on description keystroke (no JSON.stringify)
+    onTemplateLoad,
+    onTemplateChange,
     defaultTemplate = 'task',
     autoLoadTemplate = false,
 }) {
@@ -213,6 +241,12 @@ export default function BlockEditor({
     const [draggingId, setDraggingId] = useState(null);
     const [dragOverInfo, setDragOverInfo] = useState(null); // { id, position: 'top'|'bottom' }
 
+    // Debounce timer ref for syncWithParent (text input changes)
+    const syncDebounceRef = useRef(null);
+    // Keep latest onChange ref to avoid stale closure
+    const onChangeRef = useRef(onChange);
+    useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+
     // Auto-resize textareas
     useEffect(() => {
         const titleEl = document.getElementById('be-doc-title');
@@ -233,6 +267,11 @@ export default function BlockEditor({
             const tmpl = TEMPLATES[defaultTemplate];
             const tBlocks = tmpl.blocks();
             syncWithParent(tmpl.title, tmpl.description, tBlocks);
+
+            // Thông báo snapshot lên cha ngay khi auto-load template
+            if (onTemplateLoad) {
+                onTemplateLoad(buildTemplateSnapshot(tmpl.title, tmpl.description, tBlocks));
+            }
         }
     }, []);
 
@@ -273,49 +312,92 @@ export default function BlockEditor({
         }, 30);
     };
 
-    // Prop sync trigger
-    const syncWithParent = (newTitle, newDesc, newBlocks) => {
-        if (onChange) {
-            const cleanBlocks = newBlocks.map((block) => {
-                const rest = { ...block };
-                delete rest.id;
-                return rest;
-            });
-            onChange({
-                title: newTitle,
-                description: newDesc,
-                content: JSON.stringify(cleanBlocks),
-            });
+    // Build clean payload (strips internal 'id' field from blocks)
+    const buildPayload = useCallback((newTitle, newDesc, newBlocks) => {
+        const cleanBlocks = newBlocks.map((block) => {
+            const rest = { ...block };
+            delete rest.id;
+            return rest;
+        });
+        return { title: newTitle, description: newDesc, content: JSON.stringify(cleanBlocks) };
+    }, []);
+
+    // Debounced sync — used for TEXT INPUT (typing) to avoid re-render on every keystroke
+    const syncWithParent = useCallback((newTitle, newDesc, newBlocks) => {
+        if (!onChangeRef.current) return;
+        if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+        syncDebounceRef.current = setTimeout(() => {
+            onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
+        }, 300);
+    }, [buildPayload]);
+
+    // Immediate sync — used for STRUCTURAL changes (add/delete/move/template)
+    const syncWithParentImmediate = useCallback((newTitle, newDesc, newBlocks) => {
+        if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+        if (onChangeRef.current) {
+            onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
         }
+    }, [buildPayload]);
+
+    // Tạo template snapshot (bỏ id block để so sánh nội dung thuần)
+    const buildTemplateSnapshot = (tmplTitle, tmplDesc, tmplBlocks) => {
+        const cleanBlocks = tmplBlocks.map((block) => {
+            const copy = { ...block };
+            delete copy.id;
+            return copy;
+        });
+        return {
+            title: tmplTitle,
+            description: tmplDesc,
+            content: JSON.stringify(cleanBlocks),
+        };
     };
 
+    // Title & description are cheap strings — sync immediately so form validation always sees current value
     const handleTitleChange = (val) => {
         setTitle(val);
-        syncWithParent(val, description, blocks);
+        if (onTitleChange) {
+            // Fast path: only update title in parent, no JSON.stringify of blocks
+            onTitleChange(val);
+        } else {
+            syncWithParentImmediate(val, description, blocks);
+        }
     };
 
     const handleDescriptionChange = (val) => {
         setDescription(val);
-        syncWithParent(title, val, blocks);
+        if (onDescriptionChange) {
+            // Fast path: only update description in parent, no JSON.stringify of blocks
+            onDescriptionChange(val);
+        } else {
+            syncWithParentImmediate(title, val, blocks);
+        }
     };
 
+    // Debounced — for text input inside blocks
     const handleBlocksChange = (newBlocks) => {
         setBlocks(newBlocks);
         syncWithParent(title, description, newBlocks);
+    };
+
+    // Immediate — for structural changes (add, delete, move, type change)
+    const handleBlocksChangeImmediate = (newBlocks) => {
+        setBlocks(newBlocks);
+        syncWithParentImmediate(title, description, newBlocks);
     };
 
     const insertBlockAfter = (targetId, newBlock) => {
         const idx = blocks.findIndex((x) => x.id === targetId);
         const newBlocks = [...blocks];
         newBlocks.splice(idx + 1, 0, newBlock);
-        handleBlocksChange(newBlocks);
+        handleBlocksChangeImmediate(newBlocks);
         focusBlock(newBlock.id);
     };
 
     const addBlockAtEnd = () => {
         const newBlock = makeBlock('text');
         const newBlocks = [...blocks, newBlock];
-        handleBlocksChange(newBlocks);
+        handleBlocksChangeImmediate(newBlocks);
         focusBlock(newBlock.id);
     };
 
@@ -376,7 +458,7 @@ export default function BlockEditor({
                     e.preventDefault();
                     const newBlocks = [...blocks];
                     newBlocks[index] = makeBlock('text');
-                    handleBlocksChange(newBlocks);
+                    handleBlocksChangeImmediate(newBlocks);
                     return;
                 }
                 e.preventDefault();
@@ -393,7 +475,7 @@ export default function BlockEditor({
                     e.preventDefault();
                     const newBlocks = [...blocks];
                     newBlocks.splice(index, 1);
-                    handleBlocksChange(newBlocks);
+                    handleBlocksChangeImmediate(newBlocks);
 
                     const prevIndex = Math.max(0, index - 1);
                     focusBlock(blocks[prevIndex]?.id, true);
@@ -422,7 +504,7 @@ export default function BlockEditor({
                 el.innerText = '';
                 const newBlocks = [...blocks];
                 newBlocks[index] = makeBlock(map[text]);
-                handleBlocksChange(newBlocks);
+                handleBlocksChangeImmediate(newBlocks);
                 focusBlock(id);
             }
         }
@@ -488,7 +570,7 @@ export default function BlockEditor({
         const newBlocks = [...blocks];
         if (blocks[idx].type === 'text' && curText === '') {
             newBlocks[idx] = makeBlock(type);
-            handleBlocksChange(newBlocks);
+            handleBlocksChangeImmediate(newBlocks);
             focusBlock(blockId);
         } else {
             if (el) {
@@ -497,19 +579,19 @@ export default function BlockEditor({
             }
             const newB = makeBlock(type);
             newBlocks.splice(idx + 1, 0, newB);
-            handleBlocksChange(newBlocks);
+            handleBlocksChangeImmediate(newBlocks);
             focusBlock(newB.id);
         }
         setSlashMenu(null);
     };
 
-    // Context menu handlers
+    // Context menu handlers — all structural → use immediate sync
     const moveBlockUp = (id) => {
         const idx = blocks.findIndex((x) => x.id === id);
         if (idx > 0) {
             const newBlocks = [...blocks];
             [newBlocks[idx], newBlocks[idx - 1]] = [newBlocks[idx - 1], newBlocks[idx]];
-            handleBlocksChange(newBlocks);
+            handleBlocksChangeImmediate(newBlocks);
         }
     };
 
@@ -518,7 +600,7 @@ export default function BlockEditor({
         if (idx < blocks.length - 1) {
             const newBlocks = [...blocks];
             [newBlocks[idx], newBlocks[idx + 1]] = [newBlocks[idx + 1], newBlocks[idx]];
-            handleBlocksChange(newBlocks);
+            handleBlocksChangeImmediate(newBlocks);
         }
     };
 
@@ -529,7 +611,7 @@ export default function BlockEditor({
             copy.id = uid();
             const newBlocks = [...blocks];
             newBlocks.splice(idx + 1, 0, copy);
-            handleBlocksChange(newBlocks);
+            handleBlocksChangeImmediate(newBlocks);
         }
     };
 
@@ -538,7 +620,7 @@ export default function BlockEditor({
             const idx = blocks.findIndex((x) => x.id === id);
             const newBlocks = [...blocks];
             newBlocks.splice(idx, 1);
-            handleBlocksChange(newBlocks);
+            handleBlocksChangeImmediate(newBlocks);
         }
     };
 
@@ -569,7 +651,7 @@ export default function BlockEditor({
         }
     };
 
-    // Emoji Picker picker
+    // Emoji Picker picker — structural change → immediate
     const pickEmoji = (emoji) => {
         if (!emojiPicker) return;
         const { blockId } = emojiPicker;
@@ -579,11 +661,11 @@ export default function BlockEditor({
             }
             return b;
         });
-        handleBlocksChange(newBlocks);
+        handleBlocksChangeImmediate(newBlocks);
         setEmojiPicker(null);
     };
 
-    // Template picker functions
+    // Template picker functions — structural → immediate
     const loadTemplate = (key) => {
         setTemplate(key);
         const tmpl = TEMPLATES[key];
@@ -594,8 +676,18 @@ export default function BlockEditor({
         setTitle(newTitle);
         setDescription(newDesc);
         setBlocks(newBlocks);
-        syncWithParent(newTitle, newDesc, newBlocks);
+        syncWithParentImmediate(newTitle, newDesc, newBlocks);
         setShowTemplatePicker(false);
+
+        // Thông báo snapshot template lên cha để so sánh khi lưu
+        if (onTemplateLoad) {
+            onTemplateLoad(buildTemplateSnapshot(newTitle, newDesc, newBlocks));
+        }
+
+        // Notify template change
+        if (onTemplateChange) {
+            onTemplateChange(key);
+        }
     };
 
     const startBlank = () => {
@@ -603,8 +695,13 @@ export default function BlockEditor({
         setTitle('');
         setDescription('');
         setBlocks([]);
-        syncWithParent('', '', []);
+        syncWithParentImmediate('', '', []);
         setShowTemplatePicker(false);
+
+        // Không có template → báo null để TaskForm biết bỏ qua so sánh
+        if (onTemplateLoad) {
+            onTemplateLoad(null);
+        }
     };
 
     // HTML elements queries for drag-and-drop
@@ -636,7 +733,7 @@ export default function BlockEditor({
         const insertIndex = isTop ? adjTargetIndex : adjTargetIndex + 1;
         newBlocks.splice(insertIndex, 0, moved);
 
-        handleBlocksChange(newBlocks);
+        handleBlocksChangeImmediate(newBlocks);
         setDraggingId(null);
         setDragOverInfo(null);
     };
@@ -837,7 +934,7 @@ export default function BlockEditor({
                                             placeholder="Tiêu đề Section"
                                             onInput={(val) => {
                                                 b.title = val;
-                                                handleBlocksChange([...blocks]);
+                                                handleBlocksChange([...blocks]); // debounced OK
                                             }}
                                             dataId={b.id}
                                         />
@@ -858,7 +955,7 @@ export default function BlockEditor({
                                                             const newBullets = [...b.bullets];
                                                             newBullets.splice(bi + 1, 0, '');
                                                             b.bullets = newBullets;
-                                                            handleBlocksChange([...blocks]);
+                                                            handleBlocksChangeImmediate([...blocks]);
                                                             setTimeout(() => {
                                                                 const el = document.querySelector(
                                                                     `[data-id="${b.id}"][data-bi="${bi + 1}"]`,
@@ -872,7 +969,7 @@ export default function BlockEditor({
                                                                 const newBullets = [...b.bullets];
                                                                 newBullets.splice(bi, 1);
                                                                 b.bullets = newBullets;
-                                                                handleBlocksChange([...blocks]);
+                                                                handleBlocksChangeImmediate([...blocks]);
                                                                 setTimeout(() => {
                                                                     const prevIdx = Math.max(0, bi - 1);
                                                                     const el = document.querySelector(
@@ -887,7 +984,7 @@ export default function BlockEditor({
                                                         const newBullets = [...b.bullets];
                                                         newBullets[bi] = val;
                                                         b.bullets = newBullets;
-                                                        handleBlocksChange([...blocks]);
+                                                        handleBlocksChange([...blocks]); // debounced
                                                     }}
                                                 />
                                                 <button
@@ -897,7 +994,7 @@ export default function BlockEditor({
                                                             const newBullets = [...b.bullets];
                                                             newBullets.splice(bi, 1);
                                                             b.bullets = newBullets;
-                                                            handleBlocksChange([...blocks]);
+                                                            handleBlocksChangeImmediate([...blocks]);
                                                         }
                                                     }}
                                                 >
@@ -910,7 +1007,7 @@ export default function BlockEditor({
                                         className="b-section-add-bullet"
                                         onClick={() => {
                                             b.bullets = [...b.bullets, ''];
-                                            handleBlocksChange([...blocks]);
+                                            handleBlocksChangeImmediate([...blocks]);
                                             setTimeout(() => {
                                                 const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
                                                 const last = all[all.length - 1];
@@ -948,6 +1045,114 @@ export default function BlockEditor({
                                         }}
                                         dataId={b.id}
                                     />
+                                </div>
+                            );
+                        case 'quiz':
+                            return (
+                                <div className="b-quiz-wrap">
+                                    <div className="b-quiz-question-row">
+                                        <span className="b-quiz-icon">❓</span>
+                                        <EditableText
+                                            className="b-quiz-question"
+                                            value={b.question}
+                                            placeholder="Nhập câu hỏi trắc nghiệm..."
+                                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                            onInput={(val) => {
+                                                b.question = val;
+                                                handleBlocksChange([...blocks]);
+                                            }}
+                                            dataId={b.id}
+                                        />
+                                    </div>
+                                    <div className="b-quiz-options-list">
+                                        {b.options.map((opt, oi) => (
+                                            <div key={oi} className="b-quiz-option-row">
+                                                <Checkbox
+                                                    checked={opt.answer}
+                                                    onChange={(e) => {
+                                                        b.options = b.options.map((o, idx) => ({
+                                                            ...o,
+                                                            answer: idx === oi ? e.target.checked : false,
+                                                        }));
+                                                        handleBlocksChangeImmediate([...blocks]);
+                                                    }}
+                                                />
+                                                <span className="b-quiz-option-letter">
+                                                    {String.fromCharCode(65 + oi)}.
+                                                </span>
+                                                <EditableText
+                                                    className="b-quiz-option-text"
+                                                    value={opt.option}
+                                                    placeholder="Nhập đáp án..."
+                                                    dataId={b.id}
+                                                    dataBi={oi}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            const newOpts = [...b.options];
+                                                            newOpts.splice(oi + 1, 0, { option: '', answer: false });
+                                                            b.options = newOpts;
+                                                            handleBlocksChangeImmediate([...blocks]);
+                                                            setTimeout(() => {
+                                                                const el = document.querySelector(
+                                                                    `[data-id="${b.id}"][data-bi="${oi + 1}"]`,
+                                                                );
+                                                                if (el) el.focus();
+                                                            }, 30);
+                                                        }
+                                                        if (e.key === 'Backspace' && opt.option === '') {
+                                                            e.preventDefault();
+                                                            if (b.options.length > 2) {
+                                                                const newOpts = [...b.options];
+                                                                newOpts.splice(oi, 1);
+                                                                b.options = newOpts;
+                                                                handleBlocksChangeImmediate([...blocks]);
+                                                                setTimeout(() => {
+                                                                    const prevIdx = Math.max(0, oi - 1);
+                                                                    const el = document.querySelector(
+                                                                        `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
+                                                                    );
+                                                                    if (el) el.focus();
+                                                                }, 30);
+                                                            }
+                                                        }
+                                                    }}
+                                                    onInput={(val) => {
+                                                        const newOpts = [...b.options];
+                                                        newOpts[oi] = { ...newOpts[oi], option: val };
+                                                        b.options = newOpts;
+                                                        handleBlocksChange([...blocks]); // debounced
+                                                    }}
+                                                />
+                                                {b.options.length > 2 && (
+                                                    <button
+                                                        className="b-quiz-option-del"
+                                                        onClick={() => {
+                                                            b.options = b.options.filter((_, idx) => idx !== oi);
+                                                            handleBlocksChangeImmediate([...blocks]);
+                                                        }}
+                                                    >
+                                                        ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="b-quiz-add-option"
+                                        onClick={() => {
+                                            b.options = [...b.options, { option: '', answer: false }];
+                                            handleBlocksChangeImmediate([...blocks]);
+                                            setTimeout(() => {
+                                                const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
+                                                const last = all[all.length - 1];
+                                                if (last) last.focus();
+                                            }, 30);
+                                        }}
+                                    >
+                                        ＋ Thêm đáp án
+                                    </button>
                                 </div>
                             );
                         default:
@@ -1149,6 +1354,22 @@ export default function BlockEditor({
                                     <div className="tp-prev-line"></div>
                                     <div className="tp-prev-line"></div>
                                     <div className="tp-prev-line short"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            className={`tp-card ${template === 'quiz' ? 'selected' : ''}`}
+                            onClick={() => setTemplate('quiz')}
+                        >
+                            <div className="tp-card-icon">❓</div>
+                            <div className="tp-card-name">Trắc nghiệm</div>
+                            <div className="tp-card-desc">Mẫu bài kiểm tra trắc nghiệm kiến thức.</div>
+                            <div className="tp-card-preview">
+                                <div className="tp-prev-line dark"></div>
+                                <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
+                                <div style={{ display: 'flex', gap: 4, marginTop: 6 }}>
+                                    <div className="tp-prev-line shorter"></div>
+                                    <div className="tp-prev-line shorter"></div>
                                 </div>
                             </div>
                         </div>

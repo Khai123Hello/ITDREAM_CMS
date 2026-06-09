@@ -10,29 +10,25 @@ import {
 } from '@ant-design/icons';
 
 import { BaseForm } from '@components/common/form/BaseForm';
-import SelectField from '@components/common/form/SelectField';
 import TextField from '@components/common/form/TextField';
 
 import useBasicForm from '@hooks/useBasicForm';
 import useTranslate from '@hooks/useTranslate';
 
-import { questionTypeOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
 const { TextArea } = Input;
 
 const TaskQuestionForm = (props) => {
     const translate = useTranslate();
-    const questionTypeValues = translate.formatKeys(questionTypeOptions, ['label']);
 
-    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, isEditing, taskId } = props;
+    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, taskId } = props;
 
     const [options, setOptions] = useState([
         { id: 1, option: '', answer: false },
         { id: 2, option: '', answer: false },
     ]);
 
-    const [questionType, setQuestionType] = useState(null);
     const [previewVisible, setPreviewVisible] = useState(false);
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({
@@ -69,59 +65,36 @@ const TaskQuestionForm = (props) => {
         setIsChangedFormValues(true);
     };
 
-    const handleQuestionTypeChange = (value) => {
-        setQuestionType(value);
-        // Reset options khi chuyển sang loại câu hỏi khác
-        if (value !== 3) {
-            setOptions([
-                { id: 1, option: '', answer: false },
-                { id: 2, option: '', answer: false },
-            ]);
-        }
-    };
-
     const handleSubmit = (values) => {
-        const currentQuestionType = values.questionType;
-
-        // Nếu là trắc nghiệm (questionType = 3)
-        if (currentQuestionType === 3) {
-            // Validate có ít nhất 1 đáp án đúng
-            const hasCorrect = options.some((opt) => opt.answer);
-            if (!hasCorrect) {
-                form.setFields([
-                    {
-                        name: 'options',
-                        errors: ['Vui lòng chọn ít nhất 1 đáp án đúng'],
-                    },
-                ]);
-                return;
-            }
-
-            // Validate tất cả options phải có content
-            const emptyOption = options.find((opt) => !opt.option.trim());
-            if (emptyOption) {
-                form.setFields([
-                    {
-                        name: 'options',
-                        errors: ['Vui lòng nhập nội dung cho tất cả các đáp án'],
-                    },
-                ]);
-                return;
-            }
-
-            return mixinFuncs.handleSubmit({
-                ...values,
-                taskId: taskId,
-                options: JSON.stringify(options.map(({ id, ...rest }) => rest)),
-            });
-        } else {
-            // Câu hỏi text (2) hoặc file (1) - options = null
-            return mixinFuncs.handleSubmit({
-                ...values,
-                taskId: taskId,
-                options: null,
-            });
+        // Validate có ít nhất 1 đáp án đúng
+        const hasCorrect = options.some((opt) => opt.answer);
+        if (!hasCorrect) {
+            form.setFields([
+                {
+                    name: 'options',
+                    errors: ['Vui lòng chọn ít nhất 1 đáp án đúng'],
+                },
+            ]);
+            return;
         }
+
+        // Validate tất cả options phải có content
+        const emptyOption = options.find((opt) => !opt.option.trim());
+        if (emptyOption) {
+            form.setFields([
+                {
+                    name: 'options',
+                    errors: ['Vui lòng nhập nội dung cho tất cả các đáp án'],
+                },
+            ]);
+            return;
+        }
+
+        return mixinFuncs.handleSubmit({
+            question: values.question?.trim() || '',
+            taskId: taskId,
+            options: JSON.stringify(options.map(({ option, answer }) => ({ option, answer }))),
+        });
     };
 
     // Get preview data
@@ -130,8 +103,7 @@ const TaskQuestionForm = (props) => {
         return {
             ...formValues,
             options: options,
-            questionTypeLabel:
-                questionTypeValues.find((q) => q.value === formValues.questionType)?.label || 'Chưa chọn',
+            questionTypeLabel: 'Trắc nghiệm',
         };
     };
 
@@ -139,13 +111,10 @@ const TaskQuestionForm = (props) => {
         if (dataDetail) {
             form.setFieldsValue({
                 question: dataDetail?.question,
-                questionType: dataDetail?.questionType,
             });
 
-            setQuestionType(dataDetail?.questionType);
-
-            // Parse options từ JSON string nếu là trắc nghiệm
-            if (dataDetail?.questionType === 3 && dataDetail?.options) {
+            // Parse options từ JSON string
+            if (dataDetail?.options) {
                 try {
                     const parsedOptions = JSON.parse(dataDetail.options);
                     if (Array.isArray(parsedOptions)) {
@@ -182,113 +151,94 @@ const TaskQuestionForm = (props) => {
                         </Col>
                     </Row>
 
+                    <Divider orientation="left">Các đáp án</Divider>
+
                     <Row gutter={16}>
-                        <Col span={12}>
-                            <SelectField
-                                label={translate.formatMessage(commonMessage.questionType)}
-                                required
-                                name="questionType"
-                                requiredMsg={translate.formatMessage(commonMessage.required)}
-                                options={questionTypeValues}
-                                allowClear={false}
-                                onChange={handleQuestionTypeChange}
-                            />
-                        </Col>
-                    </Row>
-
-                    {/* Chỉ hiển thị options khi questionType = 3 (trắc nghiệm) */}
-                    {(questionType === 3 || form.getFieldValue('questionType') === 3) && (
-                        <>
-                            <Divider orientation="left">Các đáp án</Divider>
-
-                            <Row gutter={16}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        label="Danh sách đáp án (Chọn checkbox để đánh dấu đáp án đúng)"
-                                        name="options"
-                                    >
+                        <Col span={24}>
+                            <Form.Item
+                                label="Danh sách đáp án (Chọn checkbox để đánh dấu đáp án đúng)"
+                                name="options"
+                            >
+                                <div
+                                    style={{
+                                        padding: '16px',
+                                        background: '#fafafa',
+                                        borderRadius: '8px',
+                                    }}
+                                >
+                                    {options.map((option, index) => (
                                         <div
+                                            key={option.id}
                                             style={{
-                                                padding: '16px',
-                                                background: '#fafafa',
+                                                marginBottom: 12,
+                                                padding: '12px',
+                                                background: 'white',
                                                 borderRadius: '8px',
+                                                border: option.answer
+                                                    ? '2px solid #52c41a'
+                                                    : '1px solid #d9d9d9',
                                             }}
                                         >
-                                            {options.map((option, index) => (
-                                                <div
-                                                    key={option.id}
-                                                    style={{
-                                                        marginBottom: 12,
-                                                        padding: '12px',
-                                                        background: 'white',
-                                                        borderRadius: '8px',
-                                                        border: option.answer
-                                                            ? '2px solid #52c41a'
-                                                            : '1px solid #d9d9d9',
-                                                    }}
-                                                >
-                                                    <Space style={{ display: 'flex', width: '100%' }} align="start">
-                                                        <Checkbox
-                                                            checked={option.answer}
-                                                            onChange={(e) =>
-                                                                handleCorrectChange(option.id, e.target.checked)
-                                                            }
-                                                            style={{ marginTop: '8px' }}
-                                                        />
-                                                        <div style={{ flex: 1 }}>
-                                                            <div
-                                                                style={{
-                                                                    display: 'flex',
-                                                                    alignItems: 'center',
-                                                                    gap: '8px',
-                                                                    marginBottom: '8px',
-                                                                }}
-                                                            >
-                                                                <Tag color="blue">
-                                                                    Đáp án {String.fromCharCode(65 + index)}
-                                                                </Tag>
-                                                                {option.answer && (
-                                                                    <Tag color="success" icon={<CheckCircleOutlined />}>
-                                                                        Đúng
-                                                                    </Tag>
-                                                                )}
-                                                            </div>
-                                                            <TextArea
-                                                                placeholder={`Nhập nội dung đáp án ${String.fromCharCode(65 + index)}`}
-                                                                value={option.option}
-                                                                onChange={(e) =>
-                                                                    updateOption(option.id, 'option', e.target.value)
-                                                                }
-                                                                rows={2}
-                                                            />
-                                                        </div>
-                                                        {options.length > 2 && (
-                                                            <Button
-                                                                type="text"
-                                                                danger
-                                                                icon={<DeleteOutlined />}
-                                                                onClick={() => removeOption(option.id)}
-                                                                style={{ marginTop: '4px' }}
-                                                            />
+                                            <Space style={{ display: 'flex', width: '100%' }} align="start">
+                                                <Checkbox
+                                                    checked={option.answer}
+                                                    onChange={(e) =>
+                                                        handleCorrectChange(option.id, e.target.checked)
+                                                    }
+                                                    style={{ marginTop: '8px' }}
+                                                />
+                                                <div style={{ flex: 1 }}>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            marginBottom: '8px',
+                                                        }}
+                                                    >
+                                                        <Tag color="blue">
+                                                            Đáp án {String.fromCharCode(65 + index)}
+                                                        </Tag>
+                                                        {option.answer && (
+                                                            <Tag color="success" icon={<CheckCircleOutlined />}>
+                                                                Đúng
+                                                            </Tag>
                                                         )}
-                                                    </Space>
+                                                    </div>
+                                                    <TextArea
+                                                        placeholder={`Nhập nội dung đáp án ${String.fromCharCode(65 + index)}`}
+                                                        value={option.option}
+                                                        onChange={(e) =>
+                                                            updateOption(option.id, 'option', e.target.value)
+                                                        }
+                                                        rows={2}
+                                                    />
                                                 </div>
-                                            ))}
-                                            <Button
-                                                type="dashed"
-                                                onClick={addOption}
-                                                icon={<PlusOutlined />}
-                                                block
-                                                style={{ marginTop: 8 }}
-                                            >
-                                                Thêm đáp án
-                                            </Button>
+                                                {options.length > 2 && (
+                                                    <Button
+                                                        type="text"
+                                                        danger
+                                                        icon={<DeleteOutlined />}
+                                                        onClick={() => removeOption(option.id)}
+                                                        style={{ marginTop: '4px' }}
+                                                    />
+                                                )}
+                                            </Space>
                                         </div>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </>
-                    )}
+                                    ))}
+                                    <Button
+                                        type="dashed"
+                                        onClick={addOption}
+                                        icon={<PlusOutlined />}
+                                        block
+                                        style={{ marginTop: 8 }}
+                                    >
+                                        Thêm đáp án
+                                    </Button>
+                                </div>
+                            </Form.Item>
+                        </Col>
+                    </Row>
 
                     <div className="footer-card-form">
                         <Space>
@@ -375,8 +325,7 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                         {data.question || 'Chưa có câu hỏi'}
                     </h3>
 
-                    {/* Trắc nghiệm - questionType = 3 */}
-                    {data.questionType === 3 && data.options && data.options.length > 0 ? (
+                    {data.options && data.options.length > 0 ? (
                         <div>
                             <Radio.Group
                                 style={{ width: '100%' }}
@@ -496,44 +445,6 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                                 </div>
                             )}
                         </div>
-                    ) : data.questionType === 2 ? (
-                        // Text answer
-                        <div>
-                            <TextArea
-                                rows={6}
-                                placeholder="Nhập câu trả lời của bạn..."
-                                style={{ marginBottom: '16px' }}
-                            />
-                            <div style={{ textAlign: 'center' }}>
-                                <Button type="primary" size="large">
-                                    Nộp bài
-                                </Button>
-                            </div>
-                        </div>
-                    ) : data.questionType === 1 ? (
-                        // File upload
-                        <div>
-                            <div
-                                style={{
-                                    padding: '40px',
-                                    border: '2px dashed #d9d9d9',
-                                    borderRadius: '8px',
-                                    textAlign: 'center',
-                                    background: '#fafafa',
-                                    marginBottom: '16px',
-                                }}
-                            >
-                                <p style={{ fontSize: '16px', color: '#666' }}>
-                                    Kéo thả file vào đây hoặc click để chọn file
-                                </p>
-                                <Button type="primary">Chọn file</Button>
-                            </div>
-                            <div style={{ textAlign: 'center' }}>
-                                <Button type="primary" size="large">
-                                    Nộp bài
-                                </Button>
-                            </div>
-                        </div>
                     ) : (
                         <div
                             style={{
@@ -542,7 +453,7 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                                 color: '#999',
                             }}
                         >
-                            Vui lòng chọn loại câu hỏi
+                            Chưa cấu hình câu trả lời trắc nghiệm
                         </div>
                     )}
                 </Card>
