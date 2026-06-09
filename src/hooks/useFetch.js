@@ -59,7 +59,7 @@ const useFetch = (
                 }
             }
         },
-        [apiConfig, defaultOnCompleted, defaultOnError, isMounted, mappingData, params, pathParams],
+        [apiConfig, defaultOnCompleted, defaultOnError, isMounted, mappingData, JSON.stringify(params), JSON.stringify(pathParams)],
     );
     useEffect(() => {
         if (immediate) {
