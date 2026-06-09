@@ -30,9 +30,7 @@ const TaskQuestionListPage = ({ pageOptions }) => {
     const isAdmin = userType === UserTypes.ADMIN;
 
     const formattedQuestionTypeOptions = translate.formatKeys(questionTypeOptions, ['label']);
-    const questionTypeMap = Object.fromEntries(
-        formattedQuestionTypeOptions.map(item => [item.value, item]),
-    );
+    const questionTypeMap = Object.fromEntries(formattedQuestionTypeOptions.map((item) => [item.value, item]));
 
     const labels = {
         question: translate.formatMessage(commonMessage.question),
@@ -46,7 +44,7 @@ const TaskQuestionListPage = ({ pageOptions }) => {
         simulation: translate.formatMessage(commonMessage.simulation),
     };
 
-    const questionTypeValues = formattedQuestionTypeOptions.map(item => ({
+    const questionTypeValues = formattedQuestionTypeOptions.map((item) => ({
         value: item.value,
         label: item.label,
     }));
@@ -104,7 +102,7 @@ const TaskQuestionListPage = ({ pageOptions }) => {
         try {
             // Nếu optionsStr đã là object/array, không cần parse
             let options = typeof optionsStr === 'string' ? JSON.parse(optionsStr) : optionsStr;
-            
+
             if (Array.isArray(options) && options.length > 0) {
                 return (
                     <div>
@@ -128,9 +126,9 @@ const TaskQuestionListPage = ({ pageOptions }) => {
 
                             return (
                                 <div key={idx} style={{ marginBottom: 4 }}>
-                                    <Tag 
+                                    <Tag
                                         color={isCorrect ? 'success' : 'default'}
-                                        style={{ 
+                                        style={{
                                             padding: '2px 8px',
                                             fontSize: '13px',
                                             borderRadius: '4px',
@@ -145,7 +143,7 @@ const TaskQuestionListPage = ({ pageOptions }) => {
                     </div>
                 );
             }
-            
+
             // Nếu options rỗng hoặc không phải array
             return <span style={{ color: '#999' }}>-</span>;
         } catch (error) {
@@ -176,21 +174,17 @@ const TaskQuestionListPage = ({ pageOptions }) => {
             title: labels.options,
             dataIndex: 'options',
             width: '300px',
-            render: (options) => (
-                <div style={{ maxHeight: 100, overflow: 'auto' }}>
-                    {parseOptions(options)}
-                </div>
-            ),
+            render: (options) => <div style={{ maxHeight: 100, overflow: 'auto' }}>{parseOptions(options)}</div>,
         },
         mixinFuncs.renderQuestionTypeColumn({ width: '150px' }),
         mixinFuncs.renderActionColumn(
             {
                 // Educator: có quyền edit và delete
                 // Admin: không có quyền gì (chỉ xem)
-                edit: isEducator 
+                edit: isEducator
                     ? () => mixinFuncs.hasPermission([apiConfig.taskQuestion.update.permissionCode])
                     : false,
-                delete: isEducator 
+                delete: isEducator
                     ? () => mixinFuncs.hasPermission([apiConfig.taskQuestion.delete.permissionCode])
                     : false,
             },
@@ -213,14 +207,7 @@ const TaskQuestionListPage = ({ pageOptions }) => {
     };
 
     return (
-        <PageWrapper
-            routes={pageOptions.renderBreadcrumbs(
-                commonMessage,
-                translate,
-                null,
-                { simulationId, taskId },
-            )}
-        >
+        <PageWrapper routes={pageOptions.renderBreadcrumbs(commonMessage, translate, null, { simulationId, taskId })}>
             <ListPage
                 searchForm={mixinFuncs.renderSearchForm({
                     fields: searchFields,

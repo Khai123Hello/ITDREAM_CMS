@@ -37,15 +37,15 @@ function DateFilter({ compareType, name, ...props }) {
         } else {
             return <InputTextField name={name} formItemProps={{ hidden: true }} />;
         }
-    }, [ compareType ]);
+    }, [compareType]);
 
     useEffect(() => {
         if (compareType === 'between' || compareType === 'date') {
             form.setFieldValue(name, undefined);
-        }else{
+        } else {
             form.setFieldValue(name, compareType);
         }
-    }, [ compareType ]);
+    }, [compareType]);
 
     return <>{renderPicker}</>;
 }

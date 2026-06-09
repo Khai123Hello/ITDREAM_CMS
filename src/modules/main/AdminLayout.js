@@ -12,7 +12,7 @@ import useTranslate from '@hooks/useTranslate';
  * Đặc điểm:
  * - Giống MainLayout nhưng có thể tùy chỉnh riêng (màu sắc, menu khác, v.v.)
  * - Dễ mở rộng khi admin có yêu cầu đặc biệt
- * 
+ *
  * Ưu điểm:
  * - Tách biệt logic admin riêng
  * - Dễ bảo trì khi có sự khác biệt giữa admin và user thường

@@ -288,19 +288,17 @@ const EducatorListPage = ({ pageOptions }) => {
             width: labels.phone.length * 10,
         },
         mixinFuncs.renderStatusColumn({ width: '120px' }),
-        mixinFuncs.renderActionColumn(
-            {
-                edit: () => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
-                delete: (record) =>
-                    mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
-                approve: (record) =>
-                    record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
-                    mixinFuncs.hasPermission([apiConfig.educator.approve?.permissionCode]),
-                reject: (record) =>
-                    record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
-                    mixinFuncs.hasPermission([apiConfig.educator.reject?.permissionCode]),
-            },
-        ),
+        mixinFuncs.renderActionColumn({
+            edit: () => mixinFuncs.hasPermission([apiConfig.educator.update.permissionCode]),
+            delete: (record) =>
+                mixinFuncs.hasPermission([apiConfig.educator.delete.permissionCode]) && !record.isSuperAdmin,
+            approve: (record) =>
+                record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
+                mixinFuncs.hasPermission([apiConfig.educator.approve?.permissionCode]),
+            reject: (record) =>
+                record.account?.status === ACCOUNT_STATUS_WAITING_APPROVE &&
+                mixinFuncs.hasPermission([apiConfig.educator.reject?.permissionCode]),
+        }),
     ];
 
     const searchFields = [

@@ -280,6 +280,12 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'TA_U',
         },
+        updateOrder: {
+            baseURL: `${apiUrl}v1/task/update-order`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'TA_ED_UO',
+        },
         delete: {
             baseURL: `${apiUrl}v1/task/delete/:id`,
             method: 'DELETE',

@@ -33,9 +33,7 @@ export default {
         permissions: [apiConfig.simulation.getList.permissionCode],
         pageOptions: {
             objectName: commonMessage.simulation,
-            renderBreadcrumbs: (messages, t = {}) => [
-                { breadcrumbName: t.formatMessage(commonMessage.simulation) },
-            ],
+            renderBreadcrumbs: (messages, t = {}) => [{ breadcrumbName: t.formatMessage(commonMessage.simulation) }],
         },
     },
     simulationSavePage: {
@@ -117,7 +115,10 @@ export default {
                 return [
                     { breadcrumbName: t.formatMessage(commonMessage.simulation), path: paths.simulationListPage },
                     { breadcrumbName: t.formatMessage(commonMessage.task), path: `/simulation/${simulationId}/task` },
-                    { breadcrumbName: t.formatMessage(commonMessage.taskQuestion), path: `/simulation/${simulationId}/task/${taskId}/question` },
+                    {
+                        breadcrumbName: t.formatMessage(commonMessage.taskQuestion),
+                        path: `/simulation/${simulationId}/task/${taskId}/question`,
+                    },
                     { breadcrumbName: title },
                 ];
             },
@@ -132,9 +133,7 @@ export default {
         permissions: [],
         pageOptions: {
             objectName: commonMessage.test,
-            renderBreadcrumbs: (messages, t) => [
-                { breadcrumbName: t.formatMessage(commonMessage.test) },
-            ],
+            renderBreadcrumbs: (messages, t) => [{ breadcrumbName: t.formatMessage(commonMessage.test) }],
         },
     },
 };

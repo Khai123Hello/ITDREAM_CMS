@@ -114,7 +114,9 @@ const IconPicker = ({ icon, onChange, uploadFile, canEdit }) => {
                         onPressEnter={handleApply}
                         size="small"
                     />
-                    <Button type="primary" size="small" onClick={handleApply}>Ok</Button>
+                    <Button type="primary" size="small" onClick={handleApply}>
+                        Ok
+                    </Button>
                 </div>
             </div>
             <div>
@@ -195,22 +197,30 @@ const IconPicker = ({ icon, onChange, uploadFile, canEdit }) => {
 };
 
 const OverviewEditor = ({ value, onChange, canEdit, uploadFile }) => {
-    const quillModules = useMemo(() => ({
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['link'],
-            ['clean'],
-        ],
-    }), []);
+    const quillModules = useMemo(
+        () => ({
+            toolbar: [
+                [{ header: [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline', 'strike'],
+                [{ list: 'ordered' }, { list: 'bullet' }],
+                [{ color: [] }, { background: [] }],
+                ['link'],
+                ['clean'],
+            ],
+        }),
+        [],
+    );
 
     const quillFormats = [
         'header',
-        'bold', 'italic', 'underline', 'strike',
-        'list', 'bullet',
-        'color', 'background',
+        'bold',
+        'italic',
+        'underline',
+        'strike',
+        'list',
+        'bullet',
+        'color',
+        'background',
         'link',
     ];
 
@@ -307,8 +317,9 @@ const OverviewEditor = ({ value, onChange, canEdit, uploadFile }) => {
 
     return (
         <>
-            <style dangerouslySetInnerHTML={{
-                __html: `
+            <style
+                dangerouslySetInnerHTML={{
+                    __html: `
                 .overview-html-editor {
                     max-width: 1100px;
                     margin: 16px auto;
@@ -479,7 +490,8 @@ const OverviewEditor = ({ value, onChange, canEdit, uploadFile }) => {
                     background: #fafafa;
                 }
                 `,
-            }} />
+                }}
+            />
             <Divider orientation="left">Tổng quan (Skyscanner style)</Divider>
             <div className="overview-html-editor">
                 {/* HERO SECTION */}
@@ -512,10 +524,7 @@ const OverviewEditor = ({ value, onChange, canEdit, uploadFile }) => {
                                     placeholder="Nhãn..."
                                 />
                                 {canEdit && (
-                                    <div
-                                        className="badge-delete-btn"
-                                        onClick={() => handleRemoveBadge(index)}
-                                    >
+                                    <div className="badge-delete-btn" onClick={() => handleRemoveBadge(index)}>
                                         ✕
                                     </div>
                                 )}

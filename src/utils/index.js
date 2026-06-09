@@ -287,7 +287,6 @@ export const formatDateToZeroTime = (date) => {
     return parsedDate.startOf('day').format(DATE_FORMAT_ZERO_TIME);
 };
 
-
 export const formatDateToEndOfDayTime = (date) => {
     if (!date) return '';
 

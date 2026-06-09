@@ -35,7 +35,14 @@ const DropdownField = (props) => {
     const optionOtherKey = optionOther || 'other';
 
     return (
-        <Form.Item initialValue={initialValue} label={label} name={fieldName} rules={rules} shouldUpdate={false} noStyle={noStyle}>
+        <Form.Item
+            initialValue={initialValue}
+            label={label}
+            name={fieldName}
+            rules={rules}
+            shouldUpdate={false}
+            noStyle={noStyle}
+        >
             <Select
                 {...fieldProps}
                 loading={loading}
@@ -57,8 +64,8 @@ const DropdownField = (props) => {
                             value={item[optionValueKey]}
                             other={item[optionOtherKey]}
                         >
-                            {noTranslate ? item[optionLabelKey] : (item[optionLabelKey])}
-                            {labelInValue ? (item[optionLabelKey]) : null}
+                            {noTranslate ? item[optionLabelKey] : item[optionLabelKey]}
+                            {labelInValue ? item[optionLabelKey] : null}
                         </Select.Option>
                     ))
                     : null}

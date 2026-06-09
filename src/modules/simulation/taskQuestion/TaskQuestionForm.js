@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Button, Space, Checkbox, Input, Form, Modal, Radio, Divider, Tag } from 'antd';
-import { PlusOutlined, DeleteOutlined, EyeOutlined, QuestionCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import {
+    PlusOutlined,
+    DeleteOutlined,
+    EyeOutlined,
+    QuestionCircleOutlined,
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+} from '@ant-design/icons';
 
 import { BaseForm } from '@components/common/form/BaseForm';
 import SelectField from '@components/common/form/SelectField';
@@ -18,15 +25,7 @@ const TaskQuestionForm = (props) => {
     const translate = useTranslate();
     const questionTypeValues = translate.formatKeys(questionTypeOptions, ['label']);
 
-    const {
-        formId,
-        actions,
-        dataDetail,
-        onSubmit,
-        setIsChangedFormValues,
-        isEditing,
-        taskId,
-    } = props;
+    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, isEditing, taskId } = props;
 
     const [options, setOptions] = useState([
         { id: 1, option: '', answer: false },
@@ -42,31 +41,31 @@ const TaskQuestionForm = (props) => {
     });
 
     const addOption = () => {
-        const newId = Math.max(...options.map(o => o.id), 0) + 1;
+        const newId = Math.max(...options.map((o) => o.id), 0) + 1;
         setOptions([...options, { id: newId, option: '', answer: false }]);
         setIsChangedFormValues(true);
     };
 
     const removeOption = (id) => {
         if (options.length > 2) {
-            setOptions(options.filter(opt => opt.id !== id));
+            setOptions(options.filter((opt) => opt.id !== id));
             setIsChangedFormValues(true);
         }
     };
 
     const updateOption = (id, field, value) => {
-        setOptions(options.map(opt =>
-            opt.id === id ? { ...opt, [field]: value } : opt,
-        ));
+        setOptions(options.map((opt) => (opt.id === id ? { ...opt, [field]: value } : opt)));
         setIsChangedFormValues(true);
     };
 
     const handleCorrectChange = (id, checked) => {
         // Chỉ cho phép 1 đáp án đúng cho trắc nghiệm
-        setOptions(options.map(opt => ({
-            ...opt,
-            answer: opt.id === id ? checked : false,
-        })));
+        setOptions(
+            options.map((opt) => ({
+                ...opt,
+                answer: opt.id === id ? checked : false,
+            })),
+        );
         setIsChangedFormValues(true);
     };
 
@@ -87,22 +86,26 @@ const TaskQuestionForm = (props) => {
         // Nếu là trắc nghiệm (questionType = 3)
         if (currentQuestionType === 3) {
             // Validate có ít nhất 1 đáp án đúng
-            const hasCorrect = options.some(opt => opt.answer);
+            const hasCorrect = options.some((opt) => opt.answer);
             if (!hasCorrect) {
-                form.setFields([{
-                    name: 'options',
-                    errors: ['Vui lòng chọn ít nhất 1 đáp án đúng'],
-                }]);
+                form.setFields([
+                    {
+                        name: 'options',
+                        errors: ['Vui lòng chọn ít nhất 1 đáp án đúng'],
+                    },
+                ]);
                 return;
             }
 
             // Validate tất cả options phải có content
-            const emptyOption = options.find(opt => !opt.option.trim());
+            const emptyOption = options.find((opt) => !opt.option.trim());
             if (emptyOption) {
-                form.setFields([{
-                    name: 'options',
-                    errors: ['Vui lòng nhập nội dung cho tất cả các đáp án'],
-                }]);
+                form.setFields([
+                    {
+                        name: 'options',
+                        errors: ['Vui lòng nhập nội dung cho tất cả các đáp án'],
+                    },
+                ]);
                 return;
             }
 
@@ -127,7 +130,8 @@ const TaskQuestionForm = (props) => {
         return {
             ...formValues,
             options: options,
-            questionTypeLabel: questionTypeValues.find(q => q.value === formValues.questionType)?.label || 'Chưa chọn',
+            questionTypeLabel:
+                questionTypeValues.find((q) => q.value === formValues.questionType)?.label || 'Chưa chọn',
         };
     };
 
@@ -145,11 +149,13 @@ const TaskQuestionForm = (props) => {
                 try {
                     const parsedOptions = JSON.parse(dataDetail.options);
                     if (Array.isArray(parsedOptions)) {
-                        setOptions(parsedOptions.map((opt, idx) => ({
-                            id: idx + 1,
-                            option: opt.option || '',
-                            answer: opt.answer || false,
-                        })));
+                        setOptions(
+                            parsedOptions.map((opt, idx) => ({
+                                id: idx + 1,
+                                option: opt.option || '',
+                                answer: opt.answer || false,
+                            })),
+                        );
                     }
                 } catch (e) {
                     console.error('Failed to parse options:', e);
@@ -194,49 +200,65 @@ const TaskQuestionForm = (props) => {
                     {(questionType === 3 || form.getFieldValue('questionType') === 3) && (
                         <>
                             <Divider orientation="left">Các đáp án</Divider>
-                            
+
                             <Row gutter={16}>
                                 <Col span={24}>
                                     <Form.Item
                                         label="Danh sách đáp án (Chọn checkbox để đánh dấu đáp án đúng)"
                                         name="options"
                                     >
-                                        <div style={{ 
-                                            padding: '16px',
-                                            background: '#fafafa',
-                                            borderRadius: '8px',
-                                        }}>
+                                        <div
+                                            style={{
+                                                padding: '16px',
+                                                background: '#fafafa',
+                                                borderRadius: '8px',
+                                            }}
+                                        >
                                             {options.map((option, index) => (
-                                                <div 
-                                                    key={option.id} 
-                                                    style={{ 
+                                                <div
+                                                    key={option.id}
+                                                    style={{
                                                         marginBottom: 12,
                                                         padding: '12px',
                                                         background: 'white',
                                                         borderRadius: '8px',
-                                                        border: option.answer ? '2px solid #52c41a' : '1px solid #d9d9d9',
+                                                        border: option.answer
+                                                            ? '2px solid #52c41a'
+                                                            : '1px solid #d9d9d9',
                                                     }}
                                                 >
                                                     <Space style={{ display: 'flex', width: '100%' }} align="start">
                                                         <Checkbox
                                                             checked={option.answer}
-                                                            onChange={(e) => handleCorrectChange(option.id, e.target.checked)}
+                                                            onChange={(e) =>
+                                                                handleCorrectChange(option.id, e.target.checked)
+                                                            }
                                                             style={{ marginTop: '8px' }}
                                                         />
                                                         <div style={{ flex: 1 }}>
-                                                            <div style={{ 
-                                                                display: 'flex', 
-                                                                alignItems: 'center', 
-                                                                gap: '8px',
-                                                                marginBottom: '8px',
-                                                            }}>
-                                                                <Tag color="blue">Đáp án {String.fromCharCode(65 + index)}</Tag>
-                                                                {option.answer && <Tag color="success" icon={<CheckCircleOutlined />}>Đúng</Tag>}
+                                                            <div
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: '8px',
+                                                                    marginBottom: '8px',
+                                                                }}
+                                                            >
+                                                                <Tag color="blue">
+                                                                    Đáp án {String.fromCharCode(65 + index)}
+                                                                </Tag>
+                                                                {option.answer && (
+                                                                    <Tag color="success" icon={<CheckCircleOutlined />}>
+                                                                        Đúng
+                                                                    </Tag>
+                                                                )}
                                                             </div>
                                                             <TextArea
                                                                 placeholder={`Nhập nội dung đáp án ${String.fromCharCode(65 + index)}`}
                                                                 value={option.option}
-                                                                onChange={(e) => updateOption(option.id, 'option', e.target.value)}
+                                                                onChange={(e) =>
+                                                                    updateOption(option.id, 'option', e.target.value)
+                                                                }
                                                                 rows={2}
                                                             />
                                                         </div>
@@ -270,10 +292,7 @@ const TaskQuestionForm = (props) => {
 
                     <div className="footer-card-form">
                         <Space>
-                            <Button
-                                icon={<EyeOutlined />}
-                                onClick={() => setPreviewVisible(true)}
-                            >
+                            <Button icon={<EyeOutlined />} onClick={() => setPreviewVisible(true)}>
                                 Xem trước
                             </Button>
                             {actions}
@@ -306,7 +325,7 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
         setShowResult(false);
     };
 
-    const correctAnswer = data.options?.find(opt => opt.answer);
+    const correctAnswer = data.options?.find((opt) => opt.answer);
 
     return (
         <Modal
@@ -326,15 +345,17 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
             ]}
             style={{ top: 20 }}
         >
-            <div style={{ 
-                padding: '24px',
-                background: '#f5f5f5',
-                minHeight: '400px',
-                borderRadius: '8px',
-            }}>
+            <div
+                style={{
+                    padding: '24px',
+                    background: '#f5f5f5',
+                    minHeight: '400px',
+                    borderRadius: '8px',
+                }}
+            >
                 {/* Question Card */}
-                <Card 
-                    style={{ 
+                <Card
+                    style={{
                         marginBottom: '24px',
                         boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     }}
@@ -342,20 +363,22 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                     <div style={{ marginBottom: '16px' }}>
                         <Tag color="blue">{data.questionTypeLabel}</Tag>
                     </div>
-                    
-                    <h3 style={{ 
-                        fontSize: '18px',
-                        lineHeight: '1.6',
-                        marginBottom: '24px',
-                        color: '#262626',
-                    }}>
+
+                    <h3
+                        style={{
+                            fontSize: '18px',
+                            lineHeight: '1.6',
+                            marginBottom: '24px',
+                            color: '#262626',
+                        }}
+                    >
                         {data.question || 'Chưa có câu hỏi'}
                     </h3>
 
                     {/* Trắc nghiệm - questionType = 3 */}
                     {data.questionType === 3 && data.options && data.options.length > 0 ? (
                         <div>
-                            <Radio.Group 
+                            <Radio.Group
                                 style={{ width: '100%' }}
                                 value={selectedAnswer}
                                 onChange={(e) => setSelectedAnswer(e.target.value)}
@@ -365,10 +388,10 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                                     {data.options.map((option, index) => {
                                         const isCorrect = option.answer;
                                         const isSelected = selectedAnswer === option.id;
-                                        
+
                                         let backgroundColor = 'white';
                                         let borderColor = '#d9d9d9';
-                                        
+
                                         if (showResult) {
                                             if (isCorrect) {
                                                 backgroundColor = '#f6ffed';
@@ -396,10 +419,14 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                                                         <Tag color="blue">{String.fromCharCode(65 + index)}</Tag>
                                                         <span style={{ flex: 1 }}>{option.option}</span>
                                                         {showResult && isCorrect && (
-                                                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: '18px' }} />
+                                                            <CheckCircleOutlined
+                                                                style={{ color: '#52c41a', fontSize: '18px' }}
+                                                            />
                                                         )}
                                                         {showResult && isSelected && !isCorrect && (
-                                                            <CloseCircleOutlined style={{ color: '#ff4d4f', fontSize: '18px' }} />
+                                                            <CloseCircleOutlined
+                                                                style={{ color: '#ff4d4f', fontSize: '18px' }}
+                                                            />
                                                         )}
                                                     </div>
                                                 </Radio>
@@ -412,8 +439,8 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                             {/* Action Buttons */}
                             <div style={{ marginTop: '24px', textAlign: 'center' }}>
                                 {!showResult ? (
-                                    <Button 
-                                        type="primary" 
+                                    <Button
+                                        type="primary"
                                         size="large"
                                         onClick={handleSubmitDemo}
                                         disabled={!selectedAnswer}
@@ -422,10 +449,7 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                                     </Button>
                                 ) : (
                                     <Space>
-                                        <Button 
-                                            size="large"
-                                            onClick={handleReset}
-                                        >
+                                        <Button size="large" onClick={handleReset}>
                                             Làm lại
                                         </Button>
                                         <Button type="primary" size="large">
@@ -437,14 +461,23 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
 
                             {/* Result */}
                             {showResult && (
-                                <div style={{
-                                    marginTop: '24px',
-                                    padding: '16px',
-                                    background: selectedAnswer === correctAnswer?.id ? '#f6ffed' : '#fff2e8',
-                                    border: `2px solid ${selectedAnswer === correctAnswer?.id ? '#52c41a' : '#ff4d4f'}`,
-                                    borderRadius: '8px',
-                                }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <div
+                                    style={{
+                                        marginTop: '24px',
+                                        padding: '16px',
+                                        background: selectedAnswer === correctAnswer?.id ? '#f6ffed' : '#fff2e8',
+                                        border: `2px solid ${selectedAnswer === correctAnswer?.id ? '#52c41a' : '#ff4d4f'}`,
+                                        borderRadius: '8px',
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '8px',
+                                            marginBottom: '8px',
+                                        }}
+                                    >
                                         {selectedAnswer === correctAnswer?.id ? (
                                             <>
                                                 <CheckCircleOutlined style={{ color: '#52c41a', fontSize: '24px' }} />
@@ -480,14 +513,16 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                     ) : data.questionType === 1 ? (
                         // File upload
                         <div>
-                            <div style={{
-                                padding: '40px',
-                                border: '2px dashed #d9d9d9',
-                                borderRadius: '8px',
-                                textAlign: 'center',
-                                background: '#fafafa',
-                                marginBottom: '16px',
-                            }}>
+                            <div
+                                style={{
+                                    padding: '40px',
+                                    border: '2px dashed #d9d9d9',
+                                    borderRadius: '8px',
+                                    textAlign: 'center',
+                                    background: '#fafafa',
+                                    marginBottom: '16px',
+                                }}
+                            >
                                 <p style={{ fontSize: '16px', color: '#666' }}>
                                     Kéo thả file vào đây hoặc click để chọn file
                                 </p>
@@ -500,26 +535,31 @@ const QuestionPreviewModal = ({ visible, onClose, data }) => {
                             </div>
                         </div>
                     ) : (
-                        <div style={{ 
-                            padding: '40px',
-                            textAlign: 'center',
-                            color: '#999',
-                        }}>
+                        <div
+                            style={{
+                                padding: '40px',
+                                textAlign: 'center',
+                                color: '#999',
+                            }}
+                        >
                             Vui lòng chọn loại câu hỏi
                         </div>
                     )}
                 </Card>
 
                 {/* Info box */}
-                <div style={{
-                    padding: '12px 16px',
-                    background: '#e6f7ff',
-                    border: '1px solid #91d5ff',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    color: '#666',
-                }}>
-                    💡 Đây là giao diện mà học viên sẽ thấy khi làm bài. Bạn có thể thử chọn đáp án và nộp bài để xem kết quả.
+                <div
+                    style={{
+                        padding: '12px 16px',
+                        background: '#e6f7ff',
+                        border: '1px solid #91d5ff',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        color: '#666',
+                    }}
+                >
+                    💡 Đây là giao diện mà học viên sẽ thấy khi làm bài. Bạn có thể thử chọn đáp án và nộp bài để xem
+                    kết quả.
                 </div>
             </div>
         </Modal>

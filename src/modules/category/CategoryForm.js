@@ -14,15 +14,7 @@ import { commonMessage } from '@locales/intl';
 const CategoryForm = (props) => {
     const translate = useTranslate();
 
-    const {
-        formId,
-        actions,
-        dataDetail,
-        onSubmit,
-        setIsChangedFormValues,
-        isEditing,
-        kind,
-    } = props;
+    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, isEditing, kind } = props;
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({
         onSubmit,
@@ -48,11 +40,9 @@ const CategoryForm = (props) => {
         if (isEditing && originalNameVal) {
             const newNameLower = trimmedValue.toLowerCase();
             const oldNameLower = originalNameVal.trim().toLowerCase();
-            
+
             if (newNameLower === oldNameLower) {
-                return Promise.reject(
-                    new Error('Tên mới phải khác với tên hiện tại'),
-                );
+                return Promise.reject(new Error('Tên mới phải khác với tên hiện tại'));
             }
         }
 
@@ -63,11 +53,11 @@ const CategoryForm = (props) => {
                 onCompleted: (response) => {
                     if (response.result === true) {
                         const { content } = response.data || {};
-                        
+
                         if (content && content.length > 0) {
                             // Tìm xem có record nào trùng tên (không phân biệt hoa thường)
-                            const duplicateItem = content.find(item => 
-                                item.name.toLowerCase() === trimmedValue.toLowerCase(),
+                            const duplicateItem = content.find(
+                                (item) => item.name.toLowerCase() === trimmedValue.toLowerCase(),
                             );
 
                             if (duplicateItem) {
@@ -144,13 +134,15 @@ const CategoryForm = (props) => {
                 {isEditing && originalNameRef.current && (
                     <Row gutter={16} style={{ marginTop: 8 }}>
                         <Col span={24}>
-                            <div style={{
-                                padding: '8px 12px',
-                                background: '#f5f5f5',
-                                borderRadius: '4px',
-                                fontSize: '13px',
-                                color: '#666',
-                            }}>
+                            <div
+                                style={{
+                                    padding: '8px 12px',
+                                    background: '#f5f5f5',
+                                    borderRadius: '4px',
+                                    fontSize: '13px',
+                                    color: '#666',
+                                }}
+                            >
                                 <strong>Tên hiện tại:</strong> {originalNameRef.current}
                             </div>
                         </Col>

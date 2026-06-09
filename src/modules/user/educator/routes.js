@@ -1,7 +1,7 @@
 import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
-import EducatorListPage from "@modules/user/educator";
-import EducatorSavePage from "@modules/user/educator/EducatorSavePage";
+import EducatorListPage from '@modules/user/educator';
+import EducatorSavePage from '@modules/user/educator/EducatorSavePage';
 
 const paths = {
     educatorListPage: '/educators',

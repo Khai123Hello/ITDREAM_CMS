@@ -40,13 +40,13 @@ const RichTextField = (props) => {
     const modules = {
         toolbar: {
             container: [
-                [ { header: [ 1, 2, 3, false ] } ],
-                [ { color: [] }, { background: [] } ],
-                [ 'bold', 'italic', 'underline', 'strike', 'blockquote' ],
-                [ { align: '' }, { align: 'center' }, { align: 'right' }, { align: 'justify' } ],
-                [ { list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' } ],
-                [ 'image' ],
-                [ 'clean' ],
+                [{ header: [1, 2, 3, false] }],
+                [{ color: [] }, { background: [] }],
+                ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+                [{ align: '' }, { align: 'center' }, { align: 'right' }, { align: 'justify' }],
+                [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+                ['image'],
+                ['clean'],
             ],
             // handlers: {
             //     // handlers object will be merged with default handlers object
@@ -134,12 +134,7 @@ const RichTextField = (props) => {
             rules={rules}
             initialValue=""
         >
-            <ReactQuill
-                style={style}
-                formats={formats}
-                modules={modules}
-                readOnly={disabled}
-            />
+            <ReactQuill style={style} formats={formats} modules={modules} readOnly={disabled} />
         </Form.Item>
     );
 };

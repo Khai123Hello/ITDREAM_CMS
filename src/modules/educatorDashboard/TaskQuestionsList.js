@@ -16,13 +16,10 @@ const TaskQuestionsList = ({ task }) => {
         error,
         execute: fetchQuestions,
         setData: setQuestionsData,
-    } = useFetch(
-        apiConfig.taskQuestion.educatorList,
-        {
-            immediate: !!task?.id,
-            params: task?.id ? { taskId: task.id } : {},
-        },
-    );
+    } = useFetch(apiConfig.taskQuestion.educatorList, {
+        immediate: !!task?.id,
+        params: task?.id ? { taskId: task.id } : {},
+    });
 
     useEffect(() => {
         if (task?.id) {
@@ -47,9 +44,18 @@ const TaskQuestionsList = ({ task }) => {
             key: 'actions',
             render: (_, record) => (
                 <>
-                    <Button size="small" style={{ marginRight: 8 }} onClick={() => openModal(record)}>Edit</Button>
-                    <Popconfirm title="Delete this question?" onConfirm={() => handleDelete(record)} okText="Yes" cancelText="No">
-                        <Button danger size="small">Delete</Button>
+                    <Button size="small" style={{ marginRight: 8 }} onClick={() => openModal(record)}>
+                        Edit
+                    </Button>
+                    <Popconfirm
+                        title="Delete this question?"
+                        onConfirm={() => handleDelete(record)}
+                        okText="Yes"
+                        cancelText="No"
+                    >
+                        <Button danger size="small">
+                            Delete
+                        </Button>
                     </Popconfirm>
                 </>
             ),
@@ -73,7 +79,7 @@ const TaskQuestionsList = ({ task }) => {
         setModalVisible(false);
         setEditingQuestion(null);
     };
-    
+
     // Handle Add/Edit submission
     const handleModalOk = async () => {
         try {
@@ -113,7 +119,7 @@ const TaskQuestionsList = ({ task }) => {
             // Validation failed
         }
     };
-    
+
     // Delete handler
     const handleDelete = (question) => {
         doDelete({
@@ -137,15 +143,12 @@ const TaskQuestionsList = ({ task }) => {
     return (
         <div style={{ marginTop: 24 }}>
             <div style={{ marginBottom: 16 }}>
-                <Button type="primary" onClick={() => openModal()} disabled={listLoading}>Add Question</Button>
+                <Button type="primary" onClick={() => openModal()} disabled={listLoading}>
+                    Add Question
+                </Button>
             </div>
             <Spin spinning={listLoading || creating || updating || deleting}>
-                <Table
-                    rowKey="id"
-                    dataSource={questions}
-                    columns={columns}
-                    pagination={false}
-                />
+                <Table rowKey="id" dataSource={questions} columns={columns} pagination={false} />
             </Spin>
             <Modal
                 open={modalVisible}
@@ -155,7 +158,11 @@ const TaskQuestionsList = ({ task }) => {
                 confirmLoading={creating || updating}
             >
                 <Form form={form} layout="vertical">
-                    <Form.Item name="content" label="Content" rules={[{ required: true, message: 'Please input the question content' }]}>                
+                    <Form.Item
+                        name="content"
+                        label="Content"
+                        rules={[{ required: true, message: 'Please input the question content' }]}
+                    >
                         <Input.TextArea rows={3} />
                     </Form.Item>
                     <Form.Item name="explanation" label="Explanation">

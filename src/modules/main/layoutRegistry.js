@@ -1,6 +1,6 @@
 /**
  * layoutRegistry.js
- * 
+ *
  * Centralized layout management - Giúp:
  * 1. Tránh lặp code import Layout ở nhiều nơi
  * 2. Dễ quản lý và scale khi có layout mới
@@ -22,10 +22,10 @@ export const layoutRegistry = {
     // Mặc định
     main: MainLayout,
     public: PublicLayout,
-    
+
     // Xác thực (login, register, forgot password)
     auth: AuthLayout,
-    
+
     // Quản trị viên
     admin: AdminLayout,
 };
@@ -41,15 +41,15 @@ export const getLayout = (layoutName) => {
 
 /**
  * Cách dùng:
- * 
+ *
  * Thay vì import từng layout:
  * import MainLayout from '@modules/main/MainLayout';
  * import AuthLayout from '@modules/main/AuthLayout';
  * import AdminLayout from '@modules/main/AdminLayout';
- * 
+ *
  * Dùng:
  * import { getLayout } from '@modules/main/layoutRegistry';
- * 
+ *
  * const AuthLayoutComponent = getLayout('auth');
  * const AdminLayoutComponent = getLayout('admin');
  */

@@ -11,14 +11,13 @@ import useSaveBase from '@hooks/useSaveBase';
 import useTranslate from '@hooks/useTranslate';
 
 import { commonMessage } from '@locales/intl';
-import SimulationForm from "@modules/simulation/simulation/SimulationForm";
+import SimulationForm from '@modules/simulation/simulation/SimulationForm';
 
 import { UserTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import { storageKeys } from '@constants';
 
 const EducatorSimulationSavePage = ({ pageOptions }) => {
-
     const userType = getData(storageKeys.USER_TYPE);
     const isEducator = userType === UserTypes.EDUCATOR;
 

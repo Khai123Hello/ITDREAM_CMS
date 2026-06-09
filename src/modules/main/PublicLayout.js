@@ -6,7 +6,7 @@ import styles from './PublicLayout.module.scss';
 
 /**
  * PublicLayout - Dành cho trang công khai
- * 
+ *
  * Structure:
  * - Header: Logo, Navigation, Sign In/Up buttons
  * - Content: Landing page hoặc các trang công khai khác
@@ -19,9 +19,7 @@ const PublicLayout = ({ children }) => {
     return (
         <Layout className={styles.publicLayout}>
             <PublicHeader />
-            <Content className={styles.publicContent}>
-                {children}
-            </Content>
+            <Content className={styles.publicContent}>{children}</Content>
             <PublicFooter />
         </Layout>
     );

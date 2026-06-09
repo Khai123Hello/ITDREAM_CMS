@@ -1,9 +1,7 @@
 import { createReducer } from '@store/utils';
 import { cacheActions } from '@store/actions';
 
-const {
-    cacheByName,
-} = cacheActions;
+const { cacheByName } = cacheActions;
 
 const initialState = {
     cacheData: {},

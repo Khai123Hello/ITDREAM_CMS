@@ -1,7 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Row, Col, Collapse, Tag, Button, Space, Modal, Spin, Avatar, Descriptions, Divider } from 'antd';
-import { UserOutlined, CheckCircleOutlined, CloseCircleOutlined, SaveOutlined, DeleteOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import {
+    UserOutlined,
+    CheckCircleOutlined,
+    CloseCircleOutlined,
+    SaveOutlined,
+    DeleteOutlined,
+    ArrowLeftOutlined,
+} from '@ant-design/icons';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -29,7 +36,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const [taskQuestions, setTaskQuestions] = useState({});
 
     const { form } = useBasicForm();
-    
+
     // Dịch questionType options
     const questionTypeValues = translate.formatKeys(questionTypeOptions, ['label']);
 
@@ -49,12 +56,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Helper: parse introduction which might be a JSON string or already an object/array
     const parseIntroduction = (introduction) => {
         if (!introduction) return null;
-        
+
         try {
-            const parsed = isJsonString(introduction) 
-                ? JSON.parse(introduction) 
-                : introduction;
-            
+            const parsed = isJsonString(introduction) ? JSON.parse(introduction) : introduction;
+
             if (Array.isArray(parsed)) return parsed;
             if (typeof parsed === 'object') return [parsed];
             return [{ title: null, content: String(introduction) }];
@@ -66,13 +71,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Helper: render content - hỗ trợ cả HTML và plain text
     const renderContent = (content) => {
         if (!content) return null;
-        
+
         // Nếu content chứa HTML tags
         if (typeof content === 'string' && content.includes('<')) {
             return (
-                <div 
+                <div
                     className="html-content"
-                    style={{ 
+                    style={{
                         lineHeight: '1.6',
                         '& p': { margin: '8px 0' },
                         '& ul, & ol': { paddingLeft: '20px', margin: '8px 0' },
@@ -83,11 +88,15 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 />
             );
         }
-        
+
         // Plain text - giữ nguyên xuống dòng
-        return String(content).split('\n').map((line, i) => (
-            <p key={i} style={{ margin: '4px 0', whiteSpace: 'pre-wrap' }}>{line}</p>
-        ));
+        return String(content)
+            .split('\n')
+            .map((line, i) => (
+                <p key={i} style={{ margin: '4px 0', whiteSpace: 'pre-wrap' }}>
+                    {line}
+                </p>
+            ));
     };
 
     // Fetch danh sách Task/SubTask
@@ -98,32 +107,27 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     });
 
     // Fetch câu trả lời của student
-    const { data: answers, loading: loadingAnswers } = useFetch(
-        apiConfig.taskQuestionProgress.answerList,
-        {
-            immediate: true,
-            params: { simulationId, username },
-            mappingData: (res) => res.data?.content || [],
-        },
-    );
+    const { data: answers, loading: loadingAnswers } = useFetch(apiConfig.taskQuestionProgress.answerList, {
+        immediate: true,
+        params: { simulationId, username },
+        mappingData: (res) => res.data?.content || [],
+    });
 
     // Fetch nhận xét hiện có
-    const { data: existingReview, loading: loadingReview, execute: refetchReview } = useFetch(
-        apiConfig.reviewSubmission.getForEducator,
-        {
-            immediate: true,
-            pathParams: { simulationId, username },
-            mappingData: (res) => res.data,
-        },
-    );
+    const {
+        data: existingReview,
+        loading: loadingReview,
+        execute: refetchReview,
+    } = useFetch(apiConfig.reviewSubmission.getForEducator, {
+        immediate: true,
+        pathParams: { simulationId, username },
+        mappingData: (res) => res.data,
+    });
 
     // Fetch task questions - sẽ gọi cho từng task
-    const { execute: fetchTaskQuestions, loading: loadingQuestions } = useFetch(
-        apiConfig.taskQuestion.educatorList,
-        {
-            immediate: false,
-        },
-    );
+    const { execute: fetchTaskQuestions, loading: loadingQuestions } = useFetch(apiConfig.taskQuestion.educatorList, {
+        immediate: false,
+    });
 
     const { execute: createReview, loading: creating } = useFetch(apiConfig.reviewSubmission.create, {
         immediate: false,
@@ -161,14 +165,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     useEffect(() => {
         if (tasks && tasks.length > 0 && simulationId) {
             // Lấy tất cả task IDs (bao gồm cả main tasks và subtasks)
-            const allTaskIds = tasks.map(t => t.id);
-            
-            allTaskIds.forEach(taskId => {
+            const allTaskIds = tasks.map((t) => t.id);
+
+            allTaskIds.forEach((taskId) => {
                 fetchTaskQuestions({
                     params: { simulationId, taskId },
                     onCompleted: (response) => {
                         const questions = response.data?.content || [];
-                        setTaskQuestions(prev => ({
+                        setTaskQuestions((prev) => ({
                             ...prev,
                             [taskId]: questions,
                         }));
@@ -183,7 +187,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
     // Tạo map để tra cứu nhanh câu trả lời theo taskQuestion.id
     const answerMap = {};
-    answers?.forEach(answer => {
+    answers?.forEach((answer) => {
         if (answer.taskQuestion?.id) {
             answerMap[answer.taskQuestion.id] = answer;
         }
@@ -208,14 +212,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Tìm đáp án đúng trong options (cho questionType = 3)
     const getCorrectOption = (options) => {
         if (!Array.isArray(options)) return null;
-        const correctOpt = options.find(opt => opt.answer === true);
+        const correctOpt = options.find((opt) => opt.answer === true);
         return correctOpt ? correctOpt.option : null;
     };
-    
+
     // Hàm lấy label đã dịch cho questionType
     const getQuestionTypeLabel = (questionType) => {
         if (!questionType) return null;
-        const found = questionTypeValues.find(opt => opt.value === questionType);
+        const found = questionTypeValues.find((opt) => opt.value === questionType);
         return found ? found.label : questionType;
     };
 
@@ -225,7 +229,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         let correctCount = 0;
         let totalCount = 0;
 
-        questions.forEach(question => {
+        questions.forEach((question) => {
             const answer = getAnswerForQuestion(question.id);
             if (answer) {
                 totalCount++;
@@ -246,7 +250,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         }
 
         const apiCall = reviewId ? updateReview : createReview;
-        const payload = reviewId 
+        const payload = reviewId
             ? { id: reviewId, content: values.content }
             : { simulationId: Number(simulationId), username, content: values.content };
 
@@ -260,8 +264,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 refetchReview();
             },
             onError: (error) => {
-                notify({ 
-                    type: 'error', 
+                notify({
+                    type: 'error',
                     message: error?.message || 'Có lỗi xảy ra!',
                 });
             },
@@ -295,13 +299,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const loading = loadingTasks || loadingAnswers || loadingReview;
 
     // Phân loại task và subtask
-    const mainTasks = tasks?.filter(t => t.kind === 1) || [];
-    const getSubTasks = (parentId) => tasks?.filter(t => t.kind === 2 && t.parent?.id === parentId) || [];
+    const mainTasks = tasks?.filter((t) => t.kind === 1) || [];
+    const getSubTasks = (parentId) => tasks?.filter((t) => t.kind === 2 && t.parent?.id === parentId) || [];
 
     // Component để render câu hỏi
     const renderQuestions = (taskId) => {
         const questions = taskQuestions[taskId] || [];
-        
+
         if (questions.length === 0) {
             return <p style={{ textAlign: 'center', color: '#999' }}>Chưa có câu hỏi</p>;
         }
@@ -310,24 +314,32 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             const studentAnswer = getAnswerForQuestion(question.id);
             const options = parseOptions(question.options);
             const questionTypeLabel = getQuestionTypeLabel(question.questionType);
-            
+
             return (
-                <Card 
-                    key={question.id} 
-                    size="small" 
-                    style={{ 
+                <Card
+                    key={question.id}
+                    size="small"
+                    style={{
                         marginTop: 12,
                         marginBottom: 12,
-                        borderLeft: studentAnswer?.isCorrect ? '4px solid #52c41a' : studentAnswer ? '4px solid #ff4d4f' : '4px solid #d9d9d9',
+                        borderLeft: studentAnswer?.isCorrect
+                            ? '4px solid #52c41a'
+                            : studentAnswer
+                                ? '4px solid #ff4d4f'
+                                : '4px solid #d9d9d9',
                     }}
                     title={
                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                             <span>Câu {qIdx + 1}</span>
                             {studentAnswer ? (
                                 studentAnswer.isCorrect ? (
-                                    <Tag color="green" icon={<CheckCircleOutlined />}>Đã nộp</Tag>
+                                    <Tag color="green" icon={<CheckCircleOutlined />}>
+                                        Đã nộp
+                                    </Tag>
                                 ) : (
-                                    <Tag color="red" icon={<CloseCircleOutlined />}>Chưa nộp</Tag>
+                                    <Tag color="red" icon={<CloseCircleOutlined />}>
+                                        Chưa nộp
+                                    </Tag>
                                 )
                             ) : (
                                 <Tag color="default">Chưa trả lời</Tag>
@@ -337,15 +349,15 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 >
                     <div style={{ marginBottom: 8 }}>
                         <strong>❓ Câu hỏi:</strong>
-                        <div style={{ marginTop: 4 }}>
-                            {renderContent(question.question)}
-                        </div>
+                        <div style={{ marginTop: 4 }}>{renderContent(question.question)}</div>
                     </div>
-                    
+
                     {questionTypeLabel && (
-                        <p><strong>📋 Loại:</strong> <Tag>{questionTypeLabel}</Tag></p>
+                        <p>
+                            <strong>📋 Loại:</strong> <Tag>{questionTypeLabel}</Tag>
+                        </p>
                     )}
-                    
+
                     {/* Hiển thị options nếu có */}
                     {options.length > 0 && (
                         <div style={{ marginTop: 8 }}>
@@ -361,13 +373,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             </div>
                         </div>
                     )}
-                    
+
                     {studentAnswer ? (
                         <div style={{ marginTop: 8 }}>
                             <strong>✍️ Câu trả lời của học viên:</strong>
-                            <div style={{ marginTop: 4 }}>
-                                {renderContent(studentAnswer.answer)}
-                            </div>
+                            <div style={{ marginTop: 4 }}>{renderContent(studentAnswer.answer)}</div>
                         </div>
                     ) : (
                         <p style={{ marginTop: 8, color: '#999' }}>
@@ -380,12 +390,12 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     return (
-        <PageWrapper 
+        <PageWrapper
             loading={loading}
             routes={pageOptions.renderBreadcrumbs(commonMessage, translate, simulationId, username)}
         >
-            <Button 
-                icon={<ArrowLeftOutlined />} 
+            <Button
+                icon={<ArrowLeftOutlined />}
                 onClick={() => navigate('/simulation-review')}
                 style={{ marginBottom: 16 }}
             >
@@ -429,17 +439,32 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             const taskStats = getTaskStats(task.id);
                             const subTasks = getSubTasks(task.id);
                             const introItems = parseIntroduction(task.introduction);
-                            
+
                             return (
-                                <Panel 
+                                <Panel
                                     header={
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div
+                                            style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                            }}
+                                        >
                                             <span>
                                                 <strong>Task {taskIndex + 1}:</strong> {task.name || task.title}
                                             </span>
                                             {taskStats.totalCount > 0 && (
-                                                <Tag color={taskStats.percentage >= 70 ? 'green' : taskStats.percentage >= 50 ? 'orange' : 'red'}>
-                                                    Đã nộp: {taskStats.correctCount}/{taskStats.totalCount} ({taskStats.percentage}%)
+                                                <Tag
+                                                    color={
+                                                        taskStats.percentage >= 70
+                                                            ? 'green'
+                                                            : taskStats.percentage >= 50
+                                                                ? 'orange'
+                                                                : 'red'
+                                                    }
+                                                >
+                                                    Đã nộp: {taskStats.correctCount}/{taskStats.totalCount} (
+                                                    {taskStats.percentage}%)
                                                 </Tag>
                                             )}
                                         </div>
@@ -449,9 +474,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                     {task.description && (
                                         <div style={{ marginBottom: 12 }}>
                                             <strong>📄 Mô tả:</strong>
-                                            <div style={{ marginTop: 4 }}>
-                                                {renderContent(task.description)}
-                                            </div>
+                                            <div style={{ marginTop: 4 }}>{renderContent(task.description)}</div>
                                         </div>
                                     )}
 
@@ -460,9 +483,23 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                         <div style={{ marginTop: 12, marginBottom: 12 }}>
                                             <strong>💡 Giới thiệu:</strong>
                                             {introItems.map((item, idx) => (
-                                                <div key={idx} style={{ marginTop: 8, padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
+                                                <div
+                                                    key={idx}
+                                                    style={{
+                                                        marginTop: 8,
+                                                        padding: '8px',
+                                                        background: '#f5f5f5',
+                                                        borderRadius: '4px',
+                                                    }}
+                                                >
                                                     {item.title && (
-                                                        <div style={{ fontWeight: 600, marginBottom: 6, fontSize: '15px' }}>
+                                                        <div
+                                                            style={{
+                                                                fontWeight: 600,
+                                                                marginBottom: 6,
+                                                                fontSize: '15px',
+                                                            }}
+                                                        >
                                                             {item.title}
                                                         </div>
                                                     )}
@@ -490,17 +527,34 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                 {subTasks.map((subtask, subIndex) => {
                                                     const subtaskStats = getTaskStats(subtask.id);
                                                     const subIntroItems = parseIntroduction(subtask.introduction);
-                                                    
+
                                                     return (
-                                                        <Panel 
+                                                        <Panel
                                                             header={
-                                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <div
+                                                                    style={{
+                                                                        display: 'flex',
+                                                                        justifyContent: 'space-between',
+                                                                        alignItems: 'center',
+                                                                    }}
+                                                                >
                                                                     <span>
-                                                                        <strong>SubTask {subIndex + 1}:</strong> {subtask.name || subtask.title}
+                                                                        <strong>SubTask {subIndex + 1}:</strong>{' '}
+                                                                        {subtask.name || subtask.title}
                                                                     </span>
                                                                     {subtaskStats.totalCount > 0 && (
-                                                                        <Tag color={subtaskStats.percentage >= 70 ? 'green' : subtaskStats.percentage >= 50 ? 'orange' : 'red'}>
-                                                                            {subtaskStats.correctCount}/{subtaskStats.totalCount} ({subtaskStats.percentage}%)
+                                                                        <Tag
+                                                                            color={
+                                                                                subtaskStats.percentage >= 70
+                                                                                    ? 'green'
+                                                                                    : subtaskStats.percentage >= 50
+                                                                                        ? 'orange'
+                                                                                        : 'red'
+                                                                            }
+                                                                        >
+                                                                            {subtaskStats.correctCount}/
+                                                                            {subtaskStats.totalCount} (
+                                                                            {subtaskStats.percentage}%)
                                                                         </Tag>
                                                                     )}
                                                                 </div>
@@ -521,9 +575,22 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                                 <div style={{ marginTop: 12, marginBottom: 12 }}>
                                                                     <strong>💡 Giới thiệu:</strong>
                                                                     {subIntroItems.map((item, i) => (
-                                                                        <div key={i} style={{ marginTop: 8, padding: '8px', background: '#f5f5f5', borderRadius: '4px' }}>
+                                                                        <div
+                                                                            key={i}
+                                                                            style={{
+                                                                                marginTop: 8,
+                                                                                padding: '8px',
+                                                                                background: '#f5f5f5',
+                                                                                borderRadius: '4px',
+                                                                            }}
+                                                                        >
                                                                             {item.title && (
-                                                                                <div style={{ fontWeight: 600, marginBottom: 6 }}>
+                                                                                <div
+                                                                                    style={{
+                                                                                        fontWeight: 600,
+                                                                                        marginBottom: 6,
+                                                                                    }}
+                                                                                >
                                                                                     {item.title}
                                                                                 </div>
                                                                             )}
@@ -536,9 +603,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                                     ))}
                                                                 </div>
                                                             )}
-                                                            
+
                                                             <Divider>Câu trả lời</Divider>
-                                                            
+
                                                             {renderQuestions(subtask.id)}
                                                         </Panel>
                                                     );
@@ -563,7 +630,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             rows={8}
                             placeholder="Nhập nhận xét của bạn về bài làm của học viên... (Ưu điểm, nhược điểm, góp ý cải thiện...)"
                         />
-                        
+
                         <Space style={{ marginTop: 16 }}>
                             <Button
                                 type="primary"
@@ -574,7 +641,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             >
                                 {reviewId ? 'Cập nhật nhận xét' : 'Lưu nhận xét'}
                             </Button>
-                            
+
                             {reviewId && (
                                 <Button
                                     danger
@@ -586,11 +653,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                     Xóa nhận xét
                                 </Button>
                             )}
-                            
-                            <Button 
-                                onClick={() => navigate('/simulation-review')}
-                                size="large"
-                            >
+
+                            <Button onClick={() => navigate('/simulation-review')} size="large">
                                 Quay lại
                             </Button>
                         </Space>

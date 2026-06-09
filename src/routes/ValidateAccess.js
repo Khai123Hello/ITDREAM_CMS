@@ -78,9 +78,7 @@ const ValidateAccess = ({
     // currently, only support custom layout for authRequire route
     // Nếu route có chỉ định layout, dùng getLayout('layoutName')
     // Nếu không chỉ định, dùng MainLayout (authRequire = true) hoặc PublicLayout (authRequire = false/null)
-    const Layout = authRequire 
-        ? (layout ? getLayout(layout) : MainLayout) 
-        : PublicLayout;
+    const Layout = authRequire ? (layout ? getLayout(layout) : MainLayout) : PublicLayout;
     return (
         <Layout>
             <HasPermission

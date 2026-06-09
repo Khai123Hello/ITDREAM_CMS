@@ -2,7 +2,6 @@ import React from 'react';
 import { Form } from 'antd';
 import { formSize } from '@constants/masterData';
 
-
 export const BaseForm = ({
     formId,
     onFinish,
@@ -10,14 +9,13 @@ export const BaseForm = ({
     form,
     onValuesChange,
     children,
-    size = "normal",
-
+    size = 'normal',
 
     ...props
 }) => {
     return (
         <Form
-            style={formSize[size] ? { width: formSize[size] } :  { width: size }}
+            style={formSize[size] ? { width: formSize[size] } : { width: size }}
             id={formId}
             onFinish={onFinish}
             onChange={onChange}

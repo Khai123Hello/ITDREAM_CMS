@@ -1,8 +1,7 @@
 import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
-import CategoryListPage from "@modules/category/index";
-import CategorySavePage from "@modules/category/CategorySavePage";
-
+import CategoryListPage from '@modules/category/index';
+import CategorySavePage from '@modules/category/CategorySavePage';
 
 const paths = {
     categoryListPage: '/category',
@@ -33,10 +32,7 @@ export default {
             objectName: commonMessage.category,
             listPageUrl: paths.categoryListPage,
             renderBreadcrumbs: (messages, t, title, options = {}) => {
-                return [
-                    { breadcrumbName: 'Danh mục', path: paths.categoryListPage },
-                    { breadcrumbName: title },
-                ];
+                return [{ breadcrumbName: 'Danh mục', path: paths.categoryListPage }, { breadcrumbName: title }];
             },
         },
     },

@@ -34,12 +34,10 @@ const LOADING_TYPE = {
     APP: 'APP',
 };
 
-const useFetchAction = (action, {
-    immediate = false,
-    prepareSuccessData,
-    payload,
-    loading = LOADING_TYPE.REDUX,
-} = {}) => {
+const useFetchAction = (
+    action,
+    { immediate = false, prepareSuccessData, payload, loading = LOADING_TYPE.REDUX } = {},
+) => {
     const dispatch = useDispatch();
     const isLoading = useActionLoading(action.type);
 
@@ -60,7 +58,10 @@ const useFetchAction = (action, {
                 );
             });
 
-            dispatch({ type: createSuccessActionType(action.type), payload: coverFunction(prepareSuccessData, response, payload) });
+            dispatch({
+                type: createSuccessActionType(action.type),
+                payload: coverFunction(prepareSuccessData, response, payload),
+            });
         } catch (error) {
             console.log({ error });
             dispatch({ type: createFailureActionType(action.type), payload: error });

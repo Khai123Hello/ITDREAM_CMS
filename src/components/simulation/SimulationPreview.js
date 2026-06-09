@@ -15,51 +15,57 @@ const SimulationPreview = ({ data }) => {
     }
 
     return (
-        <div style={{ 
-            maxWidth: '900px', 
-            margin: '0 auto',
-            background: '#f5f7fa',
-            minHeight: '100vh',
-            padding: '24px',
-        }}>
+        <div
+            style={{
+                maxWidth: '900px',
+                margin: '0 auto',
+                background: '#f5f7fa',
+                minHeight: '100vh',
+                padding: '24px',
+            }}
+        >
             {/* Header Section */}
-            <Card 
+            <Card
                 bordered={false}
-                style={{ 
+                style={{
                     marginBottom: 24,
                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                 }}
             >
                 <div style={{ marginBottom: 16 }}>
-                    <h1 style={{ 
-                        fontSize: 28, 
-                        fontWeight: 700, 
-                        marginBottom: 16,
-                        color: '#1a1a1a',
-                        lineHeight: 1.3,
-                    }}>
+                    <h1
+                        style={{
+                            fontSize: 28,
+                            fontWeight: 700,
+                            marginBottom: 16,
+                            color: '#1a1a1a',
+                            lineHeight: 1.3,
+                        }}
+                    >
                         {data.title || 'Chưa có tiêu đề'}
                     </h1>
-                    
+
                     {/* Render plain description (short description) */}
                     {data.description && (
-                        <p style={{ 
-                            fontSize: 16, 
-                            color: '#666', 
-                            lineHeight: 1.6, 
-                            fontStyle: 'italic',
-                            marginBottom: 16, 
-                        }}>
+                        <p
+                            style={{
+                                fontSize: 16,
+                                color: '#666',
+                                lineHeight: 1.6,
+                                fontStyle: 'italic',
+                                marginBottom: 16,
+                            }}
+                        >
                             {data.description}
                         </p>
                     )}
-                    
+
                     <Space size={[8, 16]} wrap>
                         {data.level && (
-                            <Tag 
+                            <Tag
                                 icon={<TrophyOutlined />}
-                                color="blue" 
-                                style={{ 
+                                color="blue"
+                                style={{
                                     padding: '4px 12px',
                                     fontSize: 14,
                                 }}
@@ -67,12 +73,12 @@ const SimulationPreview = ({ data }) => {
                                 Level {data.level.label || data.level}
                             </Tag>
                         )}
-                        
+
                         {(data.totalEstimatedTime || data.duration) && (
-                            <Tag 
+                            <Tag
                                 icon={<ClockCircleOutlined />}
                                 color="green"
-                                style={{ 
+                                style={{
                                     padding: '4px 12px',
                                     fontSize: 14,
                                 }}
@@ -80,12 +86,12 @@ const SimulationPreview = ({ data }) => {
                                 {data.totalEstimatedTime || data.duration}
                             </Tag>
                         )}
-                        
+
                         {data.specialization && (
-                            <Tag 
+                            <Tag
                                 icon={<BookOutlined />}
                                 color="orange"
-                                style={{ 
+                                style={{
                                     padding: '4px 12px',
                                     fontSize: 14,
                                 }}
@@ -100,10 +106,14 @@ const SimulationPreview = ({ data }) => {
                 {(data.imagePath || data.thumbnail) && (
                     <div style={{ marginTop: 24 }}>
                         <img
-                            src={(data.imagePath || data.thumbnail).startsWith('http') ? (data.imagePath || data.thumbnail) : `${AppConstants.contentRootUrl}${data.imagePath || data.thumbnail}`}
+                            src={
+                                (data.imagePath || data.thumbnail).startsWith('http')
+                                    ? data.imagePath || data.thumbnail
+                                    : `${AppConstants.contentRootUrl}${data.imagePath || data.thumbnail}`
+                            }
                             alt="Course preview"
-                            style={{ 
-                                width: '100%', 
+                            style={{
+                                width: '100%',
                                 borderRadius: '8px',
                                 boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                             }}
@@ -124,7 +134,11 @@ const SimulationPreview = ({ data }) => {
                                 hero: {
                                     title: 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
                                     description: parsed.introduction || parsed.hero?.description || '',
-                                    badges: Array.isArray(parsed.bager) ? parsed.bager : (Array.isArray(parsed.barger) ? parsed.barger : (parsed.hero?.badges || [])),
+                                    badges: Array.isArray(parsed.bager)
+                                        ? parsed.bager
+                                        : Array.isArray(parsed.barger)
+                                            ? parsed.barger
+                                            : parsed.hero?.badges || [],
                                     button: '',
                                     skills: Array.isArray(parsed.skills) ? parsed.skills : [],
                                 },
@@ -160,11 +174,11 @@ const SimulationPreview = ({ data }) => {
 
                 const overview = parseOverview(data.overviewData || data.overview);
                 if (!overview) return null;
-                
+
                 const hasHero = overview.hero?.title || overview.hero?.description || overview.hero?.badges?.length > 0;
                 const hasIntro = overview.intro?.content;
                 const hasHowItWorks = overview.howItWorks?.items?.length > 0;
-                
+
                 if (!hasHero && !hasIntro && !hasHowItWorks) {
                     return (
                         <Card bordered={false} style={{ marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
@@ -173,13 +187,11 @@ const SimulationPreview = ({ data }) => {
                     );
                 }
 
-
-
                 return (
-                    <Card 
-                        bordered={false} 
-                        style={{ 
-                            marginBottom: 24, 
+                    <Card
+                        bordered={false}
+                        style={{
+                            marginBottom: 24,
                             boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                             padding: '12px 24px',
                             background: '#ffffff',
@@ -189,13 +201,21 @@ const SimulationPreview = ({ data }) => {
                         {/* HERO SECTION */}
                         {hasHero && (
                             <div style={{ marginBottom: 32 }}>
-                                <h1 style={{ fontSize: '32px', fontWeight: '700', color: '#1f2937', marginBottom: '16px', lineHeight: '1.2' }}>
+                                <h1
+                                    style={{
+                                        fontSize: '32px',
+                                        fontWeight: '700',
+                                        color: '#1f2937',
+                                        marginBottom: '16px',
+                                        lineHeight: '1.2',
+                                    }}
+                                >
                                     {overview.hero.title}
                                 </h1>
                                 {overview.hero.description && (
-                                    <div 
+                                    <div
                                         className="ql-editor preview-content"
-                                        style={{ 
+                                        style={{
                                             padding: 0,
                                             fontSize: '15px',
                                             lineHeight: '1.6',
@@ -206,9 +226,22 @@ const SimulationPreview = ({ data }) => {
                                     />
                                 )}
                                 {overview.hero.badges && overview.hero.badges.length > 0 && (
-                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
+                                    <div
+                                        style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}
+                                    >
                                         {overview.hero.badges.map((badge, idx) => (
-                                            <span key={idx} style={{ background: '#fef9c3', color: '#ca8a04', border: '1px solid #fef08a', fontWeight: '600', padding: '6px 12px', borderRadius: '20px', fontSize: '13px' }}>
+                                            <span
+                                                key={idx}
+                                                style={{
+                                                    background: '#fef9c3',
+                                                    color: '#ca8a04',
+                                                    border: '1px solid #fef08a',
+                                                    fontWeight: '600',
+                                                    padding: '6px 12px',
+                                                    borderRadius: '20px',
+                                                    fontSize: '13px',
+                                                }}
+                                            >
                                                 {badge}
                                             </span>
                                         ))}
@@ -216,12 +249,32 @@ const SimulationPreview = ({ data }) => {
                                 )}
                                 {overview.hero.skills && overview.hero.skills.length > 0 && (
                                     <div style={{ marginTop: '16px', marginBottom: '24px' }}>
-                                        <div style={{ fontSize: '14px', fontWeight: '700', color: '#374151', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                                              Kỹ năng bạn sẽ thực hành
+                                        <div
+                                            style={{
+                                                fontSize: '14px',
+                                                fontWeight: '700',
+                                                color: '#374151',
+                                                marginBottom: '8px',
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.05em',
+                                            }}
+                                        >
+                                            Kỹ năng bạn sẽ thực hành
                                         </div>
                                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                             {overview.hero.skills.map((skill, idx) => (
-                                                <span key={idx} style={{ background: '#f3f4f6', color: '#4b5563', border: '1px solid #e5e7eb', fontWeight: '500', padding: '4px 10px', borderRadius: '6px', fontSize: '12.5px' }}>
+                                                <span
+                                                    key={idx}
+                                                    style={{
+                                                        background: '#f3f4f6',
+                                                        color: '#4b5563',
+                                                        border: '1px solid #e5e7eb',
+                                                        fontWeight: '500',
+                                                        padding: '4px 10px',
+                                                        borderRadius: '6px',
+                                                        fontSize: '12.5px',
+                                                    }}
+                                                >
                                                     {skill}
                                                 </span>
                                             ))}
@@ -229,7 +282,18 @@ const SimulationPreview = ({ data }) => {
                                     </div>
                                 )}
                                 {overview.hero.button && (
-                                    <div style={{ display: 'inline-block', border: '1px solid #1677ff', color: '#1677ff', padding: '10px 20px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer', transition: 'all 0.3s' }}>
+                                    <div
+                                        style={{
+                                            display: 'inline-block',
+                                            border: '1px solid #1677ff',
+                                            color: '#1677ff',
+                                            padding: '10px 20px',
+                                            borderRadius: '8px',
+                                            fontWeight: '600',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s',
+                                        }}
+                                    >
                                         {overview.hero.button}
                                     </div>
                                 )}
@@ -241,9 +305,9 @@ const SimulationPreview = ({ data }) => {
                         {/* INTRO SECTION */}
                         {hasIntro && (
                             <div style={{ marginBottom: 32 }}>
-                                <div 
-                                    className="ql-editor preview-content" 
-                                    style={{ 
+                                <div
+                                    className="ql-editor preview-content"
+                                    style={{
                                         padding: 0,
                                         fontSize: '15px',
                                         lineHeight: '1.8',
@@ -259,15 +323,33 @@ const SimulationPreview = ({ data }) => {
                         {/* VIDEO SECTION */}
                         {data.videoPath && (
                             <div>
-                                <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#1f2937', marginBottom: '24px' }}>
+                                <h2
+                                    style={{
+                                        fontSize: '24px',
+                                        fontWeight: '600',
+                                        color: '#1f2937',
+                                        marginBottom: '24px',
+                                    }}
+                                >
                                     Video
                                 </h2>
-                                <div style={{ position: 'relative', width: '100%', borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
-                                    <video
-                                        controls
-                                        style={{ width: '100%', display: 'block' }}
-                                    >
-                                        <source src={data.videoPath.startsWith('http') ? data.videoPath : `${AppConstants.contentRootUrl}${data.videoPath}`} />
+                                <div
+                                    style={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        borderRadius: 12,
+                                        overflow: 'hidden',
+                                        boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                                    }}
+                                >
+                                    <video controls style={{ width: '100%', display: 'block' }}>
+                                        <source
+                                            src={
+                                                data.videoPath.startsWith('http')
+                                                    ? data.videoPath
+                                                    : `${AppConstants.contentRootUrl}${data.videoPath}`
+                                            }
+                                        />
                                         Trình duyệt của bạn không hỗ trợ phát video.
                                     </video>
                                 </div>
@@ -278,41 +360,41 @@ const SimulationPreview = ({ data }) => {
             })()}
 
             {/* Debug Info (Optional - remove in production) */}
-            <Card 
+            <Card
                 bordered={false}
-                title={
-                    <span style={{ fontSize: 14, color: '#999' }}>
-                        📋 JSON Output (Debug)
-                    </span>
-                }
-                style={{ 
+                title={<span style={{ fontSize: 14, color: '#999' }}>📋 JSON Output (Debug)</span>}
+                style={{
                     boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
                 }}
             >
-                <pre style={{ 
-                    background: '#f5f5f5', 
-                    padding: 16, 
-                    borderRadius: 6, 
-                    fontSize: 12,
-                    overflow: 'auto',
-                    maxHeight: 300,
-                    margin: 0,
-                    border: '1px solid #e8e8e8',
-                }}>
-                    {JSON.stringify({
-                        title: data.title,
-                        categoryId: data.categoryId || data.specialization?.value,
-                        level: typeof data.level === 'object' ? data.level.value : data.level,
-                        duration: data.totalEstimatedTime || data.duration,
-                        description: data.description || '',
-                        overview: JSON.stringify(data.overviewData || data.overview),
-                        thumbnail: data.imagePath || data.thumbnail || null,
-                        videoPath: data.videoPath || null,
-                    }, null, 2)}
+                <pre
+                    style={{
+                        background: '#f5f5f5',
+                        padding: 16,
+                        borderRadius: 6,
+                        fontSize: 12,
+                        overflow: 'auto',
+                        maxHeight: 300,
+                        margin: 0,
+                        border: '1px solid #e8e8e8',
+                    }}
+                >
+                    {JSON.stringify(
+                        {
+                            title: data.title,
+                            categoryId: data.categoryId || data.specialization?.value,
+                            level: typeof data.level === 'object' ? data.level.value : data.level,
+                            duration: data.totalEstimatedTime || data.duration,
+                            description: data.description || '',
+                            overview: JSON.stringify(data.overviewData || data.overview),
+                            thumbnail: data.imagePath || data.thumbnail || null,
+                            videoPath: data.videoPath || null,
+                        },
+                        null,
+                        2,
+                    )}
                 </pre>
             </Card>
-
-
         </div>
     );
 };

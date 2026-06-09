@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Card, 
-    Row, 
-    Col, 
-    Descriptions, 
-    Tag, 
-    Rate, 
-    Progress, 
-    Button, 
+import {
+    Card,
+    Row,
+    Col,
+    Descriptions,
+    Tag,
+    Rate,
+    Progress,
+    Button,
     List,
     Avatar,
     Divider,
@@ -17,9 +17,9 @@ import {
     Collapse,
     Empty,
 } from 'antd';
-import { 
-    ClockCircleOutlined, 
-    UserOutlined, 
+import {
+    ClockCircleOutlined,
+    UserOutlined,
     TrophyOutlined,
     PlayCircleOutlined,
     BookOutlined,
@@ -45,7 +45,7 @@ const SimulationDetailPage = ({ pageOptions }) => {
     const [tasks, setTasks] = useState([]);
     const [reviews, setReviews] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+
     const { execute: getSimulationDetail } = useFetch(apiConfig.simulation.getDetailForStudent);
     const { execute: getTaskList } = useFetch(apiConfig.task.getListForStudent);
     const { execute: getReviews } = useFetch(apiConfig.review.getListForClient);
@@ -64,7 +64,7 @@ const SimulationDetailPage = ({ pageOptions }) => {
             const response = await getSimulationDetail({
                 pathParams: { id },
             });
-            
+
             if (response.data?.result) {
                 setSimulation(response.data?.data);
             }
@@ -84,7 +84,7 @@ const SimulationDetailPage = ({ pageOptions }) => {
                     pageNumber: 0,
                 },
             });
-            
+
             if (response.data?.result) {
                 setTasks(response.data?.data?.content || []);
             }
@@ -102,7 +102,7 @@ const SimulationDetailPage = ({ pageOptions }) => {
                     pageNumber: 0,
                 },
             });
-            
+
             if (response.data?.result) {
                 setReviews(response.data?.data?.content || []);
             }
@@ -112,20 +112,28 @@ const SimulationDetailPage = ({ pageOptions }) => {
     };
 
     const getLevelColor = (level) => {
-        switch(level) {
-                        case 1: return 'green';
-                        case 2: return 'orange';
-                        case 3: return 'red';
-                        default: return 'default';
+        switch (level) {
+                        case 1:
+                            return 'green';
+                        case 2:
+                            return 'orange';
+                        case 3:
+                            return 'red';
+                        default:
+                            return 'default';
         }
     };
 
     const getLevelText = (level) => {
-        switch(level) {
-                        case 1: return 'Dễ';
-                        case 2: return 'Trung bình';
-                        case 3: return 'Khó';
-                        default: return 'Chưa xác định';
+        switch (level) {
+                        case 1:
+                            return 'Dễ';
+                        case 2:
+                            return 'Trung bình';
+                        case 3:
+                            return 'Khó';
+                        default:
+                            return 'Chưa xác định';
         }
     };
 
@@ -138,12 +146,12 @@ const SimulationDetailPage = ({ pageOptions }) => {
     };
 
     const groupTasksByParent = () => {
-        const parentTasks = tasks.filter(task => !task.parent);
-        const childTasks = tasks.filter(task => task.parent);
-        
-        return parentTasks.map(parent => ({
+        const parentTasks = tasks.filter((task) => !task.parent);
+        const childTasks = tasks.filter((task) => task.parent);
+
+        return parentTasks.map((parent) => ({
             ...parent,
-            children: childTasks.filter(child => child.parent.id === parent.id),
+            children: childTasks.filter((child) => child.parent.id === parent.id),
         }));
     };
 
@@ -170,11 +178,7 @@ const SimulationDetailPage = ({ pageOptions }) => {
     return (
         <PageWrapper routes={pageOptions.renderBreadcrumbs(null, null, simulation.title)}>
             <div className="simulation-detail-page">
-                <Button 
-                    icon={<ArrowLeftOutlined />} 
-                    onClick={handleBack}
-                    style={{ marginBottom: 16 }}
-                >
+                <Button icon={<ArrowLeftOutlined />} onClick={handleBack} style={{ marginBottom: 16 }}>
                     Quay lại
                 </Button>
 
@@ -184,16 +188,24 @@ const SimulationDetailPage = ({ pageOptions }) => {
                         {/* Video/Image Section */}
                         <Card className="media-card">
                             {simulation.videoPath ? (
-                                <video 
-                                    controls 
+                                <video
+                                    controls
                                     style={{ width: '100%', borderRadius: 8 }}
-                                    poster={simulation.imagePath ? `${AppConstants.contentRootUrl}${simulation.imagePath}` : ''}
+                                    poster={
+                                        simulation.imagePath
+                                            ? `${AppConstants.contentRootUrl}${simulation.imagePath}`
+                                            : ''
+                                    }
                                 >
                                     <source src={`${AppConstants.contentRootUrl}${simulation.videoPath}`} />
                                 </video>
                             ) : (
-                                <img 
-                                    src={simulation.imagePath ? `${AppConstants.contentRootUrl}${simulation.imagePath}` : '/assets/images/default-simulation.png'}
+                                <img
+                                    src={
+                                        simulation.imagePath
+                                            ? `${AppConstants.contentRootUrl}${simulation.imagePath}`
+                                            : '/assets/images/default-simulation.png'
+                                    }
                                     alt={simulation.title}
                                     style={{ width: '100%', borderRadius: 8 }}
                                 />
@@ -203,22 +215,25 @@ const SimulationDetailPage = ({ pageOptions }) => {
                         {/* Title and Info */}
                         <Card className="info-card">
                             <Title level={2}>{simulation.title}</Title>
-                            
+
                             <Space size="large" wrap style={{ marginBottom: 16 }}>
-                                <Tag color={getLevelColor(simulation.level)} style={{ fontSize: 14, padding: '4px 12px' }}>
+                                <Tag
+                                    color={getLevelColor(simulation.level)}
+                                    style={{ fontSize: 14, padding: '4px 12px' }}
+                                >
                                     {getLevelText(simulation.level)}
                                 </Tag>
-                                
+
                                 <Space>
                                     <ClockCircleOutlined />
                                     <Text>{simulation.totalEstimatedTime || 'Chưa xác định'}</Text>
                                 </Space>
-                                
+
                                 <Space>
                                     <UserOutlined />
                                     <Text>{simulation.participantQuantity || 0} học viên</Text>
                                 </Space>
-                                
+
                                 <Space>
                                     <Rate disabled defaultValue={simulation.avgRating || 0} style={{ fontSize: 16 }} />
                                     <Text>({simulation.avgRating?.toFixed(1) || '0.0'})</Text>
@@ -228,8 +243,8 @@ const SimulationDetailPage = ({ pageOptions }) => {
                             {simulation.percent !== undefined && (
                                 <div style={{ marginTop: 16 }}>
                                     <Text strong>Tiến độ học tập:</Text>
-                                    <Progress 
-                                        percent={Math.round(simulation.percent)} 
+                                    <Progress
+                                        percent={Math.round(simulation.percent)}
                                         status={simulation.percent === 100 ? 'success' : 'active'}
                                         strokeColor={{
                                             '0%': '#108ee9',
@@ -249,7 +264,12 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                         if (typeof overviewInput === 'object') return overviewInput;
                                         try {
                                             const parsed = JSON.parse(overviewInput);
-                                            if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && (parsed.hero || parsed.intro || parsed.howItWorks)) {
+                                            if (
+                                                parsed &&
+                                                typeof parsed === 'object' &&
+                                                !Array.isArray(parsed) &&
+                                                (parsed.hero || parsed.intro || parsed.howItWorks)
+                                            ) {
                                                 return parsed;
                                             }
                                             if (Array.isArray(parsed) && parsed.length > 0) {
@@ -257,8 +277,12 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                                 const content = parsed[0].content || '';
                                                 return {
                                                     hero: {
-                                                        title: title || 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
-                                                        description: content ? content.replace(/<[^>]*>/g, '').substring(0, 200) : '',
+                                                        title:
+                                                            title ||
+                                                            'Tại sao nên hoàn thành bài mô phỏng công việc này?',
+                                                        description: content
+                                                            ? content.replace(/<[^>]*>/g, '').substring(0, 200)
+                                                            : '',
                                                         badges: [],
                                                         button: 'Xem tất cả',
                                                     },
@@ -274,8 +298,12 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                             if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
                                                 return {
                                                     hero: {
-                                                        title: parsed.title || 'Tại sao nên hoàn thành bài mô phỏng công việc này?',
-                                                        description: parsed.content ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 200) : '',
+                                                        title:
+                                                            parsed.title ||
+                                                            'Tại sao nên hoàn thành bài mô phỏng công việc này?',
+                                                        description: parsed.content
+                                                            ? parsed.content.replace(/<[^>]*>/g, '').substring(0, 200)
+                                                            : '',
                                                         badges: [],
                                                         button: 'Xem tất cả',
                                                     },
@@ -313,7 +341,10 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                         return <Paragraph>Chưa có thông tin tổng quan</Paragraph>;
                                     }
 
-                                    const hasHero = overview.hero?.title || overview.hero?.description || overview.hero?.badges?.length > 0;
+                                    const hasHero =
+                                        overview.hero?.title ||
+                                        overview.hero?.description ||
+                                        overview.hero?.badges?.length > 0;
                                     const hasIntro = overview.intro?.content;
                                     const hasHowItWorks = overview.howItWorks?.items?.length > 0;
 
@@ -324,7 +355,12 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                     const isImageLink = (icon) => {
                                         if (!icon || typeof icon !== 'string') return false;
                                         const cleanIcon = icon.trim();
-                                        return cleanIcon.startsWith('http://') || cleanIcon.startsWith('https://') || cleanIcon.startsWith('/') || cleanIcon.startsWith('./');
+                                        return (
+                                            cleanIcon.startsWith('http://') ||
+                                            cleanIcon.startsWith('https://') ||
+                                            cleanIcon.startsWith('/') ||
+                                            cleanIcon.startsWith('./')
+                                        );
                                     };
 
                                     return (
@@ -332,39 +368,84 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                             {/* HERO SECTION */}
                                             {hasHero && (
                                                 <div style={{ marginBottom: 24 }}>
-                                                    <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#1f2937', marginBottom: '12px', lineHeight: '1.2' }}>
+                                                    <h3
+                                                        style={{
+                                                            fontSize: '24px',
+                                                            fontWeight: '700',
+                                                            color: '#1f2937',
+                                                            marginBottom: '12px',
+                                                            lineHeight: '1.2',
+                                                        }}
+                                                    >
                                                         {overview.hero.title}
                                                     </h3>
                                                     {overview.hero.description && (
-                                                        <Paragraph style={{ fontSize: '15px', lineHeight: '1.6', color: '#4b5563', marginBottom: '16px' }}>
+                                                        <Paragraph
+                                                            style={{
+                                                                fontSize: '15px',
+                                                                lineHeight: '1.6',
+                                                                color: '#4b5563',
+                                                                marginBottom: '16px',
+                                                            }}
+                                                        >
                                                             {overview.hero.description}
                                                         </Paragraph>
                                                     )}
                                                     {overview.hero.badges && overview.hero.badges.length > 0 && (
-                                                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                                                        <div
+                                                            style={{
+                                                                display: 'flex',
+                                                                flexWrap: 'wrap',
+                                                                gap: '8px',
+                                                                marginBottom: '16px',
+                                                            }}
+                                                        >
                                                             {overview.hero.badges.map((badge, idx) => (
-                                                                <span key={idx} style={{ background: '#e0f2fe', color: '#0369a1', fontWeight: '600', padding: '4px 10px', borderRadius: '20px', fontSize: '12px' }}>
+                                                                <span
+                                                                    key={idx}
+                                                                    style={{
+                                                                        background: '#e0f2fe',
+                                                                        color: '#0369a1',
+                                                                        fontWeight: '600',
+                                                                        padding: '4px 10px',
+                                                                        borderRadius: '20px',
+                                                                        fontSize: '12px',
+                                                                    }}
+                                                                >
                                                                     {badge}
                                                                 </span>
                                                             ))}
                                                         </div>
                                                     )}
                                                     {overview.hero.button && (
-                                                        <div style={{ display: 'inline-block', border: '1px solid #1890ff', color: '#1890ff', padding: '8px 16px', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', fontSize: '14px' }}>
+                                                        <div
+                                                            style={{
+                                                                display: 'inline-block',
+                                                                border: '1px solid #1890ff',
+                                                                color: '#1890ff',
+                                                                padding: '8px 16px',
+                                                                borderRadius: '6px',
+                                                                fontWeight: '600',
+                                                                cursor: 'pointer',
+                                                                fontSize: '14px',
+                                                            }}
+                                                        >
                                                             {overview.hero.button}
                                                         </div>
                                                     )}
                                                 </div>
                                             )}
 
-                                            {hasHero && (hasIntro || hasHowItWorks) && <Divider style={{ margin: '20px 0' }} />}
+                                            {hasHero && (hasIntro || hasHowItWorks) && (
+                                                <Divider style={{ margin: '20px 0' }} />
+                                            )}
 
                                             {/* INTRO SECTION */}
                                             {hasIntro && (
                                                 <div style={{ marginBottom: 24 }}>
-                                                    <div 
-                                                        className="ql-editor preview-content" 
-                                                        style={{ 
+                                                    <div
+                                                        className="ql-editor preview-content"
+                                                        style={{
                                                             padding: 0,
                                                             fontSize: '15px',
                                                             lineHeight: '1.8',
@@ -380,36 +461,79 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                             {/* HOW IT WORKS SECTION */}
                                             {hasHowItWorks && (
                                                 <div>
-                                                    <h3 style={{ fontSize: '20px', fontWeight: '600', color: '#1f2937', marginBottom: '16px' }}>
+                                                    <h3
+                                                        style={{
+                                                            fontSize: '20px',
+                                                            fontWeight: '600',
+                                                            color: '#1f2937',
+                                                            marginBottom: '16px',
+                                                        }}
+                                                    >
                                                         {overview.howItWorks.title || 'Cách thức hoạt động'}
                                                     </h3>
-                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            flexDirection: 'column',
+                                                            gap: '12px',
+                                                        }}
+                                                    >
                                                         {overview.howItWorks.items.map((item, idx) => (
-                                                            <div key={idx} style={{ display: 'flex', gap: '16px', padding: '16px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                                                                <div style={{ 
-                                                                    width: '48px', 
-                                                                    height: '48px', 
-                                                                    borderRadius: '50%', 
-                                                                    background: '#1890ff', 
-                                                                    color: 'white', 
-                                                                    display: 'flex', 
-                                                                    justifyContent: 'center', 
-                                                                    alignItems: 'center', 
-                                                                    fontSize: '20px', 
-                                                                    flexShrink: 0,
-                                                                    overflow: 'hidden',
-                                                                }}>
+                                                            <div
+                                                                key={idx}
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    gap: '16px',
+                                                                    padding: '16px',
+                                                                    borderRadius: '8px',
+                                                                    background: '#f8fafc',
+                                                                    border: '1px solid #f1f5f9',
+                                                                }}
+                                                            >
+                                                                <div
+                                                                    style={{
+                                                                        width: '48px',
+                                                                        height: '48px',
+                                                                        borderRadius: '50%',
+                                                                        background: '#1890ff',
+                                                                        color: 'white',
+                                                                        display: 'flex',
+                                                                        justifyContent: 'center',
+                                                                        alignItems: 'center',
+                                                                        fontSize: '20px',
+                                                                        flexShrink: 0,
+                                                                        overflow: 'hidden',
+                                                                    }}
+                                                                >
                                                                     {isImageLink(item.icon) ? (
-                                                                        <img 
-                                                                            src={item.icon.startsWith('/') && !item.icon.startsWith('//') ? `${AppConstants.contentRootUrl}${item.icon}` : item.icon} 
-                                                                            alt="step-icon" 
-                                                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                                                        <img
+                                                                            src={
+                                                                                item.icon.startsWith('/') &&
+                                                                                !item.icon.startsWith('//')
+                                                                                    ? `${AppConstants.contentRootUrl}${item.icon}`
+                                                                                    : item.icon
+                                                                            }
+                                                                            alt="step-icon"
+                                                                            style={{
+                                                                                width: '100%',
+                                                                                height: '100%',
+                                                                                objectFit: 'cover',
+                                                                            }}
                                                                         />
                                                                     ) : (
                                                                         item.icon || '💡'
                                                                     )}
                                                                 </div>
-                                                                <div style={{ flex: 1, fontSize: '14px', lineHeight: '1.6', color: '#4b5563', display: 'flex', alignItems: 'center' }}>
+                                                                <div
+                                                                    style={{
+                                                                        flex: 1,
+                                                                        fontSize: '14px',
+                                                                        lineHeight: '1.6',
+                                                                        color: '#4b5563',
+                                                                        display: 'flex',
+                                                                        alignItems: 'center',
+                                                                    }}
+                                                                >
                                                                     {item.text}
                                                                 </div>
                                                             </div>
@@ -436,14 +560,19 @@ const SimulationDetailPage = ({ pageOptions }) => {
                             <div className="educator-section">
                                 <Title level={4}>Giảng viên</Title>
                                 <Space>
-                                    <Avatar 
+                                    <Avatar
                                         size={48}
-                                        src={simulation.educator?.profileAccountDto?.avatar ? 
-                                            `${AppConstants.contentRootUrl}${simulation.educator.profileAccountDto.avatar}` : null}
+                                        src={
+                                            simulation.educator?.profileAccountDto?.avatar
+                                                ? `${AppConstants.contentRootUrl}${simulation.educator.profileAccountDto.avatar}`
+                                                : null
+                                        }
                                         icon={<UserOutlined />}
                                     />
                                     <div>
-                                        <Text strong>{simulation.educator?.profileAccountDto?.fullName || 'Chưa có thông tin'}</Text>
+                                        <Text strong>
+                                            {simulation.educator?.profileAccountDto?.fullName || 'Chưa có thông tin'}
+                                        </Text>
                                         <br />
                                         <Text type="secondary">{simulation.educator?.profileAccountDto?.email}</Text>
                                     </div>
@@ -463,16 +592,25 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                         <List.Item>
                                             <List.Item.Meta
                                                 avatar={
-                                                    <Avatar 
-                                                        src={review.student?.profileAccountDto?.avatar ? 
-                                                            `${AppConstants.contentRootUrl}${review.student.profileAccountDto.avatar}` : null}
+                                                    <Avatar
+                                                        src={
+                                                            review.student?.profileAccountDto?.avatar
+                                                                ? `${AppConstants.contentRootUrl}${review.student.profileAccountDto.avatar}`
+                                                                : null
+                                                        }
                                                         icon={<UserOutlined />}
                                                     />
                                                 }
                                                 title={
                                                     <Space>
-                                                        <Text strong>{review.student?.profileAccountDto?.fullName}</Text>
-                                                        <Rate disabled defaultValue={review.star} style={{ fontSize: 14 }} />
+                                                        <Text strong>
+                                                            {review.student?.profileAccountDto?.fullName}
+                                                        </Text>
+                                                        <Rate
+                                                            disabled
+                                                            defaultValue={review.star}
+                                                            style={{ fontSize: 14 }}
+                                                        />
                                                     </Space>
                                                 }
                                                 description={review.comment}
@@ -486,7 +624,7 @@ const SimulationDetailPage = ({ pageOptions }) => {
 
                     {/* Right Column - Tasks Sidebar */}
                     <Col xs={24} lg={8}>
-                        <Card 
+                        <Card
                             className="tasks-sidebar"
                             title={
                                 <Space>
@@ -498,13 +636,13 @@ const SimulationDetailPage = ({ pageOptions }) => {
                             {tasks.length === 0 ? (
                                 <Empty description="Chưa có nhiệm vụ nào" />
                             ) : (
-                                <Collapse 
+                                <Collapse
                                     defaultActiveKey={groupedTasks.map((_, index) => index.toString())}
                                     expandIconPosition="right"
                                     className="tasks-collapse"
                                 >
                                     {groupedTasks.map((parentTask, index) => (
-                                        <Panel 
+                                        <Panel
                                             header={
                                                 <div className="panel-header">
                                                     <Text strong>{parentTask.name || parentTask.title}</Text>
@@ -513,8 +651,8 @@ const SimulationDetailPage = ({ pageOptions }) => {
                                             key={index.toString()}
                                         >
                                             {parentTask.children.length === 0 ? (
-                                                <Button 
-                                                    type="link" 
+                                                <Button
+                                                    type="link"
                                                     icon={<PlayCircleOutlined />}
                                                     onClick={() => handleStartTask(parentTask.id)}
                                                     block

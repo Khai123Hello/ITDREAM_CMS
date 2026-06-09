@@ -16,8 +16,7 @@ function TransferField({ dataSource, required, labelAlign, label, name, formItem
             labelAlign={labelAlign}
             label={label}
             name={name}
-            rules={[ { validator: checkTargetKeys } ]}
-            
+            rules={[{ validator: checkTargetKeys }]}
         >
             <TransferWrapper dataSource={dataSource} />
         </Form.Item>

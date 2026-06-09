@@ -117,7 +117,7 @@ const GeneralSettingPage = ({ groupName }) => {
                                     });
                                 }
                             },
-                            onError: (err) => { },
+                            onError: (err) => {},
                         });
                     };
                     if (item?.dataType == dataTypeSetting.BOOLEAN) {
@@ -186,7 +186,7 @@ const GeneralSettingPage = ({ groupName }) => {
                     mixinFuncs.getList();
                 }
             },
-            onError: (err) => { },
+            onError: (err) => {},
         });
     };
     const columnPage = [
@@ -213,7 +213,10 @@ const GeneralSettingPage = ({ groupName }) => {
                 }
             },
         },
-        mixinFuncs.renderActionColumn({ editSetting: mixinFuncs.hasPermission([apiConfig.settings.update?.permissionCode]), delete: false }, { width: '100px' }),
+        mixinFuncs.renderActionColumn(
+            { editSetting: mixinFuncs.hasPermission([apiConfig.settings.update?.permissionCode]), delete: false },
+            { width: '100px' },
+        ),
     ];
 
     const columnRevenue = [
@@ -233,7 +236,10 @@ const GeneralSettingPage = ({ groupName }) => {
                 } else return <div>{valueData}</div>;
             },
         },
-        mixinFuncs.renderActionColumn({ editSetting: mixinFuncs.hasPermission([apiConfig.settings.update?.permissionCode]), delete: false }, { width: '100px' }),
+        mixinFuncs.renderActionColumn(
+            { editSetting: mixinFuncs.hasPermission([apiConfig.settings.update?.permissionCode]), delete: false },
+            { width: '100px' },
+        ),
     ];
 
     const columnGeneral = [
@@ -343,7 +349,10 @@ const GeneralSettingPage = ({ groupName }) => {
                 } else return <div>{valueData}</div>;
             },
         },
-        mixinFuncs.renderActionColumn({ editSetting: mixinFuncs.hasPermission([apiConfig.settings.update?.permissionCode]), delete: false }, { width: '100px' }),
+        mixinFuncs.renderActionColumn(
+            { editSetting: mixinFuncs.hasPermission([apiConfig.settings.update?.permissionCode]), delete: false },
+            { width: '100px' },
+        ),
     ];
 
     const { execute: executeUpdate } = useFetch(apiConfig.settings.update, { immediate: false });

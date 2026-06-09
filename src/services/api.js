@@ -27,7 +27,6 @@ const subscribeTokenRefresh = (cb) => {
 axiosInstance.interceptors.response.use(
     (res) => res,
     async (err) => {
-
         console.log(err);
         const originalConfig = err.config;
         if (originalConfig?.url !== apiConfig.account.login.baseURL && err.response) {
@@ -81,7 +80,6 @@ const sendRequest = (options, payload, cancelToken) => {
     if (authorization) {
         headers.Authorization = authorization;
     }
-
 
     // update path params
     for (let key of Object.keys(pathParams)) {

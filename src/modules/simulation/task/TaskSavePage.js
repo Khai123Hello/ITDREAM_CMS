@@ -21,7 +21,7 @@ const TaskSavePage = ({ pageOptions }) => {
     const { id, simulationId } = useParams();
     const location = useLocation();
     const isCreating = id === 'create';
-    
+
     const parentTaskFromState = location.state?.parentTask;
 
     const apiConfiguration = isEducator
@@ -75,9 +75,10 @@ const TaskSavePage = ({ pageOptions }) => {
                     return await originalGetDetail(id);
                 } catch (error) {
                     console.error('❌ Error fetching task detail:', error);
-                    const errorMsg = error?.response?.data?.message 
-                        || error?.message 
-                        || 'Không thể tải thông tin Task. Vui lòng thử lại.';
+                    const errorMsg =
+                        error?.response?.data?.message ||
+                        error?.message ||
+                        'Không thể tải thông tin Task. Vui lòng thử lại.';
                     message.error(errorMsg);
                     throw error;
                 }

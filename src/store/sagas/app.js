@@ -12,6 +12,6 @@ function* _uploadFile({ payload: { params, onCompleted, onError } }) {
     }
 }
 
-const sagas = [ takeLatest(uploadFile.type, _uploadFile) ];
+const sagas = [takeLatest(uploadFile.type, _uploadFile)];
 
 export default sagas;

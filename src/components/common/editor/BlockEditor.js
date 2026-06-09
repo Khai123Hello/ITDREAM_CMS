@@ -51,7 +51,8 @@ const TEMPLATES = {
     task: {
         label: 'Giới thiệu',
         title: 'Nhập tiêu đề giới thiệu ở đây (ví dụ: Giới thiệu về lập trình React)',
-        description: 'Nhập mô tả ngắn gọn về bài học ở đây (ví dụ: Bài viết giúp học viên làm quen với thư viện ReactJS cơ bản)',
+        description:
+            'Nhập mô tả ngắn gọn về bài học ở đây (ví dụ: Bài viết giúp học viên làm quen với thư viện ReactJS cơ bản)',
         blocks: () => [
             makeBlock('meta', { duration: 'Thời gian học (ví dụ: 1–2 giờ)', level: 'Cấp độ (ví dụ: Cơ bản)' }),
             makeBlock('section', {
@@ -75,7 +76,8 @@ const TEMPLATES = {
     guide: {
         label: 'Hướng dẫn',
         title: 'Nhập tiêu đề hướng dẫn (ví dụ: Hướng dẫn các bước cấu hình)',
-        description: 'Nhập hướng dẫn tổng quan (ví dụ: Thực hiện tuần tự các bước dưới đây để hoàn thành cấu hình ứng dụng)',
+        description:
+            'Nhập hướng dẫn tổng quan (ví dụ: Thực hiện tuần tự các bước dưới đây để hoàn thành cấu hình ứng dụng)',
         blocks: () => [
             makeBlock('step', {
                 label: 'Bước 1',
@@ -107,7 +109,8 @@ const TEMPLATES = {
     reading: {
         label: 'Ví dụ',
         title: 'Nhập tiêu đề tài liệu tham khảo hoặc ví dụ (ví dụ: Ví dụ về cấu trúc thư mục dự án)',
-        description: 'Mô tả tổng quan về ví dụ hoặc tài liệu ở đây (ví dụ: Đọc kỹ phần thông tin nền tảng này trước khi bắt đầu nhiệm vụ)',
+        description:
+            'Mô tả tổng quan về ví dụ hoặc tài liệu ở đây (ví dụ: Đọc kỹ phần thông tin nền tảng này trước khi bắt đầu nhiệm vụ)',
         blocks: () => [
             makeBlock('text', {
                 content:
@@ -956,10 +959,7 @@ export default function BlockEditor({
         <div className="block-editor-container">
             {/* Template picker button top right */}
             <div className="template-picker-btn-wrap">
-                <Button
-                    type="default"
-                    onClick={() => setShowTemplatePicker(true)}
-                >
+                <Button type="default" onClick={() => setShowTemplatePicker(true)}>
                     Mẫu: <strong>{TEMPLATES[template]?.label || 'Không có'}</strong>
                 </Button>
             </div>
@@ -1078,16 +1078,17 @@ export default function BlockEditor({
                     <span
                         key="blank"
                         className="tp-blank"
-                        style={{ marginRight: 16, cursor: 'pointer', textDecoration: 'underline', color: 'var(--accent)' }}
+                        style={{
+                            marginRight: 16,
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            color: 'var(--accent)',
+                        }}
                         onClick={startBlank}
                     >
                         Bắt đầu trống
                     </span>,
-                    <Button
-                        key="start"
-                        type="primary"
-                        onClick={() => loadTemplate(template)}
-                    >
+                    <Button key="start" type="primary" onClick={() => loadTemplate(template)}>
                         Bắt đầu →
                     </Button>,
                 ]}
@@ -1105,7 +1106,9 @@ export default function BlockEditor({
                         >
                             <div className="tp-card-icon">📋</div>
                             <div className="tp-card-name">Giới thiệu</div>
-                            <div className="tp-card-desc">Mẫu giới thiệu bài học/nhiệm vụ với mục tiêu và các bước rõ ràng.</div>
+                            <div className="tp-card-desc">
+                                Mẫu giới thiệu bài học/nhiệm vụ với mục tiêu và các bước rõ ràng.
+                            </div>
                             <div className="tp-card-preview">
                                 <div className="tp-prev-line dark"></div>
                                 <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
@@ -1119,7 +1122,9 @@ export default function BlockEditor({
                         >
                             <div className="tp-card-icon">🪜</div>
                             <div className="tp-card-name">Hướng dẫn</div>
-                            <div className="tp-card-desc">Mẫu hướng dẫn chi tiết các bước cấu hình và thực hiện tuần tự.</div>
+                            <div className="tp-card-desc">
+                                Mẫu hướng dẫn chi tiết các bước cấu hình và thực hiện tuần tự.
+                            </div>
                             <div className="tp-card-preview">
                                 <div className="tp-prev-line dark"></div>
                                 <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
@@ -1169,7 +1174,7 @@ export default function BlockEditor({
                             if (filtered.length === 0) {
                                 return (
                                     <div style={{ padding: '8px 12px', fontSize: 12, color: 'var(--text3)' }}>
-                                            Không tìm thấy block phù hợp
+                                        Không tìm thấy block phù hợp
                                     </div>
                                 );
                             }

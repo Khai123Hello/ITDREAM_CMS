@@ -2,12 +2,7 @@ import { createReducer } from '@store/utils';
 import { appActions } from '@store/actions';
 import { defaultLocale } from '@constants';
 
-const {
-    hideAppLoading,
-    showAppLoading,
-    toggleActionLoading,
-    changeLanguage,
-} = appActions;
+const { hideAppLoading, showAppLoading, toggleActionLoading, changeLanguage } = appActions;
 
 const initialState = {
     appLoading: 0,
@@ -19,7 +14,7 @@ const appReducer = createReducer(
         reducerName: 'app',
         initialState,
         storage: {
-            whiteList: [ 'theme', 'locale' ],
+            whiteList: ['theme', 'locale'],
         },
     },
     {

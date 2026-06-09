@@ -14,25 +14,14 @@ const SimulationFormModal = ({ open, onCancel, onSubmit, initialValues, loading,
     }, [open, initialValues, form]);
 
     const handleOk = () => {
-        form.validateFields().then(values => {
+        form.validateFields().then((values) => {
             onSubmit(values);
         });
     };
 
     return (
-        <Modal
-            open={open}
-            title={title}
-            onCancel={onCancel}
-            onOk={handleOk}
-            confirmLoading={loading}
-            destroyOnClose
-        >
-            <Form
-                form={form}
-                layout="vertical"
-                initialValues={initialValues}
-            >
+        <Modal open={open} title={title} onCancel={onCancel} onOk={handleOk} confirmLoading={loading} destroyOnClose>
+            <Form form={form} layout="vertical" initialValues={initialValues}>
                 <Form.Item
                     name="name"
                     label="Simulation Name"
