@@ -11,8 +11,10 @@ import {
     Tag,
     Alert,
     message,
+    Tabs,
+    Upload,
 } from 'antd';
-import { BookOutlined } from '@ant-design/icons';
+import { DownloadOutlined, BookOutlined, AppstoreOutlined, FileOutlined, UploadOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -27,7 +29,7 @@ import useFetch from '@hooks/useFetch';
 import useTranslate from '@hooks/useTranslate';
 import { useTaskSymbol } from './useTaskSymbol';
 
-import { AppConstants, TaskTypes, UserTypes, storageKeys } from '@constants';
+import { AppConstants, TaskTypes, UserTypes, storageKeys, UploadFileTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import apiConfig from '@constants/apiConfig';
 import { taskKindOptions, taskTypeOptions } from '@constants/masterData';
@@ -241,7 +243,6 @@ const RenderPreviewBlocks = ({ content }) => {
 const TaskForm = (props) => {
     const translate = useTranslate();
     const kindValues = translate.formatKeys(taskKindOptions, ['label']);
-    const typeValues = translate.formatKeys(taskTypeOptions, ['label']);
     const location = useLocation();
 
     const userType = getData(storageKeys.USER_TYPE);
@@ -298,6 +299,78 @@ const TaskForm = (props) => {
     const [draftData, setDraftData] = useState(null);
     const [isDirty, setIsDirty] = useState(false);
     const [changeTrigger, setChangeTrigger] = useState(0);
+
+    const FilePreview = ({ url }) => {
+        if (!url) return null;
+        let extension = 'FILE';
+        let fileName = 'Tài liệu';
+        try {
+            const parts = url.split('/');
+            const rawFileName = parts[parts.length - 1];
+            fileName = rawFileName.split('?')[0]; // Remove query string if any
+            const dotParts = fileName.split('.');
+            if (dotParts.length > 1) {
+                extension = dotParts[dotParts.length - 1].toUpperCase();
+            }
+        } catch (e) {
+            console.error(e);
+        }
+        
+        return (
+            <a href={url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
+                <div style={{ 
+                    border: '1px solid #f0f0f0', 
+                    borderRadius: 8, 
+                    padding: '24px', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    alignItems: 'flex-start',
+                    background: '#fff',
+                    marginTop: 16,
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                    transition: 'box-shadow 0.3s',
+                    width: '100%',
+                    maxWidth: '400px',
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)'}
+                onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'}
+                >
+                    <div style={{
+                        background: '#00a884',
+                        color: 'white',
+                        padding: '12px 8px',
+                        borderRadius: '4px 12px 4px 4px',
+                        fontWeight: 'bold',
+                        fontSize: 16,
+                        marginBottom: 16,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 50,
+                        minHeight: 60,
+                    }}>
+                        {extension}
+                    </div>
+                    <div style={{ fontWeight: 'bold', fontSize: 18, color: '#000', marginBottom: 16 }}>
+                        {fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName}
+                    </div>
+                    <div style={{ color: '#00a884', fontWeight: '600', display: 'flex', alignItems: 'center', fontSize: 16 }}>
+                        Nhấn vào để tải về <span style={{ marginLeft: 8 }}>→</span>
+                    </div>
+                </div>
+            </a>
+        );
+    };
+
+    const getMediaUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http://') || path.startsWith('https://')) {
+            return path;
+        }
+        const normalizedPath = path.replace(/\\/g, '/');
+        const separator = AppConstants.contentRootUrl.endsWith('/') || normalizedPath.startsWith('/') ? '' : '/';
+        return `${AppConstants.contentRootUrl}${separator}${normalizedPath}`;
+    };
 
     // Question load states for BlockEditor remount key
     const [questionsLoaded, setQuestionsLoaded] = useState(!isEditing);
@@ -645,7 +718,7 @@ const TaskForm = (props) => {
                         </div>
 
                         {Number(taskKind) === TaskTypes.SUBTASK ? (
-                            <Col span={12}>
+                            <Col span={24}>
                                 <div style={{ marginBottom: 24 }}>
                                     <label style={{ fontWeight: 600, display: 'block', marginBottom: 8 }}>
                                         Yêu cầu nộp bài của học viên
@@ -671,17 +744,6 @@ const TaskForm = (props) => {
                                 </div>
                             </Col>
                         ) : null}
-
-                        <Col span={Number(taskKind) === TaskTypes.SUBTASK ? 12 : 24}>
-                            <SelectField
-                                label="Thể loại nội dung"
-                                required
-                                name="type"
-                                requiredMsg="Vui lòng chọn thể loại nội dung"
-                                options={typeValues}
-                                disabled={!isEducator || Number(taskKind) === TaskTypes.TASK}
-                            />
-                        </Col>
                     </Row>
 
                     {/* BlockEditor for Title, Description & Content */}
@@ -706,13 +768,6 @@ const TaskForm = (props) => {
                                         autoLoadTemplate={Number(taskKind) === TaskTypes.TASK && !isEditing}
                                         defaultTemplate={isEditing && Number(dataDetail?.type) === 2 ? 'quiz' : (Number(taskKind) === TaskTypes.TASK ? 'task' : 'guide')}
                                         onTemplateLoad={(snapshot) => setTemplateSnapshot(snapshot)}
-                                        onTemplateChange={(templateKey) => {
-                                            if (templateKey === 'quiz') {
-                                                form.setFieldsValue({ type: 2 });
-                                            } else {
-                                                form.setFieldsValue({ type: 1 });
-                                            }
-                                        }}
                                         // Lightweight: title/desc update form fields only — no setContent, no re-render
                                         onTitleChange={(val) => {
                                             form.setFieldsValue({ title: val });
@@ -751,19 +806,72 @@ const TaskForm = (props) => {
                     {/* ── Media & Files ────────────────────────── */}
                     <Divider orientation="left">Media & Files</Divider>
 
-                    <Row gutter={16}>
-                        <Col span={8}>
-                            <CropImageField
-                                label={translate.formatMessage(commonMessage.image)}
-                                name="imagePath"
-                                imageUrl={imagePath && `${AppConstants.contentRootUrl}${imagePath}`}
-                                aspect={16 / 9}
-                                uploadFile={(file, onSuccess, onError) => uploadFile(file, onSuccess, onError, 'IMAGE')}
-                                disabled={!isEducator}
+                    <Row gutter={[16, 24]}>
+                        <Col span={24}>
+                            <label style={labelStyle}>Ảnh</label>
+                            <Tabs
+                                items={[
+                                    {
+                                        key: 'upload',
+                                        label: 'Tải lên',
+                                        children: (
+                                            <>
+                                                <style>{`
+                                                    .large-image-preview .ant-upload {
+                                                        width: 100% !important;
+                                                        height: auto !important;
+                                                        min-height: 200px !important;
+                                                        background-color: #fafafa !important;
+                                                        border: 1px dashed #d9d9d9 !important;
+                                                    }
+                                                    .large-image-preview .img-uploaded {
+                                                        width: 100% !important;
+                                                        height: auto !important;
+                                                        max-height: 500px !important;
+                                                        object-fit: contain !important;
+                                                    }
+                                                `}</style>
+                                                <div className="large-image-preview">
+                                                    <CropImageField
+                                                        label=""
+                                                        name="imagePath"
+                                                        imageUrl={getMediaUrl(imagePath)}
+                                                        aspect={16 / 9}
+                                                        uploadFile={(file, onSuccess, onError) => uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)}
+                                                        disabled={!isEducator}
+                                                    />
+                                                </div>
+                                            </>
+                                        ),
+                                    },
+                                    {
+                                        key: 'url',
+                                        label: 'Đường dẫn (URL)',
+                                        children: (
+                                            <div style={{ marginBottom: 16 }}>
+                                                <Input
+                                                    value={imagePath}
+                                                    onChange={(e) => {
+                                                        setImagePath(e.target.value);
+                                                        setIsChangedFormValues(true);
+                                                    }}
+                                                    placeholder="https://..."
+                                                    size="large"
+                                                    disabled={!isEducator}
+                                                />
+                                                {imagePath && (
+                                                    <div style={{ marginTop: 8 }}>
+                                                        <img src={getMediaUrl(imagePath)} alt="Preview" style={{ maxWidth: '100%', maxHeight: 400, borderRadius: 8, border: '1px solid #d9d9d9', objectFit: 'contain' }} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ),
+                                    },
+                                ]}
                             />
                         </Col>
 
-                        <Col span={8}>
+                        <Col span={24}>
                             <div style={{ marginBottom: 16 }}>
                                 <label style={labelStyle}>Video URL</label>
                                 <Input
@@ -772,33 +880,62 @@ const TaskForm = (props) => {
                                         setVideoUrl(e.target.value);
                                         setIsChangedFormValues(true);
                                     }}
-                                    placeholder="Nhập URL YouTube, Vimeo, v.v."
+                                    placeholder="https://...mp4"
                                     size="large"
                                     disabled={!isEducator}
                                 />
-                                {videoUrl && (
-                                    <div style={{ marginTop: 6, color: '#888', fontSize: 12 }}>📹 {videoUrl}</div>
-                                )}
+                                {videoUrl && (videoUrl.startsWith('http') || videoUrl.startsWith('https')) && videoUrl.endsWith('.mp4') ? (
+                                    <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid #d9d9d9' }}>
+                                        <video controls style={{ width: '100%', maxHeight: 400, objectFit: 'contain', background: '#000' }} src={videoUrl} />
+                                    </div>
+                                ) : videoUrl ? (
+                                    <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4</div>
+                                ) : null}
                             </div>
                         </Col>
 
-                        <Col span={8}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={labelStyle}>File URL</label>
-                                <Input
-                                    value={filePath}
-                                    onChange={(e) => {
-                                        setFilePath(e.target.value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="Nhập URL file tài liệu"
-                                    size="large"
-                                    disabled={!isEducator}
-                                />
-                                {filePath && (
-                                    <div style={{ marginTop: 6, color: '#888', fontSize: 12 }}>📄 {filePath}</div>
-                                )}
-                            </div>
+                        <Col span={24}>
+                            <label style={labelStyle}>File Tài Liệu</label>
+                            <Tabs
+                                items={[
+                                    {
+                                        key: 'upload',
+                                        label: 'Tải lên',
+                                        children: (
+                                            <Upload.Dragger
+                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                                                customRequest={({ file, onSuccess, onError }) => uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)}
+                                                showUploadList={false}
+                                                disabled={!isEducator}
+                                            >
+                                                <p className="ant-upload-drag-icon">
+                                                    <UploadOutlined />
+                                                </p>
+                                                <p className="ant-upload-text">Kéo thả hoặc click để tải lên</p>
+                                            </Upload.Dragger>
+                                        ),
+                                    },
+                                    {
+                                        key: 'url',
+                                        label: 'Đường dẫn (URL)',
+                                        children: (
+                                            <Input
+                                                value={filePath}
+                                                onChange={(e) => {
+                                                    setFilePath(e.target.value);
+                                                    setIsChangedFormValues(true);
+                                                }}
+                                                placeholder="https://..."
+                                                size="large"
+                                                disabled={!isEducator}
+                                            />
+                                        ),
+                                    },
+                                ]}
+                            />
+                            {filePath && (
+                                <FilePreview url={getMediaUrl(filePath)} />
+                            )}
                         </Col>
                     </Row>
                 </>
@@ -845,12 +982,6 @@ const TaskForm = (props) => {
                 name: dataDetail.name || '',
                 title: dataDetail.title || '',
                 description: dataDetail.description || '',
-                type:
-                    dataDetail.type !== undefined
-                        ? dataDetail.type
-                        : dataDetail.kind === TaskTypes.TASK
-                            ? 0
-                            : undefined,
             });
 
             setImagePath(dataDetail.imagePath || '');
@@ -863,21 +994,26 @@ const TaskForm = (props) => {
         }
     }, [dataDetail]);
 
-    // ── upload image ──────────────────────────
+    // ── upload media ──────────────────────────
     const uploadFile = (file, onSuccess, onError, type) => {
         executeUpFile({
             data: { file, type },
             onCompleted: (response) => {
                 if (response.result === true) {
                     onSuccess();
-                    if (type === 'IMAGE') {
+                    if (type === UploadFileTypes.IMAGE || type === 'IMAGE') {
                         setImagePath(response.data.filePath);
                         form.setFieldsValue({ imagePath: response.data.filePath });
+                    } else if (type === UploadFileTypes.DOCUMENT || type === 'DOCUMENT') {
+                        setFilePath(response.data.filePath);
+                        form.setFieldsValue({ filePath: response.data.filePath });
                     }
                     setIsChangedFormValues(true);
+                } else {
+                    onError(new Error(response.message || 'Upload thất bại'));
                 }
             },
-            onError,
+            onError: (err) => onError(err),
         });
     };
 
@@ -941,10 +1077,6 @@ const TaskForm = (props) => {
                 message.error('Vui lòng nhập tiêu đề nhiệm vụ.');
                 return false;
             }
-            if (values.type === undefined || values.type === null) {
-                message.error('Vui lòng chọn thể loại nội dung.');
-                return false;
-            }
 
             const submitData = {
                 name: values.name?.trim() || '',
@@ -957,7 +1089,6 @@ const TaskForm = (props) => {
                 imagePath: imagePath || null,
                 videoPath: videoUrl || null,
                 filePath: filePath || null,
-                type: values.type,
             };
 
             if (submitData.kind === TaskTypes.SUBTASK) {

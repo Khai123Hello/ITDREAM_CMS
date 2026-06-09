@@ -612,6 +612,11 @@ const apiConfig = {
             headers: multipartFormHeader,
             isUpload: true,
         },
+        download: {
+            path: `${apiMediaUrl}v1/file/download`,
+            method: 'GET',
+            headers: baseHeader,
+        },
     },
     post: {
         getList: {
