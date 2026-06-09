@@ -17,6 +17,9 @@ import { UserTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import { storageKeys } from '@constants';
 
+const categoryParams = { kind: 1 };
+const categoryMappingData = (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name }));
+
 const EducatorSimulationSavePage = ({ pageOptions }) => {
     const userType = getData(storageKeys.USER_TYPE);
     const isEducator = userType === UserTypes.EDUCATOR;
@@ -27,10 +30,8 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
     // Fetch categories for the specialization dropdown select field
     const { data: categories } = useFetch(apiConfig.category.autoComplete, {
         immediate: true,
-        params: {
-            kind: 1,
-        },
-        mappingData: (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name })),
+        params: categoryParams,
+        mappingData: categoryMappingData,
     });
 
     // Translate level options for the dropdown
