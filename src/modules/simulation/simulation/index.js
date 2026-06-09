@@ -603,10 +603,16 @@ const SimulationListPage = ({ pageOptions }) => {
         {
             title: labels.title,
             dataIndex: 'title',
+            width: '40%',
             render: (text, record) => (
                 <Button
                     type="link"
-                    style={{ padding: 0 }}
+                    style={{
+                        padding: 0,
+                        whiteSpace: 'normal',
+                        height: 'auto',
+                        textAlign: 'left',
+                    }}
                     onClick={(e) => {
                         e.stopPropagation(); // tránh trigger row click
                         navigate(`/simulation/${record.id}`);
@@ -616,43 +622,31 @@ const SimulationListPage = ({ pageOptions }) => {
                 </Button>
             ),
         },
-
-        // Hiển thị specialization cho Admin
-        ...(isEducator
-            ? []
-            : [
-                {
-                    title: labels.specialization,
-                    dataIndex: ['specialization', 'name'],
-                    align: 'center',
-                    width: '150px',
-                },
-            ]),
         mixinFuncs.renderStatusColumn({ width: '120px' }),
         mixinFuncs.renderActionColumn(
             isEducator
                 ? {
+                    task: () => mixinFuncs.hasPermission([apiConfig.task.educatorList.permissionCode]),
+                    requestDelete: (dataRow) =>
+                        dataRow.status !== STATUS_WAITING_APPROVE &&
+                        dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
+                        mixinFuncs.hasPermission([apiConfig.simulation.requestDelete.permissionCode]),
+                    educatorDelete: (dataRow) =>
+                        dataRow.status === STATUS_WAITING_APPROVE &&
+                        mixinFuncs.hasPermission([apiConfig.simulation.educatorDelete.permissionCode]),
                     viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
                     edit: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
-                          mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
-                    task: () => mixinFuncs.hasPermission([apiConfig.task.educatorList.permissionCode]),
-                    educatorDelete: (dataRow) =>
-                        dataRow.status === STATUS_WAITING_APPROVE &&
-                          mixinFuncs.hasPermission([apiConfig.simulation.educatorDelete.permissionCode]),
-                    requestDelete: (dataRow) =>
-                        dataRow.status !== STATUS_WAITING_APPROVE &&
-                          dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
-                          mixinFuncs.hasPermission([apiConfig.simulation.requestDelete.permissionCode]),
+                        mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                 }
                 : {
-                    viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
-                    edit: () => mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                     task: () => mixinFuncs.hasPermission([apiConfig.task.getList.permissionCode]),
                     approve: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     reject: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     approveDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
                     rejectDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
+                    viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
+                    edit: () => mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                 },
             { width: '237px', title: labels.action },
         ),

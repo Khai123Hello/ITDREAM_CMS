@@ -610,9 +610,7 @@ const apiConfig = {
             path: `${apiMediaUrl}v1/file/upload`,
             method: 'POST',
             headers: multipartFormHeader,
-            isRequiredTenantId: true,
             isUpload: true,
-            permissionCode: 'FILE_U',
         },
     },
     post: {
