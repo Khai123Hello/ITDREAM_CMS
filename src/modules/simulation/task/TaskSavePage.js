@@ -1,5 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useLocation } from 'react-router-dom';
+import useFetch from '@hooks/useFetch';
 import { message, Alert } from 'antd';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
@@ -19,6 +20,21 @@ const TaskSavePage = ({ pageOptions }) => {
 
     const translate = useTranslate();
     const { id, simulationId } = useParams();
+    const [localQuestions, setLocalQuestions] = useState([]);
+    // useRef để tránh stale closure trong saveQuestionsForTask
+    // (override callback chỉ chạy 1 lần, nên closure phải đọc ref thay vì state)
+    const localQuestionsRef = useRef([]);
+    useEffect(() => {
+        localQuestionsRef.current = localQuestions;
+    }, [localQuestions]);
+
+    const { execute: createQuestion } = useFetch(apiConfig.taskQuestion.create, { immediate: false });
+    const { execute: updateQuestion } = useFetch(apiConfig.taskQuestion.update, { immediate: false });
+    const { execute: deleteQuestion } = useFetch(apiConfig.taskQuestion.delete, { immediate: false });
+    const { execute: getExistingQuestions } = useFetch(
+        isEducator ? apiConfig.taskQuestion.educatorList : apiConfig.taskQuestion.getList,
+        { immediate: false },
+    );
     const location = useLocation();
     const isCreating = id === 'create';
 
@@ -83,6 +99,81 @@ const TaskSavePage = ({ pageOptions }) => {
                     throw error;
                 }
             };
+
+            const saveQuestionsForTask = async (taskId) => {
+                try {
+                    // Đọc từ ref để luôn lấy giá trị mới nhất (tránh stale closure)
+                    const currentQuestions = localQuestionsRef.current;
+
+                    // 1. Fetch existing questions
+                    const response = await getExistingQuestions({
+                        params: { taskId, page: 0, size: 100 },
+                    });
+                    const resData = response?.data || (response?.result === undefined ? response : null);
+                    const existingQuestions = resData?.content || [];
+                    const existingIds = existingQuestions.map((q) => q.id);
+
+                    // 2. Identify which questions to delete
+                    const localIds = currentQuestions.map((q) => q.id).filter(Boolean);
+                    const idsToDelete = existingIds.filter((dbId) => !localIds.includes(dbId));
+
+                    // Delete removed questions
+                    for (const idToDelete of idsToDelete) {
+                        await deleteQuestion({
+                            pathParams: { id: idToDelete },
+                        });
+                    }
+
+                    // 3. Save questions in order (Create or Update)
+                    for (const q of currentQuestions) {
+                        if (q.id && existingIds.includes(q.id)) {
+                            // Update existing question
+                            await updateQuestion({
+                                data: {
+                                    id: q.id,
+                                    question: q.question,
+                                    options: q.options,
+                                    taskId: taskId,
+                                },
+                            });
+                        } else {
+                            // Create new question
+                            await createQuestion({
+                                data: {
+                                    question: q.question,
+                                    options: q.options,
+                                    taskId: taskId,
+                                },
+                            });
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error saving task questions:', error);
+                    message.error('Có lỗi xảy ra khi lưu câu hỏi trắc nghiệm.');
+                }
+            };
+
+            const originalOnInsertCompleted = funcs.onInsertCompleted;
+            funcs.onInsertCompleted = async (responseData) => {
+                if (responseData.result === true) {
+                    const newTaskId = responseData.data?.id;
+                    if (newTaskId) {
+                        await saveQuestionsForTask(newTaskId);
+                    }
+                    originalOnInsertCompleted(responseData);
+                }
+            };
+
+            const originalOnUpdateCompleted = funcs.onUpdateCompleted;
+            funcs.onUpdateCompleted = async (responseData) => {
+                if (responseData.result === true) {
+                    const existingTaskId = id;
+                    if (existingTaskId) {
+                        await saveQuestionsForTask(existingTaskId);
+                    }
+                    originalOnUpdateCompleted(responseData);
+                }
+            };
         },
     });
 
@@ -123,6 +214,7 @@ const TaskSavePage = ({ pageOptions }) => {
                     actions={mixinFuncs.renderActions()}
                     onSubmit={onSave}
                     simulationId={simulationId}
+                    onQuestionsChange={setLocalQuestions}
                 />
             ) : !loading ? (
                 <div style={{ padding: '24px', textAlign: 'center' }}>

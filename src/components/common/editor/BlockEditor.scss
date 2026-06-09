@@ -591,13 +591,130 @@
       transform: scale(1.08);
     }
   }
+
+  /* QUIZ BLOCK */
+  .b-quiz-wrap {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    margin: 4px 0;
+    background: var(--surface);
+  }
+  .b-quiz-question-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .b-quiz-icon {
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 7px;
+    background: var(--surface2);
+    user-select: none;
+  }
+  .b-quiz-question {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    outline: none;
+    flex: 1;
+    min-height: 1.4em;
+    padding: 1px 3px;
+    &:empty::before {
+      content: 'Nhập câu hỏi trắc nghiệm...';
+      color: var(--text3);
+      pointer-events: none;
+      font-style: italic;
+    }
+  }
+  .b-quiz-options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 8px;
+  }
+  .b-quiz-option-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    &:hover {
+      .b-quiz-option-del {
+        color: var(--text3);
+      }
+    }
+  }
+  .b-quiz-option-letter {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text2);
+    width: 16px;
+    user-select: none;
+  }
+  .b-quiz-option-text {
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    flex: 1;
+    min-height: 1.5em;
+    padding: 2px 4px;
+    &:empty::before {
+      content: 'Nhập đáp án...';
+      color: var(--text3);
+      pointer-events: none;
+      font-style: italic;
+    }
+  }
+  .b-quiz-option-del {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: none;
+    background: transparent;
+    color: transparent;
+    cursor: pointer;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &:hover {
+      color: var(--red) !important;
+      background: var(--red-soft) !important;
+    }
+  }
+  .b-quiz-add-option {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px dashed var(--border2);
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-family: var(--font-body);
+    font-size: 11px;
+    color: var(--text3);
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: all .15s;
+    margin-left: 8px;
+    &:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+  }
 }
 
 /* TEMPLATE PICKER MODAL CONTENTS */
 .tp-modal-content {
   .tp-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin-bottom: 20px;
     margin-top: 16px;
