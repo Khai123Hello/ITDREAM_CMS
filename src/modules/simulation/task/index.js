@@ -328,18 +328,14 @@ const TaskListPage = ({ pageOptions }) => {
     }, [hierarchicalData]);
 
     const findContainer = (id) => {
-        const idValue = String(id);
-        const directTask = taskItems.find((task) => String(task.id) === idValue);
-        if (directTask) return directTask.id;
-
-        const parentTask = taskItems.find((task) => task.children?.some((sub) => String(sub.id) === idValue));
+        if (taskItems.some((task) => task.id === id)) return id;
+        const parentTask = taskItems.find((task) => task.children?.some((sub) => sub.id === id));
         return parentTask ? parentTask.id : null;
     };
 
     const findSubtaskById = (id) => {
-        const idValue = String(id);
         for (const task of taskItems) {
-            const subtask = task.children?.find((sub) => String(sub.id) === idValue);
+            const subtask = task.children?.find((sub) => sub.id === id);
             if (subtask) return subtask;
         }
         return null;
@@ -368,7 +364,7 @@ const TaskListPage = ({ pageOptions }) => {
         const activeContainer = findContainer(activeId);
         let overContainer = findContainer(overId);
 
-        if (!overContainer && taskItems.some((t) => String(t.id) === String(overId))) {
+        if (!overContainer && taskItems.some((t) => t.id === overId)) {
             overContainer = overId;
         }
 
@@ -423,7 +419,7 @@ const TaskListPage = ({ pageOptions }) => {
         const isOverSubtask = over.data.current?.type === 'subtask';
 
         if (isActiveTask) {
-            if (String(activeId) === String(overId) || !isOverTask) return;
+            if (activeId === overId || !isOverTask) return;
 
             setTaskItems((prev) => {
                 const oldIndex = prev.findIndex((item) => item.id === activeId);
@@ -439,7 +435,7 @@ const TaskListPage = ({ pageOptions }) => {
         const activeContainer = findContainer(activeId);
         let overContainer = findContainer(overId);
 
-        if (!overContainer && taskItems.some((t) => String(t.id) === String(overId))) {
+        if (!overContainer && taskItems.some((t) => t.id === overId)) {
             overContainer = overId;
         }
 
@@ -521,14 +517,8 @@ const TaskListPage = ({ pageOptions }) => {
     };
 
     const handleRowClick = (record) => {
-        console.log('[TaskListPage] handleRowClick', {
-            id: record.id,
-            kind: record.kind,
-            title: record.title || record.name,
-        });
-        const recordKind = Number(record.kind);
         navigate(`/simulation/${simulationId}/task/${record.id}`, {
-            state: recordKind === TaskTypes.SUBTASK ? { parentTask: getParentTaskState(record) } : null,
+            state: record.kind === TaskTypes.SUBTASK ? { parentTask: getParentTaskState(record) } : null,
         });
     };
 
@@ -543,12 +533,137 @@ const TaskListPage = ({ pageOptions }) => {
         });
     };
 
-    const taskCardProps = {
-        handleRowClick,
-        createSubTaskForTask,
-        isEducator,
-        mixinFuncs,
-        labels,
+    const TaskCard = ({ task }) => {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+            id: task.id,
+            data: {
+                type: 'task',
+            },
+        });
+
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+        };
+
+        const isSubTask = task.kind === TaskTypes.SUBTASK;
+        const taskTitle = task.title || task.name;
+
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className={`task-container-card ${isDragging ? 'dragging-placeholder' : ''}`}
+                onClick={() => handleRowClick(task)}
+            >
+                <div className="task-header">
+                    <div className="task-header-left">
+                        <span className="drag-handle-btn" {...attributes} {...listeners}>
+                            <MenuOutlined />
+                        </span>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                            <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'SubTask' : 'Task'}</Tag>
+                                {isSubTask && task.parent?.name && <Tag color="default">Parent: {task.parent.name}</Tag>}
+                                {isSubTask && typeof task.totalQuestion !== 'undefined' && (
+                                    <Tag color="default">Câu hỏi: {task.totalQuestion || 0}</Tag>
+                                )}
+                                {isSubTask && typeof task.maxErrors !== 'undefined' && (
+                                    <Tag color="default">Lỗi tối đa: {task.maxErrors || 0}</Tag>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="task-header-actions">
+                        {!isSubTask && isEducator && mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
+                            <Button
+                                type="text"
+                                icon={<PlusOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    createSubTaskForTask(task);
+                                }}
+                                title={labels.createSubTask}
+                            />
+                        )}
+                        <Button
+                            type="text"
+                            icon={<RightOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRowClick(task);
+                            }}
+                            title={labels.viewDetails}
+                        />
+                    </div>
+                </div>
+                {!isSubTask ? (
+                    <div className="subtasks-list">
+                        {task.children?.length > 0 ? (
+                            <SortableContext items={task.children.map((sub) => sub.id)} strategy={verticalListSortingStrategy}>
+                                {task.children.map((subtask) => (
+                                    <SubTaskCard key={subtask.id} subtask={subtask} />
+                                ))}
+                            </SortableContext>
+                        ) : (
+                            <div className="empty-drop-zone">Chưa có SubTask</div>
+                        )}
+                    </div>
+                ) : null}
+            </div>
+        );
+    };
+
+    const SubTaskCard = ({ subtask }) => {
+        const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+            id: subtask.id,
+            data: {
+                type: 'subtask',
+            },
+        });
+
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+        };
+
+        return (
+            <div
+                ref={setNodeRef}
+                style={style}
+                className={`subtask-item-card ${isDragging ? 'dragging-placeholder' : ''}`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleRowClick(subtask);
+                }}
+            >
+                <div className="subtask-left">
+                    <span className="subtask-drag-handle" {...attributes} {...listeners}>
+                        <MenuOutlined />
+                    </span>
+                    <span style={{ color: '#9ca3af', fontSize: 14 }}>└─</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>
+                            {subtask.name || subtask.title}
+                        </div>
+                        {subtask.parent?.name && (
+                            <div style={{ fontSize: 12, color: '#64748b' }}>
+                                Thuộc Task: {subtask.parent.name}
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <Button
+                    type="text"
+                    icon={<RightOutlined />}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleRowClick(subtask);
+                    }}
+                />
+            </div>
+        );
     };
 
     const renderTaskBoard = () => (
@@ -564,7 +679,7 @@ const TaskListPage = ({ pageOptions }) => {
                     {taskItems.length === 0 ? (
                         <Empty description={labels.noData} />
                     ) : (
-                        taskItems.map((task) => <TaskCard key={task.id} task={task} {...taskCardProps} />)
+                        taskItems.map((task) => <TaskCard key={task.id} task={task} />)
                     )}
                 </div>
             </SortableContext>
@@ -578,7 +693,7 @@ const TaskListPage = ({ pageOptions }) => {
                                         <span className="drag-handle-btn">
                                             <MenuOutlined />
                                         </span>
-                                        <span>{taskItems.find((task) => task.id === activeId)?.title || taskItems.find((task) => task.id === activeId)?.name || ''}</span>
+                                        <span>{taskItems.find((task) => task.id === activeId)?.name || ''}</span>
                                     </div>
                                 </div>
                             </div>
@@ -628,156 +743,3 @@ const TaskListPage = ({ pageOptions }) => {
 };
 
 export default TaskListPage;
-
-// ─── Tách ra ngoài TaskListPage để tránh React unmount/remount mỗi render ───
-// Khi định nghĩa component bên trong component khác, React sẽ tạo function mới
-// mỗi lần render → unmount + remount toàn bộ → useSortable mất track ID
-// → DnD-kit map sai ID SubTask sang Task Cha khi click.
-
-function SubTaskCard({ subtask, handleRowClick }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-        id: subtask.id,
-        data: {
-            type: 'subtask',
-        },
-    });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className={`subtask-item-card ${isDragging ? 'dragging-placeholder' : ''}`}
-            onMouseDown={(e) => {
-                e.stopPropagation();
-            }}
-            onClick={(e) => {
-                console.log('[SubTaskCard] clicked subtask.id =', subtask.id, '| kind =', subtask.kind);
-                e.preventDefault();
-                e.stopPropagation();
-                handleRowClick(subtask);
-            }}
-        >
-            <div className="subtask-left">
-                <span className="subtask-drag-handle" {...attributes} {...listeners}>
-                    <MenuOutlined />
-                </span>
-                <span style={{ color: '#9ca3af', fontSize: 14 }}>└─</span>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>
-                        {subtask.title || subtask.name}
-                    </div>
-                    {subtask.parent?.name && (
-                        <div style={{ fontSize: 12, color: '#64748b' }}>
-                            Thuộc Task: {subtask.parent.name}
-                        </div>
-                    )}
-                </div>
-            </div>
-            <Button
-                type="text"
-                icon={<RightOutlined />}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    handleRowClick(subtask);
-                }}
-            />
-        </div>
-    );
-}
-
-function TaskCard({ task, handleRowClick, createSubTaskForTask, isEducator, mixinFuncs, labels }) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-        id: task.id,
-        data: {
-            type: 'task',
-        },
-    });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
-    const isSubTask = Number(task.kind) === TaskTypes.SUBTASK;
-    const taskTitle = task.title || task.name;
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className={`task-container-card ${isDragging ? 'dragging-placeholder' : ''}`}
-        >
-            <div
-                className="task-header"
-                onClick={() => {
-                    console.log('[TaskCard] header clicked task.id =', task.id, '| kind =', task.kind);
-                    handleRowClick(task);
-                }}
-                style={{ cursor: 'pointer' }}
-            >
-                <div className="task-header-left">
-                    <span className="drag-handle-btn" {...attributes} {...listeners}>
-                        <MenuOutlined />
-                    </span>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
-                        <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                            <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'SubTask' : 'Task'}</Tag>
-                            {isSubTask && task.parent?.name && <Tag color="default">Parent: {task.parent.name}</Tag>}
-                            {isSubTask && typeof task.totalQuestion !== 'undefined' && (
-                                <Tag color="default">Câu hỏi: {task.totalQuestion || 0}</Tag>
-                            )}
-                            {isSubTask && typeof task.maxErrors !== 'undefined' && (
-                                <Tag color="default">Lỗi tối đa: {task.maxErrors || 0}</Tag>
-                            )}
-                        </div>
-                    </div>
-                </div>
-                <div className="task-header-actions">
-                    {!isSubTask && isEducator && mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
-                        <Button
-                            type="text"
-                            icon={<PlusOutlined />}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                createSubTaskForTask(task);
-                            }}
-                            title={labels.createSubTask}
-                        />
-                    )}
-                    <Button
-                        type="text"
-                        icon={<RightOutlined />}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            handleRowClick(task);
-                        }}
-                        title={labels.viewDetails}
-                    />
-                </div>
-            </div>
-            {!isSubTask ? (
-                <div
-                    className="subtasks-list"
-                    onClick={(e) => e.stopPropagation()}
-                    onMouseDown={(e) => e.stopPropagation()}
-                >
-                    {task.children?.length > 0 ? (
-                        <SortableContext items={task.children.map((sub) => sub.id)} strategy={verticalListSortingStrategy}>
-                            {task.children.map((subtask) => (
-                                <SubTaskCard key={subtask.id} subtask={subtask} handleRowClick={handleRowClick} />
-                            ))}
-                        </SortableContext>
-                    ) : (
-                        <div className="empty-drop-zone">Chưa có SubTask</div>
-                    )}
-                </div>
-            ) : null}
-        </div>
-    );
-}
