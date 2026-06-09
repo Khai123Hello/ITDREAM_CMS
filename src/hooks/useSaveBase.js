@@ -55,10 +55,12 @@ const useSaveBase = ({
     const { execute: executeCreate, loading: loadingCreate } = useFetch(apiConfig.create, { immediate: false });
     const { execute: executeUpdate, loading: loadingUpdate } = useFetch(apiConfig.update, { immediate: false });
     const intl = useIntl();
-    const title = intl?.formatMessage ? intl.formatMessage(message.title, {
-        action: params.id !== 'create',
-        objectName: options.objectName,
-    }) : '';
+    const title = intl?.formatMessage
+        ? intl.formatMessage(message.title, {
+            action: params.id !== 'create',
+            objectName: options.objectName,
+        })
+        : '';
     const notification = useNotification();
     // const [ filter, setFilter ] = useState({});
 
@@ -196,7 +198,7 @@ const useSaveBase = ({
                     showErrorMessage(item.message, translate);
                 }
             });
-            return; 
+            return;
         }
 
         // Kiểm tra nếu có message trong responseData
@@ -217,7 +219,7 @@ const useSaveBase = ({
     const onSaveError = (err, callback) => {
         setSubmit(false);
         mixinFuncs.handleShowErrorMessage(err);
-        
+
         if (typeof callback === 'function') {
             callback(err);
         }

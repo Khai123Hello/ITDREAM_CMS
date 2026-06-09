@@ -93,7 +93,7 @@ const EditGenralModal = ({
                         label={<FormattedMessage defaultMessage="Nội dung" />}
                         name="valueData"
                         min={0}
-                        max={ localStorage.getItem(routes.settingsPage.keyActiveTab) == settingGroups.REVENUE && 100}
+                        max={localStorage.getItem(routes.settingsPage.keyActiveTab) == settingGroups.REVENUE && 100}
                         formatter={(value) =>
                             localStorage.getItem(routes.settingsPage.keyActiveTab) == settingGroups.REVENUE
                                 ? `${value}%`

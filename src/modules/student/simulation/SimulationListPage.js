@@ -13,7 +13,7 @@ const SimulationListPage = ({ pageOptions }) => {
     const navigate = useNavigate();
     const [simulations, setSimulations] = useState([]);
     const [loading, setLoading] = useState(false);
-    
+
     const { execute: getSimulations } = useFetch(apiConfig.simulation.getListForStudent);
 
     useEffect(() => {
@@ -29,7 +29,7 @@ const SimulationListPage = ({ pageOptions }) => {
                     pageNumber: 0,
                 },
             });
-            
+
             if (response.data?.result) {
                 setSimulations(response.data?.data?.content || []);
             }
@@ -41,20 +41,28 @@ const SimulationListPage = ({ pageOptions }) => {
     };
 
     const getLevelColor = (level) => {
-        switch(level) {
-                        case 1: return 'green';
-                        case 2: return 'orange';
-                        case 3: return 'red';
-                        default: return 'default';
+        switch (level) {
+                        case 1:
+                            return 'green';
+                        case 2:
+                            return 'orange';
+                        case 3:
+                            return 'red';
+                        default:
+                            return 'default';
         }
     };
 
     const getLevelText = (level) => {
-        switch(level) {
-                        case 1: return 'Dễ';
-                        case 2: return 'Trung bình';
-                        case 3: return 'Khó';
-                        default: return 'Chưa xác định';
+        switch (level) {
+                        case 1:
+                            return 'Dễ';
+                        case 2:
+                            return 'Trung bình';
+                        case 3:
+                            return 'Khó';
+                        default:
+                            return 'Chưa xác định';
         }
     };
 
@@ -104,36 +112,32 @@ const SimulationListPage = ({ pageOptions }) => {
                                     }
                                 >
                                     <Card.Meta
-                                        title={
-                                            <div className="card-title">
-                                                {simulation.title}
-                                            </div>
-                                        }
+                                        title={<div className="card-title">{simulation.title}</div>}
                                         description={
                                             <div className="card-description">
                                                 <div className="info-row">
                                                     <ClockCircleOutlined />
                                                     <span>{simulation.totalEstimatedTime || 'Chưa xác định'}</span>
                                                 </div>
-                                                
+
                                                 <div className="info-row">
                                                     <UserOutlined />
                                                     <span>{simulation.participantQuantity || 0} học viên</span>
                                                 </div>
-                                                
+
                                                 <div className="info-row">
-                                                    <Rate 
-                                                        disabled 
-                                                        defaultValue={simulation.avgRating || 0} 
+                                                    <Rate
+                                                        disabled
+                                                        defaultValue={simulation.avgRating || 0}
                                                         style={{ fontSize: 14 }}
                                                     />
                                                     <span>({simulation.avgRating?.toFixed(1) || '0.0'})</span>
                                                 </div>
-                                                
+
                                                 {simulation.percent !== undefined && (
                                                     <div className="progress-section">
-                                                        <Progress 
-                                                            percent={Math.round(simulation.percent)} 
+                                                        <Progress
+                                                            percent={Math.round(simulation.percent)}
                                                             size="small"
                                                             status={simulation.percent === 100 ? 'success' : 'active'}
                                                         />

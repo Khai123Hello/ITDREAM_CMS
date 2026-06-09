@@ -78,19 +78,16 @@ const CategoryListPage = ({ pageOptions = {} }) => {
     ];
 
     const searchFields = [
-        { 
-            key: 'name', 
+        {
+            key: 'name',
             placeholder: labels.name,
         },
     ];
 
     // Safe render breadcrumbs
-    const breadcrumbs = pageOptions.renderBreadcrumbs 
+    const breadcrumbs = pageOptions.renderBreadcrumbs
         ? pageOptions.renderBreadcrumbs(commonMessage, translate)
-        : [
-            { breadcrumbName: translate.formatMessage(commonMessage.home) },
-            { breadcrumbName: labels.category },
-        ];
+        : [{ breadcrumbName: translate.formatMessage(commonMessage.home) }, { breadcrumbName: labels.category }];
 
     return (
         <PageWrapper routes={breadcrumbs}>
@@ -109,7 +106,7 @@ const CategoryListPage = ({ pageOptions = {} }) => {
                         columns={columns}
                         dataSource={data}
                         loading={loading}
-                        rowKey={record => record.id}
+                        rowKey={(record) => record.id}
                         pagination={pagination}
                         locale={{ emptyText: <Empty description={labels.noData} /> }}
                     />

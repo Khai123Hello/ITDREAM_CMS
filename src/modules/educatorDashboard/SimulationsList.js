@@ -9,7 +9,10 @@ const SimulationsList = ({ onSelectSimulation, selectedSimulation }) => {
     const [deletingId, setDeletingId] = useState(null);
     const { execute: doDelete } = useFetchAction(apiConfig.simulation.educatorDelete);
 
-    const { data, loading, error, execute } = useFetch({ ...apiConfig.simulation.getListForEducator }, { immediate: true });
+    const { data, loading, error, execute } = useFetch(
+        { ...apiConfig.simulation.getListForEducator },
+        { immediate: true },
+    );
     const [simulations, setSimulations] = useState([]);
     const [modalOpen, setModalOpen] = useState(false);
     const [modalType, setModalType] = useState('create'); // or 'edit'
@@ -104,10 +107,12 @@ const SimulationsList = ({ onSelectSimulation, selectedSimulation }) => {
             key: 'actions',
             render: (_, record) => (
                 <Space>
-                    <Button type="link" onClick={() => openEditModal(record)}>Edit</Button>
-                    <Button 
-                        type="link" 
-                        danger 
+                    <Button type="link" onClick={() => openEditModal(record)}>
+                        Edit
+                    </Button>
+                    <Button
+                        type="link"
+                        danger
                         loading={deletingId === record.id}
                         onClick={() => {
                             Modal.confirm({
@@ -118,7 +123,9 @@ const SimulationsList = ({ onSelectSimulation, selectedSimulation }) => {
                                 onOk: () => handleDelete(record),
                             });
                         }}
-                    >Delete</Button>
+                    >
+                        Delete
+                    </Button>
                 </Space>
             ),
         },
@@ -127,7 +134,9 @@ const SimulationsList = ({ onSelectSimulation, selectedSimulation }) => {
     return (
         <div>
             <div style={{ marginBottom: 16 }}>
-                <Button type="primary" onClick={openCreateModal}>Create Simulation</Button>
+                <Button type="primary" onClick={openCreateModal}>
+                    Create Simulation
+                </Button>
             </div>
             <Table
                 columns={columns}

@@ -32,7 +32,6 @@ import { defineMessages } from 'react-intl';
 import { actionMessage } from './intl';
 import { commonMessage } from '@locales/intl';
 
-
 export const languageOptions = [
     { value: 1, label: 'EN' },
     { value: 2, label: 'VN' },

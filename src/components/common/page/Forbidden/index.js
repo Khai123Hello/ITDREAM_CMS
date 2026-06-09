@@ -1,3 +1,3 @@
-import Forbidden from "./Forbidden";
+import Forbidden from './Forbidden';
 
 export default Forbidden;

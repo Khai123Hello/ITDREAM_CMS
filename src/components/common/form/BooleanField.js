@@ -5,7 +5,6 @@ import { Form, Switch } from 'antd';
 import useFormField from '@hooks/useFormField';
 
 function BooleanField({ label, name, disabled, onChange, formItemProps, fieldProps, ...props }) {
-
     const { rules } = useFormField(props);
 
     return (

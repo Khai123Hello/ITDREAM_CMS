@@ -23,7 +23,6 @@ export const createFailureActionType = (type) => `${type}_FAILURE`;
 export function createAction(actionType, options) {
     const rootAction = makeAction(actionType);
 
-
     // console.log('options',options);
     // refactor
     if (options?.success) {

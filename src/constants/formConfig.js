@@ -13,12 +13,9 @@ const FieldTypes = {
     STRING: 'STRING_TYPE',
     NUMBER: 'NUMBER_TYPE',
     SELECT: 'SELECT',
-    AUTOCOMPLETE:'AUTOCOMPLETE',
+    AUTOCOMPLETE: 'AUTOCOMPLETE',
     DATE: 'DATE',
     DATE_RANGE: 'DATE_RANGE',
 };
 
-export {
-    FieldTypes,
-    FormItemLayoutConf,
-};
+export { FieldTypes, FormItemLayoutConf };

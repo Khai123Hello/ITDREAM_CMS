@@ -20,7 +20,7 @@ function UploadVideoField({ required, label, name, formItemProps, objectName = '
     return (
         <Form.Item
             {...formItemProps}
-            rules={[ { validator: checkFileLink } ]}
+            rules={[{ validator: checkFileLink }]}
             required={required}
             label={label}
             name={name}
@@ -31,11 +31,11 @@ function UploadVideoField({ required, label, name, formItemProps, objectName = '
 }
 
 function VideoField({ value = '', onChange, objectName = '' }) {
-    const [ showModal, setShowModal ] = useState(false);
-    const [ fileLink, setFileLink ] = useState(value);
+    const [showModal, setShowModal] = useState(false);
+    const [fileLink, setFileLink] = useState(value);
     const { execute: executeUpFile } = useFetch(apiConfig.file.video);
-    const [ errorMessage, setErrorMessage ] = useState('');
-    const [ uploadLoading, setUploadLoading ] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [uploadLoading, setUploadLoading] = useState(false);
 
     const uploadFile = ({ file, onSuccess, onError }) => {
         setUploadLoading(true);
@@ -107,7 +107,7 @@ function VideoField({ value = '', onChange, objectName = '' }) {
     return (
         <>
             <div style={{ display: 'flex', alignItems: 'center' }}>
-                <Dropdown trigger={[ 'click' ]} menu={{ items: uploadDropdownItems }}>
+                <Dropdown trigger={['click']} menu={{ items: uploadDropdownItems }}>
                     <div
                         className={classNames(
                             styles.uploadBtn,

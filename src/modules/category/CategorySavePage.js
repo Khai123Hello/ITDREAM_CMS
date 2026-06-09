@@ -64,18 +64,15 @@ const CategorySavePage = ({ pageOptions = {} }) => {
         ];
 
     return (
-        <PageWrapper
-            loading={loading}
-            routes={breadcrumbs}
-        >
+        <PageWrapper loading={loading} routes={breadcrumbs}>
             <CategoryForm
                 setIsChangedFormValues={setIsChangedFormValues}
-                dataDetail={isCreating ? {} : (detail?.name ? detail : (detailFromState || {}))}
+                dataDetail={isCreating ? {} : detail?.name ? detail : detailFromState || {}}
                 formId={mixinFuncs.getFormId()}
                 isEditing={isEditing}
                 actions={mixinFuncs.renderActions()}
                 onSubmit={onSave}
-                kind={isCreating ? kind : (detail?.kind || detailFromState?.kind || kind)}
+                kind={isCreating ? kind : detail?.kind || detailFromState?.kind || kind}
             />
         </PageWrapper>
     );

@@ -3,7 +3,17 @@ import { useCallback, useEffect, useState } from 'react';
 import apiUrl from '@constants/apiConfig';
 import useIsMounted from './useIsMounted';
 
-const useFetch = (apiConfig, { immediate = false, mappingData, params = {}, pathParams = {} } = {}) => {
+const useFetch = (
+    apiConfig,
+    {
+        immediate = false,
+        mappingData,
+        params = {},
+        pathParams = {},
+        onCompleted: defaultOnCompleted,
+        onError: defaultOnError,
+    } = {},
+) => {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
@@ -15,20 +25,33 @@ const useFetch = (apiConfig, { immediate = false, mappingData, params = {}, path
                 setError(null);
             }
             try {
+                console.log('[useFetch] calling sendRequest. apiConfig:', apiConfig, 'payload:', { params, pathParams, ...payload });
                 const { data } = await sendRequest(apiConfig, { params, pathParams, ...payload }, cancelType);
-                if (!data.result && data.statusCode !== 200 && apiConfig.baseURL != apiUrl.account.loginBasic.baseURL) {
+                console.log('[useFetch] sendRequest response data:', data);
+                if (
+                    !data.result &&
+                    data.statusCode !== 200 &&
+                    apiConfig.baseURL != apiUrl.account.loginBasic.baseURL
+                ) {
                     throw data;
                 }
                 if (isMounted()) {
                     !cancelType && setData(mappingData ? mappingData(data) : data);
                 }
-                onCompleted && onCompleted(data);
+                const finalOnCompleted = onCompleted || defaultOnCompleted;
+                if (finalOnCompleted) {
+                    console.log('[useFetch] invoking finalOnCompleted callback');
+                    finalOnCompleted(data);
+                }
                 return data;
             } catch (error) {
                 if (isMounted()) {
                     !cancelType && setError(error);
                 }
-                onError && onError(error);
+                const finalOnError = onError || defaultOnError;
+                if (finalOnError) {
+                    finalOnError(error);
+                }
                 return error;
             } finally {
                 if (isMounted()) {
@@ -36,7 +59,7 @@ const useFetch = (apiConfig, { immediate = false, mappingData, params = {}, path
                 }
             }
         },
-        [apiConfig],
+        [apiConfig, defaultOnCompleted, defaultOnError, isMounted, mappingData, params, pathParams],
     );
     useEffect(() => {
         if (immediate) {

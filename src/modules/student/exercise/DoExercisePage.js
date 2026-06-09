@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Card, 
-    Button, 
-    Radio,
-    Space,
-    Typography,
-    Progress,
-    Modal,
-    Alert,
-    Spin,
-    Result,
-    Divider,
-    Row,
-    Col,
-} from 'antd';
-import { 
+import { Card, Button, Radio, Space, Typography, Progress, Modal, Alert, Spin, Result, Divider, Row, Col } from 'antd';
+import {
     ArrowLeftOutlined,
     ArrowRightOutlined,
     CheckCircleOutlined,
@@ -34,7 +20,7 @@ const { Title, Text, Paragraph } = Typography;
 const DoExercisePage = ({ pageOptions }) => {
     const navigate = useNavigate();
     const { simulationId, taskId } = useParams();
-    
+
     const [questions, setQuestions] = useState([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
@@ -43,7 +29,7 @@ const DoExercisePage = ({ pageOptions }) => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [progress, setProgress] = useState(null);
     const [score, setScore] = useState(null);
-    
+
     const { execute: getQuestions } = useFetch(apiConfig.taskQuestion.getListForStudent);
     const { execute: getProgress } = useFetch(apiConfig.subTaskProgress.getForStudent);
     const { execute: submitAnswer } = useFetch(apiConfig.taskQuestionProgress.create);
@@ -66,13 +52,13 @@ const DoExercisePage = ({ pageOptions }) => {
                     pageNumber: 0,
                 },
             });
-            
+
             if (response.data?.result) {
                 const questionList = response.data?.data?.content || [];
                 setQuestions(questionList);
-                
+
                 // Parse options for each question
-                questionList.forEach(q => {
+                questionList.forEach((q) => {
                     if (q.options) {
                         try {
                             q.parsedOptions = JSON.parse(q.options);
@@ -94,10 +80,10 @@ const DoExercisePage = ({ pageOptions }) => {
             const response = await getProgress({
                 pathParams: { taskId },
             });
-            
+
             if (response.data?.result) {
                 setProgress(response.data?.data);
-                
+
                 // Nếu đã hoàn thành, load lại các câu trả lời trước đó
                 if (response.data?.data?.state === 2) {
                     fetchPreviousAnswers(response.data?.data?.id);
@@ -118,18 +104,18 @@ const DoExercisePage = ({ pageOptions }) => {
                     pageNumber: 0,
                 },
             });
-            
+
             if (response.data?.result) {
                 const previousAnswers = response.data?.data?.content || [];
                 setSubmittedAnswers(previousAnswers);
                 setIsSubmitted(true);
-                
+
                 // Calculate score
-                const correct = previousAnswers.filter(a => a.isCorrect).length;
+                const correct = previousAnswers.filter((a) => a.isCorrect).length;
                 setScore({
                     correct: correct,
                     total: previousAnswers.length,
-                    percentage: (correct / previousAnswers.length * 100).toFixed(1),
+                    percentage: ((correct / previousAnswers.length) * 100).toFixed(1),
                 });
             }
         } catch (error) {
@@ -158,7 +144,7 @@ const DoExercisePage = ({ pageOptions }) => {
 
     const handleSubmit = () => {
         const unansweredCount = questions.length - Object.keys(answers).length;
-        
+
         if (unansweredCount > 0) {
             Modal.confirm({
                 title: 'Xác nhận nộp bài',
@@ -182,15 +168,15 @@ const DoExercisePage = ({ pageOptions }) => {
         setLoading(true);
         try {
             const results = [];
-            
+
             for (const question of questions) {
                 const userAnswer = answers[question.id];
                 if (!userAnswer) continue;
-                
+
                 // Check if answer is correct
-                const correctOption = question.parsedOptions?.find(opt => opt.isCorrect);
+                const correctOption = question.parsedOptions?.find((opt) => opt.isCorrect);
                 const isCorrect = correctOption && userAnswer === correctOption.key;
-                
+
                 const response = await submitAnswer({
                     data: {
                         taskQuestionId: question.id,
@@ -199,7 +185,7 @@ const DoExercisePage = ({ pageOptions }) => {
                         isCorrect: isCorrect,
                     },
                 });
-                
+
                 if (response.data?.result) {
                     results.push({
                         taskQuestion: question,
@@ -208,25 +194,24 @@ const DoExercisePage = ({ pageOptions }) => {
                     });
                 }
             }
-            
+
             setSubmittedAnswers(results);
             setIsSubmitted(true);
-            
+
             // Calculate score
-            const correct = results.filter(r => r.isCorrect).length;
+            const correct = results.filter((r) => r.isCorrect).length;
             setScore({
                 correct: correct,
                 total: questions.length,
-                percentage: (correct / questions.length * 100).toFixed(1),
+                percentage: ((correct / questions.length) * 100).toFixed(1),
             });
-            
+
             // Complete task
             await completeTask({
                 data: { taskId: parseInt(taskId) },
             });
-            
+
             showSuccessMessage('Nộp bài thành công!');
-            
         } catch (error) {
             showErrorMessage('Không thể nộp bài. Vui lòng thử lại.');
         } finally {
@@ -243,7 +228,7 @@ const DoExercisePage = ({ pageOptions }) => {
     };
 
     const getAnswerResult = (questionId) => {
-        return submittedAnswers.find(a => a.taskQuestion.id === questionId);
+        return submittedAnswers.find((a) => a.taskQuestion.id === questionId);
     };
 
     if (loading && questions.length === 0) {
@@ -291,16 +276,18 @@ const DoExercisePage = ({ pageOptions }) => {
                                 </Button>,
                             ]}
                         />
-                        
+
                         <Divider />
-                        
+
                         <div className="score-breakdown">
                             <Row gutter={[16, 16]}>
                                 <Col span={8}>
                                     <Card>
                                         <div style={{ textAlign: 'center' }}>
                                             <CheckCircleOutlined style={{ fontSize: 32, color: '#52c41a' }} />
-                                            <Title level={4} style={{ marginTop: 8 }}>{score.correct}</Title>
+                                            <Title level={4} style={{ marginTop: 8 }}>
+                                                {score.correct}
+                                            </Title>
                                             <Text type="secondary">Câu đúng</Text>
                                         </div>
                                     </Card>
@@ -309,7 +296,9 @@ const DoExercisePage = ({ pageOptions }) => {
                                     <Card>
                                         <div style={{ textAlign: 'center' }}>
                                             <CloseCircleOutlined style={{ fontSize: 32, color: '#ff4d4f' }} />
-                                            <Title level={4} style={{ marginTop: 8 }}>{score.total - score.correct}</Title>
+                                            <Title level={4} style={{ marginTop: 8 }}>
+                                                {score.total - score.correct}
+                                            </Title>
                                             <Text type="secondary">Câu sai</Text>
                                         </div>
                                     </Card>
@@ -318,7 +307,9 @@ const DoExercisePage = ({ pageOptions }) => {
                                     <Card>
                                         <div style={{ textAlign: 'center' }}>
                                             <TrophyOutlined style={{ fontSize: 32, color: '#faad14' }} />
-                                            <Title level={4} style={{ marginTop: 8 }}>{score.percentage}%</Title>
+                                            <Title level={4} style={{ marginTop: 8 }}>
+                                                {score.percentage}%
+                                            </Title>
                                             <Text type="secondary">Điểm số</Text>
                                         </div>
                                     </Card>
@@ -340,9 +331,11 @@ const DoExercisePage = ({ pageOptions }) => {
                 <Card className="exercise-card">
                     {/* Progress Bar */}
                     <div className="exercise-progress">
-                        <Text strong>Câu hỏi {currentIndex + 1}/{questions.length}</Text>
-                        <Progress 
-                            percent={progressPercent} 
+                        <Text strong>
+                            Câu hỏi {currentIndex + 1}/{questions.length}
+                        </Text>
+                        <Progress
+                            percent={progressPercent}
                             showInfo={false}
                             strokeColor={{
                                 '0%': '#108ee9',
@@ -368,7 +361,7 @@ const DoExercisePage = ({ pageOptions }) => {
                             />
                         )}
 
-                        <Radio.Group 
+                        <Radio.Group
                             value={answers[currentQuestion?.id]}
                             onChange={(e) => handleAnswerChange(currentQuestion?.id, e.target.value)}
                             disabled={!!answerResult}
@@ -382,8 +375,8 @@ const DoExercisePage = ({ pageOptions }) => {
                                     const showWrong = answerResult && isSelected && !isCorrect;
 
                                     return (
-                                        <Radio 
-                                            key={option.key} 
+                                        <Radio
+                                            key={option.key}
                                             value={option.key}
                                             className={`
                                                 answer-option 
@@ -392,7 +385,9 @@ const DoExercisePage = ({ pageOptions }) => {
                                             `}
                                         >
                                             <div className="option-content">
-                                                <Text>{option.key}. {option.value}</Text>
+                                                <Text>
+                                                    {option.key}. {option.value}
+                                                </Text>
                                                 {showCorrect && <CheckCircleOutlined style={{ color: '#52c41a' }} />}
                                                 {showWrong && <CloseCircleOutlined style={{ color: '#ff4d4f' }} />}
                                             </div>
@@ -407,11 +402,7 @@ const DoExercisePage = ({ pageOptions }) => {
 
                     {/* Navigation */}
                     <div className="exercise-navigation">
-                        <Button 
-                            icon={<ArrowLeftOutlined />}
-                            onClick={handlePrevious}
-                            disabled={currentIndex === 0}
-                        >
+                        <Button icon={<ArrowLeftOutlined />} onClick={handlePrevious} disabled={currentIndex === 0}>
                             Câu trước
                         </Button>
 
@@ -419,20 +410,15 @@ const DoExercisePage = ({ pageOptions }) => {
                             <Text type="secondary">
                                 Đã trả lời: {Object.keys(answers).length}/{questions.length}
                             </Text>
-                            
+
                             {currentIndex === questions.length - 1 && !answerResult && (
-                                <Button 
-                                    type="primary"
-                                    icon={<SendOutlined />}
-                                    onClick={handleSubmit}
-                                    loading={loading}
-                                >
+                                <Button type="primary" icon={<SendOutlined />} onClick={handleSubmit} loading={loading}>
                                     Nộp bài
                                 </Button>
                             )}
                         </Space>
 
-                        <Button 
+                        <Button
                             icon={<ArrowRightOutlined />}
                             onClick={handleNext}
                             disabled={currentIndex === questions.length - 1}

@@ -8,8 +8,8 @@ import FilterItem from './FilterItem';
 import styles from './FilterForm.module.scss';
 
 function FilterForm({ onApplyFilter, onResetFilter, onAddFilter, filters = [], ...props }) {
-    const [ form ] = useForm();
-    const [ activeFilters, setActiveFilters ] = useState({});
+    const [form] = useForm();
+    const [activeFilters, setActiveFilters] = useState({});
 
     const hasFilter = !!Object.keys(activeFilters).length;
 
@@ -42,7 +42,7 @@ function FilterForm({ onApplyFilter, onResetFilter, onAddFilter, filters = [], .
                 </div>
             ),
         }));
-    }, [ filters, activeFilters ]);
+    }, [filters, activeFilters]);
 
     const renderFilters = useMemo(() => {
         return Object.values(activeFilters).map((filter) => (
@@ -50,7 +50,7 @@ function FilterForm({ onApplyFilter, onResetFilter, onAddFilter, filters = [], .
                 <FilterItem {...filter} onClearFilter={() => onClearFilterItem(filter.name)} />
             </Row>
         ));
-    }, [ activeFilters ]);
+    }, [activeFilters]);
 
     function renderApplyFilter() {
         if (!hasFilter) return null;
@@ -79,11 +79,11 @@ function FilterForm({ onApplyFilter, onResetFilter, onAddFilter, filters = [], .
             onResetFilter?.();
             form.resetFields();
         }
-    }, [ activeFilters ]);
+    }, [activeFilters]);
 
     function onFinish(values) {
         const urlSearchParams = new URLSearchParams();
-        Object.entries(values).forEach(([ key, value ]) => {
+        Object.entries(values).forEach(([key, value]) => {
             if (value?.value != undefined) {
                 if (value.compareType != undefined) {
                     urlSearchParams.append(`[${key}][o]`, value.compareType);
@@ -93,7 +93,7 @@ function FilterForm({ onApplyFilter, onResetFilter, onAddFilter, filters = [], .
             }
         });
     }
-    
+
     return (
         <div data-has-filter={hasFilter} className={styles.filterForm}>
             <Form
@@ -110,7 +110,7 @@ function FilterForm({ onApplyFilter, onResetFilter, onAddFilter, filters = [], .
                         <Input placeholder="Search video" prefix={<SearchOutlined />} />
                     </Col>
                     <Col>
-                        <Dropdown menu={{ items: selectFilterDropdownItem }} trigger={[ 'click' ]}>
+                        <Dropdown menu={{ items: selectFilterDropdownItem }} trigger={['click']}>
                             <Button className={styles.addFilterBtn}>
                                 <Space>
                                     Add Filter

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Modal, Dropdown, Button } from 'antd';
 import './BlockEditor.scss';
 
 // Unique ID helper
@@ -48,72 +49,83 @@ const makeBlock = (type, data = {}) => {
 
 const TEMPLATES = {
     task: {
-        label: 'Task Card',
-        title: 'Task One: Create a Backpack React Web App',
-        description: "Use Skyscanner's Backpack React library to build a basic web app.",
+        label: 'Giới thiệu',
+        title: 'Nhập tiêu đề giới thiệu ở đây (ví dụ: Giới thiệu về lập trình React)',
+        description:
+            'Nhập mô tả ngắn gọn về bài học ở đây (ví dụ: Bài viết giúp học viên làm quen với thư viện ReactJS cơ bản)',
         blocks: () => [
-            makeBlock('meta', { duration: '1–2 hours', level: 'Introductory' }),
+            makeBlock('meta', { duration: 'Thời gian học (ví dụ: 1–2 giờ)', level: 'Cấp độ (ví dụ: Cơ bản)' }),
             makeBlock('section', {
                 icon: '🎓',
-                title: "What you'll learn",
+                title: 'Kiến thức sẽ đạt được (ví dụ: Mục tiêu bài học)',
                 bullets: [
-                    "Receive an introduction to Skyscanner's open-source collection of design resources",
-                    'How to set up your local development environment',
+                    'Nhập nội dung kiến thức thứ nhất (ví dụ: Cách khởi tạo component)',
+                    'Nhập nội dung kiến thức thứ hai (ví dụ: Cách truyền props và quản lý state)',
                 ],
             }),
             makeBlock('section', {
                 icon: '🛠️',
-                title: "What you'll do",
-                bullets: ['Set up and customise your React application', 'Test your application'],
+                title: 'Các bước thực hành chính (ví dụ: Nhiệm vụ cần làm)',
+                bullets: [
+                    'Nhập hành động thực hành thứ nhất (ví dụ: Cài đặt môi trường Node.js)',
+                    'Nhập hành động thực hành thứ hai (ví dụ: Chạy kiểm thử ứng dụng)',
+                ],
             }),
         ],
     },
     guide: {
-        label: 'Step Guide',
-        title: 'Customise the Application',
-        description: 'Follow these steps to customise your app and get it ready for submission.',
+        label: 'Hướng dẫn',
+        title: 'Nhập tiêu đề hướng dẫn (ví dụ: Hướng dẫn các bước cấu hình)',
+        description:
+            'Nhập hướng dẫn tổng quan (ví dụ: Thực hiện tuần tự các bước dưới đây để hoàn thành cấu hình ứng dụng)',
         blocks: () => [
-            makeBlock('step', { label: 'Step One', body: 'Update the header text to read "Flight Schedule"' }),
             makeBlock('step', {
-                label: 'Step Two',
-                body: 'Install the Calendar component by running `npm install bpk-component-calendar --save-dev`.',
+                label: 'Bước 1',
+                body: 'Mô tả bước thực hiện thứ nhất ở đây (ví dụ: Tạo file mới có tên App.js trong thư mục src)',
             }),
             makeBlock('step', {
-                label: 'Step Three',
-                body: 'Review the Calendar documentation and add this feature into your `App.js` file.',
+                label: 'Bước 2',
+                body: 'Mô tả bước thực hiện thứ hai ở đây (ví dụ: Chạy lệnh `npm install` để tải thư viện)',
             }),
             makeBlock('step', {
-                label: 'Step Four',
-                body: 'Place the "Click Me" button below the calendar, and update the text to say "Continue."',
+                label: 'Bước 3',
+                body: 'Mô tả bước thực hiện thứ ba ở đây (ví dụ: Viết code cho Component chính và xuất ra ngoài)',
             }),
             makeBlock('step', {
-                label: 'Step Five',
-                body: 'Review your app by running `npm start` and navigating to localhost:3000.',
+                label: 'Bước 4',
+                body: 'Mô tả bước thực hiện thứ tư ở đây (ví dụ: Nhấp vào nút Lưu để lưu lại cấu hình)',
+            }),
+            makeBlock('step', {
+                label: 'Bước 5',
+                body: 'Mô tả bước thực hiện thứ năm ở đây (ví dụ: Mở trình duyệt và truy cập vào localhost:3000 để kiểm tra kết quả)',
             }),
             makeBlock('divider'),
-            makeBlock('text', { content: "Finally, on the next step, we'll test and submit the application!" }),
+            makeBlock('text', {
+                content:
+                    'Nhập tóm tắt hoặc lưu ý cuối cùng ở đây (ví dụ: Cuối cùng, hãy nhấn nút nộp bài ở bước tiếp theo!)',
+            }),
         ],
     },
     reading: {
-        label: 'Bài đọc',
-        title: "Here's some background information...",
-        description: 'Read through this material before starting the task.',
+        label: 'Ví dụ',
+        title: 'Nhập tiêu đề tài liệu tham khảo hoặc ví dụ (ví dụ: Ví dụ về cấu trúc thư mục dự án)',
+        description:
+            'Mô tả tổng quan về ví dụ hoặc tài liệu ở đây (ví dụ: Đọc kỹ phần thông tin nền tảng này trước khi bắt đầu nhiệm vụ)',
         blocks: () => [
             makeBlock('text', {
                 content:
-                    'Skyscanner is a search engine and travel agency that allows people to research and book travel options like flights, hotels, and car rentals. The company also created Backpack, an open-source collection of design resources and reusable guidelines.',
+                    'Nhập đoạn văn bản giới thiệu/bối cảnh ở đây (ví dụ: React là một thư viện Javascript phổ biến để xây dựng giao diện người dùng đơn trang)',
             }),
             makeBlock('text', {
-                content:
-                    "In this task, you'll be using the Backpack library to build a simple web application. This task includes three stages:",
+                content: 'Nhập hướng dẫn các bước tiếp theo (ví dụ: Ví dụ này bao gồm ba phần chính cần chú ý:)',
             }),
-            makeBlock('numbered', { content: 'Setting up your workspace,' }),
-            makeBlock('numbered', { content: 'Customising your application, and' }),
-            makeBlock('numbered', { content: 'Executing automated tests.' }),
+            makeBlock('numbered', { content: 'Nhập mục thứ nhất (ví dụ: Khởi tạo dự án bằng Vite)' }),
+            makeBlock('numbered', { content: 'Nhập mục thứ hai (ví dụ: Tạo component Header và Footer)' }),
+            makeBlock('numbered', { content: 'Nhập mục thứ ba (ví dụ: Chạy ứng dụng trên cổng 5173)' }),
             makeBlock('callout', {
                 icon: '💡',
                 content:
-                    'While this task only explores the basics of Backpack, it will give you a strong foundation to build on.',
+                    'Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ: Hãy đảm bảo rằng bạn đã cài đặt phiên bản Node.js LTS trở lên)',
             }),
         ],
     },
@@ -195,7 +207,6 @@ export default function BlockEditor({
 
     // Overlays state
     const [slashMenu, setSlashMenu] = useState(null); // { blockId, query, left, top, activeIndex }
-    const [contextMenu, setContextMenu] = useState(null); // { blockId, left, top }
     const [emojiPicker, setEmojiPicker] = useState(null); // { blockId, left, top }
 
     // Drag-and-drop state
@@ -231,9 +242,6 @@ export default function BlockEditor({
             if (slashMenu && !e.target.closest('.slash-menu')) {
                 setSlashMenu(null);
             }
-            if (contextMenu && !e.target.closest('.ctx-menu') && !e.target.closest('.gutter-btn')) {
-                setContextMenu(null);
-            }
             if (
                 emojiPicker &&
                 !e.target.closest('.emoji-picker') &&
@@ -245,7 +253,7 @@ export default function BlockEditor({
         };
         document.addEventListener('click', handleGlobalClick);
         return () => document.removeEventListener('click', handleGlobalClick);
-    }, [slashMenu, contextMenu, emojiPicker]);
+    }, [slashMenu, emojiPicker]);
 
     // Focus block helper
     const focusBlock = (id, positionAtEnd = false) => {
@@ -503,7 +511,6 @@ export default function BlockEditor({
             [newBlocks[idx], newBlocks[idx - 1]] = [newBlocks[idx - 1], newBlocks[idx]];
             handleBlocksChange(newBlocks);
         }
-        setContextMenu(null);
     };
 
     const moveBlockDown = (id) => {
@@ -513,7 +520,6 @@ export default function BlockEditor({
             [newBlocks[idx], newBlocks[idx + 1]] = [newBlocks[idx + 1], newBlocks[idx]];
             handleBlocksChange(newBlocks);
         }
-        setContextMenu(null);
     };
 
     const duplicateBlock = (id) => {
@@ -525,7 +531,6 @@ export default function BlockEditor({
             newBlocks.splice(idx + 1, 0, copy);
             handleBlocksChange(newBlocks);
         }
-        setContextMenu(null);
     };
 
     const deleteBlock = (id) => {
@@ -535,7 +540,33 @@ export default function BlockEditor({
             newBlocks.splice(idx, 1);
             handleBlocksChange(newBlocks);
         }
-        setContextMenu(null);
+    };
+
+    const handleContextMenuClick = (key, blockId) => {
+        if (key === 'type') {
+            focusBlock(blockId);
+            setTimeout(() => {
+                const el = document.querySelector(`[data-id="${blockId}"]`);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    setSlashMenu({
+                        blockId: blockId,
+                        query: '',
+                        left: rect.left,
+                        top: rect.bottom + window.scrollY + 6,
+                        activeIndex: 0,
+                    });
+                }
+            }, 50);
+        } else if (key === 'up') {
+            moveBlockUp(blockId);
+        } else if (key === 'down') {
+            moveBlockDown(blockId);
+        } else if (key === 'duplicate') {
+            duplicateBlock(blockId);
+        } else if (key === 'delete') {
+            deleteBlock(blockId);
+        }
     };
 
     // Emoji Picker picker
@@ -926,15 +957,11 @@ export default function BlockEditor({
 
     return (
         <div className="block-editor-container">
-            {/* Topbar */}
-            <div className="topbar">
-                <div className="topbar-logo">✦</div>
-                <div className="topbar-title">Block Editor</div>
-                <div className="topbar-divider"></div>
-                <div className="topbar-template-badge" onClick={() => setShowTemplatePicker(true)}>
-                    <span className="badge-dot"></span>
-                    <span>{TEMPLATES[template]?.label || 'Không có template'}</span>
-                </div>
+            {/* Template picker button top right */}
+            <div className="template-picker-btn-wrap">
+                <Button type="default" onClick={() => setShowTemplatePicker(true)}>
+                    Mẫu: <strong>{TEMPLATES[template]?.label || 'Không có'}</strong>
+                </Button>
             </div>
 
             {/* Editor doc */}
@@ -1005,20 +1032,25 @@ export default function BlockEditor({
                                     onDragEnd={handleDragEnd}
                                 >
                                     <div className="block-gutter">
-                                        <button
-                                            type="button"
-                                            className="gutter-btn"
-                                            onClick={(e) => {
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                setContextMenu({
-                                                    blockId: b.id,
-                                                    left: rect.right + 6,
-                                                    top: rect.top + window.scrollY,
-                                                });
+                                        <Dropdown
+                                            menu={{
+                                                items: [
+                                                    { key: 'type', label: 'Đổi kiểu block', icon: '🔄' },
+                                                    { key: 'up', label: 'Di chuyển lên', icon: '↑' },
+                                                    { key: 'down', label: 'Di chuyển xuống', icon: '↓' },
+                                                    { key: 'duplicate', label: 'Nhân bản', icon: '⧉' },
+                                                    { type: 'divider' },
+                                                    { key: 'delete', label: 'Xoá block', icon: '✕', danger: true },
+                                                ],
+                                                onClick: ({ key }) => handleContextMenuClick(key, b.id),
                                             }}
+                                            trigger={['click']}
+                                            placement="bottomLeft"
                                         >
-                                            ⋮
-                                        </button>
+                                            <button type="button" className="gutter-btn">
+                                                ⋮
+                                            </button>
+                                        </Dropdown>
                                         <button type="button" className="gutter-btn drag-btn">
                                             ⠿
                                         </button>
@@ -1038,74 +1070,91 @@ export default function BlockEditor({
             </button>
 
             {/* Template Picker Modal */}
-            {showTemplatePicker && (
-                <div className="tp-overlay">
-                    <div className="tp-modal">
-                        <div className="tp-header">
-                            <h2>Chọn template</h2>
-                            <p>Bắt đầu từ một cấu trúc có sẵn, hoặc tạo tài liệu trắng.</p>
-                        </div>
-                        <div className="tp-grid">
-                            <div
-                                className={`tp-card ${template === 'task' ? 'selected' : ''}`}
-                                onClick={() => setTemplate('task')}
-                            >
-                                <div className="tp-card-icon">📋</div>
-                                <div className="tp-card-name">Task Card</div>
-                                <div className="tp-card-desc">Mô tả nhiệm vụ với mục tiêu và yêu cầu rõ ràng.</div>
-                                <div className="tp-card-preview">
-                                    <div className="tp-prev-line dark"></div>
-                                    <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
-                                    <div className="tp-prev-box" style={{ marginTop: 4 }}></div>
-                                    <div className="tp-prev-box"></div>
-                                </div>
+            <Modal
+                title="Chọn mẫu"
+                open={showTemplatePicker}
+                onCancel={() => setShowTemplatePicker(false)}
+                footer={[
+                    <span
+                        key="blank"
+                        className="tp-blank"
+                        style={{
+                            marginRight: 16,
+                            cursor: 'pointer',
+                            textDecoration: 'underline',
+                            color: 'var(--accent)',
+                        }}
+                        onClick={startBlank}
+                    >
+                        Bắt đầu trống
+                    </span>,
+                    <Button key="start" type="primary" onClick={() => loadTemplate(template)}>
+                        Bắt đầu →
+                    </Button>,
+                ]}
+                width={680}
+                destroyOnClose
+            >
+                <div className="tp-modal-content">
+                    <p style={{ color: 'var(--text2)', marginBottom: 16 }}>
+                        Bắt đầu từ một cấu trúc có sẵn, hoặc tạo tài liệu trắng.
+                    </p>
+                    <div className="tp-grid">
+                        <div
+                            className={`tp-card ${template === 'task' ? 'selected' : ''}`}
+                            onClick={() => setTemplate('task')}
+                        >
+                            <div className="tp-card-icon">📋</div>
+                            <div className="tp-card-name">Giới thiệu</div>
+                            <div className="tp-card-desc">
+                                Mẫu giới thiệu bài học/nhiệm vụ với mục tiêu và các bước rõ ràng.
                             </div>
-                            <div
-                                className={`tp-card ${template === 'guide' ? 'selected' : ''}`}
-                                onClick={() => setTemplate('guide')}
-                            >
-                                <div className="tp-card-icon">🪜</div>
-                                <div className="tp-card-name">Step Guide</div>
-                                <div className="tp-card-desc">Hướng dẫn từng bước theo trình tự rõ ràng.</div>
-                                <div className="tp-card-preview">
-                                    <div className="tp-prev-line dark"></div>
-                                    <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
-                                        <div className="tp-prev-line shorter"></div>
-                                        <div className="tp-prev-line shorter"></div>
-                                        <div className="tp-prev-line shorter"></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                className={`tp-card ${template === 'reading' ? 'selected' : ''}`}
-                                onClick={() => setTemplate('reading')}
-                            >
-                                <div className="tp-card-icon">📖</div>
-                                <div className="tp-card-name">Bài đọc</div>
-                                <div className="tp-card-desc">Nội dung dạng bài viết, tài liệu tham khảo.</div>
-                                <div className="tp-card-preview">
-                                    <div className="tp-prev-line dark"></div>
-                                    <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
-                                        <div className="tp-prev-line"></div>
-                                        <div className="tp-prev-line"></div>
-                                        <div className="tp-prev-line short"></div>
-                                    </div>
-                                </div>
+                            <div className="tp-card-preview">
+                                <div className="tp-prev-line dark"></div>
+                                <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
+                                <div className="tp-prev-box" style={{ marginTop: 4 }}></div>
+                                <div className="tp-prev-box"></div>
                             </div>
                         </div>
-                        <div className="tp-footer">
-                            <span className="tp-blank" onClick={startBlank}>
-                                Bắt đầu trống
-                            </span>
-                            <button type="button" className="btn-start" onClick={() => loadTemplate(template)}>
-                                Bắt đầu →
-                            </button>
+                        <div
+                            className={`tp-card ${template === 'guide' ? 'selected' : ''}`}
+                            onClick={() => setTemplate('guide')}
+                        >
+                            <div className="tp-card-icon">🪜</div>
+                            <div className="tp-card-name">Hướng dẫn</div>
+                            <div className="tp-card-desc">
+                                Mẫu hướng dẫn chi tiết các bước cấu hình và thực hiện tuần tự.
+                            </div>
+                            <div className="tp-card-preview">
+                                <div className="tp-prev-line dark"></div>
+                                <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 6 }}>
+                                    <div className="tp-prev-line shorter"></div>
+                                    <div className="tp-prev-line shorter"></div>
+                                    <div className="tp-prev-line shorter"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            className={`tp-card ${template === 'reading' ? 'selected' : ''}`}
+                            onClick={() => setTemplate('reading')}
+                        >
+                            <div className="tp-card-icon">📖</div>
+                            <div className="tp-card-name">Ví dụ</div>
+                            <div className="tp-card-desc">Mẫu ví dụ thực tế hoặc tài liệu đọc tham khảo bổ ích.</div>
+                            <div className="tp-card-preview">
+                                <div className="tp-prev-line dark"></div>
+                                <div className="tp-prev-line short" style={{ marginTop: 2 }}></div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 3, marginTop: 6 }}>
+                                    <div className="tp-prev-line"></div>
+                                    <div className="tp-prev-line"></div>
+                                    <div className="tp-prev-line short"></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            )}
+            </Modal>
 
             {/* Slash Menu */}
             {slashMenu && (
@@ -1156,47 +1205,6 @@ export default function BlockEditor({
                                 </React.Fragment>
                             ));
                         })()}
-                    </div>
-                </div>
-            )}
-
-            {/* Context Menu */}
-            {contextMenu && (
-                <div className="ctx-menu show" style={{ left: contextMenu.left, top: contextMenu.top }}>
-                    <div
-                        className="ctx-item"
-                        onClick={() => {
-                            setContextMenu(null);
-                            focusBlock(contextMenu.blockId);
-                            setTimeout(() => {
-                                const el = document.querySelector(`[data-id="${contextMenu.blockId}"]`);
-                                if (el) {
-                                    const rect = el.getBoundingClientRect();
-                                    setSlashMenu({
-                                        blockId: contextMenu.blockId,
-                                        query: '',
-                                        left: rect.left,
-                                        top: rect.bottom + window.scrollY + 6,
-                                        activeIndex: 0,
-                                    });
-                                }
-                            }, 50);
-                        }}
-                    >
-                        <span className="ctx-item-icon">🔄</span> Đổi kiểu block
-                    </div>
-                    <div className="ctx-item" onClick={() => moveBlockUp(contextMenu.blockId)}>
-                        <span className="ctx-item-icon">↑</span> Di chuyển lên
-                    </div>
-                    <div className="ctx-item" onClick={() => moveBlockDown(contextMenu.blockId)}>
-                        <span className="ctx-item-icon">↓</span> Di chuyển xuống
-                    </div>
-                    <div className="ctx-item" onClick={() => duplicateBlock(contextMenu.blockId)}>
-                        <span className="ctx-item-icon">⧉</span> Nhân bản
-                    </div>
-                    <hr className="ctx-sep" />
-                    <div className="ctx-item danger" onClick={() => deleteBlock(contextMenu.blockId)}>
-                        <span className="ctx-item-icon">✕</span> Xoá block
                     </div>
                 </div>
             )}

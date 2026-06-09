@@ -8,7 +8,7 @@ import useFormInstance from 'antd/es/form/hooks/useFormInstance';
 
 function FilterItem({ label, name, onClearFilter, compareTypeOptions, ValueComponent }) {
     const form = useFormInstance();
-    const compareType = useWatch([ name, 'compareType' ], form);
+    const compareType = useWatch([name, 'compareType'], form);
 
     return (
         <Space size="small" style={{ marginBottom: 10 }}>
@@ -37,11 +37,11 @@ function FilterItem({ label, name, onClearFilter, compareTypeOptions, ValueCompo
                     initialValue={compareTypeOptions[0].value}
                     showSearch={false}
                     allowClear={false}
-                    name={[ name, 'compareType' ]}
+                    name={[name, 'compareType']}
                     options={compareTypeOptions}
                 />
             )}
-            <ValueComponent name={[ name, 'value' ]} compareType={compareType} />
+            <ValueComponent name={[name, 'value']} compareType={compareType} />
         </Space>
     );
 }

@@ -14,7 +14,6 @@ const routesArray = Object.values(routes);
 const AppRoutes = () => {
     const { isAuthenticated, loading: loadingProfile, profile } = useAuth();
 
-
     const renderRoute = (route) => {
         return (
             <Route

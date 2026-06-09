@@ -8,7 +8,6 @@ const messages = defineMessages({
     warning: 'Warning',
 });
 
-
 export default function useNotification({ placement = 'topRight', duration = 2 } = {}) {
     const intl = useIntl();
 

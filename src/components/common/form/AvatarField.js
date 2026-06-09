@@ -6,17 +6,17 @@ const AvatarField = ({ size, icon, src, ...props }) => {
     const [selectedAvatar, setSelectedAvatar] = useState(null);
     const handleAvatarClick = (avatarURL) => {
         setSelectedAvatar(avatarURL);
-        if(avatarURL ){
+        if (avatarURL) {
             setIsModalVisible(true);
         }
     };
     return (
         <>
             <Avatar
-                style = {{ cursor: 'pointer' }}
-                size = {size}
-                icon = {icon}
-                src = {src}
+                style={{ cursor: 'pointer' }}
+                size={size}
+                icon={icon}
+                src={src}
                 {...props}
                 onClick={() => handleAvatarClick(src)}
             />
@@ -27,11 +27,7 @@ const AvatarField = ({ size, icon, src, ...props }) => {
                 centered
                 closable={false}
             >
-                <img
-                    alt="Avatar"
-                    src={selectedAvatar ? selectedAvatar : notFoundImage}
-                    style={{ width: '100%' }}
-                />
+                <img alt="Avatar" src={selectedAvatar ? selectedAvatar : notFoundImage} style={{ width: '100%' }} />
             </Modal>
         </>
     );

@@ -25,9 +25,7 @@ const useRegisterEducator = () => {
             },
             onError: (err) => {
                 // Lỗi network hoặc lỗi khác
-                const errorMessage = err?.response?.data?.message 
-                    || err?.message 
-                    || 'Lỗi không xác định';
+                const errorMessage = err?.response?.data?.message || err?.message || 'Lỗi không xác định';
                 message.error(errorMessage);
                 onError?.(err);
             },

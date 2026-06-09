@@ -20,9 +20,7 @@ const AdminListPage = ({ pageOptions }) => {
     const translate = useTranslate();
 
     const formattedStatusOptions = translate.formatKeys(localAccountStatusOptions, ['label']);
-    const statusMap = Object.fromEntries(
-        formattedStatusOptions.map(item => [item.value, item]),
-    );
+    const statusMap = Object.fromEntries(formattedStatusOptions.map((item) => [item.value, item]));
 
     const apiConfiguration = {
         getList: apiConfig.account.adminList,
@@ -35,9 +33,7 @@ const AdminListPage = ({ pageOptions }) => {
         apiConfig: apiConfiguration,
         options: {
             pageSize: DEFAULT_TABLE_ITEM_SIZE,
-            objectName: translate
-                .formatMessage(pageOptions.objectName)
-                ?.toLowerCase(),
+            objectName: translate.formatMessage(pageOptions.objectName)?.toLowerCase(),
         },
         override: (funcs) => {
             const originalActionColumnButtons = funcs.actionColumnButtons;
@@ -64,8 +60,7 @@ const AdminListPage = ({ pageOptions }) => {
             title: '#',
             width: '30px',
             align: 'center',
-            render: (text, record, index) =>
-                calculateIndex(index, pagination, queryFilter),
+            render: (text, record, index) => calculateIndex(index, pagination, queryFilter),
         },
         {
             title: translate.formatMessage(commonMessage.avatar),
@@ -75,11 +70,7 @@ const AdminListPage = ({ pageOptions }) => {
                 <AvatarField
                     size="large"
                     icon={<UserOutlined />}
-                    src={
-                        avatar
-                            ? `${AppConstants.contentRootUrl}${avatar}`
-                            : null
-                    }
+                    src={avatar ? `${AppConstants.contentRootUrl}${avatar}` : null}
                 />
             ),
             width: getColumnWidth({
@@ -117,13 +108,9 @@ const AdminListPage = ({ pageOptions }) => {
         mixinFuncs.renderStatusColumn({ width: '120px' }),
         mixinFuncs.renderActionColumn(
             {
-                edit: mixinFuncs.hasPermission([
-                    apiConfig?.account?.updateAdmin?.permissionCode,
-                ]),
+                edit: mixinFuncs.hasPermission([apiConfig?.account?.updateAdmin?.permissionCode]),
                 delete: (record) =>
-                    mixinFuncs.hasPermission([
-                        apiConfig?.account?.delete?.permissionCode,
-                    ]) && !record.isSuperAdmin,
+                    mixinFuncs.hasPermission([apiConfig?.account?.delete?.permissionCode]) && !record.isSuperAdmin,
             },
             { width: '120px' },
         ),
@@ -146,9 +133,7 @@ const AdminListPage = ({ pageOptions }) => {
     ];
 
     return (
-        <PageWrapper
-            routes={pageOptions.renderBreadcrumbs(commonMessage, translate)}
-        >
+        <PageWrapper routes={pageOptions.renderBreadcrumbs(commonMessage, translate)}>
             <ListPage
                 searchForm={mixinFuncs.renderSearchForm({
                     fields: searchFields,
@@ -165,18 +150,11 @@ const AdminListPage = ({ pageOptions }) => {
                         pagination={pagination}
                         onRow={(record, index) => ({
                             style: {
-                                backgroundColor:
-                                    index % 2 === 1 ? '#fefefe' : '#ffffff',
+                                backgroundColor: index % 2 === 1 ? '#fefefe' : '#ffffff',
                             },
                         })}
                         locale={{
-                            emptyText: (
-                                <Empty
-                                    description={translate.formatMessage(
-                                        commonMessage.noData,
-                                    )}
-                                />
-                            ),
+                            emptyText: <Empty description={translate.formatMessage(commonMessage.noData)} />,
                         }}
                     />
                 }

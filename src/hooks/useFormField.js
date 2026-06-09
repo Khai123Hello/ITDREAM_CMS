@@ -38,7 +38,7 @@ const useFormField = ({ requiredMsg, placeholder, required, rules, initialValue,
     };
 
     const mergeRules = (rulesA, rulesB) => {
-        return [ ...rulesA, ...rulesB ];
+        return [...rulesA, ...rulesB];
     };
 
     return {

@@ -1,6 +1,6 @@
-import RegisterPage from "@modules/auth/register";
-import LoginPage from "@modules/auth/login";
-import ForgotPasswordPage from "./forget";
+import RegisterPage from '@modules/auth/register';
+import LoginPage from '@modules/auth/login';
+import ForgotPasswordPage from './forget';
 
 export default {
     registerPage: {

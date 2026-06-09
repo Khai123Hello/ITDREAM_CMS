@@ -1,22 +1,22 @@
 import { createSelector } from 'reselect';
 
 export const selectAppLoading = createSelector(
-    state => state.app.appLoading,
-    appLoading => appLoading > 0,
+    (state) => state.app.appLoading,
+    (appLoading) => appLoading > 0,
 );
 
-export const selectActionLoading = type =>
+export const selectActionLoading = (type) =>
     createSelector(
-        state => state.app[type],
-        loading => loading,
+        (state) => state.app[type],
+        (loading) => loading,
     );
 
 export const selectAppTheme = createSelector(
-    state => state.app.theme,
-    theme => theme,
+    (state) => state.app.theme,
+    (theme) => theme,
 );
 
 export const selectAppLocale = createSelector(
-    state => state.app.locale,
-    locale => locale,
+    (state) => state.app.locale,
+    (locale) => locale,
 );

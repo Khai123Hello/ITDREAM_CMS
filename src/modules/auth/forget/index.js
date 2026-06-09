@@ -20,9 +20,7 @@ const ForgotPasswordPage = () => {
         apiConfig.account.requestForgetPassword,
     );
 
-    const { execute: resetPassword, loading: resetLoading } = useFetch(
-        apiConfig.account.forgetPassword,
-    );
+    const { execute: resetPassword, loading: resetLoading } = useFetch(apiConfig.account.forgetPassword);
 
     const onRequestReset = (values) => {
         requestForgetPassword({
@@ -60,13 +58,12 @@ const ForgotPasswordPage = () => {
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
-                
                 {/* LEFT PANEL */}
                 <div className={styles.left}>
                     <div className={styles.leftContent}>
                         <h2>Khôi phục mật khẩu</h2>
                         <p>Đừng lo, chúng tôi sẽ giúp bạn lấy lại tài khoản</p>
-                        <img src="/images/element/02.svg" alt="Illustration" className={styles.illustration}/>
+                        <img src="/images/element/02.svg" alt="Illustration" className={styles.illustration} />
                     </div>
                 </div>
 
@@ -77,27 +74,18 @@ const ForgotPasswordPage = () => {
                         <h2>Quên mật khẩu?</h2>
 
                         <p className={styles.subtitle}>
-                            {currentStep === 0 
-                                ? 'Nhập email để nhận mã OTP' 
-                                : 'Nhập mã OTP và mật khẩu mới'}
+                            {currentStep === 0 ? 'Nhập email để nhận mã OTP' : 'Nhập mã OTP và mật khẩu mới'}
                         </p>
 
                         <Steps
                             current={currentStep}
                             className={styles.steps}
-                            items={[
-                                { title: 'Nhập Email' },
-                                { title: 'Đặt lại mật khẩu' },
-                            ]}
+                            items={[{ title: 'Nhập Email' }, { title: 'Đặt lại mật khẩu' }]}
                         />
 
                         {/* STEP 1 — EMAIL */}
                         {currentStep === 0 ? (
-                            <Form
-                                layout="vertical"
-                                onFinish={onRequestReset}
-                                className={styles.form}
-                            >
+                            <Form layout="vertical" onFinish={onRequestReset} className={styles.form}>
                                 <Form.Item
                                     name="email"
                                     label="Email"
@@ -106,19 +94,19 @@ const ForgotPasswordPage = () => {
                                         { type: 'email', message: 'Email không hợp lệ!' },
                                     ]}
                                 >
-                                    <Input 
-                                        size="large" 
-                                        prefix={<MailOutlined className={styles.inputIcon} />} 
-                                        placeholder="Nhập email của bạn" 
+                                    <Input
+                                        size="large"
+                                        prefix={<MailOutlined className={styles.inputIcon} />}
+                                        placeholder="Nhập email của bạn"
                                     />
                                 </Form.Item>
 
                                 <Form.Item>
-                                    <Button 
-                                        type="primary" 
-                                        htmlType="submit" 
-                                        size="large" 
-                                        block 
+                                    <Button
+                                        type="primary"
+                                        htmlType="submit"
+                                        size="large"
+                                        block
                                         loading={requestLoading}
                                     >
                                         Gửi mã OTP
@@ -126,13 +114,8 @@ const ForgotPasswordPage = () => {
                                 </Form.Item>
                             </Form>
                         ) : (
-                        /* STEP 2 — OTP + NEW PASSWORD */
-                            <Form
-                                layout="vertical"
-                                onFinish={onResetPassword}
-                                className={styles.form}
-                                form={form}
-                            >
+                            /* STEP 2 — OTP + NEW PASSWORD */
+                            <Form layout="vertical" onFinish={onResetPassword} className={styles.form} form={form}>
                                 <Form.Item
                                     name="otp"
                                     label="Mã OTP"
@@ -141,19 +124,15 @@ const ForgotPasswordPage = () => {
                                         { len: 6, message: 'OTP phải gồm 6 số!' },
                                     ]}
                                 >
-                                    <Input 
-                                        size="large" 
-                                        prefix={<SafetyOutlined className={styles.inputIcon} />} 
-                                        placeholder="Nhập mã OTP" 
+                                    <Input
+                                        size="large"
+                                        prefix={<SafetyOutlined className={styles.inputIcon} />}
+                                        placeholder="Nhập mã OTP"
                                         maxLength={6}
                                     />
                                 </Form.Item>
 
-                                <Form.Item
-                                    name="newPassword"
-                                    label="Mật khẩu mới"
-                                    rules={passwordRules}
-                                >
+                                <Form.Item name="newPassword" label="Mật khẩu mới" rules={passwordRules}>
                                     <Input.Password
                                         size="large"
                                         prefix={<LockOutlined className={styles.inputIcon} />}
@@ -185,13 +164,7 @@ const ForgotPasswordPage = () => {
                                 </Form.Item>
 
                                 <Form.Item>
-                                    <Button 
-                                        type="primary" 
-                                        htmlType="submit" 
-                                        size="large" 
-                                        block 
-                                        loading={resetLoading}
-                                    >
+                                    <Button type="primary" htmlType="submit" size="large" block loading={resetLoading}>
                                         Đặt lại mật khẩu
                                     </Button>
                                 </Form.Item>
@@ -201,10 +174,8 @@ const ForgotPasswordPage = () => {
                         <div className={styles.backToLogin}>
                             <a href="/login">← Quay lại đăng nhập</a>
                         </div>
-
                     </div>
                 </div>
-
             </div>
         </div>
     );

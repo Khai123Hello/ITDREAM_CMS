@@ -27,7 +27,7 @@ const NumericField = (props) => {
         return formatNumber(value);
     };
 
-    const { rules,placeholder } = useFormField(props);
+    const { rules, placeholder } = useFormField(props);
 
     return (
         <Form.Item label={label} name={fieldName} rules={rules} className={className}>

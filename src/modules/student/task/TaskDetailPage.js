@@ -1,20 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Card, 
-    Row, 
-    Col, 
-    Button, 
-    Space,
-    Typography,
-    Divider,
-    Spin,
-    Empty,
-    Steps,
-    Alert,
-    Progress,
-    Modal,
-} from 'antd';
-import { 
+import { Card, Row, Col, Button, Space, Typography, Divider, Spin, Empty, Steps, Alert, Progress, Modal } from 'antd';
+import {
     ArrowLeftOutlined,
     PlayCircleOutlined,
     FileTextOutlined,
@@ -43,7 +29,7 @@ const TaskDetailPage = ({ pageOptions }) => {
     const [progress, setProgress] = useState(null);
     const [loading, setLoading] = useState(false);
     const [hasStarted, setHasStarted] = useState(false);
-    
+
     const { execute: getTaskDetail } = useFetch(apiConfig.task.getDetailForStudent);
     const { execute: getQuestions } = useFetch(apiConfig.taskQuestion.getListForStudent);
     const { execute: getProgress } = useFetch(apiConfig.subTaskProgress.getForStudent);
@@ -63,7 +49,7 @@ const TaskDetailPage = ({ pageOptions }) => {
             const response = await getTaskDetail({
                 pathParams: { id: taskId },
             });
-            
+
             if (response.data?.result) {
                 setTask(response.data?.data);
             }
@@ -84,7 +70,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                     pageNumber: 0,
                 },
             });
-            
+
             if (response.data?.result) {
                 setQuestions(response.data?.data?.content || []);
             }
@@ -98,7 +84,7 @@ const TaskDetailPage = ({ pageOptions }) => {
             const response = await getProgress({
                 pathParams: { taskId },
             });
-            
+
             if (response.data?.result) {
                 setProgress(response.data?.data);
                 // state: 0 = chưa bắt đầu, 1 = đang làm, 2 = hoàn thành
@@ -132,7 +118,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                     const response = await restartProgress({
                         data: { taskId: parseInt(taskId) },
                     });
-                    
+
                     if (response.data?.result) {
                         showSuccessMessage('Đã reset bài tập thành công');
                         setHasStarted(false);
@@ -154,12 +140,16 @@ const TaskDetailPage = ({ pageOptions }) => {
 
     const getProgressStatus = () => {
         if (!progress) return { text: 'Chưa bắt đầu', color: 'default' };
-        
-        switch(progress.state) {
-                        case 0: return { text: 'Chưa bắt đầu', color: 'default' };
-                        case 1: return { text: 'Đang thực hiện', color: 'processing' };
-                        case 2: return { text: 'Đã hoàn thành', color: 'success' };
-                        default: return { text: 'Chưa xác định', color: 'default' };
+
+        switch (progress.state) {
+                        case 0:
+                            return { text: 'Chưa bắt đầu', color: 'default' };
+                        case 1:
+                            return { text: 'Đang thực hiện', color: 'processing' };
+                        case 2:
+                            return { text: 'Đã hoàn thành', color: 'success' };
+                        default:
+                            return { text: 'Chưa xác định', color: 'default' };
         }
     };
 
@@ -186,11 +176,7 @@ const TaskDetailPage = ({ pageOptions }) => {
     return (
         <PageWrapper routes={pageOptions.renderBreadcrumbs(null, null, task.title)}>
             <div className="task-detail-page">
-                <Button 
-                    icon={<ArrowLeftOutlined />} 
-                    onClick={handleBack}
-                    style={{ marginBottom: 16 }}
-                >
+                <Button icon={<ArrowLeftOutlined />} onClick={handleBack} style={{ marginBottom: 16 }}>
                     Quay lại
                 </Button>
 
@@ -201,9 +187,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                             {/* Task Header */}
                             <div className="task-header">
                                 <Space size="large" align="start">
-                                    <div className="task-icon">
-                                        {getTaskTypeIcon(task)}
-                                    </div>
+                                    <div className="task-icon">{getTaskTypeIcon(task)}</div>
                                     <div>
                                         <Title level={2}>{task.title || task.name}</Title>
                                         <Space wrap>
@@ -244,10 +228,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                                     <Title level={4}>
                                         <VideoCameraOutlined /> Video bài học
                                     </Title>
-                                    <video 
-                                        controls 
-                                        style={{ width: '100%', borderRadius: 8, maxHeight: 500 }}
-                                    >
+                                    <video controls style={{ width: '100%', borderRadius: 8, maxHeight: 500 }}>
                                         <source src={`${AppConstants.contentRootUrl}${task.videoPath}`} />
                                     </video>
                                 </div>
@@ -259,7 +240,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                                     <Title level={4}>
                                         <FileImageOutlined /> Hình ảnh minh họa
                                     </Title>
-                                    <img 
+                                    <img
                                         src={`${AppConstants.contentRootUrl}${task.imagePath}`}
                                         alt={task.title}
                                         style={{ width: '100%', borderRadius: 8, maxHeight: 500, objectFit: 'contain' }}
@@ -271,10 +252,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                             {task.content && (
                                 <div className="section">
                                     <Title level={4}>Nội dung chi tiết</Title>
-                                    <div 
-                                        className="task-content"
-                                        dangerouslySetInnerHTML={{ __html: task.content }}
-                                    />
+                                    <div className="task-content" dangerouslySetInnerHTML={{ __html: task.content }} />
                                 </div>
                             )}
 
@@ -284,8 +262,8 @@ const TaskDetailPage = ({ pageOptions }) => {
                                     <Title level={4}>
                                         <FileTextOutlined /> Tài liệu đính kèm
                                     </Title>
-                                    <Button 
-                                        type="primary" 
+                                    <Button
+                                        type="primary"
                                         icon={<FileTextOutlined />}
                                         href={`${AppConstants.contentRootUrl}${task.filePath}`}
                                         target="_blank"
@@ -304,12 +282,23 @@ const TaskDetailPage = ({ pageOptions }) => {
                             <Title level={4}>Tiến độ</Title>
                             <Alert
                                 message={progressStatus.text}
-                                type={progressStatus.color === 'success' ? 'success' : 
-                                    progressStatus.color === 'processing' ? 'info' : 'warning'}
+                                type={
+                                    progressStatus.color === 'success'
+                                        ? 'success'
+                                        : progressStatus.color === 'processing'
+                                            ? 'info'
+                                            : 'warning'
+                                }
                                 showIcon
-                                icon={progressStatus.color === 'success' ? <CheckCircleOutlined /> : 
-                                    progressStatus.color === 'processing' ? <ClockCircleOutlined /> : 
-                                        <BookOutlined />}
+                                icon={
+                                    progressStatus.color === 'success' ? (
+                                        <CheckCircleOutlined />
+                                    ) : progressStatus.color === 'processing' ? (
+                                        <ClockCircleOutlined />
+                                    ) : (
+                                        <BookOutlined />
+                                    )
+                                }
                                 style={{ marginBottom: 16 }}
                             />
 
@@ -323,7 +312,7 @@ const TaskDetailPage = ({ pageOptions }) => {
                                                 <Text>Số câu hỏi:</Text>
                                                 <Text strong>{questions.length}</Text>
                                             </div>
-                                            
+
                                             {progress?.state === 2 && (
                                                 <Alert
                                                     message="Bạn đã hoàn thành bài tập này!"
@@ -339,8 +328,8 @@ const TaskDetailPage = ({ pageOptions }) => {
 
                                     <Space direction="vertical" style={{ width: '100%' }} size="middle">
                                         {!hasStarted ? (
-                                            <Button 
-                                                type="primary" 
+                                            <Button
+                                                type="primary"
                                                 size="large"
                                                 icon={<PlayCircleOutlined />}
                                                 onClick={handleStartExercise}
@@ -350,21 +339,23 @@ const TaskDetailPage = ({ pageOptions }) => {
                                             </Button>
                                         ) : (
                                             <>
-                                                <Button 
-                                                    type="primary" 
+                                                <Button
+                                                    type="primary"
                                                     size="large"
-                                                    icon={progress?.state === 2 ? <CheckCircleOutlined /> : <PlayCircleOutlined />}
+                                                    icon={
+                                                        progress?.state === 2 ? (
+                                                            <CheckCircleOutlined />
+                                                        ) : (
+                                                            <PlayCircleOutlined />
+                                                        )
+                                                    }
                                                     onClick={handleStartExercise}
                                                     block
                                                 >
                                                     {progress?.state === 2 ? 'Xem lại kết quả' : 'Tiếp tục làm bài'}
                                                 </Button>
-                                                
-                                                <Button 
-                                                    size="large"
-                                                    onClick={handleRestartExercise}
-                                                    block
-                                                >
+
+                                                <Button size="large" onClick={handleRestartExercise} block>
                                                     Làm lại từ đầu
                                                 </Button>
                                             </>
@@ -378,18 +369,9 @@ const TaskDetailPage = ({ pageOptions }) => {
                         <Card className="instructions-card" style={{ marginTop: 16 }}>
                             <Title level={5}>Hướng dẫn</Title>
                             <Steps direction="vertical" size="small" current={-1}>
-                                <Step 
-                                    title="Xem nội dung" 
-                                    description="Đọc kỹ nội dung bài học bên trái"
-                                />
-                                <Step 
-                                    title="Làm bài tập" 
-                                    description="Click 'Bắt đầu làm bài' để trả lời câu hỏi"
-                                />
-                                <Step 
-                                    title="Hoàn thành" 
-                                    description="Nộp bài và xem kết quả"
-                                />
+                                <Step title="Xem nội dung" description="Đọc kỹ nội dung bài học bên trái" />
+                                <Step title="Làm bài tập" description="Click 'Bắt đầu làm bài' để trả lời câu hỏi" />
+                                <Step title="Hoàn thành" description="Nộp bài và xem kết quả" />
                             </Steps>
                         </Card>
                     </Col>

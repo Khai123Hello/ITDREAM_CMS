@@ -3,13 +3,7 @@ import { accountActions } from '@store/actions';
 import { getData, setData, removeItem } from '@utils/localStorage';
 import { storageKeys, UserTypes } from '@constants';
 
-
-const {
-    logout,
-    getProfileSuccess,
-    getProfile,
-    setUserType,
-} = accountActions;
+const { logout, getProfileSuccess, getProfile, setUserType } = accountActions;
 
 const initialState = {
     profile: null,
@@ -42,7 +36,7 @@ const accountReducer = createReducer(
         },
         [logout.type]: (state) => {
             state.profile = null;
-            state.userType = null; 
+            state.userType = null;
             removeItem(storageKeys.USER_TYPE);
             removeItem(storageKeys.PARENT_TASK_INFO);
         },

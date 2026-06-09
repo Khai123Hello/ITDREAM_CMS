@@ -1,8 +1,9 @@
-import React, { useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Empty, Tag, Button } from 'antd';
-import { QuestionCircleOutlined, RightOutlined, PlusOutlined, EditOutlined } from '@ant-design/icons';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useParams, useNavigate } from 'react-router-dom';
+import { Empty, Tag, Button, message } from 'antd';
+import { QuestionCircleOutlined, RightOutlined, PlusOutlined, EditOutlined, MenuOutlined } from '@ant-design/icons';
 
+import useFetch from '@hooks/useFetch';
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
 
@@ -12,7 +13,10 @@ import { FieldTypes } from '@constants/formConfig';
 import { taskKindOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
-import BaseTable from '@components/common/table/BaseTable';
+import '@components/simulation/TaskSubTaskDnd.css';
+import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor, closestCenter, DragOverlay } from '@dnd-kit/core';
+import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
 
@@ -21,6 +25,7 @@ import { getData } from '@utils/localStorage';
 const TaskListPage = ({ pageOptions }) => {
     const translate = useTranslate();
     const navigate = useNavigate();
+    const location = useLocation();
     const { simulationId } = useParams();
 
     const userType = getData(storageKeys.USER_TYPE);
@@ -230,6 +235,48 @@ const TaskListPage = ({ pageOptions }) => {
         },
     });
 
+    const { execute: executeUpdateOrder } = useFetch(apiConfig.task.updateOrder, {
+        immediate: false,
+    });
+
+    const [taskItems, setTaskItems] = useState([]);
+    const [activeId, setActiveId] = useState(null);
+    const [activeType, setActiveType] = useState(null);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        }),
+    );
+
+    const updateOrderOnServer = async ({ id, newOrder, newParentId }) => {
+        try {
+            const result = await executeUpdateOrder({
+                data: {
+                    id,
+                    newOrder,
+                    newParentId,
+                },
+            });
+
+            if (result?.result === true) {
+                message.success('Cập nhật vị trí thành công!');
+                mixinFuncs.getList();
+            } else {
+                message.error(result?.message || 'Không thể cập nhật vị trí.');
+                mixinFuncs.getList();
+            }
+        } catch (error) {
+            message.error('Có lỗi khi cập nhật vị trí. Vui lòng thử lại.');
+            mixinFuncs.getList();
+        }
+    };
+
     const hierarchicalData = useMemo(() => {
         if (!data || data.length === 0) return [];
 
@@ -237,7 +284,10 @@ const TaskListPage = ({ pageOptions }) => {
         const subTasks = [];
 
         data.forEach((item) => {
-            const isSubtask = item.parent || item.parentId || item.kind === TaskTypes.SUBTASK || item.kind === 0;
+            const isSubtask =
+                Number(item.kind) === TaskTypes.SUBTASK ||
+                (item.parentId && Number(item.parentId) !== 0) ||
+                (item.parent && item.parent.id);
 
             if (isSubtask) {
                 subTasks.push({
@@ -245,7 +295,7 @@ const TaskListPage = ({ pageOptions }) => {
                     kind: TaskTypes.SUBTASK,
                 });
             } else {
-                tasksMap.set(item.id, {
+                tasksMap.set(String(item.id), {
                     ...item,
                     kind: TaskTypes.TASK,
                     children: [],
@@ -255,9 +305,10 @@ const TaskListPage = ({ pageOptions }) => {
 
         subTasks.forEach((subTask) => {
             const parentId = subTask.parent?.id || subTask.parentId;
-            if (parentId && tasksMap.has(parentId)) {
-                const parentTask = tasksMap.get(parentId);
-                tasksMap.get(parentId).children.push({
+            const parentIdStr = parentId ? String(parentId) : null;
+            if (parentIdStr && tasksMap.has(parentIdStr)) {
+                const parentTask = tasksMap.get(parentIdStr);
+                parentTask.children.push({
                     ...subTask,
                     parent: {
                         id: parentTask.id,
@@ -272,123 +323,278 @@ const TaskListPage = ({ pageOptions }) => {
         return Array.from(tasksMap.values());
     }, [data]);
 
-    const handleRowClick = (record) => {
-        navigate(`/simulation/${simulationId}/task/${record.id}`, {
-            state:
-                record.kind === TaskTypes.SUBTASK
-                    ? {
-                        parentTask: record.parent
-                            ? {
-                                id: record.parent.id,
-                                name: record.parent.name,
-                            }
-                            : {
-                                id: record.parentId,
-                                name: '',
-                            },
-                    }
-                    : null,
+    useEffect(() => {
+        setTaskItems(hierarchicalData);
+    }, [hierarchicalData]);
+
+    const findContainer = (id) => {
+        const idValue = String(id);
+        const directTask = taskItems.find((task) => String(task.id) === idValue);
+        if (directTask) return directTask.id;
+
+        const parentTask = taskItems.find((task) => task.children?.some((sub) => String(sub.id) === idValue));
+        return parentTask ? parentTask.id : null;
+    };
+
+    const findSubtaskById = (id) => {
+        const idValue = String(id);
+        for (const task of taskItems) {
+            const subtask = task.children?.find((sub) => String(sub.id) === idValue);
+            if (subtask) return subtask;
+        }
+        return null;
+    };
+
+    const handleDragStart = (event) => {
+        const { active } = event;
+        setActiveId(active.id);
+        setActiveType(active.data.current?.type);
+    };
+
+    const handleDragOver = (event) => {
+        const { active, over } = event;
+        if (!over) return;
+
+        const activeId = active.id;
+        const overId = over.id;
+
+        if (activeId === overId) return;
+
+        const isActiveSubtask = active.data.current?.type === 'subtask';
+        const isOverSubtask = over.data.current?.type === 'subtask';
+
+        if (!isActiveSubtask) return;
+
+        const activeContainer = findContainer(activeId);
+        let overContainer = findContainer(overId);
+
+        if (!overContainer && taskItems.some((t) => String(t.id) === String(overId))) {
+            overContainer = overId;
+        }
+
+        if (!activeContainer || !overContainer) return;
+        if (activeContainer === overContainer) return;
+
+        setTaskItems((prevTasks) => {
+            const sourceTask = prevTasks.find((t) => t.id === activeContainer);
+            const destinationTask = prevTasks.find((t) => t.id === overContainer);
+            if (!sourceTask || !destinationTask) return prevTasks;
+
+            const activeIndex = sourceTask.children.findIndex((item) => item.id === activeId);
+            const overIndex = isOverSubtask
+                ? destinationTask.children.findIndex((item) => item.id === overId)
+                : destinationTask.children.length;
+                
+            const movingItem = sourceTask.children[activeIndex];
+            if (!movingItem) return prevTasks;
+
+            return prevTasks.map((task) => {
+                if (task.id === activeContainer) {
+                    return {
+                        ...task,
+                        children: task.children.filter((item) => item.id !== activeId),
+                    };
+                }
+                if (task.id === overContainer) {
+                    const newChildren = [...task.children];
+                    newChildren.splice(overIndex, 0, movingItem);
+                    return {
+                        ...task,
+                        children: newChildren,
+                    };
+                }
+                return task;
+            });
         });
     };
 
-    const columns = [
-        {
-            title: '#',
-            width: '50px',
-            align: 'center',
-            render: (_, record) => {
-                if (record.kind === TaskTypes.TASK) {
-                    const parentIndex = hierarchicalData.findIndex((item) => item.id === record.id);
-                    return parentIndex + 1;
-                }
-                return '';
+    const handleDragEnd = (event) => {
+        const { active, over } = event;
+        setActiveId(null);
+        setActiveType(null);
+
+        if (!over) return;
+
+        const activeId = active.id;
+        const overId = over.id;
+
+        const isActiveTask = active.data.current?.type === 'task';
+        const isOverTask = over.data.current?.type === 'task';
+        const isOverSubtask = over.data.current?.type === 'subtask';
+
+        if (isActiveTask) {
+            if (String(activeId) === String(overId) || !isOverTask) return;
+
+            setTaskItems((prev) => {
+                const oldIndex = prev.findIndex((item) => item.id === activeId);
+                const newIndex = prev.findIndex((item) => item.id === overId);
+                if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return prev;
+                const next = arrayMove(prev, oldIndex, newIndex);
+                updateOrderOnServer({ id: activeId, newOrder: newIndex, newParentId: null });
+                return next;
+            });
+            return;
+        }
+
+        const activeContainer = findContainer(activeId);
+        let overContainer = findContainer(overId);
+
+        if (!overContainer && taskItems.some((t) => String(t.id) === String(overId))) {
+            overContainer = overId;
+        }
+
+        if (!activeContainer || !overContainer) return;
+
+        const activeTaskIndex = taskItems.findIndex((t) => t.id === activeContainer);
+        const activeTask = taskItems[activeTaskIndex];
+        const activeIndex = activeTask.children.findIndex((item) => item.id === activeId);
+
+        const targetTask = taskItems.find((t) => t.id === overContainer);
+        const overIndex = isOverSubtask
+            ? targetTask.children.findIndex((item) => item.id === overId)
+            : targetTask.children.length;
+
+        if (activeContainer === overContainer && activeIndex === overIndex) return;
+
+        if (activeContainer === overContainer) {
+            setTaskItems((prevTasks) => {
+                return prevTasks.map((task) => {
+                    if (task.id !== activeContainer) return task;
+                    const nextChildren = arrayMove(task.children, activeIndex, overIndex);
+                    return {
+                        ...task,
+                        children: nextChildren,
+                    };
+                });
+            });
+        } else {
+            setTaskItems((prevTasks) => {
+                let movingItem;
+                const nextTasks = prevTasks.map((task) => {
+                    if (task.id === activeContainer) {
+                        const updatedChildren = task.children.filter((item) => {
+                            if (item.id === activeId) {
+                                movingItem = item;
+                                return false;
+                            }
+                            return true;
+                        });
+                        return { ...task, children: updatedChildren };
+                    }
+                    return task;
+                });
+
+                return nextTasks.map((task) => {
+                    if (task.id === overContainer && movingItem) {
+                        const updatedChildren = [...task.children];
+                        updatedChildren.splice(overIndex, 0, movingItem);
+                        return { ...task, children: updatedChildren };
+                    }
+                    return task;
+                });
+            });
+        }
+
+        updateOrderOnServer({
+            id: activeId,
+            newOrder: overIndex,
+            newParentId: overContainer,
+        });
+    };
+
+    const getParentTaskState = (record) => {
+        if (record.parent) {
+            return {
+                id: record.parent.id,
+                name: record.parent.name,
+            };
+        }
+
+        if (record.parentId) {
+            return {
+                id: record.parentId,
+                name: '',
+            };
+        }
+
+        return null;
+    };
+
+    const handleRowClick = (record) => {
+        console.log('[TaskListPage] handleRowClick', {
+            id: record.id,
+            kind: record.kind,
+            title: record.title || record.name,
+        });
+        const recordKind = Number(record.kind);
+        navigate(`/simulation/${simulationId}/task/${record.id}`, {
+            state: recordKind === TaskTypes.SUBTASK ? { parentTask: getParentTaskState(record) } : null,
+        });
+    };
+
+    const createSubTaskForTask = (task) => {
+        navigate(`/simulation/${simulationId}/task/create`, {
+            state: {
+                parentTask: {
+                    id: task.id,
+                    name: task.name || task.title,
+                },
             },
-        },
-        // {
-        //     title: labels.image,
-        //     dataIndex: 'imagePath',
-        //     align: 'center',
-        //     width: '80px',
-        //     render: imagePath => (
-        //         <AvatarField
-        //             size="large"
-        //             icon={<FileTextOutlined />}
-        //             src={imagePath ? `${AppConstants.contentRootUrl}${imagePath}` : null}
-        //             shape="square"
-        //         />
-        //     ),
-        // },
-        {
-            title: labels.name,
-            dataIndex: 'name',
-            width: '200px',
-            render: (text, record) => (
-                <div
-                    style={{
-                        paddingLeft: record.kind === TaskTypes.SUBTASK ? 20 : 0,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 8,
-                        cursor: 'pointer',
-                        color: record.kind === TaskTypes.TASK ? '#1890ff' : 'inherit',
-                        fontWeight: record.kind === TaskTypes.TASK ? 600 : 400,
-                    }}
-                >
-                    {record.kind === TaskTypes.SUBTASK && <span style={{ color: '#999' }}>└─</span>}
-                    {text}
+        });
+    };
+
+    const taskCardProps = {
+        handleRowClick,
+        createSubTaskForTask,
+        isEducator,
+        mixinFuncs,
+        labels,
+    };
+
+    const renderTaskBoard = () => (
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnd={handleDragEnd}
+        >
+            <SortableContext items={taskItems.map((task) => task.id)} strategy={verticalListSortingStrategy}>
+                <div className="task-board-container">
+                    {taskItems.length === 0 ? (
+                        <Empty description={labels.noData} />
+                    ) : (
+                        taskItems.map((task) => <TaskCard key={task.id} task={task} {...taskCardProps} />)
+                    )}
                 </div>
-            ),
-        },
-        {
-            title: labels.title,
-            dataIndex: 'title',
-            width: '220px',
-        },
-        {
-            title: labels.totalQuestion,
-            dataIndex: 'totalQuestion',
-            align: 'center',
-            width: '120px',
-            render: (value, record) => {
-                return record.kind === TaskTypes.SUBTASK ? value || 0 : '-';
-            },
-        },
-        {
-            title: labels.maxErrors,
-            dataIndex: 'maxErrors',
-            align: 'center',
-            width: '100px',
-            render: (value, record) => {
-                return record.kind === TaskTypes.SUBTASK ? value || 0 : '-';
-            },
-        },
-        mixinFuncs.renderActionColumn(
-            {
-                edit: isEducator ? () => mixinFuncs.hasPermission([apiConfig.task.update.permissionCode]) : false,
-                delete: isEducator ? () => mixinFuncs.hasPermission([apiConfig.task.delete.permissionCode]) : false,
-                createSubTask: (record) => {
-                    if (record.kind !== TaskTypes.TASK || !isEducator) {
-                        return false;
-                    }
-                    return mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]);
-                },
-                viewDetails: () => {
-                    return isEducator ? false : true;
-                },
-                question: (record) => {
-                    if (record.kind !== TaskTypes.SUBTASK) {
-                        return false;
-                    }
-                    return mixinFuncs.hasPermission([
-                        isEducator
-                            ? apiConfig.taskQuestion.educatorList.permissionCode
-                            : apiConfig.taskQuestion.getList.permissionCode,
-                    ]);
-                },
-            },
-            { width: '200px', title: labels.action },
-        ),
-    ];
+            </SortableContext>
+            <DragOverlay>
+                {activeId ? (
+                    activeType === 'task' ? (
+                        <div className="task-container-card dragging-overlay-task">
+                            <div className="task-header">
+                                <div className="task-header-left">
+                                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                        <span className="drag-handle-btn">
+                                            <MenuOutlined />
+                                        </span>
+                                        <span>{taskItems.find((task) => task.id === activeId)?.title || taskItems.find((task) => task.id === activeId)?.name || ''}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="subtask-item-card dragging-overlay-subtask">
+                            <div className="subtask-left">
+                                <span className="subtask-drag-handle" />
+                                <span>{findSubtaskById(activeId)?.name || ''}</span>
+                            </div>
+                        </div>
+                    )
+                ) : null}
+            </DragOverlay>
+        </DndContext>
+    );
 
     const searchFields = [
         { key: 'name', placeholder: labels.name },
@@ -415,50 +621,163 @@ const TaskListPage = ({ pageOptions }) => {
                     initialValues: queryFilter,
                 })}
                 actionBar={isEducator ? mixinFuncs.renderActionBar() : null}
-                baseTable={
-                    <BaseTable
-                        onChange={mixinFuncs.changePagination}
-                        columns={columns}
-                        dataSource={hierarchicalData}
-                        loading={loading}
-                        rowKey={(record) => record.id}
-                        pagination={pagination}
-                        expandable={{
-                            defaultExpandAllRows: true,
-                            expandIcon: ({ expanded, onExpand, record }) => {
-                                if (record.kind === TaskTypes.TASK && record.children?.length > 0) {
-                                    return (
-                                        <RightOutlined
-                                            rotate={expanded ? 90 : 0}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                onExpand(record, e);
-                                            }}
-                                            style={{
-                                                cursor: 'pointer',
-                                                marginRight: 8,
-                                                transition: 'transform 0.3s',
-                                            }}
-                                        />
-                                    );
-                                }
-                                return null;
-                            },
-                            indentSize: 0,
-                        }}
-                        onRow={(record) => ({
-                            onClick: () => handleRowClick(record),
-                            style: {
-                                cursor: 'pointer',
-                                backgroundColor: record.kind === TaskTypes.TASK ? '#fafafa' : '#ffffff',
-                            },
-                        })}
-                        locale={{ emptyText: <Empty description={labels.noData} /> }}
-                    />
-                }
+                baseTable={renderTaskBoard()}
             />
         </PageWrapper>
     );
 };
 
 export default TaskListPage;
+
+// ─── Tách ra ngoài TaskListPage để tránh React unmount/remount mỗi render ───
+// Khi định nghĩa component bên trong component khác, React sẽ tạo function mới
+// mỗi lần render → unmount + remount toàn bộ → useSortable mất track ID
+// → DnD-kit map sai ID SubTask sang Task Cha khi click.
+
+function SubTaskCard({ subtask, handleRowClick }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: subtask.id,
+        data: {
+            type: 'subtask',
+        },
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`subtask-item-card ${isDragging ? 'dragging-placeholder' : ''}`}
+            onMouseDown={(e) => {
+                e.stopPropagation();
+            }}
+            onClick={(e) => {
+                console.log('[SubTaskCard] clicked subtask.id =', subtask.id, '| kind =', subtask.kind);
+                e.preventDefault();
+                e.stopPropagation();
+                handleRowClick(subtask);
+            }}
+        >
+            <div className="subtask-left">
+                <span className="subtask-drag-handle" {...attributes} {...listeners}>
+                    <MenuOutlined />
+                </span>
+                <span style={{ color: '#9ca3af', fontSize: 14 }}>└─</span>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
+                    <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>
+                        {subtask.title || subtask.name}
+                    </div>
+                    {subtask.parent?.name && (
+                        <div style={{ fontSize: 12, color: '#64748b' }}>
+                            Thuộc Task: {subtask.parent.name}
+                        </div>
+                    )}
+                </div>
+            </div>
+            <Button
+                type="text"
+                icon={<RightOutlined />}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleRowClick(subtask);
+                }}
+            />
+        </div>
+    );
+}
+
+function TaskCard({ task, handleRowClick, createSubTaskForTask, isEducator, mixinFuncs, labels }) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+        id: task.id,
+        data: {
+            type: 'task',
+        },
+    });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    const isSubTask = Number(task.kind) === TaskTypes.SUBTASK;
+    const taskTitle = task.title || task.name;
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className={`task-container-card ${isDragging ? 'dragging-placeholder' : ''}`}
+        >
+            <div
+                className="task-header"
+                onClick={() => {
+                    console.log('[TaskCard] header clicked task.id =', task.id, '| kind =', task.kind);
+                    handleRowClick(task);
+                }}
+                style={{ cursor: 'pointer' }}
+            >
+                <div className="task-header-left">
+                    <span className="drag-handle-btn" {...attributes} {...listeners}>
+                        <MenuOutlined />
+                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'SubTask' : 'Task'}</Tag>
+                            {isSubTask && task.parent?.name && <Tag color="default">Parent: {task.parent.name}</Tag>}
+                            {isSubTask && typeof task.totalQuestion !== 'undefined' && (
+                                <Tag color="default">Câu hỏi: {task.totalQuestion || 0}</Tag>
+                            )}
+                            {isSubTask && typeof task.maxErrors !== 'undefined' && (
+                                <Tag color="default">Lỗi tối đa: {task.maxErrors || 0}</Tag>
+                            )}
+                        </div>
+                    </div>
+                </div>
+                <div className="task-header-actions">
+                    {!isSubTask && isEducator && mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
+                        <Button
+                            type="text"
+                            icon={<PlusOutlined />}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                createSubTaskForTask(task);
+                            }}
+                            title={labels.createSubTask}
+                        />
+                    )}
+                    <Button
+                        type="text"
+                        icon={<RightOutlined />}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(task);
+                        }}
+                        title={labels.viewDetails}
+                    />
+                </div>
+            </div>
+            {!isSubTask ? (
+                <div
+                    className="subtasks-list"
+                    onClick={(e) => e.stopPropagation()}
+                    onMouseDown={(e) => e.stopPropagation()}
+                >
+                    {task.children?.length > 0 ? (
+                        <SortableContext items={task.children.map((sub) => sub.id)} strategy={verticalListSortingStrategy}>
+                            {task.children.map((subtask) => (
+                                <SubTaskCard key={subtask.id} subtask={subtask} handleRowClick={handleRowClick} />
+                            ))}
+                        </SortableContext>
+                    ) : (
+                        <div className="empty-drop-zone">Chưa có SubTask</div>
+                    )}
+                </div>
+            ) : null}
+        </div>
+    );
+}

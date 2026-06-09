@@ -113,7 +113,9 @@ const AdminForm = (props) => {
 
             // Validate email
             if (adminsList.length > 0) {
-                const emailConflict = adminsList.find((item) => item.email === values.email && item.id !== dataDetail?.id);
+                const emailConflict = adminsList.find(
+                    (item) => item.email === values.email && item.id !== dataDetail?.id,
+                );
                 if (emailConflict) {
                     console.error('❌ Email already exists:', values.email);
                     form.setFields([
@@ -130,7 +132,9 @@ const AdminForm = (props) => {
 
             // Validate phone (nếu có nhập)
             if (values.phone && adminsList.length > 0) {
-                const phoneConflict = adminsList.find((item) => item.phone === values.phone && item.id !== dataDetail?.id);
+                const phoneConflict = adminsList.find(
+                    (item) => item.phone === values.phone && item.id !== dataDetail?.id,
+                );
                 if (phoneConflict) {
                     console.error('❌ Phone already exists:', values.phone);
                     form.setFields([
@@ -154,9 +158,7 @@ const AdminForm = (props) => {
             }
 
             // Format birthday
-            const formattedBirthday = values.birthday 
-                ? dayjs(values.birthday).format(DEFAULT_FORMAT)
-                : null;
+            const formattedBirthday = values.birthday ? dayjs(values.birthday).format(DEFAULT_FORMAT) : null;
 
             // Chuẩn bị data để submit
             const submitData = {
@@ -170,11 +172,10 @@ const AdminForm = (props) => {
 
             // Gọi API submit
             const result = await mixinFuncs.handleSubmit(submitData);
-            
-            console.log('✅ Submit completed:', result);
-            
-            return result;
 
+            console.log('✅ Submit completed:', result);
+
+            return result;
         } catch (error) {
             console.error('❌ Submit error:', error);
             showErrorMessage('Có lỗi xảy ra, vui lòng thử lại!', translate);
@@ -185,11 +186,9 @@ const AdminForm = (props) => {
 
     useEffect(() => {
         console.log('📊 Data Detail Changed:', dataDetail);
-        
+
         // Chuyển chuỗi ngày tháng từ dataDetail thành đối tượng dayjs
-        const initialBirthday = dataDetail?.birthday 
-            ? dayjs(dataDetail.birthday, DEFAULT_FORMAT) 
-            : null;
+        const initialBirthday = dataDetail?.birthday ? dayjs(dataDetail.birthday, DEFAULT_FORMAT) : null;
 
         form.setFieldsValue({
             username: dataDetail?.username || '',
@@ -202,7 +201,7 @@ const AdminForm = (props) => {
             birthday: initialBirthday,
             status: dataDetail?.status !== undefined ? dataDetail.status : undefined,
         });
-        
+
         setImageUrl(dataDetail?.avatar || null);
     }, [dataDetail, form, isEditing]);
 
@@ -232,7 +231,7 @@ const AdminForm = (props) => {
                         />
                     </Col>
                 </Row>
-                
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <TextField
@@ -284,7 +283,7 @@ const AdminForm = (props) => {
                         />
                     </Col>
                 </Row>
-                
+
                 <Row gutter={16}>
                     <Col span={12}>
                         <DatePickerField
@@ -351,10 +350,8 @@ const AdminForm = (props) => {
                         />
                     </Col>
                 </Row>
-                
-                <div className="footer-card-form">
-                    {actions}
-                </div>
+
+                <div className="footer-card-form">{actions}</div>
             </Card>
         </BaseForm>
     );

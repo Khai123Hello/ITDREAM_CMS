@@ -125,10 +125,9 @@ export const passwordValidatorWithOldPassword = async (_, value, form, translate
 export const checkDuplicateValue = (value, list, key, currentId, objectName, translate, message) => {
     if (!value) return;
 
-    const isDuplicate = Array.isArray(list) && list.some(item =>
-        item[key]?.toLowerCase() === value.toLowerCase() &&
-        item.id !== (currentId || null),
-    );
+    const isDuplicate =
+        Array.isArray(list) &&
+        list.some((item) => item[key]?.toLowerCase() === value.toLowerCase() && item.id !== (currentId || null));
 
     if (isDuplicate) {
         throw new Error(`${objectName} ${translate.formatMessage(message)}`);
@@ -142,15 +141,7 @@ export const checkDuplicateSerial = async (_, value, translate, devices, dataDet
         throw new Error(translate.formatMessage(commonMessage.invalidSerial));
     }
     const deviceList = devices?.content || [];
-    checkDuplicateValue(
-        value,
-        deviceList,
-        'serial',
-        dataDetail?.id,
-        'Serial',
-        translate,
-        commonMessage.duplicate,
-    );
+    checkDuplicateValue(value, deviceList, 'serial', dataDetail?.id, 'Serial', translate, commonMessage.duplicate);
     return Promise.resolve();
 };
 
@@ -161,17 +152,7 @@ export const checkSimNumber = async (_, value, translate, devices, dataDetail) =
         throw new Error(translate.formatMessage(commonMessage.invalidSimNumber));
     }
     const deviceList = devices?.content || [];
-    checkDuplicateValue(
-        value,
-        deviceList,
-        'simNumber',
-        dataDetail?.id,
-        'Số SIM',
-        translate,
-        commonMessage.duplicate,
-    );
+    checkDuplicateValue(value, deviceList, 'simNumber', dataDetail?.id, 'Số SIM', translate, commonMessage.duplicate);
 
     return Promise.resolve();
 };
-
-

@@ -12,7 +12,7 @@ import apiConfig from '@constants/apiConfig';
 const ProfilePage = () => {
     const translate = useTranslate();
     const [detail, setDetail] = useState({});
-    
+
     const { execute, loading } = useFetch({ ...apiConfig.account.getProfile }, { immediate: false });
     const { execute: executeGetProfile } = useFetchAction(accountActions.getProfile);
 
@@ -39,8 +39,8 @@ const ProfilePage = () => {
             onCompleted: (response) => {
                 if (response.result === true) {
                     const rawData = response.data;
-                    const data = rawData?.profileAccountDto 
-                        ? { ...rawData.profileAccountDto, id: rawData.id } 
+                    const data = rawData?.profileAccountDto
+                        ? { ...rawData.profileAccountDto, id: rawData.id }
                         : rawData;
                     setDetail(data);
                 }
@@ -50,10 +50,7 @@ const ProfilePage = () => {
     }, []);
 
     return (
-        <PageWrapper
-            loading={loading}
-            routes={[{ breadcrumbName: translate.formatMessage(commonMessage.profile) }]}
-        >
+        <PageWrapper loading={loading} routes={[{ breadcrumbName: translate.formatMessage(commonMessage.profile) }]}>
             <ProfileForm
                 setIsChangedFormValues={setIsChangedFormValues}
                 dataDetail={detail}

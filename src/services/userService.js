@@ -1,5 +1,5 @@
-import { storageKeys } from "@constants";
-import { getData, removeItem, setData } from "@utils/localStorage";
+import { storageKeys } from '@constants';
+import { getData, removeItem, setData } from '@utils/localStorage';
 
 const { USER_ACCESS_TOKEN, USER_REFRESH_TOKEN, USER_EMAIL } = storageKeys;
 
@@ -25,6 +25,6 @@ export const removeCacheToken = () => {
     removeCacheRefreshToken();
 };
 
-export const setCacheUserEmail = email => setData(USER_EMAIL, email);
+export const setCacheUserEmail = (email) => setData(USER_EMAIL, email);
 
 export const getCacheUserEmail = () => getData(USER_EMAIL);

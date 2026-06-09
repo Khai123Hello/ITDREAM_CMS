@@ -6,7 +6,7 @@ import useBasicForm from '@hooks/useBasicForm';
 import { defineMessages } from 'react-intl';
 import useTranslate from '@hooks/useTranslate';
 import { Card, Form } from 'antd';
-import usePasswordValidation from '@hooks/usePasswordValidation'; 
+import usePasswordValidation from '@hooks/usePasswordValidation';
 import { DEFAULT_FORMAT, UserTypes, storageKeys } from '@constants';
 import { getData } from '@utils/localStorage';
 
@@ -25,7 +25,7 @@ const messages = defineMessages({
 const ProfileForm = (props) => {
     const { formId, dataDetail, onSubmit, setIsChangedFormValues, actions } = props;
     const translate = useTranslate();
-    
+
     const userType = getData(storageKeys.USER_TYPE);
     const isAdmin = userType === UserTypes.ADMIN;
 
@@ -77,7 +77,7 @@ const ProfileForm = (props) => {
 
         mixinFuncs.handleSubmit(payload);
     };
-    
+
     const format = (msg) => (translate?.formatMessage ? translate.formatMessage(msg) : '');
 
     return (
@@ -97,18 +97,9 @@ const ProfileForm = (props) => {
 
                 <TextField required label={format(messages.fullName)} name="fullName" />
 
-                <TextField 
-                    required
-                    label={format(messages.phoneNumber)} 
-                    name="phone"
-                />
+                <TextField required label={format(messages.phoneNumber)} name="phone" />
 
-                <DatePickerField
-                    name="birthday"
-                    label="Ngày sinh"
-                    format="DD/MM/YYYY"
-                    showTime={false}
-                />
+                <DatePickerField name="birthday" label="Ngày sinh" format="DD/MM/YYYY" showTime={false} />
 
                 {isAdmin && (
                     <>
@@ -123,7 +114,7 @@ const ProfileForm = (props) => {
                             type="password"
                             label={format(messages.newPassword)}
                             name="newPassword"
-                            rules={passwordRules}  
+                            rules={passwordRules}
                         />
 
                         <TextField
@@ -131,7 +122,7 @@ const ProfileForm = (props) => {
                             label={format(messages.confirmPassword)}
                             name="confirmPassword"
                             dependencies={['newPassword']}
-                            rules={confirmPasswordRules(form.getFieldValue)}  
+                            rules={confirmPasswordRules(form.getFieldValue)}
                         />
                     </>
                 )}

@@ -16,13 +16,12 @@ const StudentDashboard = () => {
                 onChange={setActiveTab}
                 items={tabItems.map((tab) => ({
                     ...tab,
-                    children: (
+                    children:
                         tab.key === 'all' ? (
                             <div>All simulations will be listed here.</div>
                         ) : (
                             <div>List of enrolled simulations will be shown here.</div>
-                        )
-                    ),
+                        ),
                 }))}
             />
         </div>

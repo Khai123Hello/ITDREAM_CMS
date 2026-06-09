@@ -1,4 +1,4 @@
-import {  Form, Input } from 'antd';
+import { Form, Input } from 'antd';
 import React from 'react';
 import useFormField from '@hooks/useFormField';
 import TextArea from 'antd/es/input/TextArea';
@@ -58,7 +58,7 @@ const PasswordGeneratorField = (props) => {
             name={fieldName}
             validateStatus={validateStatus}
             help={help}
-            rules={[ ...rules, ...getTextFieldRules() ]}
+            rules={[...rules, ...getTextFieldRules()]}
         >
             {type === 'textarea' ? (
                 <TextArea

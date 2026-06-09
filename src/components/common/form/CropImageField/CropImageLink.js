@@ -10,16 +10,16 @@ function CropImageLink({ url, onCompleted, onError, aspect, onModalCancel, show 
 }
 
 function Component({ onFinish, url, show, beforeUpload, onError }) {
-    useEffect(async () => { 
+    useEffect(async () => {
         if (!show) return;
         try {
             let blob = await fetch(url).then((r) => r.blob());
             const file = await beforeUpload(blob, []);
             onFinish?.(file);
-        } catch(error) {
+        } catch (error) {
             onError?.();
         }
-    }, [ url, show ]);
+    }, [url, show]);
 
     return <></>;
 }

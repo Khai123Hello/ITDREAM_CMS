@@ -11,9 +11,7 @@ import styles from './AuthLayout.module.scss';
 const AuthLayout = ({ children }) => {
     return (
         <div className={styles.authContainer}>
-            <div className={styles.authContent}>
-                {children}
-            </div>
+            <div className={styles.authContent}>{children}</div>
         </div>
     );
 };

@@ -20,7 +20,7 @@ const LanguageProvider = ({ children }) => {
             locale={locale}
             messages={messages[locale]}
             defaultLocale={defaultLocale}
-            onError={e => console.log("MISSING_TRANSLATION: " + e?.descriptor?.id)}
+            onError={(e) => console.log('MISSING_TRANSLATION: ' + e?.descriptor?.id)}
         >
             {children}
         </IntlProvider>

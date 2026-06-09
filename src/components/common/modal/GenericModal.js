@@ -22,13 +22,13 @@ const GenericModal = ({ visible, onClose, titleMessage, sections, record }) => {
             onCancel={onClose}
             bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
         >
-            {record ? (
-                sections.map((section, index) => (
+            {record
+                ? sections.map((section, index) => (
                     <fieldset key={index} style={{ marginBottom: '1rem' }}>
                         <legend>{translate.formatMessage(section.titleMessage)}</legend>
                         {section.header && section.header(record)}
-                        {section.fields ? (
-                            section.fields.map((field, fieldIndex) => (
+                        {section.fields
+                            ? section.fields.map((field, fieldIndex) => (
                                 <p key={fieldIndex}>
                                     {field.labelMessage && (
                                         <strong>{translate.formatMessage(field.labelMessage)}: </strong>
@@ -37,24 +37,20 @@ const GenericModal = ({ visible, onClose, titleMessage, sections, record }) => {
                                         ? field.render(record)
                                         : (() => {
                                             const value = getNestedValue(record, field.dataKey);
-                                            const displayValue = field.formatter
-                                                ? field.formatter(value)
-                                                : value;
+                                            const displayValue = field.formatter ? field.formatter(value) : value;
                                             return (
                                                 displayValue ||
-                                          translate.formatMessage(
-                                              field.defaultMessage || modalMessages.noInfo,
-                                          )
+                                                      translate.formatMessage(
+                                                          field.defaultMessage || modalMessages.noInfo,
+                                                      )
                                             );
                                         })()}
                                 </p>
                             ))
-                        ) : (
-                            section.render && section.render(record)
-                        )}
+                            : section.render && section.render(record)}
                     </fieldset>
                 ))
-            ) : null}
+                : null}
         </Modal>
     );
 };

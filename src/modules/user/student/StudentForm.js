@@ -9,19 +9,14 @@ import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
 import useTranslate from '@hooks/useTranslate';
 
-import {
-    confirmPasswordValidator,
-    emailValidator,
-    passwordValidator,
-    phoneValidator,
-} from '@utils/formValidator';
+import { confirmPasswordValidator, emailValidator, passwordValidator, phoneValidator } from '@utils/formValidator';
 
 import apiConfig from '@constants/apiConfig';
 import { AppConstants } from '@constants';
 import { commonMessage } from '@locales/intl';
 import { showErrorMessage } from '@services/notifyService';
-import dayjs from "dayjs";
-import DatePickerField from "@components/common/form/DatePickerField";
+import dayjs from 'dayjs';
+import DatePickerField from '@components/common/form/DatePickerField';
 
 const StudentForm = (props) => {
     const translate = useTranslate();
@@ -72,9 +67,7 @@ const StudentForm = (props) => {
                 hasError = true;
             }
 
-            const emailConflict = students.find(
-                (item) => item.email === values.email && item.id !== dataDetail?.id,
-            );
+            const emailConflict = students.find((item) => item.email === values.email && item.id !== dataDetail?.id);
             if (emailConflict) {
                 form.setFields([
                     {
@@ -85,9 +78,7 @@ const StudentForm = (props) => {
                 hasError = true;
             }
 
-            const phoneConflict = students.find(
-                (item) => item.phone === values.phone && item.id !== dataDetail?.id,
-            );
+            const phoneConflict = students.find((item) => item.phone === values.phone && item.id !== dataDetail?.id);
             if (phoneConflict) {
                 form.setFields([
                     {
@@ -104,7 +95,11 @@ const StudentForm = (props) => {
             return;
         }
 
-        return mixinFuncs.handleSubmit({ ...values, avatarPath: imageUrl, birthday: values.birthday?.format('DD/MM/YYYY HH:mm:ss') || null });
+        return mixinFuncs.handleSubmit({
+            ...values,
+            avatarPath: imageUrl,
+            birthday: values.birthday?.format('DD/MM/YYYY HH:mm:ss') || null,
+        });
     };
 
     useEffect(() => {
@@ -117,7 +112,6 @@ const StudentForm = (props) => {
         });
         setImageUrl(dataDetail?.avatarPath);
     }, [dataDetail]);
-
 
     return (
         <BaseForm id={formId} onFinish={handleSubmit} form={form} onValuesChange={onValuesChange}>

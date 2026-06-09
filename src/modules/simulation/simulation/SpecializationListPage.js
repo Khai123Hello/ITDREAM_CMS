@@ -9,14 +9,7 @@ const SpecializationListPage = () => {
     const [editItem, setEditItem] = useState(null);
     const [form] = Form.useForm();
 
-    const {
-        data,
-        loading,
-        pagination,
-        fetchData,
-        searchParams,
-        setSearchParams,
-    } = useListBase({
+    const { data, loading, pagination, fetchData, searchParams, setSearchParams } = useListBase({
         apiConfig: apiConfig.specialization,
         options: {
             pageSize: 10,
@@ -65,9 +58,7 @@ const SpecializationListPage = () => {
             <div style={{ marginBottom: 16 }}>
                 <Input.Search
                     placeholder={t('Search by name')}
-                    onSearch={(value) =>
-                        setSearchParams({ ...searchParams, keyword: value })
-                    }
+                    onSearch={(value) => setSearchParams({ ...searchParams, keyword: value })}
                     style={{ width: 300 }}
                 />
             </div>

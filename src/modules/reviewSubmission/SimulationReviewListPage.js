@@ -38,12 +38,11 @@ const SimulationReviewListPage = ({ pageOptions }) => {
         studentList: 'Danh sách học viên đã hoàn thành',
     };
 
-
     // const formattedStatusOptions = translate.formatKeys(simulationStatusOptions, ['label']);
     const formattedLevelOptions = translate.formatKeys(levelOptions, ['label']);
-    
+
     // const statusMap = Object.fromEntries(formattedStatusOptions.map(item => [item.value, item]));
-    const levelMap = Object.fromEntries(formattedLevelOptions.map(item => [item.value, item]));
+    const levelMap = Object.fromEntries(formattedLevelOptions.map((item) => [item.value, item]));
     // const levelMap = {
     //     1: { label: 'Cơ bản', color: 'blue' },
     //     2: { label: 'Trung bình', color: 'orange' },
@@ -67,13 +66,14 @@ const SimulationReviewListPage = ({ pageOptions }) => {
     });
 
     // Fetch danh sách student khi mở modal
-    const { data: students, loading: loadingStudents, execute: fetchStudents } = useFetch(
-        apiConfig.simulation.studentComplete,
-        {
-            immediate: false,
-            mappingData: (res) => res.data?.content || [],
-        },
-    );
+    const {
+        data: students,
+        loading: loadingStudents,
+        execute: fetchStudents,
+    } = useFetch(apiConfig.simulation.studentComplete, {
+        immediate: false,
+        mappingData: (res) => res.data?.content || [],
+    });
 
     const handleViewStudents = (simulation) => {
         setSelectedSimulation(simulation);
@@ -128,7 +128,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             dataIndex: 'avgRating',
             align: 'center',
             width: '100px',
-            render: (rating) => rating ? rating.toFixed(1) : '0.0',
+            render: (rating) => (rating ? rating.toFixed(1) : '0.0'),
         },
         // {
         //     title: labels.status,
@@ -145,11 +145,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             align: 'center',
             width: '140px',
             render: (_, record) => (
-                <Button
-                    type="primary"
-                    icon={<FileSearchOutlined />}
-                    onClick={() => handleViewStudents(record)}
-                >
+                <Button type="primary" icon={<FileSearchOutlined />} onClick={() => handleViewStudents(record)}>
                     Xem học viên
                 </Button>
             ),
@@ -174,7 +170,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                         columns={columns}
                         dataSource={data}
                         loading={loading}
-                        rowKey={record => record.id}
+                        rowKey={(record) => record.id}
                         pagination={pagination}
                         locale={{
                             emptyText: <Empty description={labels.noData} />,
@@ -200,7 +196,9 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                                         hoverable
                                         onClick={() => {
                                             setShowStudentModal(false);
-                                            navigate(`/student-review-detail/${selectedSimulation.id}/${student.profileAccountDto.username}`);
+                                            navigate(
+                                                `/student-review-detail/${selectedSimulation.id}/${student.profileAccountDto.username}`,
+                                            );
                                         }}
                                         style={{ cursor: 'pointer' }}
                                     >
@@ -217,18 +215,33 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                                                 />
                                             }
                                             title={
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div
+                                                    style={{
+                                                        display: 'flex',
+                                                        justifyContent: 'space-between',
+                                                        alignItems: 'center',
+                                                    }}
+                                                >
                                                     <span>{student.profileAccountDto.fullName}</span>
-                                                    <Tag color={student.isReviewed ? 'green' : 'orange'} icon={student.isReviewed ? <CheckCircleOutlined /> : null}>
+                                                    <Tag
+                                                        color={student.isReviewed ? 'green' : 'orange'}
+                                                        icon={student.isReviewed ? <CheckCircleOutlined /> : null}
+                                                    >
                                                         {student.isReviewed ? 'Đã chấm' : 'Chưa chấm'}
                                                     </Tag>
                                                 </div>
                                             }
                                             description={
                                                 <div>
-                                                    <div><strong>Username:</strong> {student.profileAccountDto.username}</div>
-                                                    <div><strong>Email:</strong> {student.profileAccountDto.email || '-'}</div>
-                                                    <div><strong>Phone:</strong> {student.profileAccountDto.phone || '-'}</div>
+                                                    <div>
+                                                        <strong>Username:</strong> {student.profileAccountDto.username}
+                                                    </div>
+                                                    <div>
+                                                        <strong>Email:</strong> {student.profileAccountDto.email || '-'}
+                                                    </div>
+                                                    <div>
+                                                        <strong>Phone:</strong> {student.profileAccountDto.phone || '-'}
+                                                    </div>
                                                 </div>
                                             }
                                         />

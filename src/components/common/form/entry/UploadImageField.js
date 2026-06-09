@@ -37,12 +37,12 @@ function UploadImageField({ required, label, name, formItemProps, aspect, object
 }
 
 function ImageField({ value = '', onChange, objectName = '', aspect }) {
-    const [ showModal, setShowModal ] = useState(false);
-    const [ fileLink, setFileLink ] = useState();
+    const [showModal, setShowModal] = useState(false);
+    const [fileLink, setFileLink] = useState();
     const { execute: executeUpFile } = useFetch(apiConfig.file.image);
-    const [ uploadLoading, setUploadLoading ] = useState(false);
-    const [ errorMessage, setErrorMessage ] = useState('');
-    const [ showCropImageLink, setShowCropimageLink ] = useState(false);
+    const [uploadLoading, setUploadLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showCropImageLink, setShowCropimageLink] = useState(false);
     const notification = useNotification();
 
     const uploadError = () => {
@@ -140,7 +140,7 @@ function ImageField({ value = '', onChange, objectName = '', aspect }) {
     return (
         <>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <Dropdown trigger={[ 'click' ]} menu={{ items: uploadDropdownItems }}>
+                <Dropdown trigger={['click']} menu={{ items: uploadDropdownItems }}>
                     <div
                         className={classNames(
                             styles.uploadBtn,

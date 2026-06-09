@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { Empty, Tag, Button, Modal, Input } from 'antd';
-import { AppstoreOutlined, UnorderedListOutlined, CheckCircleOutlined, DeleteOutlined, CloseCircleOutlined, BellOutlined } from '@ant-design/icons';
+import {
+    AppstoreOutlined,
+    UnorderedListOutlined,
+    CheckCircleOutlined,
+    DeleteOutlined,
+    CloseCircleOutlined,
+    BellOutlined,
+} from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useListBase from '@hooks/useListBase';
 import useFetch from '@hooks/useFetch';
@@ -34,12 +41,12 @@ const SimulationListPage = ({ pageOptions }) => {
     const translate = useTranslate();
     const navigate = useNavigate();
     const notificationApi = useNotification();
-    
+
     // State cho Modal - chỉ còn Reject
     const [isRejectModalVisible, setIsRejectModalVisible] = useState(false);
     const [currentRecordId, setCurrentRecordId] = useState(null);
     const [noticeText, setNoticeText] = useState('');
-    
+
     // State cho Modal xem thông báo
     const [isNoticeModalVisible, setIsNoticeModalVisible] = useState(false);
     const [currentNotice, setCurrentNotice] = useState('');
@@ -51,8 +58,8 @@ const SimulationListPage = ({ pageOptions }) => {
     const formattedStatusOptions = translate.formatKeys(simulationStatusOptions, ['label']);
     const formattedLevelOptions = translate.formatKeys(levelOptions, ['label']);
 
-    const statusMap = Object.fromEntries(formattedStatusOptions.map(item => [item.value, item]));
-    const levelMap = Object.fromEntries(formattedLevelOptions.map(item => [item.value, item]));
+    const statusMap = Object.fromEntries(formattedStatusOptions.map((item) => [item.value, item]));
+    const levelMap = Object.fromEntries(formattedLevelOptions.map((item) => [item.value, item]));
 
     const labels = {
         title: translate.formatMessage(commonMessage.title),
@@ -67,8 +74,8 @@ const SimulationListPage = ({ pageOptions }) => {
         task: translate.formatMessage(commonMessage.task),
     };
 
-    const statusValues = formattedStatusOptions.map(item => ({ value: item.value, label: item.label }));
-    const levelValues = formattedLevelOptions.map(item => ({ value: item.value, label: item.label }));
+    const statusValues = formattedStatusOptions.map((item) => ({ value: item.value, label: item.label }));
+    const levelValues = formattedLevelOptions.map((item) => ({ value: item.value, label: item.label }));
 
     // Khởi tạo hooks
     const { execute: executeApprove } = useFetch(apiConfig.simulation.approve);
@@ -582,7 +589,13 @@ const SimulationListPage = ({ pageOptions }) => {
             render: (imagePath) => (
                 <AvatarField
                     icon={<UnorderedListOutlined />}
-                    src={imagePath ? (imagePath.startsWith('http') ? imagePath : `${AppConstants.contentRootUrl}${imagePath}`) : null}
+                    src={
+                        imagePath
+                            ? imagePath.startsWith('http')
+                                ? imagePath
+                                : `${AppConstants.contentRootUrl}${imagePath}`
+                            : null
+                    }
                     shape="square"
                 />
             ),
@@ -620,7 +633,9 @@ const SimulationListPage = ({ pageOptions }) => {
             isEducator
                 ? {
                     viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
-                    edit: (dataRow) => dataRow.status !== STATUS_WAITING_APPROVE_DELETE && mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
+                    edit: (dataRow) =>
+                        dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
+                          mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                     task: () => mixinFuncs.hasPermission([apiConfig.task.educatorList.permissionCode]),
                     educatorDelete: (dataRow) =>
                         dataRow.status === STATUS_WAITING_APPROVE &&
@@ -718,10 +733,14 @@ const SimulationListPage = ({ pageOptions }) => {
                     setCurrentNotice('');
                 }}
                 footer={[
-                    <Button key="close" type="primary" onClick={() => {
-                        setIsNoticeModalVisible(false);
-                        setCurrentNotice('');
-                    }}>
+                    <Button
+                        key="close"
+                        type="primary"
+                        onClick={() => {
+                            setIsNoticeModalVisible(false);
+                            setCurrentNotice('');
+                        }}
+                    >
                         Đóng
                     </Button>,
                 ]}

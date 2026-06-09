@@ -1,8 +1,7 @@
 import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
-import StudentListPage from "@modules/user/student/index";
-import StudentSavePage from "@modules/user/student/StudentSavePage";
-
+import StudentListPage from '@modules/user/student/index';
+import StudentSavePage from '@modules/user/student/StudentSavePage';
 
 const paths = {
     studentListPage: '/students',
