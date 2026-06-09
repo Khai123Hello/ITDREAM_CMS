@@ -1,5 +1,5 @@
 REACT_APP_API = http://localhost:8787/
-REACT_APP_API_MEDIA = https://media.itdreamcareer.io.vn/
+REACT_APP_API_MEDIA = http://localhost:8484/
 REACT_APP_API_AVATAR = https://sso-api-vbook.itz.io.vn/
 REACT_APP_PORTAL_VIDEO = https://portal-vbook.itz.io.vn/
 REACT_APP_ENV = dev

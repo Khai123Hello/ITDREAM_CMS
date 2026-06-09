@@ -18,7 +18,7 @@ const ProfilePage = () => {
 
     const { mixinFuncs, onSave, setIsChangedFormValues, isEditing } = useSaveBase({
         options: {
-            getListUrl: `/profile`,
+            getListUrl: `/simulation`,
             objectName: 'Profile',
         },
         apiConfig: {

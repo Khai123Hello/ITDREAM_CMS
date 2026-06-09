@@ -44,14 +44,6 @@ const PublicHeader = () => {
         navigate('/register');
     };
 
-    const handleSimulations = () => {
-        // Scroll to simulations section or navigate
-        const element = document.getElementById('simulations-section');
-        if (element) {
-            element.scrollIntoView({ behavior: 'smooth' });
-        }
-    };
-
     const handleChangeLocale = () => {
         dispatch(appActions.changeLanguage(locale === 'en' ? 'vi' : 'en'));
     };
@@ -77,11 +69,6 @@ const PublicHeader = () => {
 
                     {/* Desktop Navigation */}
                     <div className={styles.desktopNav}>
-                        <Menu mode="horizontal" className={styles.navMenu} selectedKeys={[]}>
-                            <Menu.Item key="simulations" onClick={handleSimulations}>
-                                <span className={styles.navItem}>Bài mô phỏng</span>
-                            </Menu.Item>
-                        </Menu>
                     </div>
 
                     {/* Desktop Buttons or Profile */}
@@ -159,18 +146,6 @@ const PublicHeader = () => {
                 className={styles.mobileDrawer}
             >
                 <div className={styles.mobileMenu}>
-                    <Menu mode="vertical">
-                        <Menu.Item
-                            key="simulations-mobile"
-                            onClick={() => {
-                                handleSimulations();
-                                setMobileMenuOpen(false);
-                            }}
-                        >
-                            Bài mô phỏng
-                        </Menu.Item>
-                    </Menu>
-
                     {isAuthenticated ? (
                         <div className={styles.mobileButtons}>
                             <div style={{ textAlign: 'center', marginBottom: 16 }}>

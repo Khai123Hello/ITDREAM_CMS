@@ -47,6 +47,9 @@ const AppHeader = ({ collapsed, onCollapse }) => {
         dispatch(accountActions.logout());
     };
 
+    const actualProfile = profile?.profileAccountDto || profile;
+    const avatar = actualProfile?.avatar || actualProfile?.avatarPath;
+
     return (
         <Header className={styles.appHeader} style={{ padding: 0, background: 'white' }}>
             <span className={styles.iconCollapse} onClick={onCollapse}>
@@ -63,9 +66,15 @@ const AppHeader = ({ collapsed, onCollapse }) => {
                             <Space>
                                 <Avatar
                                     icon={<UserOutlined />}
-                                    src={profile.avatar && `${AppConstants.contentRootUrl}${profile.avatar}`}
+                                    src={
+                                        avatar
+                                            ? avatar.startsWith('http')
+                                                ? avatar
+                                                : `${AppConstants.contentRootUrl}${avatar.replace(/\\/g, '/').replace(/^\/?/, '/')}`
+                                            : null
+                                    }
                                 />
-                                {profile?.fullName}
+                                {actualProfile?.fullName || actualProfile?.fullname}
                                 <DownOutlined />
                             </Space>
                         ),

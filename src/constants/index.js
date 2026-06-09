@@ -27,7 +27,6 @@ export const storageKeys = {
 
 export const AppConstants = {
     apiRootUrl: process.env.REACT_APP_API,
-    // contentRootUrl: `${process.env.REACT_APP_API}v1/file/download`,
     contentRootUrl: `${process.env.REACT_APP_API_MEDIA}v1/file/download`,
     mediaRootUrl: `${process.env.REACT_APP_API_MEDIA}`,
     langKey: 'vi',
@@ -79,6 +78,8 @@ export const UploadFileTypes = {
     AVATAR: 'AVATAR',
     LOGO: 'LOGO',
     DOCUMENT: 'DOCUMENT',
+    IMAGE: 'IMAGE',
+    VIEO: 'VIDEO',
 };
 
 export const LIMIT_IMAGE_SIZE = 512000;
