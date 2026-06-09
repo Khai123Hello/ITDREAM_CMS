@@ -455,20 +455,6 @@ const TaskForm = (props) => {
             render: (options) => <div style={{ maxHeight: 100, overflow: 'auto' }}>{parseOptions(options)}</div>,
         },
         {
-            title: 'Loại câu hỏi',
-            dataIndex: 'questionType',
-            align: 'center',
-            width: '180px',
-            render: (type) => {
-                const item = questionTypeMap[type] || {};
-                return (
-                    <Tag color={item.color || 'blue'}>
-                        <div style={{ padding: '0 4px', fontSize: 13 }}>{item.label || 'N/A'}</div>
-                    </Tag>
-                );
-            },
-        },
-        {
             title: 'Hành động',
             align: 'center',
             width: '120px',
