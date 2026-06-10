@@ -13,13 +13,15 @@ import useTranslate from '@hooks/useTranslate';
 import { commonMessage } from '@locales/intl';
 import EducatorForm from '@modules/user/educator/EducatorForm';
 
+const mapGroupList = (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name }));
+
 const EducatorSavePage = ({ pageOptions }) => {
     const translate = useTranslate();
     const { id } = useParams();
 
     const { data: group } = useFetch(apiConfig.groupPermission.getGroupList, {
         immediate: true,
-        mappingData: (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name })),
+        mappingData: mapGroupList,
         params: {
             kind: GROUP_KIND_EDUCATOR,
         },
