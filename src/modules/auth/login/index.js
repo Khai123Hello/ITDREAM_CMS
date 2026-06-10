@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Form, Button, Input, message as antMessage, Segmented } from 'antd';
+import { Form, Button, Input, message as antMessage, Segmented, Modal, Select } from 'antd';
 import { LockOutlined, MailOutlined, UserOutlined, GoogleOutlined, FacebookFilled } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
+import { GoogleOAuthProvider, useGoogleLogin } from '@react-oauth/google';
 import apiConfig from '@constants/apiConfig';
 import { setCacheAccessToken } from '@services/userService';
 import { Buffer } from 'buffer';
@@ -10,7 +11,7 @@ import useFetch from '@hooks/useFetch';
 import useFetchAction from '@hooks/useFetchAction';
 import { accountActions } from '@store/actions';
 import { setData } from '@utils/localStorage';
-import { storageKeys, appAccount, UserTypes } from '@constants';
+import { storageKeys, appAccount, UserTypes, ACCOUNT_STATUS_WAITING_APPROVE } from '@constants';
 import styles from './index.module.scss';
 
 window.Buffer = window.Buffer || Buffer;
@@ -36,7 +37,117 @@ const LoginPage = () => {
         loading: useFetchAction.LOADING_TYPE.APP,
     });
 
-    const loading = loadingEducator || loadingStudent || loadingAdmin;
+    // For Google login which uses /api/token
+    const { execute: loginGoogleAuth, loading: loadingGoogleAuth } = useFetch(loginOptions);
+    const { execute: fetchGuestList, loading: loadingGuestList } = useFetch(apiConfig.organization.guestList);
+
+    const [showOrgModal, setShowOrgModal] = useState(false);
+    const [organizations, setOrganizations] = useState([]);
+    const [tempGoogleToken, setTempGoogleToken] = useState(null);
+
+    const loading = loadingEducator || loadingStudent || loadingAdmin || loadingGoogleAuth;
+
+    const handleLoginSuccess = (res) => {
+        setCacheAccessToken(res.access_token);
+        setData(storageKeys.USER_KIND, res.user_kind);
+
+        setData(storageKeys.USER_TYPE, userType);
+        dispatch(accountActions.setUserType(userType));
+
+        if (userType === UserTypes.EDUCATOR) {
+            fetchEducatorProfile({
+                onCompleted: () => {
+                    antMessage.success('Đăng nhập thành công!');
+                    navigate('/dashboard');
+                },
+                onError: () => {
+                    antMessage.error('Không thể tải thông tin Khoa chuyên môn!');
+                },
+            });
+        } else if (userType === UserTypes.STUDENT) {
+            fetchStudentProfile({
+                onCompleted: () => {
+                    antMessage.success('Đăng nhập thành công!');
+                    navigate('/dashboard');
+                },
+                onError: () => {
+                    antMessage.error('Không thể tải thông tin học viên!');
+                },
+            });
+        } else {
+            fetchProfile({
+                onCompleted: () => {
+                    antMessage.success('Đăng nhập thành công!');
+                    navigate('/dashboard');
+                },
+                onError: () => {
+                    antMessage.error('Không thể tải thông tin quản trị viên!');
+                },
+            });
+        }
+    };
+
+    const handleGoogleLoginSuccess = (tokenResponse) => {
+        const accessToken = tokenResponse.access_token;
+        setTempGoogleToken(accessToken);
+
+        const googlePayload = {
+            accessToken: accessToken,
+            grant_type: 'educator',
+        };
+
+        loginGoogleAuth({
+            data: googlePayload,
+            onCompleted: handleLoginSuccess,
+            onError: (err) => {
+                const errMsg = err?.response?.data?.message || err?.message || '';
+                if (errMsg === 'Please wait for approval') {
+                    antMessage.success('Đăng ký thành công, vui lòng chờ quản trị viên phê duyệt!');
+                } else {
+                    // If it fails with another error, assume it requires organization. Fetch orgs and show modal.
+                    fetchGuestList({
+                        onCompleted: (res) => {
+                            setOrganizations(res.data?.content || []);
+                            setShowOrgModal(true);
+                        },
+                        onError: () => {
+                            antMessage.error('Không thể lấy danh sách tổ chức để tiếp tục đăng nhập!');
+                        },
+                    });
+                }
+            },
+        });
+    };
+
+    const loginGoogle = useGoogleLogin({
+        onSuccess: handleGoogleLoginSuccess,
+        onError: () => antMessage.error('Đăng nhập Google thất bại!'),
+    });
+
+    const onOrgSelected = (orgId) => {
+        const googlePayload = {
+            accessToken: tempGoogleToken,
+            grant_type: 'educator',
+            organizationId: String(orgId),
+        };
+        console.log("Dữ liệu gửi xuống BE khi chọn Tổ chức:", googlePayload);
+        loginGoogleAuth({
+            data: googlePayload,
+            onCompleted: () => {
+                setShowOrgModal(false);
+                antMessage.success('Đăng ký thành công, vui lòng chờ quản trị viên phê duyệt!');
+            },
+            onError: (err) => {
+                setShowOrgModal(false);
+                const errMsg = err?.response?.data?.message || err?.message || '';
+                if (errMsg === 'Please wait for approval') {
+                    antMessage.success('Đăng ký thành công, vui lòng chờ quản trị viên phê duyệt!');
+                } else {
+                    antMessage.error('Đăng nhập thất bại, vui lòng thử lại!');
+                }
+            },
+        });
+    };
 
     const onFinish = (values) => {
         const educatorPayload = {
@@ -55,46 +166,6 @@ const LoginPage = () => {
             username: values.username,
             password: values.password,
             grant_type: 'password',
-        };
-
-        const handleLoginSuccess = (res) => {
-            setCacheAccessToken(res.access_token);
-            setData(storageKeys.USER_KIND, res.user_kind);
-
-            setData(storageKeys.USER_TYPE, userType);
-            dispatch(accountActions.setUserType(userType));
-
-            if (userType === UserTypes.EDUCATOR) {
-                fetchEducatorProfile({
-                    onCompleted: () => {
-                        antMessage.success('Đăng nhập thành công!');
-                        navigate('/dashboard');
-                    },
-                    onError: () => {
-                        antMessage.error('Không thể tải thông tin Khoa chuyên môn!');
-                    },
-                });
-            } else if (userType === UserTypes.STUDENT) {
-                fetchStudentProfile({
-                    onCompleted: () => {
-                        antMessage.success('Đăng nhập thành công!');
-                        navigate('/dashboard');
-                    },
-                    onError: () => {
-                        antMessage.error('Không thể tải thông tin học viên!');
-                    },
-                });
-            } else {
-                fetchProfile({
-                    onCompleted: () => {
-                        antMessage.success('Đăng nhập thành công!');
-                        navigate('/dashboard');
-                    },
-                    onError: () => {
-                        antMessage.error('Không thể tải thông tin quản trị viên!');
-                    },
-                });
-            }
         };
 
         if (userType === UserTypes.EDUCATOR) {
@@ -227,7 +298,7 @@ const LoginPage = () => {
                         </div>
 
                         <div className={styles.socialButtons}>
-                            <Button icon={<GoogleOutlined />} size="large" block className={styles.google}>
+                            <Button icon={<GoogleOutlined />} size="large" block className={styles.google} onClick={() => loginGoogle()} loading={loadingGoogleAuth || loadingGuestList}>
                                 Google
                             </Button>
                             <Button icon={<FacebookFilled />} size="large" block className={styles.facebook}>
@@ -241,8 +312,31 @@ const LoginPage = () => {
                     </div>
                 </div>
             </div>
+            <Modal
+                title="Chọn tổ chức"
+                open={showOrgModal}
+                onCancel={() => setShowOrgModal(false)}
+                footer={null}
+            >
+                <p>Vui lòng chọn tổ chức của bạn để hoàn tất đăng nhập lần đầu:</p>
+                <Select
+                    style={{ width: '100%', marginTop: 8 }}
+                    placeholder="Chọn tổ chức"
+                    options={organizations.map(org => ({
+                        value: org.id.toString(),
+                        label: `${org.name} (${org.shortName})`,
+                    }))}
+                    onChange={onOrgSelected}
+                />
+            </Modal>
         </div>
     );
 };
 
-export default LoginPage;
+const LoginPageWrapper = () => (
+    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <LoginPage />
+    </GoogleOAuthProvider>
+);
+
+export default LoginPageWrapper;
