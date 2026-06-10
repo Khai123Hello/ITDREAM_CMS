@@ -229,7 +229,7 @@ const LoginPage = () => {
                         <Segmented
                             options={[
                                 { label: 'Khoa chuyên môn', value: UserTypes.EDUCATOR },
-                                { label: 'Quản trị', value: UserTypes.ADMIN },
+                                { label: 'Quản trị viên', value: UserTypes.ADMIN },
                             ]}
                             value={userType}
                             onChange={setUserType}
@@ -293,18 +293,19 @@ const LoginPage = () => {
                             </Form.Item>
                         </Form>
 
-                        <div className={styles.divider}>
-                            <span>Hoặc tiếp tục với</span>
-                        </div>
+                        {userType !== UserTypes.ADMIN && (
+                            <>
+                                <div className={styles.divider}>
+                                    <span>Hoặc tiếp tục với</span>
+                                </div>
 
-                        <div className={styles.socialButtons}>
-                            <Button icon={<GoogleOutlined />} size="large" block className={styles.google} onClick={() => loginGoogle()} loading={loadingGoogleAuth || loadingGuestList}>
-                                Google
-                            </Button>
-                            <Button icon={<FacebookFilled />} size="large" block className={styles.facebook}>
-                                Facebook
-                            </Button>
-                        </div>
+                                <div className={styles.socialButtons}>
+                                    <Button icon={<GoogleOutlined />} size="large" block className={styles.google} onClick={() => loginGoogle()} loading={loadingGoogleAuth || loadingGuestList}>
+                                        Google
+                                    </Button>
+                                </div>
+                            </>
+                        )}
 
                         <div className={styles.signInRedirect}>
                             Chưa có tài khoản? <a href="/register">Đăng ký tại đây</a>
