@@ -2,6 +2,17 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { render } from 'react-dom';
 
+// Suppress benign ResizeObserver error overlay in development
+const preventResizeObserverError = (e) => {
+    if (e.message === 'ResizeObserver loop limit exceeded' || e.message === 'ResizeObserver loop completed with undelivered notifications.') {
+        const errOverlay = document.getElementById('webpack-dev-server-client-overlay');
+        if (errOverlay) {
+            errOverlay.style.display = 'none';
+        }
+    }
+};
+window.addEventListener('error', preventResizeObserverError);
+
 import store from '@store';
 import reportWebVitals from './reportWebVitals';
 

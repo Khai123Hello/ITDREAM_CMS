@@ -5,27 +5,12 @@ import { FormattedMessage } from 'react-intl';
 import apiConfig from './apiConfig';
 import { IconSettings } from '@tabler/icons-react';
 
-// const studentMenuItems = [
-//     {
-//         key: 'simulations',
-//         icon: <BookOutlined />,
-//         label: 'Khóa học',
-//         path: '/simulations',
-//     },
-//     {
-//         key: 'achievements',
-//         icon: <TrophyOutlined />,
-//         label: 'Thành tích',
-//         path: '/achievements',
-//     },
-// ];
-
 export const navMenuConfig = [
     {
         label: <FormattedMessage defaultMessage="Quản lý người dùng" />,
         key: 'quan-ly-nguoi-dung',
         icon: <TeamOutlined size={16} />,
-        permission: apiConfig.account.getList.permissionCode,
+        permission: apiConfig.educator.getList.permissionCode,
         children: [
             {
                 label: <FormattedMessage defaultMessage="Quản trị viên" />,
@@ -95,12 +80,6 @@ export const navMenuConfig = [
                 path: '/category?kind=2',
                 permission: [apiConfig.category.getList.permissionCode],
             },
-            // {
-            //     label: <FormattedMessage defaultMessage="Test" />,
-            //     key: 'test',
-            //     path: routes.testPage.path,
-            //     permission: [apiConfig.specialization.getList.permissionCode],
-            // },
         ],
     },
 ];
