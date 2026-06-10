@@ -12,3 +12,4 @@ REACT_APP_NAME = cms-elms-app
 REACT_APP_TYPE = cms
 REACT_APP_USERNAME = abc_client
 REACT_APP_PASSWORD = abc123
+REACT_APP_GOOGLE_CLIENT_ID = 380859132011-51g01ct924vtqaomgl4tkqib392iqkik.apps.googleusercontent.com
