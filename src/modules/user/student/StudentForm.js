@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row } from 'antd';
+import { Card, Col, Row, Modal } from 'antd';
 
 import { BaseForm } from '@components/common/form/BaseForm';
 import CropImageField from '@components/common/form/CropImageField';
 import TextField from '@components/common/form/TextField';
+import SelectField from '@components/common/form/SelectField';
 
 import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
@@ -16,7 +17,12 @@ import { AppConstants } from '@constants';
 import { commonMessage } from '@locales/intl';
 import { showErrorMessage } from '@services/notifyService';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import DatePickerField from '@components/common/form/DatePickerField';
+
+dayjs.extend(customParseFormat);
+
+const mapStudents = (res) => res.data?.content || [];
 
 const StudentForm = (props) => {
     const translate = useTranslate();
@@ -24,6 +30,7 @@ const StudentForm = (props) => {
 
     const { execute: executeUpFile } = useFetch(apiConfig.file.upload);
     const [imageUrl, setImageUrl] = useState(null);
+    const [isAvatarModalVisible, setIsAvatarModalVisible] = useState(false);
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({
         onSubmit,
@@ -32,7 +39,7 @@ const StudentForm = (props) => {
 
     const { data: students } = useFetch(apiConfig.student.getList, {
         immediate: true,
-        mappingData: (res) => res.data?.content || [],
+        mappingData: mapStudents,
     });
 
     const uploadFile = (file, onSuccess, onError) => {
@@ -45,6 +52,7 @@ const StudentForm = (props) => {
                 if (response.result === true) {
                     onSuccess();
                     setImageUrl(response.data.filePath);
+                    form.setFieldValue('avatarPath', response.data.filePath);
                     setIsChangedFormValues(true);
                 }
             },
@@ -108,7 +116,9 @@ const StudentForm = (props) => {
             fullName: dataDetail?.fullName,
             phone: dataDetail?.phone,
             username: dataDetail?.username,
-            birthday: dataDetail?.birthday ? dayjs(dataDetail.birthday) : null, // 👈 Thêm dòng này
+            birthday: dataDetail?.birthday ? dayjs(dataDetail.birthday, 'DD/MM/YYYY HH:mm:ss') : null,
+            status: dataDetail?.status,
+            avatarPath: dataDetail?.avatarPath,
         });
         setImageUrl(dataDetail?.avatarPath);
     }, [dataDetail]);
@@ -117,14 +127,63 @@ const StudentForm = (props) => {
         <BaseForm id={formId} onFinish={handleSubmit} form={form} onValuesChange={onValuesChange}>
             <Card className="card-form" bordered={false}>
                 <Row gutter={16}>
-                    <Col span={12}>
-                        <CropImageField
-                            label={translate.formatMessage(commonMessage.avatar)}
-                            name="avatarPath"
-                            imageUrl={imageUrl && `${AppConstants.contentRootUrl}${imageUrl}`}
-                            aspect={1 / 1}
-                            uploadFile={uploadFile}
-                        />
+                    <Col span={24}>
+                        <div style={{ marginBottom: 16 }}>
+                            <div className="ant-col ant-form-item-label">
+                                <label>{translate.formatMessage(commonMessage.avatar)}</label>
+                            </div>
+                            <div
+                                style={{
+                                    width: 104,
+                                    height: 104,
+                                    border: '1px dashed #d9d9d9',
+                                    borderRadius: 8,
+                                    cursor: 'pointer',
+                                    overflow: 'hidden',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#fafafa',
+                                }}
+                                onClick={() => setIsAvatarModalVisible(true)}
+                            >
+                                {imageUrl ? (
+                                    <img
+                                        src={imageUrl.startsWith('http') ? imageUrl : `${AppConstants.contentRootUrl}${imageUrl}`}
+                                        alt="avatar"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <span style={{ color: '#999' }}>Tải lên</span>
+                                )}
+                            </div>
+                        </div>
+
+                        <Modal
+                            title="Cập nhật ảnh đại diện"
+                            open={isAvatarModalVisible}
+                            onCancel={() => setIsAvatarModalVisible(false)}
+                            footer={null}
+                        >
+                            <Row gutter={16}>
+                                <Col span={24}>
+                                    <CropImageField
+                                        label="Tải ảnh lên"
+                                        name="avatarUpload"
+                                        imageUrl={imageUrl && (imageUrl.startsWith('http') ? imageUrl : `${AppConstants.contentRootUrl}${imageUrl}`)}
+                                        aspect={1 / 1}
+                                        uploadFile={uploadFile}
+                                    />
+                                </Col>
+                                <Col span={24}>
+                                    <TextField
+                                        label="Hoặc nhập đường dẫn ảnh (URL)"
+                                        name="avatarPath"
+                                        onChange={(e) => setImageUrl(e.target.value)}
+                                    />
+                                </Col>
+                            </Row>
+                        </Modal>
                     </Col>
                 </Row>
 
@@ -189,6 +248,19 @@ const StudentForm = (props) => {
                             requiredMsg={translate.formatMessage(commonMessage.required)}
                             placeholder="DD/MM/YYYY"
                             format="DD/MM/YYYY"
+                            style={{ width: '100%' }}
+                        />
+                    </Col>
+                    <Col span={12}>
+                        <SelectField
+                            label={translate.formatMessage(commonMessage.status)}
+                            name="status"
+                            options={[
+                                { value: 1, label: 'Hoạt động' },
+                                { value: 0, label: 'Quên mật khẩu' },
+                                { value: 3, label: 'Xác thực OTP' },
+                                { value: -1, label: 'Khóa' },
+                            ]}
                         />
                     </Col>
                 </Row>
@@ -196,10 +268,10 @@ const StudentForm = (props) => {
                 <Row gutter={16}>
                     <Col span={12}>
                         <TextField
-                            label={translate.formatMessage(commonMessage.password)}
+                            label={translate.formatMessage(commonMessage.newPassword)}
                             name="password"
                             type="password"
-                            required
+                            required={!isEditing}
                             requiredMsg={translate.formatMessage(commonMessage.required)}
                             rules={[
                                 {
@@ -213,7 +285,7 @@ const StudentForm = (props) => {
                             label={translate.formatMessage(commonMessage.confirmPassword)}
                             name="confirmPassword"
                             type="password"
-                            required
+                            required={!isEditing}
                             requiredMsg={translate.formatMessage(commonMessage.required)}
                             rules={[
                                 {

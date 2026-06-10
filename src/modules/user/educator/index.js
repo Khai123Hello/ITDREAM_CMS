@@ -268,7 +268,7 @@ const EducatorListPage = ({ pageOptions }) => {
                 <AvatarField
                     size="large"
                     icon={<UserOutlined />}
-                    src={avatar ? `${AppConstants.contentRootUrl}${avatar}` : null}
+                    src={avatar ? (avatar.startsWith('http') ? avatar : `${AppConstants.contentRootUrl}${avatar}`) : null}
                 />
             ),
             width: getColumnWidth({ width: labels.avatar.length * 12 }),

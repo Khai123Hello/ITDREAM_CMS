@@ -13,13 +13,15 @@ import useTranslate from '@hooks/useTranslate';
 import { commonMessage } from '@locales/intl';
 import StudentForm from '@modules/user/student/StudentForm';
 
+const mapGroupList = (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name }));
+
 const StudentSavePage = ({ pageOptions }) => {
     const translate = useTranslate();
     const { id } = useParams();
 
     const { data: group } = useFetch(apiConfig.groupPermission.getGroupList, {
         immediate: true,
-        mappingData: (res) => res.data?.content?.map((item) => ({ value: item.id, label: item.name })),
+        mappingData: mapGroupList,
         params: {
             kind: GROUP_KIND_EDUCATOR, // Nếu học sinh không có phân quyền, bạn có thể bỏ dòng này
         },
@@ -51,9 +53,9 @@ const StudentSavePage = ({ pageOptions }) => {
                 const account = student.account || {};
                 return {
                     ...account,
-                    avatarPath: account.avatarPath || '',
+                    avatarPath: account.avatar || account.avatarPath || '',
                     id: student.id,
-                    birthday: student.birthday,
+                    birthday: account.birthday,
                     groupId: account.group?.id,
                 };
             };
