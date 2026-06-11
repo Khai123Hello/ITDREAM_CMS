@@ -30,10 +30,10 @@ const TaskDetailPage = ({ pageOptions }) => {
     const [loading, setLoading] = useState(false);
     const [hasStarted, setHasStarted] = useState(false);
 
-    const { execute: getTaskDetail } = useFetch(apiConfig.task.getDetailForStudent);
-    const { execute: getQuestions } = useFetch(apiConfig.taskQuestion.getListForStudent);
-    const { execute: getProgress } = useFetch(apiConfig.subTaskProgress.getForStudent);
-    const { execute: restartProgress } = useFetch(apiConfig.subTaskProgress.restart);
+    const { execute: getTaskDetail } = useFetch(apiConfig.task.studentGet);
+    const { execute: getQuestions } = useFetch(apiConfig.taskQuestion.studentList);
+    const { execute: getProgress } = useFetch(apiConfig.subtaskProgress.studentGet);
+    const { execute: restartProgress } = useFetch(apiConfig.subtaskProgress.restart);
 
     useEffect(() => {
         if (taskId) {
