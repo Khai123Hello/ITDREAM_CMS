@@ -30,11 +30,11 @@ const DoExercisePage = ({ pageOptions }) => {
     const [progress, setProgress] = useState(null);
     const [score, setScore] = useState(null);
 
-    const { execute: getQuestions } = useFetch(apiConfig.taskQuestion.getListForStudent);
-    const { execute: getProgress } = useFetch(apiConfig.subTaskProgress.getForStudent);
+    const { execute: getQuestions } = useFetch(apiConfig.taskQuestion.studentList);
+    const { execute: getProgress } = useFetch(apiConfig.subtaskProgress.studentGet);
     const { execute: submitAnswer } = useFetch(apiConfig.taskQuestionProgress.create);
-    const { execute: completeTask } = useFetch(apiConfig.subTaskProgress.complete);
-    const { execute: getPreviousAnswers } = useFetch(apiConfig.taskQuestionProgress.getListForStudent);
+    const { execute: completeTask } = useFetch(apiConfig.subtaskProgress.complete);
+    const { execute: getPreviousAnswers } = useFetch(apiConfig.taskQuestionProgress.studentList);
 
     useEffect(() => {
         fetchQuestions();
@@ -61,7 +61,12 @@ const DoExercisePage = ({ pageOptions }) => {
                 questionList.forEach((q) => {
                     if (q.options) {
                         try {
-                            q.parsedOptions = JSON.parse(q.options);
+                            const rawOptions = JSON.parse(q.options);
+                            q.parsedOptions = rawOptions.map((opt, index) => ({
+                                key: String.fromCharCode(65 + index),
+                                value: opt.option,
+                                isCorrect: opt.answer === true,
+                            }));
                         } catch (e) {
                             q.parsedOptions = [];
                         }
