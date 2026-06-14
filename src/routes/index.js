@@ -16,6 +16,7 @@ import educatorDashboardRoutes from '@modules/educatorDashboard/routes';
 import simulationRoutes from '@modules/simulation/routes';
 import categoryRoutes from '@modules/category/routes';
 import reviewSubmissionRoutes from '@modules/reviewSubmission/routes';
+import blogRoutes from '@modules/blog/routes';
 
 /*
     auth
@@ -88,6 +89,7 @@ const routes = {
     ...simulationRoutes,
     ...categoryRoutes,
     ...reviewSubmissionRoutes,
+    ...blogRoutes,
     // keep this at last
     notFound: {
         component: PageNotFound,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TeamOutlined } from '@ant-design/icons';
+import { TeamOutlined, BookOutlined } from '@ant-design/icons';
 import routes from '@routes';
 import { FormattedMessage } from 'react-intl';
 import apiConfig from './apiConfig';
@@ -79,6 +79,19 @@ export const navMenuConfig = [
                 key: 'category-blog',
                 path: '/category?kind=2',
                 permission: [apiConfig.category.getList.permissionCode],
+            },
+        ],
+    },
+    {
+        label: <FormattedMessage defaultMessage="Quản lý Blog" />,
+        key: 'quan-ly-blog',
+        icon: <BookOutlined size={16} />,
+        children: [
+            {
+                label: <FormattedMessage defaultMessage="Danh sách Blog" />,
+                key: 'blog',
+                path: routes.blogListPage.path,
+                permission: [apiConfig.blog.getList.permissionCode, apiConfig.blog.educatorList.permissionCode],
             },
         ],
     },

@@ -481,6 +481,56 @@ const apiConfig = {
             permissionCode: 'CA_V',
         },
     },
+    blog: {
+        getList: {
+            baseURL: `${apiUrl}v1/blog/list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'BL_L',
+        },
+        getById: {
+            baseURL: `${apiUrl}v1/blog/get/:id`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'BL_V',
+        },
+        create: {
+            baseURL: `${apiUrl}v1/blog/create`,
+            method: 'POST',
+            headers: baseHeader,
+            permissionCode: 'BL_C',
+        },
+        update: {
+            baseURL: `${apiUrl}v1/blog/update`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'BL_U',
+        },
+        delete: {
+            baseURL: `${apiUrl}v1/blog/delete/:id`,
+            method: 'DELETE',
+            headers: baseHeader,
+            permissionCode: 'BL_D',
+        },
+        reject: {
+            baseURL: `${apiUrl}v1/blog/reject`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'BL_RJ',
+        },
+        educatorList: {
+            baseURL: `${apiUrl}v1/blog/educator-list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'BL_ED_L',
+        },
+        educatorGet: {
+            baseURL: `${apiUrl}v1/blog/educator-get/:id`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'BL_ED_V',
+        },
+    },
     student: {
         delete: {
             baseURL: `${apiUrl}v1/student/delete/:id`,
