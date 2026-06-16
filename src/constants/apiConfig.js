@@ -199,7 +199,7 @@ const apiConfig = {
             permissionCode: 'SI_AP',
         },
         approveDelete: {
-            baseURL: `${apiUrl}v1/simulation/approve-delete/:id`,
+            baseURL: `${apiUrl}v1/simulation/approve_delete/:id`,
             method: `DELETE`,
             headers: baseHeader,
             permissionCode: 'SI_APD',
@@ -223,7 +223,7 @@ const apiConfig = {
             permissionCode: 'SI_ED_L',
         },
         requestDelete: {
-            baseURL: `${apiUrl}v1/simulation/educator-request-delete/:id`,
+            baseURL: `${apiUrl}v1/simulation/educator_request_delete/:id`,
             method: `DELETE`,
             headers: baseHeader,
             permissionCode: 'SI_ED_RED',
@@ -247,7 +247,7 @@ const apiConfig = {
             permissionCode: 'SI_RJ',
         },
         rejectDelete: {
-            baseURL: `${apiUrl}v1/simulation/reject-delete/:id`,
+            baseURL: `${apiUrl}v1/simulation/reject_delete/:id`,
             method: `DELETE`,
             headers: baseHeader,
             permissionCode: 'SI_RJD',
@@ -259,7 +259,7 @@ const apiConfig = {
             permissionCode: 'SE_ED_STCL',
         },
         getSimulationForStudent: {
-            baseURL: `${apiUrl}v1/simulation/student-get/:id`,
+            baseURL: `${apiUrl}v1/simulation/student_get/:id`,
             method: `GET`,
             headers: baseHeader,
             permissionCode: 'SI_ST_V',
@@ -274,10 +274,10 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/simulation/update`,
             method: `PUT`,
             headers: baseHeader,
-            permissionCode: 'SI_U',
+            permissionCode: 'SI_ED_U',
         },
         educatorDelete: {
-            baseURL: `${apiUrl}v1/simulation/educator-delete/:id`,
+            baseURL: `${apiUrl}v1/simulation/educator_delete/:id`,
             method: `DELETE`,
             headers: baseHeader,
             permissionCode: 'SI_ED_D',
@@ -308,7 +308,7 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/task/update`,
             method: 'PUT',
             headers: baseHeader,
-            permissionCode: 'TA_U',
+            permissionCode: 'TA_ED_U',
         },
         updateOrder: {
             baseURL: `${apiUrl}v1/task/update-order`,
@@ -320,15 +320,15 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/task/delete/:id`,
             method: 'DELETE',
             headers: baseHeader,
-            permissionCode: 'TA_D',
+            permissionCode: 'TA_ED_D',
         },
-        educatorList: {
+        listByEducator: {
             baseURL: `${apiUrl}v1/task/educator_list`,
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'TA_ED_L',
         },
-        educatorGet: {
+        getByEducator: {
             baseURL: `${apiUrl}v1/task/educator_get/:id`,
             method: 'GET',
             headers: baseHeader,
@@ -341,7 +341,7 @@ const apiConfig = {
             permissionCode: 'TA_ST_L',
         },
         studentGet: {
-            baseURL: `${apiUrl}v1/task/student-get/:id`,
+            baseURL: `${apiUrl}v1/task/student_get/:id`,
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'TA_ST_V',
@@ -433,7 +433,7 @@ const apiConfig = {
             permissionCode: 'STSP_ST_L',
         },
         studentGet: {
-            baseURL: `${apiUrl}v1/subtask-progress/student-get/:id`,
+            baseURL: `${apiUrl}v1/subtask-progress/student_get/:id`,
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'STSP_ST_V',
@@ -528,7 +528,7 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/blog/create`,
             method: 'POST',
             headers: baseHeader,
-            permissionCode: 'BL_C',
+            permissionCode: 'BL_ED_C',
         },
         update: {
             baseURL: `${apiUrl}v1/blog/update`,
@@ -540,7 +540,7 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/blog/delete/:id`,
             method: 'DELETE',
             headers: baseHeader,
-            permissionCode: 'BL_D',
+            permissionCode: 'BL_ED_D',
         },
         approve: {
             baseURL: `${apiUrl}v1/blog/approve`,
@@ -676,13 +676,13 @@ const apiConfig = {
             baseURL: `${apiUrl}v1/account/create_admin`,
             method: `POST`,
             headers: baseHeader,
-            permissionCode: 'ACC_C_AD',
+            permissionCode: 'ACC_C',
         },
         update: {
             baseURL: `${apiUrl}v1/account/update_admin`,
             method: `PUT`,
             headers: baseHeader,
-            permissionCode: 'ACC_U_AD',
+            permissionCode: 'ACC_U',
         },
         delete: {
             baseURL: `${apiUrl}v1/account/delete/:id`,
@@ -773,7 +773,7 @@ const apiConfig = {
 
     notification: {
         getByStudent: {
-            baseURL: `${apiUrl}v1/notification/student-get`,
+            baseURL: `${apiUrl}v1/notification/student_get`,
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'NO_ST_V',
@@ -1361,12 +1361,6 @@ const apiConfig = {
             method: 'POST',
             headers: baseHeader,
             permissionCode: 'QQH_ST_C',
-        },
-        list: {
-            baseURL: `${apiUrl}v1/question_quiz_history/list`,
-            method: 'GET',
-            headers: baseHeader,
-            permissionCode: 'QQH_ST_L',
         },
     },
 };

@@ -1,0 +1,2174 @@
+[
+  {
+    "module": "organization",
+    "endpoint": "guestList",
+    "configPath": "v1/organization/guest_list",
+    "normConfig": "v1/organization/guest_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/organization/guest_list"
+    ]
+  },
+  {
+    "module": "organization",
+    "endpoint": "list",
+    "configPath": "v1/organization/list",
+    "normConfig": "v1/organization/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/organization/list"
+    ]
+  },
+  {
+    "module": "organization",
+    "endpoint": "get",
+    "configPath": "v1/organization/get/:id",
+    "normConfig": "v1/organization/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/organization/get/{id}"
+    ]
+  },
+  {
+    "module": "organization",
+    "endpoint": "create",
+    "configPath": "v1/organization/create",
+    "normConfig": "v1/organization/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/organization/create"
+    ]
+  },
+  {
+    "module": "organization",
+    "endpoint": "update",
+    "configPath": "v1/organization/update",
+    "normConfig": "v1/organization/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/organization/update"
+    ]
+  },
+  {
+    "module": "organization",
+    "endpoint": "delete",
+    "configPath": "v1/organization/delete/:id",
+    "normConfig": "v1/organization/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/organization/delete/{id}"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "login",
+    "configPath": "v1/account/login",
+    "normConfig": "v1/account/login",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "loginGoogle",
+    "configPath": "v1/google/educator-login",
+    "normConfig": "v1/google/educator-login",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "loginBasic",
+    "configPath": "api/token",
+    "normConfig": "api/token",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "loginSSO",
+    "configPath": "v1/account/login-sso",
+    "normConfig": "v1/account/login-sso",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "forgetPassword",
+    "configPath": "v1/account/forget_password",
+    "normConfig": "v1/account/forget_password",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/forget_password"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "requestForgetPassword",
+    "configPath": "v1/account/request_forget_password",
+    "normConfig": "v1/account/request_forget_password",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/request_forget_password"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "getById",
+    "configPath": "v1/account/get/:id",
+    "normConfig": "v1/account/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/get/{id}"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "logout",
+    "configPath": "v1/account/logout",
+    "normConfig": "v1/account/logout",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "getList",
+    "configPath": "v1/account/list",
+    "normConfig": "v1/account/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/list"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "adminList",
+    "configPath": "v1/account/list?kind=1",
+    "normConfig": "v1/account/list?kind=1",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "updateAdmin",
+    "configPath": "v1/account/update_admin",
+    "normConfig": "v1/account/update_admin",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/update_admin"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "delete",
+    "configPath": "v1/account/delete/:id",
+    "normConfig": "v1/account/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/delete/{id}"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "createAdmin",
+    "configPath": "v1/account/create_admin",
+    "normConfig": "v1/account/create_admin",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/create_admin"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "verifyOtp",
+    "configPath": "v1/account/verify",
+    "normConfig": "v1/account/verify",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/verify"
+    ]
+  },
+  {
+    "module": "account",
+    "endpoint": "resendOtp",
+    "configPath": "v1/account/resend-otp",
+    "normConfig": "v1/account/resend-otp",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "account",
+    "endpoint": "resendVerify",
+    "configPath": "v1/account/resend_verify",
+    "normConfig": "v1/account/resend_verify",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/resend_verify"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "approve",
+    "configPath": "v1/simulation/approve",
+    "normConfig": "v1/simulation/approve",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/approve"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "approveDelete",
+    "configPath": "v1/simulation/approve-delete/:id",
+    "normConfig": "v1/simulation/approve-delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "simulation",
+    "endpoint": "create",
+    "configPath": "v1/simulation/create",
+    "normConfig": "v1/simulation/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/create"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getSimulationForEducator",
+    "configPath": "v1/simulation/educator_get/:id",
+    "normConfig": "v1/simulation/educator_get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/educator_get/{id}"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getListForEducator",
+    "configPath": "v1/simulation/educator_list",
+    "normConfig": "v1/simulation/educator_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/educator_list"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "requestDelete",
+    "configPath": "v1/simulation/educator-request-delete/:id",
+    "normConfig": "v1/simulation/educator-request-delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getById",
+    "configPath": "v1/simulation/get/:id",
+    "normConfig": "v1/simulation/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/get/{id}"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getList",
+    "configPath": "v1/simulation/list",
+    "normConfig": "v1/simulation/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/list"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "reject",
+    "configPath": "v1/simulation/reject",
+    "normConfig": "v1/simulation/reject",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/reject"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "rejectDelete",
+    "configPath": "v1/simulation/reject-delete/:id",
+    "normConfig": "v1/simulation/reject-delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "simulation",
+    "endpoint": "studentComplete",
+    "configPath": "v1/simulation_enrollment/student_complete_list",
+    "normConfig": "v1/simulation_enrollment/student_complete_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation_enrollment/student_complete_list"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getSimulationForStudent",
+    "configPath": "v1/simulation/student-get/:id",
+    "normConfig": "v1/simulation/student-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getListForStudent",
+    "configPath": "v1/simulation/student_list",
+    "normConfig": "v1/simulation/student_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/student_list"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "update",
+    "configPath": "v1/simulation/update",
+    "normConfig": "v1/simulation/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/update"
+    ]
+  },
+  {
+    "module": "simulation",
+    "endpoint": "educatorDelete",
+    "configPath": "v1/simulation/educator-delete/:id",
+    "normConfig": "v1/simulation/educator-delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "task",
+    "endpoint": "getList",
+    "configPath": "v1/task/list",
+    "normConfig": "v1/task/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/list"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "getById",
+    "configPath": "v1/task/get/:id",
+    "normConfig": "v1/task/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/get/{id}"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "create",
+    "configPath": "v1/task/create",
+    "normConfig": "v1/task/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/create"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "update",
+    "configPath": "v1/task/update",
+    "normConfig": "v1/task/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/update"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "updateOrder",
+    "configPath": "v1/task/update-order",
+    "normConfig": "v1/task/update-order",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/update-order"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "delete",
+    "configPath": "v1/task/delete/:id",
+    "normConfig": "v1/task/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/delete/{id}"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "educatorList",
+    "configPath": "v1/task/educator_list",
+    "normConfig": "v1/task/educator_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/educator_list"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "educatorGet",
+    "configPath": "v1/task/educator_get/:id",
+    "normConfig": "v1/task/educator_get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/educator_get/{id}"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "studentList",
+    "configPath": "v1/task/student_list",
+    "normConfig": "v1/task/student_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task/student_list"
+    ]
+  },
+  {
+    "module": "task",
+    "endpoint": "studentGet",
+    "configPath": "v1/task/student-get/:id",
+    "normConfig": "v1/task/student-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "task",
+    "endpoint": "videoProcess",
+    "configPath": "v1/task/video-process",
+    "normConfig": "v1/task/video-process",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "getList",
+    "configPath": "v1/task_question/list",
+    "normConfig": "v1/task_question/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_question/list"
+    ]
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "create",
+    "configPath": "v1/task_question/create",
+    "normConfig": "v1/task_question/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_question/create"
+    ]
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "update",
+    "configPath": "v1/task_question/update",
+    "normConfig": "v1/task_question/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_question/update"
+    ]
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "delete",
+    "configPath": "v1/task_question/delete/:id",
+    "normConfig": "v1/task_question/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_question/delete/{id}"
+    ]
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "educatorList",
+    "configPath": "v1/task_question/educator_list",
+    "normConfig": "v1/task_question/educator_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_question/educator_list"
+    ]
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "studentList",
+    "configPath": "v1/task_question/student_list",
+    "normConfig": "v1/task_question/student_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_question/student_list"
+    ]
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "getList",
+    "configPath": "v1/subtask-progress/list",
+    "normConfig": "v1/subtask-progress/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "create",
+    "configPath": "v1/subtask-progress/create",
+    "normConfig": "v1/subtask-progress/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "complete",
+    "configPath": "v1/subtask-progress/complete",
+    "normConfig": "v1/subtask-progress/complete",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "restart",
+    "configPath": "v1/subtask-progress/restart",
+    "normConfig": "v1/subtask-progress/restart",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "access",
+    "configPath": "v1/subtask-progress/access",
+    "normConfig": "v1/subtask-progress/access",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "studentList",
+    "configPath": "v1/subtask-progress/student_list",
+    "normConfig": "v1/subtask-progress/student_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "studentGet",
+    "configPath": "v1/subtask-progress/student-get/:id",
+    "normConfig": "v1/subtask-progress/student-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "answerList",
+    "configPath": "v1/task-question-progress/answer_list",
+    "normConfig": "v1/task-question-progress/answer_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "getList",
+    "configPath": "v1/task-question-progress/list",
+    "normConfig": "v1/task-question-progress/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "create",
+    "configPath": "v1/task-question-progress/create",
+    "normConfig": "v1/task-question-progress/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "delete",
+    "configPath": "v1/task-question-progress/delete/:id",
+    "normConfig": "v1/task-question-progress/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "studentList",
+    "configPath": "v1/task-question-progress/student_list",
+    "normConfig": "v1/task-question-progress/student_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "category",
+    "endpoint": "autoComplete",
+    "configPath": "v1/category/auto-complete",
+    "normConfig": "v1/category/auto-complete",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/category/auto-complete"
+    ]
+  },
+  {
+    "module": "category",
+    "endpoint": "getList",
+    "configPath": "v1/category/list",
+    "normConfig": "v1/category/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/category/list"
+    ]
+  },
+  {
+    "module": "category",
+    "endpoint": "create",
+    "configPath": "v1/category/create",
+    "normConfig": "v1/category/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/category/create"
+    ]
+  },
+  {
+    "module": "category",
+    "endpoint": "update",
+    "configPath": "v1/category/update",
+    "normConfig": "v1/category/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/category/update"
+    ]
+  },
+  {
+    "module": "category",
+    "endpoint": "delete",
+    "configPath": "v1/category/delete/:id",
+    "normConfig": "v1/category/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/category/delete/{id}"
+    ]
+  },
+  {
+    "module": "category",
+    "endpoint": "getById",
+    "configPath": "v1/category/get/:id",
+    "normConfig": "v1/category/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/category/get/{id}"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "getList",
+    "configPath": "v1/blog/list",
+    "normConfig": "v1/blog/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/list"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "getById",
+    "configPath": "v1/blog/get/:id",
+    "normConfig": "v1/blog/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/get/{id}"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "create",
+    "configPath": "v1/blog/create",
+    "normConfig": "v1/blog/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/create"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "update",
+    "configPath": "v1/blog/update",
+    "normConfig": "v1/blog/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/update"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "delete",
+    "configPath": "v1/blog/delete/:id",
+    "normConfig": "v1/blog/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/delete/{id}"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "approve",
+    "configPath": "v1/blog/approve",
+    "normConfig": "v1/blog/approve",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/approve"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "reject",
+    "configPath": "v1/blog/reject",
+    "normConfig": "v1/blog/reject",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/reject"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "educatorList",
+    "configPath": "v1/blog/educator-list",
+    "normConfig": "v1/blog/educator-list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/educator-list"
+    ]
+  },
+  {
+    "module": "blog",
+    "endpoint": "educatorGet",
+    "configPath": "v1/blog/educator-get/:id",
+    "normConfig": "v1/blog/educator-get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/blog/educator-get/{id}"
+    ]
+  },
+  {
+    "module": "student",
+    "endpoint": "delete",
+    "configPath": "v1/student/delete/:id",
+    "normConfig": "v1/student/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/student/delete/{id}"
+    ]
+  },
+  {
+    "module": "student",
+    "endpoint": "getById",
+    "configPath": "v1/student/get/:id",
+    "normConfig": "v1/student/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/student/get/{id}"
+    ]
+  },
+  {
+    "module": "student",
+    "endpoint": "getList",
+    "configPath": "v1/student/list",
+    "normConfig": "v1/student/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/student/list"
+    ]
+  },
+  {
+    "module": "student",
+    "endpoint": "update",
+    "configPath": "v1/student/update",
+    "normConfig": "v1/student/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/student/update"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "approve",
+    "configPath": "v1/educator/approve",
+    "normConfig": "v1/educator/approve",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/approve"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "autoComplete",
+    "configPath": "v1/educator/auto-complete",
+    "normConfig": "v1/educator/auto-complete",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "educator",
+    "endpoint": "clientUpdate",
+    "configPath": "v1/educator/client_update",
+    "normConfig": "v1/educator/client_update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/client_update"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "delete",
+    "configPath": "v1/educator/delete/:id",
+    "normConfig": "v1/educator/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/delete/{id}"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "getById",
+    "configPath": "v1/educator/get/:id",
+    "normConfig": "v1/educator/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/get/{id}"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "getList",
+    "configPath": "v1/educator/list",
+    "normConfig": "v1/educator/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/list"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "profile",
+    "configPath": "v1/educator/profile",
+    "normConfig": "v1/educator/profile",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/profile"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "reject",
+    "configPath": "v1/educator/reject",
+    "normConfig": "v1/educator/reject",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/reject"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "register",
+    "configPath": "v1/educator/signup",
+    "normConfig": "v1/educator/signup",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/signup"
+    ]
+  },
+  {
+    "module": "educator",
+    "endpoint": "update",
+    "configPath": "v1/educator/update",
+    "normConfig": "v1/educator/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/educator/update"
+    ]
+  },
+  {
+    "module": "user",
+    "endpoint": "getList",
+    "configPath": "v1/account/list",
+    "normConfig": "v1/account/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/list"
+    ]
+  },
+  {
+    "module": "user",
+    "endpoint": "autocomplete",
+    "configPath": "v1/account/auto-complete",
+    "normConfig": "v1/account/auto-complete",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "user",
+    "endpoint": "getById",
+    "configPath": "v1/account/get/:id",
+    "normConfig": "v1/account/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/get/{id}"
+    ]
+  },
+  {
+    "module": "user",
+    "endpoint": "create",
+    "configPath": "v1/account/create_admin",
+    "normConfig": "v1/account/create_admin",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/create_admin"
+    ]
+  },
+  {
+    "module": "user",
+    "endpoint": "update",
+    "configPath": "v1/account/update_admin",
+    "normConfig": "v1/account/update_admin",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/update_admin"
+    ]
+  },
+  {
+    "module": "user",
+    "endpoint": "delete",
+    "configPath": "v1/account/delete/:id",
+    "normConfig": "v1/account/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/account/delete/{id}"
+    ]
+  },
+  {
+    "module": "file",
+    "endpoint": "upload",
+    "configPath": "v1/file/upload",
+    "normConfig": "v1/file/upload",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "file",
+    "endpoint": "download",
+    "configPath": "v1/file/download",
+    "normConfig": "v1/file/download",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "post",
+    "endpoint": "getList",
+    "configPath": "api/posts/list",
+    "normConfig": "api/posts/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "post",
+    "endpoint": "getById",
+    "configPath": "api/posts/get/:id",
+    "normConfig": "api/posts/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "post",
+    "endpoint": "create",
+    "configPath": "api/posts/create",
+    "normConfig": "api/posts/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "post",
+    "endpoint": "update",
+    "configPath": "api/posts/update",
+    "normConfig": "api/posts/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "post",
+    "endpoint": "delete",
+    "configPath": "api/posts/:id",
+    "normConfig": "api/posts/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "post",
+    "endpoint": "autocomplete",
+    "configPath": "api/posts/auto-complete",
+    "normConfig": "api/posts/auto-complete",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "review",
+    "endpoint": "create",
+    "configPath": "v1/review/create",
+    "normConfig": "v1/review/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "review",
+    "endpoint": "list",
+    "configPath": "v1/review/list",
+    "normConfig": "v1/review/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "review",
+    "endpoint": "update",
+    "configPath": "v1/review/update",
+    "normConfig": "v1/review/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "review",
+    "endpoint": "delete",
+    "configPath": "v1/review/delete",
+    "normConfig": "v1/review/delete",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "review",
+    "endpoint": "getListForClient",
+    "configPath": "v1/review/client_list",
+    "normConfig": "v1/review/client_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "notification",
+    "endpoint": "getByStudent",
+    "configPath": "v1/notification/student-get",
+    "normConfig": "v1/notification/student-get",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "notification",
+    "endpoint": "getListByStudent",
+    "configPath": "v1/notification/student_list",
+    "normConfig": "v1/notification/student_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/notification/student_list"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "getForEducator",
+    "configPath": "v1/review_submission/educator_get/:id",
+    "normConfig": "v1/review_submission/educator_get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/educator_get/{id}"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "getForStudent",
+    "configPath": "v1/review_submission/student_get/:id",
+    "normConfig": "v1/review_submission/student_get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/student_get/{id}"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "create",
+    "configPath": "v1/review_submission/create",
+    "normConfig": "v1/review_submission/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/create"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "delete",
+    "configPath": "v1/review_submission/delete/:id",
+    "normConfig": "v1/review_submission/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/delete/{id}"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "update",
+    "configPath": "v1/review_submission/update",
+    "normConfig": "v1/review_submission/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/update"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "educatorList",
+    "configPath": "v1/review_submission/educator_list",
+    "normConfig": "v1/review_submission/educator_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/educator_list"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "studentList",
+    "configPath": "v1/review_submission/students_list",
+    "normConfig": "v1/review_submission/students_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/students_list"
+    ]
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "completeReview",
+    "configPath": "v1/review_submission/complete_review",
+    "normConfig": "v1/review_submission/complete_review",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/review_submission/complete_review"
+    ]
+  },
+  {
+    "module": "taskProgress",
+    "endpoint": "list",
+    "configPath": "v1/task_progress/list",
+    "normConfig": "v1/task_progress/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_progress/list"
+    ]
+  },
+  {
+    "module": "taskProgress",
+    "endpoint": "get",
+    "configPath": "v1/task_progress/get/:id",
+    "normConfig": "v1/task_progress/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_progress/get/{id}"
+    ]
+  },
+  {
+    "module": "taskProgress",
+    "endpoint": "educatorGet",
+    "configPath": "v1/task_progress/educator_get/:id",
+    "normConfig": "v1/task_progress/educator_get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/task_progress/educator_get/{id}"
+    ]
+  },
+  {
+    "module": "comment",
+    "endpoint": "list",
+    "configPath": "v1/comment/list",
+    "normConfig": "v1/comment/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/comment/list"
+    ]
+  },
+  {
+    "module": "comment",
+    "endpoint": "create",
+    "configPath": "v1/comment/create",
+    "normConfig": "v1/comment/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/comment/create"
+    ]
+  },
+  {
+    "module": "comment",
+    "endpoint": "update",
+    "configPath": "v1/comment/update",
+    "normConfig": "v1/comment/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/comment/update"
+    ]
+  },
+  {
+    "module": "comment",
+    "endpoint": "delete",
+    "configPath": "v1/comment/delete/:id",
+    "normConfig": "v1/comment/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/comment/delete/{id}"
+    ]
+  },
+  {
+    "module": "feedback",
+    "endpoint": "list",
+    "configPath": "v1/feedback/list",
+    "normConfig": "v1/feedback/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/feedback/list"
+    ]
+  },
+  {
+    "module": "feedback",
+    "endpoint": "delete",
+    "configPath": "v1/feedback/delete/:id",
+    "normConfig": "v1/feedback/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/feedback/delete/{id}"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getGroupList",
+    "configPath": "v1/group/list",
+    "normConfig": "v1/group/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/group/list"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getList",
+    "configPath": "v1/group/list",
+    "normConfig": "v1/group/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/group/list"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getPemissionList",
+    "configPath": "v1/permission/list",
+    "normConfig": "v1/permission/list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/permission/list"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getPemissionListByApp",
+    "configPath": "v1/project-role-permission/list-by-app",
+    "normConfig": "v1/project-role-permission/list-by-app",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getById",
+    "configPath": "v1/group/get/:id",
+    "normConfig": "v1/group/get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/group/get/{id}"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "create",
+    "configPath": "v1/group/create",
+    "normConfig": "v1/group/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/group/create"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "update",
+    "configPath": "v1/group/update",
+    "normConfig": "v1/group/update",
+    "method": "PUT",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/group/update"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "delete",
+    "configPath": "v1/group/delete/:id",
+    "normConfig": "v1/group/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/group/delete/{id}"
+    ]
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getGroupListCombobox",
+    "configPath": "v1/group/list_combobox",
+    "normConfig": "v1/group/list_combobox",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "getList",
+    "configPath": "v1/setting/list",
+    "normConfig": "v1/setting/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "getById",
+    "configPath": "v1/setting/get/:id",
+    "normConfig": "v1/setting/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "create",
+    "configPath": "v1/setting/create",
+    "normConfig": "v1/setting/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "update",
+    "configPath": "v1/setting/update",
+    "normConfig": "v1/setting/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "delete",
+    "configPath": "v1/setting/delete/:id",
+    "normConfig": "v1/setting/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "autocomplete",
+    "configPath": "v1/setting/auto-complete",
+    "normConfig": "v1/setting/auto-complete",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "settings",
+    "endpoint": "settings",
+    "configPath": "v1/setting/settings",
+    "normConfig": "v1/setting/settings",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getList",
+    "configPath": "v1/contacts/list",
+    "normConfig": "v1/contacts/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getListClient",
+    "configPath": "v1/contacts/client_list",
+    "normConfig": "v1/contacts/client_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getById",
+    "configPath": "v1/contacts/get/:id",
+    "normConfig": "v1/contacts/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getByIdClient",
+    "configPath": "v1/contacts/client-get/:id",
+    "normConfig": "v1/contacts/client-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "create",
+    "configPath": "v1/contacts/create",
+    "normConfig": "v1/contacts/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "update",
+    "configPath": "v1/contacts/update",
+    "normConfig": "v1/contacts/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "contacts",
+    "endpoint": "delete",
+    "configPath": "v1/contacts/delete/:id",
+    "normConfig": "v1/contacts/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "employee",
+    "endpoint": "getList",
+    "configPath": "v1/employee/list",
+    "normConfig": "v1/employee/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "employee",
+    "endpoint": "getById",
+    "configPath": "v1/employee/get/:id",
+    "normConfig": "v1/employee/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "employee",
+    "endpoint": "create",
+    "configPath": "v1/employee/create",
+    "normConfig": "v1/employee/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "employee",
+    "endpoint": "update",
+    "configPath": "v1/employee/update",
+    "normConfig": "v1/employee/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "employee",
+    "endpoint": "delete",
+    "configPath": "v1/employee/delete/:id",
+    "normConfig": "v1/employee/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "employee",
+    "endpoint": "autocomplete",
+    "configPath": "v1/employee/auto-complete",
+    "normConfig": "v1/employee/auto-complete",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getList",
+    "configPath": "v1/device-employee/list",
+    "normConfig": "v1/device-employee/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getListForClient",
+    "configPath": "v1/device-employee/client_list",
+    "normConfig": "v1/device-employee/client_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getById",
+    "configPath": "v1/device-employee/get/:id",
+    "normConfig": "v1/device-employee/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getByIdForClient",
+    "configPath": "v1/device-employee/client-get/:id",
+    "normConfig": "v1/device-employee/client-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "create",
+    "configPath": "v1/device-employee/create",
+    "normConfig": "v1/device-employee/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "createForClient",
+    "configPath": "v1/device-employee/client-create",
+    "normConfig": "v1/device-employee/client-create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "update",
+    "configPath": "v1/device-employee/update",
+    "normConfig": "v1/device-employee/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "updateForClient",
+    "configPath": "v1/device-employee/client-update",
+    "normConfig": "v1/device-employee/client-update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "delete",
+    "configPath": "v1/device-employee/delete/:id",
+    "normConfig": "v1/device-employee/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "getList",
+    "configPath": "v1/message/list",
+    "normConfig": "v1/message/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "getListForClient",
+    "configPath": "v1/message/client_list",
+    "normConfig": "v1/message/client_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "getById",
+    "configPath": "v1/message/get/:id",
+    "normConfig": "v1/message/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "getByIdForClient",
+    "configPath": "v1/message/client-get/:id",
+    "normConfig": "v1/message/client-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "create",
+    "configPath": "v1/message/create",
+    "normConfig": "v1/message/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "update",
+    "configPath": "v1/message/update",
+    "normConfig": "v1/message/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "message",
+    "endpoint": "delete",
+    "configPath": "v1/message/delete/:id",
+    "normConfig": "v1/message/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "getList",
+    "configPath": "v1/nation/list",
+    "normConfig": "v1/nation/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "getById",
+    "configPath": "v1/nation/get/:id",
+    "normConfig": "v1/nation/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "autoComplete",
+    "configPath": "v1/nation/auto-complete",
+    "normConfig": "v1/nation/auto-complete",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "create",
+    "configPath": "v1/nation/create",
+    "normConfig": "v1/nation/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "update",
+    "configPath": "v1/nation/update",
+    "normConfig": "v1/nation/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "delete",
+    "configPath": "v1/nation/delete/:id",
+    "normConfig": "v1/nation/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "getClientList",
+    "configPath": "v1/nation/client_list",
+    "normConfig": "v1/nation/client_list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "nation",
+    "endpoint": "getClientById",
+    "configPath": "v1/nation/client-get/:id",
+    "normConfig": "v1/nation/client-get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "tag",
+    "endpoint": "getList",
+    "configPath": "v1/tag/list",
+    "normConfig": "v1/tag/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "tag",
+    "endpoint": "getById",
+    "configPath": "v1/tag/get/:id",
+    "normConfig": "v1/tag/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "tag",
+    "endpoint": "create",
+    "configPath": "v1/tag/create",
+    "normConfig": "v1/tag/create",
+    "method": "POST",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "tag",
+    "endpoint": "update",
+    "configPath": "v1/tag/update",
+    "normConfig": "v1/tag/update",
+    "method": "PUT",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "tag",
+    "endpoint": "delete",
+    "configPath": "v1/tag/delete/:id",
+    "normConfig": "v1/tag/delete/{id}",
+    "method": "DELETE",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployeeLog",
+    "endpoint": "getList",
+    "configPath": "v1/device-employee-log/list",
+    "normConfig": "v1/device-employee-log/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "deviceEmployeeLog",
+    "endpoint": "getById",
+    "configPath": "v1/device-employee-log/get/:id",
+    "normConfig": "v1/device-employee-log/get/{id}",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  },
+  {
+    "module": "guestSimulation",
+    "endpoint": "getList",
+    "configPath": "v1/simulation/guest_list",
+    "normConfig": "v1/simulation/guest_list",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/guest_list"
+    ]
+  },
+  {
+    "module": "guestSimulation",
+    "endpoint": "getById",
+    "configPath": "v1/simulation/guest_get/:id",
+    "normConfig": "v1/simulation/guest_get/{id}",
+    "method": "GET",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/simulation/guest_get/{id}"
+    ]
+  },
+  {
+    "module": "questionQuizHistory",
+    "endpoint": "create",
+    "configPath": "v1/question_quiz_history/create",
+    "normConfig": "v1/question_quiz_history/create",
+    "method": "POST",
+    "hasPathMatch": true,
+    "hasExactMatch": true,
+    "bePathsFound": [
+      "/v1/question_quiz_history/create"
+    ]
+  },
+  {
+    "module": "questionQuizHistory",
+    "endpoint": "list",
+    "configPath": "v1/question_quiz_history/list",
+    "normConfig": "v1/question_quiz_history/list",
+    "method": "GET",
+    "hasPathMatch": false,
+    "hasExactMatch": false,
+    "bePathsFound": []
+  }
+]

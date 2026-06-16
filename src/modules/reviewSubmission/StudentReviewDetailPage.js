@@ -24,7 +24,8 @@ import useAuth from '@hooks/useAuth';
 import useNotification from '@hooks/useNotification';
 
 import apiConfig from '@constants/apiConfig';
-import { AppConstants } from '@constants';
+import { AppConstants, UserTypes, storageKeys } from '@constants';
+import { getData } from '@utils/localStorage';
 import { commonMessage } from '@locales/intl';
 
 import './StudentReviewDetailPage.scss';
@@ -661,6 +662,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const { simulationId, username } = useParams();
     const { profile } = useAuth();
 
+    const userType = getData(storageKeys.USER_TYPE);
+    const isEducator = userType === UserTypes.EDUCATOR;
+
     // State
     const [simulationEnrollmentId, setSimulationEnrollmentId] = useState(
         () => location.state?.simulationEnrollmentId || null,
@@ -680,18 +684,24 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // API calls
 
     // 1. Fetch simulation detail
-    const { data: simulationDetail, loading: loadingSimulation } = useFetch(apiConfig.simulation.getById, {
-        immediate: true,
-        pathParams: { id: simulationId },
-        mappingData: (res) => res.data,
-    });
+    const { data: simulationDetail, loading: loadingSimulation } = useFetch(
+        isEducator ? apiConfig.simulation.getSimulationForEducator : apiConfig.simulation.getById,
+        {
+            immediate: true,
+            pathParams: { id: simulationId },
+            mappingData: (res) => res.data,
+        },
+    );
 
     // 2. Fetch tasks for sidebar timeline
-    const { data: tasks, loading: loadingTasks } = useFetch(apiConfig.task.getList, {
-        immediate: true,
-        params: { simulationId },
-        mappingData: (res) => res.data?.content || [],
-    });
+    const { data: tasks, loading: loadingTasks } = useFetch(
+        isEducator ? apiConfig.task.listByEducator : apiConfig.task.getList,
+        {
+            immediate: true,
+            params: { simulationId, size: 1000 },
+            mappingData: (res) => res.data?.content || [],
+        },
+    );
 
     // 3. Fallback: Fetch student completes to resolve simulationEnrollmentId if missing in state
     const { execute: fetchEnrollments } = useFetch(apiConfig.simulation.studentComplete, {
@@ -740,7 +750,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     useEffect(() => {
         if (simulationEnrollmentId) {
             refetchProgress({
-                params: { simulationEnrollmentId },
+                params: { simulationEnrollmentId, size: 1000 },
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -799,7 +809,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         data: subtaskDetail,
         loading: loadingSubtask,
         execute: fetchSubtaskDetail,
-    } = useFetch(apiConfig.task.getById, {
+    } = useFetch(isEducator ? apiConfig.task.getByEducator : apiConfig.task.getById, {
         immediate: false,
         mappingData: (res) => res.data,
     });
@@ -861,15 +871,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     }, [submissions, requiresTextResponse]);
 
     // Build Quiz Submission Map
-    const [questionMap, setQuestionMap] = useState({});
-    const [quizHistory, setQuizHistory] = useState([]);
+    const [apiQuizQuestions, setApiQuizQuestions] = useState([]);
 
-    // Fetch quiz questions for the selected subtask
-    const { execute: fetchQuizQuestions } = useFetch(apiConfig.taskQuestion.getList, {
-        immediate: false,
-    });
-
-    const { execute: fetchQuizHistory } = useFetch(apiConfig.questionQuizHistory.list, {
+    // Fetch quiz questions for the selected subtask from the educatorList endpoint
+    const { execute: fetchApiQuizQuestions } = useFetch(apiConfig.taskQuestion.educatorList, {
         immediate: false,
     });
 
@@ -882,89 +887,22 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         }
     };
 
-    const generateMockQuizHistory = (quizBlocks) => {
-        if (!quizBlocks || quizBlocks.length === 0) return [];
-        const mockList = [];
-        quizBlocks.forEach((block, qIdx) => {
-            const correctOpt = block.options?.find((o) => o.answer === true);
-            const incorrectOpts = block.options?.filter((o) => o.answer !== true) || [];
-
-            // Attempt 1: Incorrect attempt
-            if (incorrectOpts.length > 0) {
-                mockList.push({
-                    id: `mock-1-${qIdx}-${selectedSubtaskId}`,
-                    attemptNum: 1,
-                    questionText: block.question,
-                    selectedAnswer: incorrectOpts[0].option || incorrectOpts[0].value || '',
-                    isCorrect: false,
-                    createdDate: dayjs()
-                        .subtract(15, 'minute')
-                        .subtract(qIdx * 2, 'minute')
-                        .toISOString(),
-                });
-            }
-
-            // Attempt 2: Correct attempt
-            mockList.push({
-                id: `mock-2-${qIdx}-${selectedSubtaskId}`,
-                attemptNum: 2,
-                questionText: block.question,
-                selectedAnswer: correctOpt?.option || correctOpt?.value || 'Đáp án đúng',
-                isCorrect: true,
-                createdDate: dayjs()
-                    .subtract(5, 'minute')
-                    .subtract(qIdx * 2, 'minute')
-                    .toISOString(),
-            });
-        });
-        return mockList.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
-    };
-
     useEffect(() => {
         if (selectedSubtaskId) {
-            fetchQuizQuestions({
-                params: { taskId: selectedSubtaskId },
+            fetchApiQuizQuestions({
+                params: { taskId: selectedSubtaskId, size: 1000 },
                 onCompleted: (res) => {
-                    const list = res.data?.content || [];
-                    const map = {};
-                    list.forEach((q) => {
-                        const key = (q.question || '').trim();
-                        if (key && q.id != null) {
-                            map[key] = String(q.id);
-                        }
-                    });
-                    setQuestionMap(map);
+                    setApiQuizQuestions(res.data?.content || []);
                 },
                 onError: () => {
-                    setQuestionMap({});
-                },
-            });
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSubtaskId]);
-
-    useEffect(() => {
-        if (selectedSubtaskId && questionMap && Object.keys(questionMap).length > 0) {
-            fetchQuizHistory({
-                params: { taskId: selectedSubtaskId },
-                onCompleted: (res) => {
-                    if (res.data?.content && res.data.content.length > 0) {
-                        setQuizHistory(res.data.content);
-                    } else {
-                        const quizBlocks = getQuizBlocks(subtaskDetail?.content);
-                        setQuizHistory(generateMockQuizHistory(quizBlocks));
-                    }
-                },
-                onError: () => {
-                    const quizBlocks = getQuizBlocks(subtaskDetail?.content);
-                    setQuizHistory(generateMockQuizHistory(quizBlocks));
+                    setApiQuizQuestions([]);
                 },
             });
         } else {
-            setQuizHistory([]);
+            setApiQuizQuestions([]);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSubtaskId, questionMap, subtaskDetail]);
+    }, [selectedSubtaskId]);
 
     const quizSubmissionMap = useMemo(() => {
         const map = {};
@@ -980,11 +918,48 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 map[qId] = {
                     answer: getSubmissionAnswer(submission),
                     isCorrect: submission.isCorrect === true || submission.isCorrect === 1,
+                    createdDate: submission.createdDate,
                 };
             }
         });
         return map;
     }, [submissions]);
+
+    const quizHistory = useMemo(() => {
+        const list = apiQuizQuestions || [];
+        if (list.length > 0) {
+            return list.map((q) => {
+                const answerInfo = quizSubmissionMap[String(q.id)];
+                return {
+                    id: q.id,
+                    questionText: q.question,
+                    options: q.options,
+                    selectedAnswer: answerInfo ? answerInfo.answer : 'Chưa trả lời',
+                    isCorrect: answerInfo ? answerInfo.isCorrect : false,
+                    createdDate: answerInfo ? answerInfo.createdDate : null,
+                };
+            });
+        }
+
+        // Fallback: parse from subtask content json
+        const quizBlocks = getQuizBlocks(subtaskDetail?.content);
+        return quizBlocks.map((block, index) => {
+            const matchedSub = submissions.find((s) => {
+                const qText = (s.taskQuestion?.question || '').trim().toLowerCase();
+                const blockText = (block.question || '').trim().toLowerCase();
+                return qText === blockText;
+            });
+
+            return {
+                id: matchedSub?.id || `mock-${index}`,
+                questionText: block.question,
+                options: JSON.stringify(block.options || []),
+                selectedAnswer: matchedSub ? getSubmissionAnswer(matchedSub) : 'Chưa trả lời',
+                isCorrect: matchedSub ? matchedSub.isCorrect === true || matchedSub.isCorrect === 1 : false,
+                createdDate: matchedSub ? matchedSub.createdDate : null,
+            };
+        });
+    }, [apiQuizQuestions, quizSubmissionMap, subtaskDetail, submissions]);
 
     // Educator Review linking logic
     // Key by studentTaskProgressId or studentSubmissionId
@@ -1104,11 +1079,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             // Create
             const activeSubtaskProgressId = activeSubtaskProgress?.id || null;
             const activeSubmissionId = fileSub?.id || textSub?.id || null;
-
-            if (!activeSubtaskProgressId && !activeSubmissionId) {
-                message.error('Không tìm thấy bài làm hay tiến trình nào để viết nhận xét!');
-                return;
-            }
 
             executeCreateReview({
                 data: {
@@ -1555,18 +1525,30 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                         size="small"
                                                         columns={[
                                                             {
-                                                                title: 'Lần thử',
-                                                                dataIndex: 'attemptNum',
-                                                                width: '100px',
-                                                                align: 'center',
-                                                                render: (num) => <Tag color="blue">Lần {num}</Tag>,
-                                                            },
-                                                            {
                                                                 title: 'Câu hỏi',
                                                                 dataIndex: 'questionText',
                                                                 render: (text) => (
                                                                     <span style={{ fontWeight: '500' }}>{text}</span>
                                                                 ),
+                                                            },
+                                                            {
+                                                                title: 'Đáp án đúng',
+                                                                dataIndex: 'options',
+                                                                render: (optsStr) => {
+                                                                    try {
+                                                                        const opts = JSON.parse(optsStr || '[]');
+                                                                        const correct = opts.find(
+                                                                            (o) =>
+                                                                                o.answer === true ||
+                                                                                o.answer === 'true',
+                                                                        );
+                                                                        return correct
+                                                                            ? correct.option || correct.value || 'N/A'
+                                                                            : 'N/A';
+                                                                    } catch {
+                                                                        return 'N/A';
+                                                                    }
+                                                                },
                                                             },
                                                             {
                                                                 title: 'Đáp án chọn',
@@ -1588,7 +1570,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                                 dataIndex: 'createdDate',
                                                                 width: '180px',
                                                                 render: (date) =>
-                                                                    dayjs(date).format('DD/MM/YYYY HH:mm:ss'),
+                                                                    date
+                                                                        ? dayjs(date).format('DD/MM/YYYY HH:mm:ss')
+                                                                        : '-',
                                                             },
                                                         ]}
                                                     />
@@ -1597,16 +1581,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
                                             {/* Educator Review / Assessment Card */}
                                             <div className="tfo-review-section">
-                                                {!activeSubtaskProgress && (
-                                                    <div className="tfo-no-submission-notice">
-                                                        <span>
-                                                            ⚠️ Học viên chưa bắt đầu nhiệm vụ này — không thể tạo nhận
-                                                            xét.
-                                                        </span>
-                                                    </div>
-                                                )}
-
-                                                {activeSubtaskProgress && subtaskReview && !isEditingReview ? (
+                                                {subtaskReview && !isEditingReview ? (
                                                     <div className="tfo-review-card">
                                                         <div className="tfo-review-header">
                                                             <div
@@ -1647,7 +1622,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                             {subtaskReview.content}
                                                         </div>
                                                     </div>
-                                                ) : activeSubtaskProgress ? (
+                                                ) : (
                                                     <Card
                                                         title={
                                                             <div
@@ -1696,7 +1671,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                             )}
                                                         </Space>
                                                     </Card>
-                                                ) : null}
+                                                )}
                                             </div>
                                         </div>
 

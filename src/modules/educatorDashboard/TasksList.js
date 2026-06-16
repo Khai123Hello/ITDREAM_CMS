@@ -16,7 +16,7 @@ const TasksList = ({ simulation, selectedTask, onSelectTask }) => {
         error,
         execute: fetchTasks,
         setData: setTasksData,
-    } = useFetch(apiConfig.task.educatorList, {
+    } = useFetch(apiConfig.task.listByEducator, {
         immediate: !!simulation?.id,
         params: simulation?.id ? { simulationId: simulation.id } : {},
     });

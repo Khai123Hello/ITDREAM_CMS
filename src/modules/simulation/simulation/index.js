@@ -626,7 +626,7 @@ const SimulationListPage = ({ pageOptions }) => {
         mixinFuncs.renderActionColumn(
             isEducator
                 ? {
-                    task: () => mixinFuncs.hasPermission([apiConfig.task.educatorList.permissionCode]),
+                    task: () => mixinFuncs.hasPermission([apiConfig.task.listByEducator.permissionCode]),
                     requestDelete: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE &&
                           dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&

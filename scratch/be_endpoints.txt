@@ -1,0 +1,919 @@
+[
+  {
+    "controller": "AccountController.java",
+    "method": "POST",
+    "path": "/v1/account/create_admin",
+    "role": "ACC_C",
+    "methodName": "createAdmin"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "PUT",
+    "path": "/v1/account/update_admin",
+    "role": "ACC_U",
+    "methodName": "updateAdmin"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "GET",
+    "path": "/v1/account/list",
+    "role": "ACC_L",
+    "methodName": "listAdmin"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "GET",
+    "path": "/v1/account/get/{id}",
+    "role": "ACC_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "DELETE",
+    "path": "/v1/account/delete/{id}",
+    "role": "ACC_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "GET",
+    "path": "/v1/account/profile",
+    "role": "ACC_AD_P",
+    "methodName": "profile"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "PUT",
+    "path": "/v1/account/update_profile_admin",
+    "role": "ACC_AD_U",
+    "methodName": "updateProfileAdmin"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "POST",
+    "path": "/v1/account/request_forget_password",
+    "role": null,
+    "methodName": "requestForgetPassword"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "POST",
+    "path": "/v1/account/forget_password",
+    "role": null,
+    "methodName": "forgetPassword"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "POST",
+    "path": "/v1/account/resend_verify",
+    "role": null,
+    "methodName": "resendVerification"
+  },
+  {
+    "controller": "AccountController.java",
+    "method": "POST",
+    "path": "/v1/account/verify",
+    "role": null,
+    "methodName": "verifyAccount"
+  },
+  {
+    "controller": "AchievementController.java",
+    "method": "PUT",
+    "path": "/v1/achievement/update",
+    "role": null,
+    "methodName": "updateFilePath"
+  },
+  {
+    "controller": "AchievementController.java",
+    "method": "GET",
+    "path": "/v1/achievement/list",
+    "role": "ACH_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "AchievementController.java",
+    "method": "GET",
+    "path": "/v1/achievement/student_list",
+    "role": "ACH_ST_L",
+    "methodName": "getListForStudent"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "POST",
+    "path": "/v1/blog/create",
+    "role": "BL_ED_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "GET",
+    "path": "/v1/blog/list",
+    "role": "BL_L",
+    "methodName": "listByAdmin"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "GET",
+    "path": "/v1/blog/educator-list",
+    "role": "BL_ED_L",
+    "methodName": "listByEducator"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "GET",
+    "path": "/v1/blog/student-list",
+    "role": null,
+    "methodName": "listByStudent"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "GET",
+    "path": "/v1/blog/get/{id}",
+    "role": "BL_V",
+    "methodName": "getByAdmin"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "GET",
+    "path": "/v1/blog/educator-get/{id}",
+    "role": "BL_ED_V",
+    "methodName": "getByEducator"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "GET",
+    "path": "/v1/blog/student-get/{id}",
+    "role": null,
+    "methodName": "getByStudent"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "PUT",
+    "path": "/v1/blog/update",
+    "role": "BL_U",
+    "methodName": "udpate"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "DELETE",
+    "path": "/v1/blog/delete/{id}",
+    "role": "BL_ED_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "PUT",
+    "path": "/v1/blog/approve",
+    "role": "BL_AP",
+    "methodName": "approve"
+  },
+  {
+    "controller": "BlogController.java",
+    "method": "PUT",
+    "path": "/v1/blog/reject",
+    "role": "BL_AP",
+    "methodName": "reject"
+  },
+  {
+    "controller": "CategoryController.java",
+    "method": "POST",
+    "path": "/v1/category/create",
+    "role": "CA_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "CategoryController.java",
+    "method": "GET",
+    "path": "/v1/category/list",
+    "role": "CA_L",
+    "methodName": "getList"
+  },
+  {
+    "controller": "CategoryController.java",
+    "method": "GET",
+    "path": "/v1/category/auto-complete",
+    "role": null,
+    "methodName": "listCategoryAutoComplete"
+  },
+  {
+    "controller": "CategoryController.java",
+    "method": "GET",
+    "path": "/v1/category/get/{id}",
+    "role": "CA_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "CategoryController.java",
+    "method": "PUT",
+    "path": "/v1/category/update",
+    "role": "CA_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "CategoryController.java",
+    "method": "DELETE",
+    "path": "/v1/category/delete/{id}",
+    "role": "CA_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "CommentController.java",
+    "method": "POST",
+    "path": "/v1/comment/create",
+    "role": "CM_US_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "CommentController.java",
+    "method": "GET",
+    "path": "/v1/comment/list",
+    "role": "CM_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "CommentController.java",
+    "method": "GET",
+    "path": "/v1/comment/user_list",
+    "role": "CM_US_L",
+    "methodName": "listByUser"
+  },
+  {
+    "controller": "CommentController.java",
+    "method": "PUT",
+    "path": "/v1/comment/update",
+    "role": "CM_US_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "CommentController.java",
+    "method": "DELETE",
+    "path": "/v1/comment/delete/{id}",
+    "role": "CM_US_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "POST",
+    "path": "/v1/educator/signup",
+    "role": null,
+    "methodName": "create"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "GET",
+    "path": "/v1/educator/list",
+    "role": "ED_L",
+    "methodName": "getListEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "GET",
+    "path": "/v1/educator/get/{id}",
+    "role": "ED_V",
+    "methodName": "getEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "PUT",
+    "path": "/v1/educator/update",
+    "role": "ED_U",
+    "methodName": "updateEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "DELETE",
+    "path": "/v1/educator/delete/{id}",
+    "role": "ED_D",
+    "methodName": "deleteEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "GET",
+    "path": "/v1/educator/profile",
+    "role": "ED_U_P",
+    "methodName": "getProfileForEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "PUT",
+    "path": "/v1/educator/client_update",
+    "role": "ED_U_U",
+    "methodName": "updateProfileForEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "PUT",
+    "path": "/v1/educator/approve",
+    "role": "ED_AP",
+    "methodName": "approveAccountEducator"
+  },
+  {
+    "controller": "EducatorController.java",
+    "method": "PUT",
+    "path": "/v1/educator/reject",
+    "role": "ED_RJ",
+    "methodName": "rejectAccountEducator"
+  },
+  {
+    "controller": "FeedbackController.java",
+    "method": "POST",
+    "path": "/v1/feedback/create",
+    "role": "FB_ST_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "FeedbackController.java",
+    "method": "GET",
+    "path": "/v1/feedback/list",
+    "role": "FB_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "FeedbackController.java",
+    "method": "GET",
+    "path": "/v1/feedback/client_list",
+    "role": null,
+    "methodName": "listByClient"
+  },
+  {
+    "controller": "FeedbackController.java",
+    "method": "PUT",
+    "path": "/v1/feedback/update",
+    "role": "FB_ST_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "FeedbackController.java",
+    "method": "DELETE",
+    "path": "/v1/feedback/delete/{id}",
+    "role": "FB_ST_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "GroupController.java",
+    "method": "POST",
+    "path": "/v1/group/create",
+    "role": "GR_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "GroupController.java",
+    "method": "PUT",
+    "path": "/v1/group/update",
+    "role": "GR_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "GroupController.java",
+    "method": "GET",
+    "path": "/v1/group/get/{id}",
+    "role": "GR_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "GroupController.java",
+    "method": "GET",
+    "path": "/v1/group/list",
+    "role": "GR_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "GroupController.java",
+    "method": "DELETE",
+    "path": "/v1/group/delete/{id}",
+    "role": "GR_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "NotificationController.java",
+    "method": "GET",
+    "path": "/v1/notification/student_list",
+    "role": "NO_ST_L",
+    "methodName": "listByStudent"
+  },
+  {
+    "controller": "NotificationController.java",
+    "method": "PUT",
+    "path": "/v1/notification/update_read_flag",
+    "role": "NO_ST_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "NotificationController.java",
+    "method": "DELETE",
+    "path": "/v1/notification/clear_all",
+    "role": "NO_ST_CA",
+    "methodName": "clearAll"
+  },
+  {
+    "controller": "OrganizationController.java",
+    "method": "POST",
+    "path": "/v1/organization/create",
+    "role": "O_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "OrganizationController.java",
+    "method": "GET",
+    "path": "/v1/organization/list",
+    "role": "O_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "OrganizationController.java",
+    "method": "GET",
+    "path": "/v1/organization/guest_list",
+    "role": null,
+    "methodName": "listDisplay"
+  },
+  {
+    "controller": "OrganizationController.java",
+    "method": "GET",
+    "path": "/v1/organization/get/{id}",
+    "role": "O_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "OrganizationController.java",
+    "method": "PUT",
+    "path": "/v1/organization/update",
+    "role": "O_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "OrganizationController.java",
+    "method": "DELETE",
+    "path": "/v1/organization/delete/{id}",
+    "role": "O_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "PermissionController.java",
+    "method": "POST",
+    "path": "/v1/permission/create",
+    "role": "PER_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "PermissionController.java",
+    "method": "GET",
+    "path": "/v1/permission/list",
+    "role": "PER_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "PermissionController.java",
+    "method": "PUT",
+    "path": "/v1/permission/update",
+    "role": "PER_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "PermissionController.java",
+    "method": "DELETE",
+    "path": "/v1/permission/delete/{id}",
+    "role": "PER_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "QuestionQuizHistoryController.java",
+    "method": "POST",
+    "path": "/v1/question_quiz_history/create",
+    "role": "QQH_ST_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "POST",
+    "path": "/v1/review_submission/create",
+    "role": "RS_ED_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "GET",
+    "path": "/v1/review_submission/students_list",
+    "role": "RS_ST_STL",
+    "methodName": "listReviewSubmissionByStudent"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "GET",
+    "path": "/v1/review_submission/educator_list",
+    "role": "RS_ED_STL",
+    "methodName": "listReviewSubmissionByEducator"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "GET",
+    "path": "/v1/review_submission/student_get/{id}",
+    "role": "RS_ST_STV",
+    "methodName": "studentGet"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "GET",
+    "path": "/v1/review_submission/educator_get/{id}",
+    "role": "RS_ED_STV",
+    "methodName": "educatorGet"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "PUT",
+    "path": "/v1/review_submission/update",
+    "role": "RS_ED_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "DELETE",
+    "path": "/v1/review_submission/delete/{id}",
+    "role": "RS_ED_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "ReviewSubmissionController.java",
+    "method": "PUT",
+    "path": "/v1/review_submission/complete_review",
+    "role": "RS_ED_CR",
+    "methodName": "completeReview"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "POST",
+    "path": "/v1/simulation/create",
+    "role": "SI_ED_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/list",
+    "role": "SI_L",
+    "methodName": "getList"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/get/{id}",
+    "role": "SI_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/guest_list",
+    "role": null,
+    "methodName": "getListForClient"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/student_list",
+    "role": "SI_ST_L",
+    "methodName": "getListForStudent"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/educator_list",
+    "role": "SI_ED_L",
+    "methodName": "getListForEducator"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/guest_get/{id}",
+    "role": null,
+    "methodName": "getSimulationForClient"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/student_get/{id}",
+    "role": "SI_ST_V",
+    "methodName": "getSimulationForStudent"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "GET",
+    "path": "/v1/simulation/educator_get/{id}",
+    "role": "SI_ED_V",
+    "methodName": "getSimulationForEducator"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "PUT",
+    "path": "/v1/simulation/update",
+    "role": "SI_ED_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "DELETE",
+    "path": "/v1/simulation/approve_delete/{id}",
+    "role": "SI_APD",
+    "methodName": "approveDelete"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "DELETE",
+    "path": "/v1/simulation/reject_delete/{id}",
+    "role": "SI_RJD",
+    "methodName": "rejectDelete"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "DELETE",
+    "path": "/v1/simulation/educator_request_delete/{id}",
+    "role": "SI_ED_RED",
+    "methodName": "requestDelete"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "PUT",
+    "path": "/v1/simulation/approve",
+    "role": "SI_AP",
+    "methodName": "approve"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "PUT",
+    "path": "/v1/simulation/reject",
+    "role": "SI_RJ",
+    "methodName": "reject"
+  },
+  {
+    "controller": "SimulationController.java",
+    "method": "DELETE",
+    "path": "/v1/simulation/educator_delete/{id}",
+    "role": "SI_ED_D",
+    "methodName": "deleteByEducator"
+  },
+  {
+    "controller": "SimulationEnrollmentController.java",
+    "method": "POST",
+    "path": "/v1/simulation_enrollment/create",
+    "role": "SE_ST_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "SimulationEnrollmentController.java",
+    "method": "GET",
+    "path": "/v1/simulation_enrollment/list",
+    "role": "SE_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "SimulationEnrollmentController.java",
+    "method": "GET",
+    "path": "/v1/simulation_enrollment/student_list",
+    "role": "SE_ST_L",
+    "methodName": "listByStudent"
+  },
+  {
+    "controller": "SimulationEnrollmentController.java",
+    "method": "GET",
+    "path": "/v1/simulation_enrollment/student_complete_list",
+    "role": "SE_ED_STCL",
+    "methodName": "listStudentCompleteCourse"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "POST",
+    "path": "/v1/student/signup",
+    "role": null,
+    "methodName": "create"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "GET",
+    "path": "/v1/student/list",
+    "role": "ST_L",
+    "methodName": "getListStudent"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "GET",
+    "path": "/v1/student/get/{id}",
+    "role": "ST_V",
+    "methodName": "getStudent"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "PUT",
+    "path": "/v1/student/update",
+    "role": "ST_U",
+    "methodName": "updateStudent"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "DELETE",
+    "path": "/v1/student/delete/{id}",
+    "role": "ST_D",
+    "methodName": "deleteStudent"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "GET",
+    "path": "/v1/student/profile",
+    "role": "ST_U_P",
+    "methodName": "getProfileForStudent"
+  },
+  {
+    "controller": "StudentController.java",
+    "method": "PUT",
+    "path": "/v1/student/client_update",
+    "role": "ST_U_U",
+    "methodName": "updateProfileForStudent"
+  },
+  {
+    "controller": "StudentSubmissionController.java",
+    "method": "GET",
+    "path": "/v1/student_submission/list",
+    "role": "SSM_ED_CPL",
+    "methodName": "listStudentSubmission"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "POST",
+    "path": "/v1/task_progress/create",
+    "role": "STP_ST_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "GET",
+    "path": "/v1/task_progress/list",
+    "role": "STP_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "GET",
+    "path": "/v1/task_progress/student_list",
+    "role": "STP_ST_L",
+    "methodName": "listByStudent"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "GET",
+    "path": "/v1/task_progress/educator_list",
+    "role": "STP_ST_L",
+    "methodName": "listByEducator"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "GET",
+    "path": "/v1/task_progress/get/{id}",
+    "role": "STP_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "GET",
+    "path": "/v1/task_progress/student_get/{id}",
+    "role": "STP_ST_V",
+    "methodName": "getByStudent"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "GET",
+    "path": "/v1/task_progress/educator_get/{id}",
+    "role": "STP_ED_V",
+    "methodName": "getByEducator"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "PUT",
+    "path": "/v1/task_progress/complete",
+    "role": "STP_ST_CPL",
+    "methodName": "complete"
+  },
+  {
+    "controller": "StudentTaskProgressController.java",
+    "method": "PUT",
+    "path": "/v1/task_progress/reset",
+    "role": "LSP_ST_RS",
+    "methodName": "reset"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "POST",
+    "path": "/v1/task/create",
+    "role": "TA_ED_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/list",
+    "role": "TA_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/get/{id}",
+    "role": "TA_V",
+    "methodName": "get"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/educator_list",
+    "role": "TA_ED_L",
+    "methodName": "listByEducator"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/educator_get/{id}",
+    "role": "TA_ED_V",
+    "methodName": "getByEducator"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/student_list",
+    "role": "TA_ST_L",
+    "methodName": "listByStudent"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/guest_list",
+    "role": null,
+    "methodName": "listByGuest"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "GET",
+    "path": "/v1/task/student_get/{id}",
+    "role": "TA_ST_V",
+    "methodName": "getByStudent"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "PUT",
+    "path": "/v1/task/update",
+    "role": "TA_ED_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "DELETE",
+    "path": "/v1/task/delete/{id}",
+    "role": "TA_ED_D",
+    "methodName": "delete"
+  },
+  {
+    "controller": "TaskController.java",
+    "method": "PUT",
+    "path": "/v1/task/update-order",
+    "role": "TA_ED_UO",
+    "methodName": "updateOrder"
+  },
+  {
+    "controller": "TaskQuestionController.java",
+    "method": "POST",
+    "path": "/v1/task_question/create",
+    "role": "TQ_ED_C",
+    "methodName": "create"
+  },
+  {
+    "controller": "TaskQuestionController.java",
+    "method": "GET",
+    "path": "/v1/task_question/list",
+    "role": "TQ_L",
+    "methodName": "list"
+  },
+  {
+    "controller": "TaskQuestionController.java",
+    "method": "GET",
+    "path": "/v1/task_question/educator_list",
+    "role": "TQ_ED_L",
+    "methodName": "listByEducator"
+  },
+  {
+    "controller": "TaskQuestionController.java",
+    "method": "GET",
+    "path": "/v1/task_question/student_list",
+    "role": "TQ_ST_L",
+    "methodName": "listByStudent"
+  },
+  {
+    "controller": "TaskQuestionController.java",
+    "method": "PUT",
+    "path": "/v1/task_question/update",
+    "role": "TQ_ED_U",
+    "methodName": "update"
+  },
+  {
+    "controller": "TaskQuestionController.java",
+    "method": "DELETE",
+    "path": "/v1/task_question/delete/{id}",
+    "role": "TQ_ED_D",
+    "methodName": "delete"
+  }
+]

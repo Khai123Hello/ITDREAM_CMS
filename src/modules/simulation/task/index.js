@@ -74,7 +74,7 @@ const TaskListPage = ({ pageOptions }) => {
 
     const apiConfiguration = isEducator
         ? {
-            getList: apiConfig.task.educatorList,
+            getList: apiConfig.task.listByEducator,
             delete: apiConfig.task.delete,
             create: apiConfig.task.create,
             update: apiConfig.task.update,

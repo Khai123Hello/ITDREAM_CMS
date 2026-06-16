@@ -7,10 +7,11 @@ import useTranslate from '@hooks/useTranslate';
 import useFetch from '@hooks/useFetch';
 import useQueryParams from '@hooks/useQueryParams';
 
-import { DEFAULT_TABLE_ITEM_SIZE, AppConstants } from '@constants';
+import { DEFAULT_TABLE_ITEM_SIZE, AppConstants, UserTypes, storageKeys } from '@constants';
 import { FieldTypes } from '@constants/formConfig';
 import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
+import { getData } from '@utils/localStorage';
 
 import BaseTable from '@components/common/table/BaseTable';
 import ListPage from '@components/common/layout/ListPage';
@@ -31,7 +32,10 @@ const CommentListPage = () => {
         noData: translate.formatMessage(commonMessage.noData),
     };
 
-    const { execute: executeGetTasks } = useFetch(apiConfig.task.getList);
+    const userType = getData(storageKeys.USER_TYPE);
+    const isEducator = userType === UserTypes.EDUCATOR;
+
+    const { execute: executeGetTasks } = useFetch(isEducator ? apiConfig.task.listByEducator : apiConfig.task.getList);
 
     const { data, mixinFuncs, loading, pagination, queryFilter, setData, setPagination, setLoading } = useListBase({
         apiConfig: {

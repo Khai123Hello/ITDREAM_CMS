@@ -42,7 +42,7 @@ const TaskSavePage = ({ pageOptions }) => {
 
     const apiConfiguration = isEducator
         ? {
-            getById: apiConfig.task.educatorGet,
+            getById: apiConfig.task.getByEducator,
             create: apiConfig.task.create,
             update: apiConfig.task.update,
         }

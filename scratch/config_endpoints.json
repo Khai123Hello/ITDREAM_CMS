@@ -1,0 +1,1381 @@
+[
+  {
+    "module": "organization",
+    "endpoint": "guestList",
+    "path": "v1/organization/guest_list",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "organization",
+    "endpoint": "list",
+    "path": "v1/organization/list",
+    "method": "GET",
+    "permissionCode": "O_L"
+  },
+  {
+    "module": "organization",
+    "endpoint": "get",
+    "path": "v1/organization/get/:id",
+    "method": "GET",
+    "permissionCode": "O_V"
+  },
+  {
+    "module": "organization",
+    "endpoint": "create",
+    "path": "v1/organization/create",
+    "method": "POST",
+    "permissionCode": "O_C"
+  },
+  {
+    "module": "organization",
+    "endpoint": "update",
+    "path": "v1/organization/update",
+    "method": "PUT",
+    "permissionCode": "O_U"
+  },
+  {
+    "module": "organization",
+    "endpoint": "delete",
+    "path": "v1/organization/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "O_D"
+  },
+  {
+    "module": "account",
+    "endpoint": "login",
+    "path": "v1/account/login",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "loginGoogle",
+    "path": "v1/google/educator-login",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "loginBasic",
+    "path": "api/token",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "loginSSO",
+    "path": "v1/account/login-sso",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "forgetPassword",
+    "path": "v1/account/forget_password",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "requestForgetPassword",
+    "path": "v1/account/request_forget_password",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "getById",
+    "path": "v1/account/get/:id",
+    "method": "GET",
+    "permissionCode": "ACC_V"
+  },
+  {
+    "module": "account",
+    "endpoint": "logout",
+    "path": "v1/account/logout",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "getList",
+    "path": "v1/account/list",
+    "method": "GET",
+    "permissionCode": "ACC_L"
+  },
+  {
+    "module": "account",
+    "endpoint": "adminList",
+    "path": "v1/account/list?kind=1",
+    "method": "GET",
+    "permissionCode": "ACC_L"
+  },
+  {
+    "module": "account",
+    "endpoint": "updateAdmin",
+    "path": "v1/account/update_admin",
+    "method": "PUT",
+    "permissionCode": "ACC_U"
+  },
+  {
+    "module": "account",
+    "endpoint": "delete",
+    "path": "v1/account/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "ACC_D"
+  },
+  {
+    "module": "account",
+    "endpoint": "createAdmin",
+    "path": "v1/account/create_admin",
+    "method": "POST",
+    "permissionCode": "ACC_C"
+  },
+  {
+    "module": "account",
+    "endpoint": "verifyOtp",
+    "path": "v1/account/verify",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "resendOtp",
+    "path": "v1/account/resend-otp",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "account",
+    "endpoint": "resendVerify",
+    "path": "v1/account/resend_verify",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "simulation",
+    "endpoint": "approve",
+    "path": "v1/simulation/approve",
+    "method": "PUT",
+    "permissionCode": "SI_AP"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "approveDelete",
+    "path": "v1/simulation/approve-delete/:id",
+    "method": "DELETE",
+    "permissionCode": "SI_APD"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "create",
+    "path": "v1/simulation/create",
+    "method": "POST",
+    "permissionCode": "SI_ED_C"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getSimulationForEducator",
+    "path": "v1/simulation/educator_get/:id",
+    "method": "GET",
+    "permissionCode": "SI_ED_V"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getListForEducator",
+    "path": "v1/simulation/educator_list",
+    "method": "GET",
+    "permissionCode": "SI_ED_L"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "requestDelete",
+    "path": "v1/simulation/educator-request-delete/:id",
+    "method": "DELETE",
+    "permissionCode": "SI_ED_RED"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getById",
+    "path": "v1/simulation/get/:id",
+    "method": "GET",
+    "permissionCode": "SI_V"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getList",
+    "path": "v1/simulation/list",
+    "method": "GET",
+    "permissionCode": "SI_L"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "reject",
+    "path": "v1/simulation/reject",
+    "method": "PUT",
+    "permissionCode": "SI_RJ"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "rejectDelete",
+    "path": "v1/simulation/reject-delete/:id",
+    "method": "DELETE",
+    "permissionCode": "SI_RJD"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "studentComplete",
+    "path": "v1/simulation_enrollment/student_complete_list",
+    "method": "GET",
+    "permissionCode": "SE_ED_STCL"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getSimulationForStudent",
+    "path": "v1/simulation/student-get/:id",
+    "method": "GET",
+    "permissionCode": "SI_ST_V"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "getListForStudent",
+    "path": "v1/simulation/student_list",
+    "method": "GET",
+    "permissionCode": "SI_ST_L"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "update",
+    "path": "v1/simulation/update",
+    "method": "PUT",
+    "permissionCode": "SI_U"
+  },
+  {
+    "module": "simulation",
+    "endpoint": "educatorDelete",
+    "path": "v1/simulation/educator-delete/:id",
+    "method": "DELETE",
+    "permissionCode": "SI_ED_D"
+  },
+  {
+    "module": "task",
+    "endpoint": "getList",
+    "path": "v1/task/list",
+    "method": "GET",
+    "permissionCode": "TA_L"
+  },
+  {
+    "module": "task",
+    "endpoint": "getById",
+    "path": "v1/task/get/:id",
+    "method": "GET",
+    "permissionCode": "TA_V"
+  },
+  {
+    "module": "task",
+    "endpoint": "create",
+    "path": "v1/task/create",
+    "method": "POST",
+    "permissionCode": "TA_ED_C"
+  },
+  {
+    "module": "task",
+    "endpoint": "update",
+    "path": "v1/task/update",
+    "method": "PUT",
+    "permissionCode": "TA_U"
+  },
+  {
+    "module": "task",
+    "endpoint": "updateOrder",
+    "path": "v1/task/update-order",
+    "method": "PUT",
+    "permissionCode": "TA_ED_UO"
+  },
+  {
+    "module": "task",
+    "endpoint": "delete",
+    "path": "v1/task/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "TA_D"
+  },
+  {
+    "module": "task",
+    "endpoint": "educatorList",
+    "path": "v1/task/educator_list",
+    "method": "GET",
+    "permissionCode": "TA_ED_L"
+  },
+  {
+    "module": "task",
+    "endpoint": "educatorGet",
+    "path": "v1/task/educator_get/:id",
+    "method": "GET",
+    "permissionCode": "TA_ED_V"
+  },
+  {
+    "module": "task",
+    "endpoint": "studentList",
+    "path": "v1/task/student_list",
+    "method": "GET",
+    "permissionCode": "TA_ST_L"
+  },
+  {
+    "module": "task",
+    "endpoint": "studentGet",
+    "path": "v1/task/student-get/:id",
+    "method": "GET",
+    "permissionCode": "TA_ST_V"
+  },
+  {
+    "module": "task",
+    "endpoint": "videoProcess",
+    "path": "v1/task/video-process",
+    "method": "POST",
+    "permissionCode": "TA_VP"
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "getList",
+    "path": "v1/task_question/list",
+    "method": "GET",
+    "permissionCode": "TQ_L"
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "create",
+    "path": "v1/task_question/create",
+    "method": "POST",
+    "permissionCode": "TQ_ED_C"
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "update",
+    "path": "v1/task_question/update",
+    "method": "PUT",
+    "permissionCode": "TQ_ED_U"
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "delete",
+    "path": "v1/task_question/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "TQ_ED_D"
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "educatorList",
+    "path": "v1/task_question/educator_list",
+    "method": "GET",
+    "permissionCode": "TQ_ED_L"
+  },
+  {
+    "module": "taskQuestion",
+    "endpoint": "studentList",
+    "path": "v1/task_question/student_list",
+    "method": "GET",
+    "permissionCode": "TQ_ST_L"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "getList",
+    "path": "v1/subtask-progress/list",
+    "method": "GET",
+    "permissionCode": "STSP_L"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "create",
+    "path": "v1/subtask-progress/create",
+    "method": "POST",
+    "permissionCode": "STSP_C"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "complete",
+    "path": "v1/subtask-progress/complete",
+    "method": "PUT",
+    "permissionCode": "STSP_CPL"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "restart",
+    "path": "v1/subtask-progress/restart",
+    "method": "PUT",
+    "permissionCode": "STSP_RES"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "access",
+    "path": "v1/subtask-progress/access",
+    "method": "POST",
+    "permissionCode": "STSP_ACC"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "studentList",
+    "path": "v1/subtask-progress/student_list",
+    "method": "GET",
+    "permissionCode": "STSP_ST_L"
+  },
+  {
+    "module": "subtaskProgress",
+    "endpoint": "studentGet",
+    "path": "v1/subtask-progress/student-get/:id",
+    "method": "GET",
+    "permissionCode": "STSP_ST_V"
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "answerList",
+    "path": "v1/task-question-progress/answer_list",
+    "method": "GET",
+    "permissionCode": "STTQ_ED_LR"
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "getList",
+    "path": "v1/task-question-progress/list",
+    "method": "GET",
+    "permissionCode": "STTQ_L"
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "create",
+    "path": "v1/task-question-progress/create",
+    "method": "POST",
+    "permissionCode": "STTQ_C"
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "delete",
+    "path": "v1/task-question-progress/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "STTQ_D"
+  },
+  {
+    "module": "taskQuestionProgress",
+    "endpoint": "studentList",
+    "path": "v1/task-question-progress/student_list",
+    "method": "GET",
+    "permissionCode": "STTQ_ST_L"
+  },
+  {
+    "module": "category",
+    "endpoint": "autoComplete",
+    "path": "v1/category/auto-complete",
+    "method": "GET",
+    "permissionCode": "CA_L"
+  },
+  {
+    "module": "category",
+    "endpoint": "getList",
+    "path": "v1/category/list",
+    "method": "GET",
+    "permissionCode": "CA_L"
+  },
+  {
+    "module": "category",
+    "endpoint": "create",
+    "path": "v1/category/create",
+    "method": "POST",
+    "permissionCode": "CA_C"
+  },
+  {
+    "module": "category",
+    "endpoint": "update",
+    "path": "v1/category/update",
+    "method": "PUT",
+    "permissionCode": "CA_U"
+  },
+  {
+    "module": "category",
+    "endpoint": "delete",
+    "path": "v1/category/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "CA_D"
+  },
+  {
+    "module": "category",
+    "endpoint": "getById",
+    "path": "v1/category/get/:id",
+    "method": "GET",
+    "permissionCode": "CA_V"
+  },
+  {
+    "module": "blog",
+    "endpoint": "getList",
+    "path": "v1/blog/list",
+    "method": "GET",
+    "permissionCode": "BL_L"
+  },
+  {
+    "module": "blog",
+    "endpoint": "getById",
+    "path": "v1/blog/get/:id",
+    "method": "GET",
+    "permissionCode": "BL_V"
+  },
+  {
+    "module": "blog",
+    "endpoint": "create",
+    "path": "v1/blog/create",
+    "method": "POST",
+    "permissionCode": "BL_C"
+  },
+  {
+    "module": "blog",
+    "endpoint": "update",
+    "path": "v1/blog/update",
+    "method": "PUT",
+    "permissionCode": "BL_U"
+  },
+  {
+    "module": "blog",
+    "endpoint": "delete",
+    "path": "v1/blog/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "BL_D"
+  },
+  {
+    "module": "blog",
+    "endpoint": "approve",
+    "path": "v1/blog/approve",
+    "method": "PUT",
+    "permissionCode": "BL_AP"
+  },
+  {
+    "module": "blog",
+    "endpoint": "reject",
+    "path": "v1/blog/reject",
+    "method": "PUT",
+    "permissionCode": "BL_AP"
+  },
+  {
+    "module": "blog",
+    "endpoint": "educatorList",
+    "path": "v1/blog/educator-list",
+    "method": "GET",
+    "permissionCode": "BL_ED_L"
+  },
+  {
+    "module": "blog",
+    "endpoint": "educatorGet",
+    "path": "v1/blog/educator-get/:id",
+    "method": "GET",
+    "permissionCode": "BL_ED_V"
+  },
+  {
+    "module": "student",
+    "endpoint": "delete",
+    "path": "v1/student/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "ST_D"
+  },
+  {
+    "module": "student",
+    "endpoint": "getById",
+    "path": "v1/student/get/:id",
+    "method": "GET",
+    "permissionCode": "ST_V"
+  },
+  {
+    "module": "student",
+    "endpoint": "getList",
+    "path": "v1/student/list",
+    "method": "GET",
+    "permissionCode": "ST_L"
+  },
+  {
+    "module": "student",
+    "endpoint": "update",
+    "path": "v1/student/update",
+    "method": "PUT",
+    "permissionCode": "ST_U"
+  },
+  {
+    "module": "educator",
+    "endpoint": "approve",
+    "path": "v1/educator/approve",
+    "method": "PUT",
+    "permissionCode": "ED_AP"
+  },
+  {
+    "module": "educator",
+    "endpoint": "autoComplete",
+    "path": "v1/educator/auto-complete",
+    "method": "GET",
+    "permissionCode": "ED_AP"
+  },
+  {
+    "module": "educator",
+    "endpoint": "clientUpdate",
+    "path": "v1/educator/client_update",
+    "method": "PUT",
+    "permissionCode": "ED_U_U"
+  },
+  {
+    "module": "educator",
+    "endpoint": "delete",
+    "path": "v1/educator/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "ED_D"
+  },
+  {
+    "module": "educator",
+    "endpoint": "getById",
+    "path": "v1/educator/get/:id",
+    "method": "GET",
+    "permissionCode": "ED_V"
+  },
+  {
+    "module": "educator",
+    "endpoint": "getList",
+    "path": "v1/educator/list",
+    "method": "GET",
+    "permissionCode": "ED_L"
+  },
+  {
+    "module": "educator",
+    "endpoint": "profile",
+    "path": "v1/educator/profile",
+    "method": "GET",
+    "permissionCode": "ED_U_P"
+  },
+  {
+    "module": "educator",
+    "endpoint": "reject",
+    "path": "v1/educator/reject",
+    "method": "PUT",
+    "permissionCode": "ED_RJ"
+  },
+  {
+    "module": "educator",
+    "endpoint": "register",
+    "path": "v1/educator/signup",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "educator",
+    "endpoint": "update",
+    "path": "v1/educator/update",
+    "method": "PUT",
+    "permissionCode": "ED_U"
+  },
+  {
+    "module": "user",
+    "endpoint": "getList",
+    "path": "v1/account/list",
+    "method": "GET",
+    "permissionCode": "ACC_L"
+  },
+  {
+    "module": "user",
+    "endpoint": "autocomplete",
+    "path": "v1/account/auto-complete",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "user",
+    "endpoint": "getById",
+    "path": "v1/account/get/:id",
+    "method": "GET",
+    "permissionCode": "ACC_V"
+  },
+  {
+    "module": "user",
+    "endpoint": "create",
+    "path": "v1/account/create_admin",
+    "method": "POST",
+    "permissionCode": "ACC_C_AD"
+  },
+  {
+    "module": "user",
+    "endpoint": "update",
+    "path": "v1/account/update_admin",
+    "method": "PUT",
+    "permissionCode": "ACC_U_AD"
+  },
+  {
+    "module": "user",
+    "endpoint": "delete",
+    "path": "v1/account/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "ACC_D"
+  },
+  {
+    "module": "file",
+    "endpoint": "upload",
+    "path": "v1/file/upload",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "file",
+    "endpoint": "download",
+    "path": "v1/file/download",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "post",
+    "endpoint": "getList",
+    "path": "api/posts/list",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "post",
+    "endpoint": "getById",
+    "path": "api/posts/get/:id",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "post",
+    "endpoint": "create",
+    "path": "api/posts/create",
+    "method": "POST",
+    "permissionCode": null
+  },
+  {
+    "module": "post",
+    "endpoint": "update",
+    "path": "api/posts/update",
+    "method": "PUT",
+    "permissionCode": null
+  },
+  {
+    "module": "post",
+    "endpoint": "delete",
+    "path": "api/posts/:id",
+    "method": "DELETE",
+    "permissionCode": null
+  },
+  {
+    "module": "post",
+    "endpoint": "autocomplete",
+    "path": "api/posts/auto-complete",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "review",
+    "endpoint": "create",
+    "path": "v1/review/create",
+    "method": "POST",
+    "permissionCode": "RE_C"
+  },
+  {
+    "module": "review",
+    "endpoint": "list",
+    "path": "v1/review/list",
+    "method": "GET",
+    "permissionCode": "RE_L"
+  },
+  {
+    "module": "review",
+    "endpoint": "update",
+    "path": "v1/review/update",
+    "method": "PUT",
+    "permissionCode": "RE_U"
+  },
+  {
+    "module": "review",
+    "endpoint": "delete",
+    "path": "v1/review/delete",
+    "method": "DELETE",
+    "permissionCode": "RE_D"
+  },
+  {
+    "module": "review",
+    "endpoint": "getListForClient",
+    "path": "v1/review/client_list",
+    "method": "GET",
+    "permissionCode": "RE_L"
+  },
+  {
+    "module": "notification",
+    "endpoint": "getByStudent",
+    "path": "v1/notification/student-get",
+    "method": "GET",
+    "permissionCode": "NO_ST_V"
+  },
+  {
+    "module": "notification",
+    "endpoint": "getListByStudent",
+    "path": "v1/notification/student_list",
+    "method": "GET",
+    "permissionCode": "NO_ST_L"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "getForEducator",
+    "path": "v1/review_submission/educator_get/:id",
+    "method": "GET",
+    "permissionCode": "RS_ED_STV"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "getForStudent",
+    "path": "v1/review_submission/student_get/:id",
+    "method": "GET",
+    "permissionCode": "RS_ST_STV"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "create",
+    "path": "v1/review_submission/create",
+    "method": "POST",
+    "permissionCode": "RS_ED_C"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "delete",
+    "path": "v1/review_submission/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "RS_ED_D"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "update",
+    "path": "v1/review_submission/update",
+    "method": "PUT",
+    "permissionCode": "RS_ED_U"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "educatorList",
+    "path": "v1/review_submission/educator_list",
+    "method": "GET",
+    "permissionCode": "RS_ED_STL"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "studentList",
+    "path": "v1/review_submission/students_list",
+    "method": "GET",
+    "permissionCode": "RS_ST_STL"
+  },
+  {
+    "module": "reviewSubmission",
+    "endpoint": "completeReview",
+    "path": "v1/review_submission/complete_review",
+    "method": "PUT",
+    "permissionCode": "RS_ED_CR"
+  },
+  {
+    "module": "taskProgress",
+    "endpoint": "list",
+    "path": "v1/task_progress/list",
+    "method": "GET",
+    "permissionCode": "STP_L"
+  },
+  {
+    "module": "taskProgress",
+    "endpoint": "get",
+    "path": "v1/task_progress/get/:id",
+    "method": "GET",
+    "permissionCode": "STP_V"
+  },
+  {
+    "module": "taskProgress",
+    "endpoint": "educatorGet",
+    "path": "v1/task_progress/educator_get/:id",
+    "method": "GET",
+    "permissionCode": "STP_ED_V"
+  },
+  {
+    "module": "comment",
+    "endpoint": "list",
+    "path": "v1/comment/list",
+    "method": "GET",
+    "permissionCode": "CM_L"
+  },
+  {
+    "module": "comment",
+    "endpoint": "create",
+    "path": "v1/comment/create",
+    "method": "POST",
+    "permissionCode": "CM_US_C"
+  },
+  {
+    "module": "comment",
+    "endpoint": "update",
+    "path": "v1/comment/update",
+    "method": "PUT",
+    "permissionCode": "CM_US_U"
+  },
+  {
+    "module": "comment",
+    "endpoint": "delete",
+    "path": "v1/comment/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "CM_US_D"
+  },
+  {
+    "module": "feedback",
+    "endpoint": "list",
+    "path": "v1/feedback/list",
+    "method": "GET",
+    "permissionCode": "FB_L"
+  },
+  {
+    "module": "feedback",
+    "endpoint": "delete",
+    "path": "v1/feedback/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "FB_ST_D"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getGroupList",
+    "path": "v1/group/list",
+    "method": "GET",
+    "permissionCode": "GR_L"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getList",
+    "path": "v1/group/list",
+    "method": "GET",
+    "permissionCode": "GR_L"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getPemissionList",
+    "path": "v1/permission/list",
+    "method": "GET",
+    "permissionCode": "PER_L"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getPemissionListByApp",
+    "path": "v1/project-role-permission/list-by-app",
+    "method": "GET",
+    "permissionCode": "PRP_L_A"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getById",
+    "path": "v1/group/get/:id",
+    "method": "GET",
+    "permissionCode": "GR_V"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "create",
+    "path": "v1/group/create",
+    "method": "POST",
+    "permissionCode": "GR_C"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "update",
+    "path": "v1/group/update",
+    "method": "PUT",
+    "permissionCode": "GR_U"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "delete",
+    "path": "v1/group/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "GR_D"
+  },
+  {
+    "module": "groupPermission",
+    "endpoint": "getGroupListCombobox",
+    "path": "v1/group/list_combobox",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "settings",
+    "endpoint": "getList",
+    "path": "v1/setting/list",
+    "method": "GET",
+    "permissionCode": "SET_L"
+  },
+  {
+    "module": "settings",
+    "endpoint": "getById",
+    "path": "v1/setting/get/:id",
+    "method": "GET",
+    "permissionCode": "SET_V"
+  },
+  {
+    "module": "settings",
+    "endpoint": "create",
+    "path": "v1/setting/create",
+    "method": "POST",
+    "permissionCode": "SET_C"
+  },
+  {
+    "module": "settings",
+    "endpoint": "update",
+    "path": "v1/setting/update",
+    "method": "PUT",
+    "permissionCode": "SET_U"
+  },
+  {
+    "module": "settings",
+    "endpoint": "delete",
+    "path": "v1/setting/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "SET_D"
+  },
+  {
+    "module": "settings",
+    "endpoint": "autocomplete",
+    "path": "v1/setting/auto-complete",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "settings",
+    "endpoint": "settings",
+    "path": "v1/setting/settings",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getList",
+    "path": "v1/contacts/list",
+    "method": "GET",
+    "permissionCode": "CNT_L_AD"
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getListClient",
+    "path": "v1/contacts/client_list",
+    "method": "GET",
+    "permissionCode": "CNT_L"
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getById",
+    "path": "v1/contacts/get/:id",
+    "method": "GET",
+    "permissionCode": "CNT_V_AD"
+  },
+  {
+    "module": "contacts",
+    "endpoint": "getByIdClient",
+    "path": "v1/contacts/client-get/:id",
+    "method": "GET",
+    "permissionCode": "CNT_V"
+  },
+  {
+    "module": "contacts",
+    "endpoint": "create",
+    "path": "v1/contacts/create",
+    "method": "POST",
+    "permissionCode": "CNT_C"
+  },
+  {
+    "module": "contacts",
+    "endpoint": "update",
+    "path": "v1/contacts/update",
+    "method": "PUT",
+    "permissionCode": "CNT_U"
+  },
+  {
+    "module": "contacts",
+    "endpoint": "delete",
+    "path": "v1/contacts/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "CNT_D"
+  },
+  {
+    "module": "employee",
+    "endpoint": "getList",
+    "path": "v1/employee/list",
+    "method": "GET",
+    "permissionCode": "EMP_L"
+  },
+  {
+    "module": "employee",
+    "endpoint": "getById",
+    "path": "v1/employee/get/:id",
+    "method": "GET",
+    "permissionCode": "EMP_V"
+  },
+  {
+    "module": "employee",
+    "endpoint": "create",
+    "path": "v1/employee/create",
+    "method": "POST",
+    "permissionCode": "EMP_C"
+  },
+  {
+    "module": "employee",
+    "endpoint": "update",
+    "path": "v1/employee/update",
+    "method": "PUT",
+    "permissionCode": "EMP_U"
+  },
+  {
+    "module": "employee",
+    "endpoint": "delete",
+    "path": "v1/employee/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "EMP_D"
+  },
+  {
+    "module": "employee",
+    "endpoint": "autocomplete",
+    "path": "v1/employee/auto-complete",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getList",
+    "path": "v1/device-employee/list",
+    "method": "GET",
+    "permissionCode": "DEE_L"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getListForClient",
+    "path": "v1/device-employee/client_list",
+    "method": "GET",
+    "permissionCode": "CNT_L"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getById",
+    "path": "v1/device-employee/get/:id",
+    "method": "GET",
+    "permissionCode": "DEE_V"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "getByIdForClient",
+    "path": "v1/device-employee/client-get/:id",
+    "method": "GET",
+    "permissionCode": "CNT_V"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "create",
+    "path": "v1/device-employee/create",
+    "method": "POST",
+    "permissionCode": "CNT_C"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "createForClient",
+    "path": "v1/device-employee/client-create",
+    "method": "POST",
+    "permissionCode": "DEE_C"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "update",
+    "path": "v1/device-employee/update",
+    "method": "PUT",
+    "permissionCode": "DEE_U"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "updateForClient",
+    "path": "v1/device-employee/client-update",
+    "method": "PUT",
+    "permissionCode": "CNT_U"
+  },
+  {
+    "module": "deviceEmployee",
+    "endpoint": "delete",
+    "path": "v1/device-employee/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "DEE_D"
+  },
+  {
+    "module": "message",
+    "endpoint": "getList",
+    "path": "v1/message/list",
+    "method": "GET",
+    "permissionCode": "MES_L_AD"
+  },
+  {
+    "module": "message",
+    "endpoint": "getListForClient",
+    "path": "v1/message/client_list",
+    "method": "GET",
+    "permissionCode": "MES_L"
+  },
+  {
+    "module": "message",
+    "endpoint": "getById",
+    "path": "v1/message/get/:id",
+    "method": "GET",
+    "permissionCode": "MES_V_AD"
+  },
+  {
+    "module": "message",
+    "endpoint": "getByIdForClient",
+    "path": "v1/message/client-get/:id",
+    "method": "GET",
+    "permissionCode": "MES_V"
+  },
+  {
+    "module": "message",
+    "endpoint": "create",
+    "path": "v1/message/create",
+    "method": "POST",
+    "permissionCode": "MES_C"
+  },
+  {
+    "module": "message",
+    "endpoint": "update",
+    "path": "v1/message/update",
+    "method": "PUT",
+    "permissionCode": "MES_U"
+  },
+  {
+    "module": "message",
+    "endpoint": "delete",
+    "path": "v1/message/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "MES_D"
+  },
+  {
+    "module": "nation",
+    "endpoint": "getList",
+    "path": "v1/nation/list",
+    "method": "GET",
+    "permissionCode": "NAT_L"
+  },
+  {
+    "module": "nation",
+    "endpoint": "getById",
+    "path": "v1/nation/get/:id",
+    "method": "GET",
+    "permissionCode": "NAT_V"
+  },
+  {
+    "module": "nation",
+    "endpoint": "autoComplete",
+    "path": "v1/nation/auto-complete",
+    "method": "GET",
+    "permissionCode": "NAT_L"
+  },
+  {
+    "module": "nation",
+    "endpoint": "create",
+    "path": "v1/nation/create",
+    "method": "POST",
+    "permissionCode": "NAT_C"
+  },
+  {
+    "module": "nation",
+    "endpoint": "update",
+    "path": "v1/nation/update",
+    "method": "PUT",
+    "permissionCode": "NAT_U"
+  },
+  {
+    "module": "nation",
+    "endpoint": "delete",
+    "path": "v1/nation/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "NAT_D"
+  },
+  {
+    "module": "nation",
+    "endpoint": "getClientList",
+    "path": "v1/nation/client_list",
+    "method": "GET",
+    "permissionCode": "NAT_L"
+  },
+  {
+    "module": "nation",
+    "endpoint": "getClientById",
+    "path": "v1/nation/client-get/:id",
+    "method": "GET",
+    "permissionCode": "NAT_V"
+  },
+  {
+    "module": "tag",
+    "endpoint": "getList",
+    "path": "v1/tag/list",
+    "method": "GET",
+    "permissionCode": "TAG_L"
+  },
+  {
+    "module": "tag",
+    "endpoint": "getById",
+    "path": "v1/tag/get/:id",
+    "method": "GET",
+    "permissionCode": "TAG_V"
+  },
+  {
+    "module": "tag",
+    "endpoint": "create",
+    "path": "v1/tag/create",
+    "method": "POST",
+    "permissionCode": "TAG_C"
+  },
+  {
+    "module": "tag",
+    "endpoint": "update",
+    "path": "v1/tag/update",
+    "method": "PUT",
+    "permissionCode": "TAG_U"
+  },
+  {
+    "module": "tag",
+    "endpoint": "delete",
+    "path": "v1/tag/delete/:id",
+    "method": "DELETE",
+    "permissionCode": "TAG_D"
+  },
+  {
+    "module": "deviceEmployeeLog",
+    "endpoint": "getList",
+    "path": "v1/device-employee-log/list",
+    "method": "GET",
+    "permissionCode": "DEL_L"
+  },
+  {
+    "module": "deviceEmployeeLog",
+    "endpoint": "getById",
+    "path": "v1/device-employee-log/get/:id",
+    "method": "GET",
+    "permissionCode": "DEL_V"
+  },
+  {
+    "module": "guestSimulation",
+    "endpoint": "getList",
+    "path": "v1/simulation/guest_list",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "guestSimulation",
+    "endpoint": "getById",
+    "path": "v1/simulation/guest_get/:id",
+    "method": "GET",
+    "permissionCode": null
+  },
+  {
+    "module": "questionQuizHistory",
+    "endpoint": "create",
+    "path": "v1/question_quiz_history/create",
+    "method": "POST",
+    "permissionCode": "QQH_ST_C"
+  },
+  {
+    "module": "questionQuizHistory",
+    "endpoint": "list",
+    "path": "v1/question_quiz_history/list",
+    "method": "GET",
+    "permissionCode": "QQH_ST_L"
+  }
+]
