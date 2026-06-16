@@ -752,34 +752,74 @@ const apiConfig = {
 
     reviewSubmission: {
         getForEducator: {
-            baseURL: `${apiUrl}v1/review-submission/educator-get/:simulationId/student/:username`,
+            baseURL: `${apiUrl}v1/review_submission/educator_get/:id`,
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'RESUB_ED_V',
         },
         getForStudent: {
-            baseURL: `${apiUrl}v1/review-submission/student-get/:simulationId`,
+            baseURL: `${apiUrl}v1/review_submission/student-get/:simulationId`,
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'RESUB_ST_V',
         },
         create: {
-            baseURL: `${apiUrl}v1/review-submission/create`,
+            baseURL: `${apiUrl}v1/review_submission/create`,
             method: 'POST',
             headers: baseHeader,
             permissionCode: 'RESUB_C',
         },
         delete: {
-            baseURL: `${apiUrl}v1/review-submission/delete/:id`,
+            baseURL: `${apiUrl}v1/review_submission/delete/:id`,
             method: 'DELETE',
             headers: baseHeader,
             permissionCode: 'RESUB_D',
         },
         update: {
-            baseURL: `${apiUrl}v1/review-submission/update`,
+            baseURL: `${apiUrl}v1/review_submission/update`,
             method: 'PUT',
             headers: baseHeader,
             permissionCode: 'RESUB_U',
+        },
+        educatorList: {
+            baseURL: `${apiUrl}v1/review_submission/educator_list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'RESUB_ED_L',
+        },
+    },
+    taskProgress: {
+        list: {
+            baseURL: `${apiUrl}v1/task_progress/list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'TAPR_L',
+        },
+        get: {
+            baseURL: `${apiUrl}v1/task_progress/get/:id`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'TAPR_V',
+        },
+    },
+    comment: {
+        list: {
+            baseURL: `${apiUrl}v1/comment/list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'COM_L',
+        },
+        create: {
+            baseURL: `${apiUrl}v1/comment/create`,
+            method: 'POST',
+            headers: baseHeader,
+            permissionCode: 'COM_C',
+        },
+        update: {
+            baseURL: `${apiUrl}v1/comment/update`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'COM_U',
         },
     },
     groupPermission: {
