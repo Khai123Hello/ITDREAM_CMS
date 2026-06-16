@@ -1,5 +1,5 @@
 import { sendRequest } from '@services/api';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import apiUrl from '@constants/apiConfig';
 import useIsMounted from './useIsMounted';
 
@@ -18,6 +18,18 @@ const useFetch = (
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const isMounted = useIsMounted();
+
+    // Dùng ref để lưu các callback/mappingData dạng inline function
+    // Tránh chúng làm thay đổi deps của useCallback mỗi render → gây gọi API liên tục
+    const mappingDataRef = useRef(mappingData);
+    const defaultOnCompletedRef = useRef(defaultOnCompleted);
+    const defaultOnErrorRef = useRef(defaultOnError);
+
+    // Cập nhật ref mỗi render nhưng KHÔNG trigger re-create execute
+    mappingDataRef.current = mappingData;
+    defaultOnCompletedRef.current = defaultOnCompleted;
+    defaultOnErrorRef.current = defaultOnError;
+
     const execute = useCallback(
         async ({ onCompleted, onError, ...payload } = {}, cancelType) => {
             if (isMounted()) {
@@ -25,42 +37,38 @@ const useFetch = (
                 setError(null);
             }
             try {
-                console.log('[useFetch] calling sendRequest. apiConfig:', apiConfig, 'payload:', { params, pathParams, ...payload });
                 const { data } = await sendRequest(apiConfig, { params, pathParams, ...payload }, cancelType);
-                console.log('[useFetch] sendRequest response data:', data);
-                if (
-                    !data.result &&
-                    data.statusCode !== 200 &&
-                    apiConfig.baseURL != apiUrl.account.loginBasic.baseURL
-                ) {
+                if (!data.result && data.statusCode !== 200 && apiConfig.baseURL != apiUrl.account.loginBasic.baseURL) {
                     throw data;
                 }
                 if (isMounted()) {
-                    !cancelType && setData(mappingData ? mappingData(data) : data);
+                    !cancelType && setData(mappingDataRef.current ? mappingDataRef.current(data) : data);
                 }
-                const finalOnCompleted = onCompleted || defaultOnCompleted;
+                const finalOnCompleted = onCompleted || defaultOnCompletedRef.current;
                 if (finalOnCompleted) {
-                    console.log('[useFetch] invoking finalOnCompleted callback');
                     finalOnCompleted(data);
                 }
                 return data;
-            } catch (error) {
+            } catch (err) {
                 if (isMounted()) {
-                    !cancelType && setError(error);
+                    !cancelType && setError(err);
                 }
-                const finalOnError = onError || defaultOnError;
+                const finalOnError = onError || defaultOnErrorRef.current;
                 if (finalOnError) {
-                    finalOnError(error);
+                    finalOnError(err);
                 }
-                return error;
+                return err;
             } finally {
                 if (isMounted()) {
                     !cancelType && setLoading(false);
                 }
             }
         },
-        [apiConfig, defaultOnCompleted, defaultOnError, isMounted, mappingData, JSON.stringify(params), JSON.stringify(pathParams)],
+        // Chỉ recreate execute khi apiConfig, params, pathParams thực sự thay đổi
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [apiConfig, isMounted, JSON.stringify(params), JSON.stringify(pathParams)],
     );
+
     useEffect(() => {
         if (immediate) {
             execute();

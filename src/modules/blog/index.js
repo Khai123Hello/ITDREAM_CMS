@@ -187,7 +187,9 @@ const BlogListPage = ({ pageOptions = {} }) => {
             align: 'center',
             render: (image) => {
                 const imageUrl = image
-                    ? (image.startsWith('http') ? image : `${AppConstants.contentRootUrl}${image}`)
+                    ? image.startsWith('http')
+                        ? image
+                        : `${AppConstants.contentRootUrl}${image}`
                     : null;
                 return imageUrl ? (
                     <img

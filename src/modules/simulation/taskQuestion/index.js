@@ -163,9 +163,7 @@ const TaskQuestionListPage = ({ pageOptions }) => {
         ),
     ];
 
-    const searchFields = [
-        { key: 'question', placeholder: labels.question },
-    ];
+    const searchFields = [{ key: 'question', placeholder: labels.question }];
 
     return (
         <PageWrapper routes={pageOptions.renderBreadcrumbs(commonMessage, translate, null, { simulationId, taskId })}>

@@ -130,7 +130,7 @@ const LoginPage = () => {
             grant_type: 'educator',
             organizationId: String(orgId),
         };
-        console.log("Dữ liệu gửi xuống BE khi chọn Tổ chức:", googlePayload);
+        console.log('Dữ liệu gửi xuống BE khi chọn Tổ chức:', googlePayload);
         loginGoogleAuth({
             data: googlePayload,
             onCompleted: () => {
@@ -300,7 +300,14 @@ const LoginPage = () => {
                                 </div>
 
                                 <div className={styles.socialButtons}>
-                                    <Button icon={<GoogleOutlined />} size="large" block className={styles.google} onClick={() => loginGoogle()} loading={loadingGoogleAuth || loadingGuestList}>
+                                    <Button
+                                        icon={<GoogleOutlined />}
+                                        size="large"
+                                        block
+                                        className={styles.google}
+                                        onClick={() => loginGoogle()}
+                                        loading={loadingGoogleAuth || loadingGuestList}
+                                    >
                                         Google
                                     </Button>
                                 </div>
@@ -313,17 +320,12 @@ const LoginPage = () => {
                     </div>
                 </div>
             </div>
-            <Modal
-                title="Chọn tổ chức"
-                open={showOrgModal}
-                onCancel={() => setShowOrgModal(false)}
-                footer={null}
-            >
+            <Modal title="Chọn tổ chức" open={showOrgModal} onCancel={() => setShowOrgModal(false)} footer={null}>
                 <p>Vui lòng chọn tổ chức của bạn để hoàn tất đăng nhập lần đầu:</p>
                 <Select
                     style={{ width: '100%', marginTop: 8 }}
                     placeholder="Chọn tổ chức"
-                    options={organizations.map(org => ({
+                    options={organizations.map((org) => ({
                         value: org.id.toString(),
                         label: `${org.name} (${org.shortName})`,
                     }))}

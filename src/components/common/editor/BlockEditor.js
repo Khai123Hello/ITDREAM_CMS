@@ -187,8 +187,8 @@ export default function BlockEditor({
     initialDescription = '',
     initialContent = '',
     onChange,
-    onTitleChange,        // lightweight: called immediately on title keystroke (no JSON.stringify)
-    onDescriptionChange,  // lightweight: called immediately on description keystroke (no JSON.stringify)
+    onTitleChange, // lightweight: called immediately on title keystroke (no JSON.stringify)
+    onDescriptionChange, // lightweight: called immediately on description keystroke (no JSON.stringify)
     onTemplateLoad,
     onTemplateChange,
     defaultTemplate = 'task',
@@ -245,7 +245,9 @@ export default function BlockEditor({
     const syncDebounceRef = useRef(null);
     // Keep latest onChange ref to avoid stale closure
     const onChangeRef = useRef(onChange);
-    useEffect(() => { onChangeRef.current = onChange; }, [onChange]);
+    useEffect(() => {
+        onChangeRef.current = onChange;
+    }, [onChange]);
 
     // Auto-resize textareas
     useEffect(() => {
@@ -323,21 +325,27 @@ export default function BlockEditor({
     }, []);
 
     // Debounced sync — used for TEXT INPUT (typing) to avoid re-render on every keystroke
-    const syncWithParent = useCallback((newTitle, newDesc, newBlocks) => {
-        if (!onChangeRef.current) return;
-        if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
-        syncDebounceRef.current = setTimeout(() => {
-            onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
-        }, 300);
-    }, [buildPayload]);
+    const syncWithParent = useCallback(
+        (newTitle, newDesc, newBlocks) => {
+            if (!onChangeRef.current) return;
+            if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+            syncDebounceRef.current = setTimeout(() => {
+                onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
+            }, 300);
+        },
+        [buildPayload],
+    );
 
     // Immediate sync — used for STRUCTURAL changes (add/delete/move/template)
-    const syncWithParentImmediate = useCallback((newTitle, newDesc, newBlocks) => {
-        if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
-        if (onChangeRef.current) {
-            onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
-        }
-    }, [buildPayload]);
+    const syncWithParentImmediate = useCallback(
+        (newTitle, newDesc, newBlocks) => {
+            if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
+            if (onChangeRef.current) {
+                onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
+            }
+        },
+        [buildPayload],
+    );
 
     // Tạo template snapshot (bỏ id block để so sánh nội dung thuần)
     const buildTemplateSnapshot = (tmplTitle, tmplDesc, tmplBlocks) => {
@@ -1077,9 +1085,7 @@ export default function BlockEditor({
                                                         handleBlocksChangeImmediate([...blocks]);
                                                     }}
                                                 />
-                                                <span className="b-quiz-option-letter">
-                                                    {String.fromCharCode(65 + oi)}.
-                                                </span>
+                                                <span className="b-quiz-option-letter">{String.fromCharCode(65 + oi)}.</span>
                                                 <EditableText
                                                     className="b-quiz-option-text"
                                                     value={opt.option}
@@ -1132,7 +1138,7 @@ export default function BlockEditor({
                                                             handleBlocksChangeImmediate([...blocks]);
                                                         }}
                                                     >
-                                                        ✕
+                                            ✕
                                                     </button>
                                                 )}
                                             </div>
@@ -1151,7 +1157,7 @@ export default function BlockEditor({
                                             }, 30);
                                         }}
                                     >
-                                        ＋ Thêm đáp án
+                            ＋ Thêm đáp án
                                     </button>
                                 </div>
                             );

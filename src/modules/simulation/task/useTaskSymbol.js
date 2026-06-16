@@ -1,12 +1,7 @@
 import { useState, useEffect } from 'react';
 import { TaskTypes } from '@constants';
 
-export const useTaskSymbol = ({
-    taskKind,
-    parentOrder = 1,
-    taskOrder = 1,
-    initialValue = '',
-}) => {
+export const useTaskSymbol = ({ taskKind, parentOrder = 1, taskOrder = 1, initialValue = '' }) => {
     const [requiresFileUpload, setRequiresFileUpload] = useState(false);
     const [requiresTextResponse, setRequiresTextResponse] = useState(false);
     const [symbol, setSymbol] = useState('');

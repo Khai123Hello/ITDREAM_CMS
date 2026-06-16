@@ -149,7 +149,11 @@ const StudentForm = (props) => {
                             >
                                 {imageUrl ? (
                                     <img
-                                        src={imageUrl.startsWith('http') ? imageUrl : `${AppConstants.contentRootUrl}${imageUrl}`}
+                                        src={
+                                            imageUrl.startsWith('http')
+                                                ? imageUrl
+                                                : `${AppConstants.contentRootUrl}${imageUrl}`
+                                        }
                                         alt="avatar"
                                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
@@ -170,7 +174,12 @@ const StudentForm = (props) => {
                                     <CropImageField
                                         label="Tải ảnh lên"
                                         name="avatarUpload"
-                                        imageUrl={imageUrl && (imageUrl.startsWith('http') ? imageUrl : `${AppConstants.contentRootUrl}${imageUrl}`)}
+                                        imageUrl={
+                                            imageUrl &&
+                                            (imageUrl.startsWith('http')
+                                                ? imageUrl
+                                                : `${AppConstants.contentRootUrl}${imageUrl}`)
+                                        }
                                         aspect={1 / 1}
                                         uploadFile={uploadFile}
                                     />

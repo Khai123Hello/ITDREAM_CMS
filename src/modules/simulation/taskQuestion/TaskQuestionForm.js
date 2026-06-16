@@ -155,10 +155,7 @@ const TaskQuestionForm = (props) => {
 
                     <Row gutter={16}>
                         <Col span={24}>
-                            <Form.Item
-                                label="Danh sách đáp án (Chọn checkbox để đánh dấu đáp án đúng)"
-                                name="options"
-                            >
+                            <Form.Item label="Danh sách đáp án (Chọn checkbox để đánh dấu đáp án đúng)" name="options">
                                 <div
                                     style={{
                                         padding: '16px',
@@ -174,17 +171,13 @@ const TaskQuestionForm = (props) => {
                                                 padding: '12px',
                                                 background: 'white',
                                                 borderRadius: '8px',
-                                                border: option.answer
-                                                    ? '2px solid #52c41a'
-                                                    : '1px solid #d9d9d9',
+                                                border: option.answer ? '2px solid #52c41a' : '1px solid #d9d9d9',
                                             }}
                                         >
                                             <Space style={{ display: 'flex', width: '100%' }} align="start">
                                                 <Checkbox
                                                     checked={option.answer}
-                                                    onChange={(e) =>
-                                                        handleCorrectChange(option.id, e.target.checked)
-                                                    }
+                                                    onChange={(e) => handleCorrectChange(option.id, e.target.checked)}
                                                     style={{ marginTop: '8px' }}
                                                 />
                                                 <div style={{ flex: 1 }}>
@@ -196,9 +189,7 @@ const TaskQuestionForm = (props) => {
                                                             marginBottom: '8px',
                                                         }}
                                                     >
-                                                        <Tag color="blue">
-                                                            Đáp án {String.fromCharCode(65 + index)}
-                                                        </Tag>
+                                                        <Tag color="blue">Đáp án {String.fromCharCode(65 + index)}</Tag>
                                                         {option.answer && (
                                                             <Tag color="success" icon={<CheckCircleOutlined />}>
                                                                 Đúng

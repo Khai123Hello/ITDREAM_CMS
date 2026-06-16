@@ -1,19 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import {
-    Card,
-    Col,
-    Row,
-    Button,
-    Input,
-    Space,
-    Modal,
-    Divider,
-    Tag,
-    Alert,
-    message,
-    Tabs,
-    Upload,
-} from 'antd';
+import { Card, Col, Row, Button, Input, Space, Modal, Divider, Tag, Alert, message, Tabs, Upload } from 'antd';
 import { DownloadOutlined, BookOutlined, AppstoreOutlined, FileOutlined, UploadOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
@@ -250,7 +236,16 @@ const TaskForm = (props) => {
 
     const parentTaskFromState = props.parentTask || location.state?.parentTask;
 
-    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, isEditing, simulationId, onQuestionsChange } = props;
+    const {
+        formId,
+        actions,
+        dataDetail,
+        onSubmit,
+        setIsChangedFormValues,
+        isEditing,
+        simulationId,
+        onQuestionsChange,
+    } = props;
 
     const { execute: executeUpFile } = useFetch(apiConfig.file.upload, { immediate: false });
 
@@ -315,46 +310,57 @@ const TaskForm = (props) => {
         } catch (e) {
             console.error(e);
         }
-        
+
         return (
             <a href={url} target="_blank" rel="noreferrer" style={{ textDecoration: 'none' }}>
-                <div style={{ 
-                    border: '1px solid #f0f0f0', 
-                    borderRadius: 8, 
-                    padding: '24px', 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    alignItems: 'flex-start',
-                    background: '#fff',
-                    marginTop: 16,
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                    transition: 'box-shadow 0.3s',
-                    width: '100%',
-                    maxWidth: '400px',
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)'}
-                onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)'}
-                >
-                    <div style={{
-                        background: '#00a884',
-                        color: 'white',
-                        padding: '12px 8px',
-                        borderRadius: '4px 12px 4px 4px',
-                        fontWeight: 'bold',
-                        fontSize: 16,
-                        marginBottom: 16,
+                <div
+                    style={{
+                        border: '1px solid #f0f0f0',
+                        borderRadius: 8,
+                        padding: '24px',
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        minWidth: 50,
-                        minHeight: 60,
-                    }}>
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        background: '#fff',
+                        marginTop: 16,
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                        transition: 'box-shadow 0.3s',
+                        width: '100%',
+                        maxWidth: '400px',
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.boxShadow = '0 6px 16px rgba(0,0,0,0.1)')}
+                    onMouseLeave={(e) => (e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)')}
+                >
+                    <div
+                        style={{
+                            background: '#00a884',
+                            color: 'white',
+                            padding: '12px 8px',
+                            borderRadius: '4px 12px 4px 4px',
+                            fontWeight: 'bold',
+                            fontSize: 16,
+                            marginBottom: 16,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: 50,
+                            minHeight: 60,
+                        }}
+                    >
                         {extension}
                     </div>
                     <div style={{ fontWeight: 'bold', fontSize: 18, color: '#000', marginBottom: 16 }}>
                         {fileName.length > 30 ? fileName.substring(0, 30) + '...' : fileName}
                     </div>
-                    <div style={{ color: '#00a884', fontWeight: '600', display: 'flex', alignItems: 'center', fontSize: 16 }}>
+                    <div
+                        style={{
+                            color: '#00a884',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            fontSize: 16,
+                        }}
+                    >
                         Nhấn vào để tải về <span style={{ marginLeft: 8 }}>→</span>
                     </div>
                 </div>
@@ -404,18 +410,13 @@ const TaskForm = (props) => {
         }
     }
 
-    const {
-        symbol,
-        requiresFileUpload,
-        setRequiresFileUpload,
-        requiresTextResponse,
-        setRequiresTextResponse,
-    } = useTaskSymbol({
-        taskKind: isEditing ? Number(dataDetail?.kind) : Number(taskKind),
-        parentOrder,
-        taskOrder,
-        initialValue: dataDetail?.name || '',
-    });
+    const { symbol, requiresFileUpload, setRequiresFileUpload, requiresTextResponse, setRequiresTextResponse } =
+        useTaskSymbol({
+            taskKind: isEditing ? Number(dataDetail?.kind) : Number(taskKind),
+            parentOrder,
+            taskOrder,
+            initialValue: dataDetail?.name || '',
+        });
 
     useEffect(() => {
         if (symbol) {
@@ -558,8 +559,11 @@ const TaskForm = (props) => {
                                 fetchedQuestions.forEach((q) => {
                                     let parsedOpts = [];
                                     try {
-                                        parsedOpts = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
-                                    } catch (e) { /* ignore */ }
+                                        parsedOpts =
+                                            typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
+                                    } catch (e) {
+                                        /* ignore */
+                                    }
                                     const newOpts = parsedOpts.map((opt) => ({
                                         option: opt.option || opt.content || opt.text || '',
                                         answer: opt.answer === true || opt.isCorrect === true,
@@ -599,7 +603,7 @@ const TaskForm = (props) => {
 
     useEffect(() => {
         loadQuestions();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isEditing, dataDetail?.id]);
 
     // Helper: extract quiz questions from content JSON string
@@ -623,7 +627,6 @@ const TaskForm = (props) => {
             return [];
         }
     };
-
 
     // ── kind label ────────────────────────────
     const getCurrentKindLabel = () => {
@@ -764,9 +767,17 @@ const TaskForm = (props) => {
                                         key={`${dataDetail?.id || 'new'}_${questionsLoaded ? 'loaded' : 'loading'}`}
                                         initialTitle={dataDetail?.title || ''}
                                         initialDescription={dataDetail?.description || ''}
-                                        initialContent={content || dataDetail?.content || dataDetail?.introduction || ''}
+                                        initialContent={
+                                            content || dataDetail?.content || dataDetail?.introduction || ''
+                                        }
                                         autoLoadTemplate={Number(taskKind) === TaskTypes.TASK && !isEditing}
-                                        defaultTemplate={isEditing && Number(dataDetail?.type) === 2 ? 'quiz' : (Number(taskKind) === TaskTypes.TASK ? 'task' : 'guide')}
+                                        defaultTemplate={
+                                            isEditing && Number(dataDetail?.type) === 2
+                                                ? 'quiz'
+                                                : Number(taskKind) === TaskTypes.TASK
+                                                    ? 'task'
+                                                    : 'guide'
+                                        }
                                         onTemplateLoad={(snapshot) => setTemplateSnapshot(snapshot)}
                                         // Lightweight: title/desc update form fields only — no setContent, no re-render
                                         onTitleChange={(val) => {
@@ -792,11 +803,25 @@ const TaskForm = (props) => {
                                         }}
                                     />
                                 ) : (
-                                    <div className="read-only-preview-wrap" style={{ background: '#fff', padding: '20px', borderRadius: '8px', border: '1px solid #d9d9d9' }}>
-                                        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>{dataDetail?.title || ''}</h2>
-                                        <p style={{ color: '#666', marginBottom: '16px', fontStyle: 'italic' }}>{dataDetail?.description || ''}</p>
+                                    <div
+                                        className="read-only-preview-wrap"
+                                        style={{
+                                            background: '#fff',
+                                            padding: '20px',
+                                            borderRadius: '8px',
+                                            border: '1px solid #d9d9d9',
+                                        }}
+                                    >
+                                        <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '8px' }}>
+                                            {dataDetail?.title || ''}
+                                        </h2>
+                                        <p style={{ color: '#666', marginBottom: '16px', fontStyle: 'italic' }}>
+                                            {dataDetail?.description || ''}
+                                        </p>
                                         <Divider style={{ margin: '12px 0' }} />
-                                        <RenderPreviewBlocks content={dataDetail?.content || dataDetail?.introduction || ''} />
+                                        <RenderPreviewBlocks
+                                            content={dataDetail?.content || dataDetail?.introduction || ''}
+                                        />
                                     </div>
                                 )
                             ) : null}
@@ -837,7 +862,9 @@ const TaskForm = (props) => {
                                                         name="imagePath"
                                                         imageUrl={getMediaUrl(imagePath)}
                                                         aspect={16 / 9}
-                                                        uploadFile={(file, onSuccess, onError) => uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)}
+                                                        uploadFile={(file, onSuccess, onError) =>
+                                                            uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)
+                                                        }
                                                         disabled={!isEducator}
                                                     />
                                                 </div>
@@ -861,7 +888,17 @@ const TaskForm = (props) => {
                                                 />
                                                 {imagePath && (
                                                     <div style={{ marginTop: 8 }}>
-                                                        <img src={getMediaUrl(imagePath)} alt="Preview" style={{ maxWidth: '100%', maxHeight: 400, borderRadius: 8, border: '1px solid #d9d9d9', objectFit: 'contain' }} />
+                                                        <img
+                                                            src={getMediaUrl(imagePath)}
+                                                            alt="Preview"
+                                                            style={{
+                                                                maxWidth: '100%',
+                                                                maxHeight: 400,
+                                                                borderRadius: 8,
+                                                                border: '1px solid #d9d9d9',
+                                                                objectFit: 'contain',
+                                                            }}
+                                                        />
                                                     </div>
                                                 )}
                                             </div>
@@ -884,13 +921,33 @@ const TaskForm = (props) => {
                                     size="large"
                                     disabled={!isEducator}
                                 />
-                                {videoUrl && (videoUrl.startsWith('http') || videoUrl.startsWith('https')) && videoUrl.endsWith('.mp4') ? (
-                                    <div style={{ marginTop: 8, borderRadius: 8, overflow: 'hidden', border: '1px solid #d9d9d9' }}>
-                                        <video controls style={{ width: '100%', maxHeight: 400, objectFit: 'contain', background: '#000' }} src={videoUrl} />
-                                    </div>
-                                ) : videoUrl ? (
-                                    <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4</div>
-                                ) : null}
+                                {videoUrl &&
+                                (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
+                                videoUrl.endsWith('.mp4') ? (
+                                        <div
+                                            style={{
+                                                marginTop: 8,
+                                                borderRadius: 8,
+                                                overflow: 'hidden',
+                                                border: '1px solid #d9d9d9',
+                                            }}
+                                        >
+                                            <video
+                                                controls
+                                                style={{
+                                                    width: '100%',
+                                                    maxHeight: 400,
+                                                    objectFit: 'contain',
+                                                    background: '#000',
+                                                }}
+                                                src={videoUrl}
+                                            />
+                                        </div>
+                                    ) : videoUrl ? (
+                                        <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
+                                        Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
+                                        </div>
+                                    ) : null}
                             </div>
                         </Col>
 
@@ -904,7 +961,9 @@ const TaskForm = (props) => {
                                         children: (
                                             <Upload.Dragger
                                                 accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
-                                                customRequest={({ file, onSuccess, onError }) => uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)}
+                                                customRequest={({ file, onSuccess, onError }) =>
+                                                    uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)
+                                                }
                                                 showUploadList={false}
                                                 disabled={!isEducator}
                                             >
@@ -933,9 +992,7 @@ const TaskForm = (props) => {
                                     },
                                 ]}
                             />
-                            {filePath && (
-                                <FilePreview url={getMediaUrl(filePath)} />
-                            )}
+                            {filePath && <FilePreview url={getMediaUrl(filePath)} />}
                         </Col>
                     </Row>
                 </>
@@ -1023,11 +1080,13 @@ const TaskForm = (props) => {
         try {
             const parsed = JSON.parse(contentStr);
             if (!Array.isArray(parsed)) return contentStr;
-            return JSON.stringify(parsed.map((block) => {
-                const copy = { ...block };
-                delete copy.id;
-                return copy;
-            }));
+            return JSON.stringify(
+                parsed.map((block) => {
+                    const copy = { ...block };
+                    delete copy.id;
+                    return copy;
+                }),
+            );
         } catch {
             return contentStr || '';
         }
@@ -1035,13 +1094,11 @@ const TaskForm = (props) => {
 
     const isUnchangedFromTemplate = (submitData, snapshot) => {
         if (!snapshot) return false;
-        const titleSame =
-            (submitData.title?.trim() || '') === (snapshot.title?.trim() || '');
-        const contentSame =
-            normalizeContent(submitData.content) === normalizeContent(snapshot.content);
+        const titleSame = (submitData.title?.trim() || '') === (snapshot.title?.trim() || '');
+        const contentSame = normalizeContent(submitData.content) === normalizeContent(snapshot.content);
         const snapshotHasDesc = !!snapshot.description?.trim();
-        const descSame = !snapshotHasDesc ||
-            (submitData.description?.trim() || '') === (snapshot.description?.trim() || '');
+        const descSame =
+            !snapshotHasDesc || (submitData.description?.trim() || '') === (snapshot.description?.trim() || '');
         return titleSame && contentSame && descSame;
     };
 
@@ -1128,9 +1185,7 @@ const TaskForm = (props) => {
 
                     {/* Footer actions */}
                     <div className="footer-card-form" style={{ marginTop: 24 }}>
-                        <Space>
-                            {actions}
-                        </Space>
+                        <Space>{actions}</Space>
                     </div>
                 </Card>
             </BaseForm>
@@ -1173,14 +1228,18 @@ const TaskForm = (props) => {
                     <p style={{ marginBottom: 12 }}>
                         ⚠️ Bạn <strong>chưa chỉnh sửa nội dung</strong> so với mẫu template đã chọn.
                     </p>
-                    <p style={{ color: '#666', fontSize: 13 }}>
-                        Hệ thống phát hiện các trường sau chưa được thay đổi:
-                    </p>
+                    <p style={{ color: '#666', fontSize: 13 }}>Hệ thống phát hiện các trường sau chưa được thay đổi:</p>
                     <ul style={{ color: '#666', fontSize: 13, paddingLeft: 20, marginBottom: 12 }}>
-                        <li><strong>Tiêu đề</strong> — vẫn giống nội dung mẫu</li>
-                        <li><strong>Nội dung</strong> — vẫn giống nội dung mẫu</li>
+                        <li>
+                            <strong>Tiêu đề</strong> — vẫn giống nội dung mẫu
+                        </li>
+                        <li>
+                            <strong>Nội dung</strong> — vẫn giống nội dung mẫu
+                        </li>
                         {templateSnapshot?.description?.trim() && (
-                            <li><strong>Mô tả</strong> — vẫn giống nội dung mẫu</li>
+                            <li>
+                                <strong>Mô tả</strong> — vẫn giống nội dung mẫu
+                            </li>
                         )}
                     </ul>
                     <p>Bạn có muốn lưu với nội dung hiện tại từ template không?</p>

@@ -1,10 +1,12 @@
 import apiConfig from '@constants/apiConfig';
 import BlogListPage from '@modules/blog/index';
 import BlogSavePage from '@modules/blog/BlogSavePage';
+import BlogModerationListPage from '@modules/blog/BlogModerationListPage';
 
 const paths = {
     blogListPage: '/blog',
     blogSavePage: '/blog/:id',
+    blogModerationListPage: '/blog-moderation',
 };
 
 export default {
@@ -32,6 +34,19 @@ export default {
             listPageUrl: paths.blogListPage,
             renderBreadcrumbs: (messages, t, title, options = {}) => {
                 return [{ breadcrumbName: 'Blog', path: paths.blogListPage }, { breadcrumbName: title }];
+            },
+        },
+    },
+    blogModerationListPage: {
+        path: paths.blogModerationListPage,
+        title: 'Blog Moderation Queue',
+        auth: true,
+        component: BlogModerationListPage,
+        permissions: [apiConfig.blog.approve.permissionCode],
+        pageOptions: {
+            objectName: 'Blog',
+            renderBreadcrumbs: (messages, t, title, options = {}) => {
+                return [{ breadcrumbName: 'Duyệt bài viết' }];
             },
         },
     },

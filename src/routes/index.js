@@ -17,6 +17,9 @@ import simulationRoutes from '@modules/simulation/routes';
 import categoryRoutes from '@modules/category/routes';
 import reviewSubmissionRoutes from '@modules/reviewSubmission/routes';
 import blogRoutes from '@modules/blog/routes';
+import organizationRoutes from '@modules/organization/routes';
+import commentRoutes from '@modules/comment/routes';
+import feedbackRoutes from '@modules/feedback/routes';
 
 /*
     auth
@@ -90,6 +93,9 @@ const routes = {
     ...categoryRoutes,
     ...reviewSubmissionRoutes,
     ...blogRoutes,
+    ...organizationRoutes,
+    ...commentRoutes,
+    ...feedbackRoutes,
     // keep this at last
     notFound: {
         component: PageNotFound,

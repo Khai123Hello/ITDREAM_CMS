@@ -629,15 +629,15 @@ const SimulationListPage = ({ pageOptions }) => {
                     task: () => mixinFuncs.hasPermission([apiConfig.task.educatorList.permissionCode]),
                     requestDelete: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE &&
-                        dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
-                        mixinFuncs.hasPermission([apiConfig.simulation.requestDelete.permissionCode]),
+                          dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
+                          mixinFuncs.hasPermission([apiConfig.simulation.requestDelete.permissionCode]),
                     educatorDelete: (dataRow) =>
                         dataRow.status === STATUS_WAITING_APPROVE &&
-                        mixinFuncs.hasPermission([apiConfig.simulation.educatorDelete.permissionCode]),
+                          mixinFuncs.hasPermission([apiConfig.simulation.educatorDelete.permissionCode]),
                     viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
                     edit: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
-                        mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
+                          mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                 }
                 : {
                     task: () => mixinFuncs.hasPermission([apiConfig.task.getList.permissionCode]),

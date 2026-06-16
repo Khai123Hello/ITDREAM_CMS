@@ -14,8 +14,22 @@ import { taskKindOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
 import '@components/simulation/TaskSubTaskDnd.css';
-import { DndContext, useSensor, useSensors, PointerSensor, KeyboardSensor, closestCenter, DragOverlay } from '@dnd-kit/core';
-import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable';
+import {
+    DndContext,
+    useSensor,
+    useSensors,
+    PointerSensor,
+    KeyboardSensor,
+    closestCenter,
+    DragOverlay,
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+    arrayMove,
+} from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
@@ -77,7 +91,9 @@ const TaskListPage = ({ pageOptions }) => {
             const parentIndex = taskItems.findIndex((t) => String(t.id) === String(parentId));
             const parentOrder = parentIndex !== -1 ? parentIndex + 1 : 1;
             const parentTaskItem = taskItems[parentIndex];
-            const subTaskIndex = parentTaskItem ? parentTaskItem.children?.findIndex((s) => String(s.id) === String(record.id)) : -1;
+            const subTaskIndex = parentTaskItem
+                ? parentTaskItem.children?.findIndex((s) => String(s.id) === String(record.id))
+                : -1;
             const taskOrder = subTaskIndex !== -1 ? subTaskIndex + 1 : 1;
             return { parentOrder, taskOrder };
         } else {
@@ -425,7 +441,7 @@ const TaskListPage = ({ pageOptions }) => {
             const overIndex = isOverSubtask
                 ? destinationTask.children.findIndex((item) => item.id === overId)
                 : destinationTask.children.length;
-                
+
             const movingItem = sourceTask.children[activeIndex];
             if (!movingItem) return prevTasks;
 
@@ -628,7 +644,9 @@ const TaskListPage = ({ pageOptions }) => {
                             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                                 <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'SubTask' : 'Task'}</Tag>
-                                {isSubTask && task.parent?.title && <Tag color="default">Parent: {task.parent.title}</Tag>}
+                                {isSubTask && task.parent?.title && (
+                                    <Tag color="default">Parent: {task.parent.title}</Tag>
+                                )}
                                 {isSubTask && typeof task.totalQuestion !== 'undefined' && (
                                     <Tag color="default">Câu hỏi: {task.totalQuestion || 0}</Tag>
                                 )}
@@ -639,7 +657,9 @@ const TaskListPage = ({ pageOptions }) => {
                         </div>
                     </div>
                     <div className="task-header-actions">
-                        {!isSubTask && isEducator && mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
+                        {!isSubTask &&
+                            isEducator &&
+                            mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
                             <Button
                                 type="text"
                                 icon={<PlusOutlined />}
@@ -664,7 +684,10 @@ const TaskListPage = ({ pageOptions }) => {
                 {!isSubTask ? (
                     <div className="subtasks-list">
                         {task.children?.length > 0 ? (
-                            <SortableContext items={task.children.map((sub) => sub.id)} strategy={verticalListSortingStrategy}>
+                            <SortableContext
+                                items={task.children.map((sub) => sub.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
                                 {task.children.map((subtask) => (
                                     <SubTaskCard key={subtask.id} subtask={subtask} />
                                 ))}
@@ -711,9 +734,7 @@ const TaskListPage = ({ pageOptions }) => {
                             {subtask.title || 'SubTask không có tiêu đề'}
                         </div>
                         {subtask.parent?.title && (
-                            <div style={{ fontSize: 12, color: '#64748b' }}>
-                                Thuộc Task: {subtask.parent.title}
-                            </div>
+                            <div style={{ fontSize: 12, color: '#64748b' }}>Thuộc Task: {subtask.parent.title}</div>
                         )}
                     </div>
                 </div>

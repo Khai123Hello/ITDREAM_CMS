@@ -190,64 +190,69 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                 <Spin spinning={loadingStudents}>
                     {students && students.length > 0 ? (
                         <Row gutter={[16, 16]}>
-                            {students.map((student) => (
-                                <Col span={24} key={student.profileAccountDto.username}>
-                                    <Card
-                                        hoverable
-                                        onClick={() => {
-                                            setShowStudentModal(false);
-                                            navigate(
-                                                `/student-review-detail/${selectedSimulation.id}/${student.profileAccountDto.username}`,
-                                            );
-                                        }}
-                                        style={{ cursor: 'pointer' }}
-                                    >
-                                        <Card.Meta
-                                            avatar={
-                                                <Avatar
-                                                    size={64}
-                                                    icon={<UserOutlined />}
-                                                    src={
-                                                        student.profileAccountDto.avatar
-                                                            ? `${AppConstants.contentRootUrl}${student.profileAccountDto.avatar}`
-                                                            : null
-                                                    }
-                                                />
-                                            }
-                                            title={
-                                                <div
-                                                    style={{
-                                                        display: 'flex',
-                                                        justifyContent: 'space-between',
-                                                        alignItems: 'center',
-                                                    }}
-                                                >
-                                                    <span>{student.profileAccountDto.fullName}</span>
-                                                    <Tag
-                                                        color={student.isReviewed ? 'green' : 'orange'}
-                                                        icon={student.isReviewed ? <CheckCircleOutlined /> : null}
+                            {students.map((item) => {
+                                const profileAccountDto = item.student?.profileAccountDto || {};
+                                const { isReviewed } = item;
+
+                                return (
+                                    <Col span={24} key={profileAccountDto.username}>
+                                        <Card
+                                            hoverable
+                                            onClick={() => {
+                                                setShowStudentModal(false);
+                                                navigate(
+                                                    `/student-review-detail/${selectedSimulation.id}/${profileAccountDto.username}`,
+                                                );
+                                            }}
+                                            style={{ cursor: 'pointer' }}
+                                        >
+                                            <Card.Meta
+                                                avatar={
+                                                    <Avatar
+                                                        size={64}
+                                                        icon={<UserOutlined />}
+                                                        src={
+                                                            profileAccountDto.avatar
+                                                                ? `${AppConstants.contentRootUrl}${profileAccountDto.avatar}`
+                                                                : null
+                                                        }
+                                                    />
+                                                }
+                                                title={
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center',
+                                                        }}
                                                     >
-                                                        {student.isReviewed ? 'Đã chấm' : 'Chưa chấm'}
-                                                    </Tag>
-                                                </div>
-                                            }
-                                            description={
-                                                <div>
-                                                    <div>
-                                                        <strong>Username:</strong> {student.profileAccountDto.username}
+                                                        <span>{profileAccountDto.fullName}</span>
+                                                        <Tag
+                                                            color={isReviewed ? 'green' : 'orange'}
+                                                            icon={isReviewed ? <CheckCircleOutlined /> : null}
+                                                        >
+                                                            {isReviewed ? 'Đã chấm' : 'Chưa chấm'}
+                                                        </Tag>
                                                     </div>
+                                                }
+                                                description={
                                                     <div>
-                                                        <strong>Email:</strong> {student.profileAccountDto.email || '-'}
+                                                        <div>
+                                                            <strong>Username:</strong> {profileAccountDto.username}
+                                                        </div>
+                                                        <div>
+                                                            <strong>Email:</strong> {profileAccountDto.email || '-'}
+                                                        </div>
+                                                        <div>
+                                                            <strong>Phone:</strong> {profileAccountDto.phone || '-'}
+                                                        </div>
                                                     </div>
-                                                    <div>
-                                                        <strong>Phone:</strong> {student.profileAccountDto.phone || '-'}
-                                                    </div>
-                                                </div>
-                                            }
-                                        />
-                                    </Card>
-                                </Col>
-                            ))}
+                                                }
+                                            />
+                                        </Card>
+                                    </Col>
+                                );
+                            })}
                         </Row>
                     ) : (
                         <Empty description="Chưa có học viên hoàn thành" />

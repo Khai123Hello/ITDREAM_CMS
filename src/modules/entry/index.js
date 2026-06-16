@@ -2,6 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import useAuth from '@hooks/useAuth';
 import { UserTypes } from '@constants';
+import AdvancedAnalytics from './AdvancedAnalytics';
 
 const Dashboard = () => {
     const { profile } = useAuth();
@@ -18,7 +19,7 @@ const Dashboard = () => {
         return <Navigate to="/not-allowed" />;
     }
     // fallback (e.g. admin or unknown)
-    return <Navigate to="/simulation" />;
+    return <AdvancedAnalytics />;
 };
 
 export default Dashboard;

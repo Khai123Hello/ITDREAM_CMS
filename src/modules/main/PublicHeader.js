@@ -68,8 +68,7 @@ const PublicHeader = () => {
                     </div>
 
                     {/* Desktop Navigation */}
-                    <div className={styles.desktopNav}>
-                    </div>
+                    <div className={styles.desktopNav}></div>
 
                     {/* Desktop Buttons or Profile */}
                     <div className={styles.desktopButtons}>

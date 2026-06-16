@@ -72,12 +72,7 @@ const BlogForm = (props) => {
             <Card className="card-form" bordered={false}>
                 <Row gutter={16}>
                     <Col span={12}>
-                        <TextField
-                            label="Tiêu đề"
-                            name="name"
-                            required
-                            placeholder="Nhập tiêu đề bài viết"
-                        />
+                        <TextField label="Tiêu đề" name="name" required placeholder="Nhập tiêu đề bài viết" />
                     </Col>
                     <Col span={12}>
                         <SelectField

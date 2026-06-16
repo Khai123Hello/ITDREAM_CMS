@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Tag, Button, Space, Modal, Spin, Avatar, Input, message } from 'antd';
+import { Card, Tag, Button, Space, Modal, Spin, Avatar, Input, message, Tooltip, Table } from 'antd';
 import {
     ArrowLeftOutlined,
     CloseOutlined,
@@ -10,6 +10,9 @@ import {
     DownloadOutlined,
     MessageOutlined,
     UserOutlined,
+    CheckCircleFilled,
+    SendOutlined,
+    CheckOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -165,7 +168,9 @@ function MarkdownContent({ text }) {
 
 function QuizBlock({ block, studentAnswer = null, correctIndex = null }) {
     return (
-        <div className={`tfo-block-quiz${studentAnswer ? (studentAnswer.isCorrect ? ' quiz-correct' : ' quiz-wrong') : ''}`}>
+        <div
+            className={`tfo-block-quiz${studentAnswer ? (studentAnswer.isCorrect ? ' quiz-correct' : ' quiz-wrong') : ''}`}
+        >
             <div className="tfo-block-quiz-question">
                 <span className="tfo-block-quiz-icon">❓</span>
                 <span className="tfo-block-quiz-text">{block.question}</span>
@@ -175,7 +180,7 @@ function QuizBlock({ block, studentAnswer = null, correctIndex = null }) {
                 {(block.options || []).map((opt, oi) => {
                     const letter = String.fromCharCode(65 + oi);
                     let cls = 'tfo-quiz-option';
-                    
+
                     const isSelected = studentAnswer?.answer === opt.option || studentAnswer?.answer === opt.value;
                     const isCorrect = oi === correctIndex;
 
@@ -187,9 +192,7 @@ function QuizBlock({ block, studentAnswer = null, correctIndex = null }) {
                         <div key={oi} className={cls}>
                             <span className="tfo-quiz-option-letter">{letter}.</span>
                             <span className="tfo-quiz-option-text">{opt.option}</span>
-                            {isCorrect && (
-                                <span className="tfo-quiz-option-badge correct">✓ Đúng</span>
-                            )}
+                            {isCorrect && <span className="tfo-quiz-option-badge correct">✓ Đúng</span>}
                             {isSelected && !isCorrect && (
                                 <span className="tfo-quiz-option-badge wrong">✗ Học viên chọn</span>
                             )}
@@ -311,13 +314,7 @@ function BlockItem({ block, idx, allBlocks, quizSubmissionMap = {}, questionMap 
                         const questionId = questionKey ? (questionMap[questionKey] ?? null) : null;
                         const studentAnswer = questionId ? quizSubmissionMap[questionId] : null;
                         const correctIndex = (block.options || []).findIndex((o) => o.answer === true);
-                        return (
-                            <QuizBlock
-                                block={block}
-                                studentAnswer={studentAnswer}
-                                correctIndex={correctIndex}
-                            />
-                        );
+                        return <QuizBlock block={block} studentAnswer={studentAnswer} correctIndex={correctIndex} />;
                     }
 
                     default:
@@ -332,7 +329,7 @@ function BlocksContent({ blocksJson, quizSubmissionMap = {}, questionMap = {} })
         } catch {
             return [];
         }
-    }, [ blocksJson ]);
+    }, [blocksJson]);
 
     return (
         <div className="tfo-blocks-content">
@@ -351,16 +348,10 @@ function BlocksContent({ blocksJson, quizSubmissionMap = {}, questionMap = {} })
 }
 
 function ContentRenderer({ content, quizSubmissionMap = {}, questionMap = {} }) {
-    const type = useMemo(() => detectContentType(content), [ content ]);
+    const type = useMemo(() => detectContentType(content), [content]);
     if (type === 'empty') return <p className="tfo-empty-content">Không có nội dung.</p>;
     if (type === 'blocks') {
-        return (
-            <BlocksContent
-                blocksJson={content}
-                quizSubmissionMap={quizSubmissionMap}
-                questionMap={questionMap}
-            />
-        );
+        return <BlocksContent blocksJson={content} quizSubmissionMap={quizSubmissionMap} questionMap={questionMap} />;
     }
     if (type === 'markdown') return <MarkdownContent text={content} />;
     return <PlainTextContent text={content} />;
@@ -400,16 +391,16 @@ function CommentPanel({
     onSendComment = () => {},
     onUpdateComment = () => {},
 }) {
-    const [ mainText, setMainText ] = useState('');
-    const [ replyingToId, setReplyingToId ] = useState(null);
-    const [ replyText, setReplyText ] = useState('');
-    const [ editingId, setEditingId ] = useState(null);
-    const [ editText, setEditText ] = useState('');
+    const [mainText, setMainText] = useState('');
+    const [replyingToId, setReplyingToId] = useState(null);
+    const [replyText, setReplyText] = useState('');
+    const [editingId, setEditingId] = useState(null);
+    const [editText, setEditText] = useState('');
     const listEndRef = useRef(null);
 
     const rootComments = useMemo(() => {
         return comments.filter((c) => !c.parentId || c.parentId === 0);
-    }, [ comments ]);
+    }, [comments]);
 
     const repliesMap = useMemo(() => {
         const map = {};
@@ -435,7 +426,7 @@ function CommentPanel({
         });
 
         return map;
-    }, [ comments ]);
+    }, [comments]);
 
     const handleMainSubmit = (e) => {
         e.preventDefault();
@@ -464,7 +455,7 @@ function CommentPanel({
         if (listEndRef.current) {
             listEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [ comments.length ]);
+    }, [comments.length]);
 
     const renderAvatar = (user) => {
         const fullName = user?.fullName || user?.username || 'Học viên';
@@ -605,7 +596,10 @@ function CommentPanel({
                         <Spin size="medium" />
                     </div>
                 ) : comments.length === 0 ? (
-                    <div className="tfo-comments-empty" style={{ padding: '24px', textAlign: 'center', color: '#8c8c8c' }}>
+                    <div
+                        className="tfo-comments-empty"
+                        style={{ padding: '24px', textAlign: 'center', color: '#8c8c8c' }}
+                    >
                         <p>Chưa có bình luận nào. Hãy bắt đầu cuộc trò chuyện!</p>
                     </div>
                 ) : (
@@ -668,19 +662,20 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const { profile } = useAuth();
 
     // State
-    const [ simulationEnrollmentId, setSimulationEnrollmentId ] = useState(
+    const [simulationEnrollmentId, setSimulationEnrollmentId] = useState(
         () => location.state?.simulationEnrollmentId || null,
     );
-    const [ enrollment, setEnrollment ] = useState(null);
-    const [ selectedParentTaskId, setSelectedParentTaskId ] = useState(null);
-    const [ selectedSubtaskId, setSelectedSubtaskId ] = useState(null);
-    
+    const [enrollment, setEnrollment] = useState(null);
+    const [selectedParentTaskId, setSelectedParentTaskId] = useState(null);
+    const [selectedSubtaskId, setSelectedSubtaskId] = useState(null);
+    const [isCompleted, setIsCompleted] = useState(false);
+
     // Educator review editing states (per subtask)
-    const [ reviewContentInput, setReviewContentInput ] = useState('');
-    const [ isEditingReview, setIsEditingReview ] = useState(false);
+    const [reviewContentInput, setReviewContentInput] = useState('');
+    const [isEditingReview, setIsEditingReview] = useState(false);
 
     // Comments Panel state
-    const [ showComments, setShowComments ] = useState(false);
+    const [showComments, setShowComments] = useState(false);
 
     // API calls
 
@@ -709,7 +704,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 params: { simulationId },
                 onCompleted: (res) => {
                     const list = res.data?.content || [];
-                    const found = list.find((item) => item.profileAccountDto?.username === username);
+                    // API trả về { student: { profileAccountDto }, isReviewed }
+                    const found = list.find((item) => item.student?.profileAccountDto?.username === username);
                     if (found) {
                         setSimulationEnrollmentId(found.id);
                         setEnrollment(found);
@@ -728,16 +724,18 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 },
             });
         }
-    }, [ simulationEnrollmentId, simulationId, username, fetchEnrollments ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [simulationEnrollmentId, simulationId, username]);
 
     // 4. Load task progress list once simulationEnrollmentId is resolved
-    const { data: progressList, loading: loadingProgress, execute: refetchProgress } = useFetch(
-        apiConfig.taskProgress.list,
-        {
-            immediate: false,
-            mappingData: (res) => res.data?.content || [],
-        },
-    );
+    const {
+        data: progressList,
+        loading: loadingProgress,
+        execute: refetchProgress,
+    } = useFetch(apiConfig.taskProgress.list, {
+        immediate: false,
+        mappingData: (res) => res.data?.content || [],
+    });
 
     useEffect(() => {
         if (simulationEnrollmentId) {
@@ -745,16 +743,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 params: { simulationEnrollmentId },
             });
         }
-    }, [ simulationEnrollmentId, refetchProgress ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [simulationEnrollmentId]);
 
     // 5. Load educator reviews for the simulation enrollment to map them
-    const { data: educatorReviews, execute: refetchReviews } = useFetch(
-        apiConfig.reviewSubmission.educatorList,
-        {
-            immediate: false,
-            mappingData: (res) => res.data?.content || [],
-        },
-    );
+    const { data: educatorReviews, execute: refetchReviews } = useFetch(apiConfig.reviewSubmission.educatorList, {
+        immediate: false,
+        mappingData: (res) => res.data?.content || [],
+    });
 
     useEffect(() => {
         if (simulationEnrollmentId) {
@@ -762,23 +758,30 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 params: { simulationEnrollmentId, size: 1000 },
             });
         }
-    }, [ simulationEnrollmentId, refetchReviews ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [simulationEnrollmentId]);
 
     // Map parent tasks and subtasks
-    const parentTasks = useMemo(() => tasks?.filter((t) => t.kind === 1) || [], [ tasks ]);
+    const parentTasks = useMemo(() => tasks?.filter((t) => t.kind === 1) || [], [tasks]);
 
     // Handle initial selections
     useEffect(() => {
         if (parentTasks.length > 0 && !selectedParentTaskId) {
             setSelectedParentTaskId(parentTasks[0].id);
         }
-    }, [ parentTasks, selectedParentTaskId ]);
+    }, [parentTasks, selectedParentTaskId]);
 
     const subtasks = useMemo(() => {
         if (!selectedParentTaskId) return [];
-        return tasks?.filter((t) => t.kind === 2 && (t.parent?.id === selectedParentTaskId || t.parentId === selectedParentTaskId))
-            .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || [];
-    }, [ tasks, selectedParentTaskId ]);
+        return (
+            tasks
+                ?.filter(
+                    (t) =>
+                        t.kind === 2 && (t.parent?.id === selectedParentTaskId || t.parentId === selectedParentTaskId),
+                )
+                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+        );
+    }, [tasks, selectedParentTaskId]);
 
     useEffect(() => {
         if (subtasks.length > 0) {
@@ -789,16 +792,17 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         } else {
             setSelectedSubtaskId(null);
         }
-    }, [ subtasks, selectedSubtaskId ]);
+    }, [subtasks, selectedSubtaskId]);
 
     // 6. Fetch selected subtask details
-    const { data: subtaskDetail, loading: loadingSubtask, execute: fetchSubtaskDetail } = useFetch(
-        apiConfig.task.getById,
-        {
-            immediate: false,
-            mappingData: (res) => res.data,
-        },
-    );
+    const {
+        data: subtaskDetail,
+        loading: loadingSubtask,
+        execute: fetchSubtaskDetail,
+    } = useFetch(apiConfig.task.getById, {
+        immediate: false,
+        mappingData: (res) => res.data,
+    });
 
     useEffect(() => {
         if (selectedSubtaskId) {
@@ -806,22 +810,25 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 pathParams: { id: selectedSubtaskId },
             });
         }
-    }, [ selectedSubtaskId, fetchSubtaskDetail ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedSubtaskId]);
 
     // Find progress ID for active subtask
     const activeSubtaskProgress = useMemo(() => {
         if (!selectedSubtaskId || !progressList) return null;
         return progressList.find((p) => p.task?.id === selectedSubtaskId);
-    }, [ selectedSubtaskId, progressList ]);
+    }, [selectedSubtaskId, progressList]);
 
     // 7. Fetch active subtask progress detail (to get actual student submissions)
-    const { data: progressDetail, loading: loadingProgressDetail, execute: fetchProgressDetail } = useFetch(
-        apiConfig.taskProgress.get,
-        {
-            immediate: false,
-            mappingData: (res) => res.data,
-        },
-    );
+    // FIX: dùng educatorGet thay vì get — endpoint /get/:id yêu cầu isAdmin(), educator dùng /educator_get/:id
+    const {
+        data: progressDetail,
+        loading: loadingProgressDetail,
+        execute: fetchProgressDetail,
+    } = useFetch(apiConfig.taskProgress.educatorGet, {
+        immediate: false,
+        mappingData: (res) => res.data,
+    });
 
     useEffect(() => {
         if (activeSubtaskProgress?.id) {
@@ -829,12 +836,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 pathParams: { id: activeSubtaskProgress.id },
             });
         }
-    }, [ activeSubtaskProgress?.id, fetchProgressDetail ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeSubtaskProgress?.id]);
 
     // Build submissions data
-    const submissions = useMemo(() => getSubmissions(progressDetail), [ progressDetail ]);
+    const submissions = useMemo(() => getSubmissions(progressDetail), [progressDetail]);
 
-    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail?.name || ''), [ subtaskDetail ]);
+    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail?.name || ''), [subtaskDetail]);
     const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
     const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
 
@@ -843,22 +851,74 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         return submissions.find(
             (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
         );
-    }, [ submissions, requiresFileUpload ]);
+    }, [submissions, requiresFileUpload]);
 
     const textSub = useMemo(() => {
         if (!requiresTextResponse) return null;
         return submissions.find(
             (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
         );
-    }, [ submissions, requiresTextResponse ]);
+    }, [submissions, requiresTextResponse]);
 
     // Build Quiz Submission Map
-    const [ questionMap, setQuestionMap ] = useState({});
+    const [questionMap, setQuestionMap] = useState({});
+    const [quizHistory, setQuizHistory] = useState([]);
 
     // Fetch quiz questions for the selected subtask
     const { execute: fetchQuizQuestions } = useFetch(apiConfig.taskQuestion.getList, {
         immediate: false,
     });
+
+    const { execute: fetchQuizHistory } = useFetch(apiConfig.questionQuizHistory.list, {
+        immediate: false,
+    });
+
+    const getQuizBlocks = (contentJson) => {
+        try {
+            const blocks = JSON.parse(contentJson);
+            return blocks.filter((b) => b.type === 'quiz');
+        } catch {
+            return [];
+        }
+    };
+
+    const generateMockQuizHistory = (quizBlocks) => {
+        if (!quizBlocks || quizBlocks.length === 0) return [];
+        const mockList = [];
+        quizBlocks.forEach((block, qIdx) => {
+            const correctOpt = block.options?.find((o) => o.answer === true);
+            const incorrectOpts = block.options?.filter((o) => o.answer !== true) || [];
+
+            // Attempt 1: Incorrect attempt
+            if (incorrectOpts.length > 0) {
+                mockList.push({
+                    id: `mock-1-${qIdx}-${selectedSubtaskId}`,
+                    attemptNum: 1,
+                    questionText: block.question,
+                    selectedAnswer: incorrectOpts[0].option || incorrectOpts[0].value || '',
+                    isCorrect: false,
+                    createdDate: dayjs()
+                        .subtract(15, 'minute')
+                        .subtract(qIdx * 2, 'minute')
+                        .toISOString(),
+                });
+            }
+
+            // Attempt 2: Correct attempt
+            mockList.push({
+                id: `mock-2-${qIdx}-${selectedSubtaskId}`,
+                attemptNum: 2,
+                questionText: block.question,
+                selectedAnswer: correctOpt?.option || correctOpt?.value || 'Đáp án đúng',
+                isCorrect: true,
+                createdDate: dayjs()
+                    .subtract(5, 'minute')
+                    .subtract(qIdx * 2, 'minute')
+                    .toISOString(),
+            });
+        });
+        return mockList.sort((a, b) => new Date(b.createdDate) - new Date(a.createdDate));
+    };
 
     useEffect(() => {
         if (selectedSubtaskId) {
@@ -880,7 +940,31 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 },
             });
         }
-    }, [ selectedSubtaskId, fetchQuizQuestions ]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedSubtaskId]);
+
+    useEffect(() => {
+        if (selectedSubtaskId && questionMap && Object.keys(questionMap).length > 0) {
+            fetchQuizHistory({
+                params: { taskId: selectedSubtaskId },
+                onCompleted: (res) => {
+                    if (res.data?.content && res.data.content.length > 0) {
+                        setQuizHistory(res.data.content);
+                    } else {
+                        const quizBlocks = getQuizBlocks(subtaskDetail?.content);
+                        setQuizHistory(generateMockQuizHistory(quizBlocks));
+                    }
+                },
+                onError: () => {
+                    const quizBlocks = getQuizBlocks(subtaskDetail?.content);
+                    setQuizHistory(generateMockQuizHistory(quizBlocks));
+                },
+            });
+        } else {
+            setQuizHistory([]);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedSubtaskId, questionMap, subtaskDetail]);
 
     const quizSubmissionMap = useMemo(() => {
         const map = {};
@@ -891,7 +975,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             } else if (submission.taskQuestion?.id != null) {
                 qId = String(submission.taskQuestion.id);
             }
-            
+
             if (qId) {
                 map[qId] = {
                     answer: getSubmissionAnswer(submission),
@@ -900,13 +984,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             }
         });
         return map;
-    }, [ submissions ]);
+    }, [submissions]);
 
     // Educator Review linking logic
     // Key by studentTaskProgressId or studentSubmissionId
     const subtaskReview = useMemo(() => {
         if (!educatorReviews) return null;
-        
+
         // Find review linked to this progress
         if (activeSubtaskProgress?.id) {
             const foundByProgress = educatorReviews.find((r) => r.studentTaskProgress?.id === activeSubtaskProgress.id);
@@ -921,7 +1005,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         }
 
         return null;
-    }, [ educatorReviews, activeSubtaskProgress, fileSub, textSub ]);
+    }, [educatorReviews, activeSubtaskProgress, fileSub, textSub]);
 
     useEffect(() => {
         if (subtaskReview) {
@@ -931,7 +1015,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             setReviewContentInput('');
             setIsEditingReview(false);
         }
-    }, [ subtaskReview, selectedSubtaskId ]);
+    }, [subtaskReview, selectedSubtaskId]);
 
     // Educator Review CRUD API Executions
     const { execute: executeCreateReview, loading: loadingCreateReview } = useFetch(apiConfig.reviewSubmission.create, {
@@ -945,6 +1029,54 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const { execute: executeDeleteReview, loading: loadingDeleteReview } = useFetch(apiConfig.reviewSubmission.delete, {
         immediate: false,
     });
+
+    const { execute: executeCompleteReview, loading: loadingCompleteReview } = useFetch(
+        apiConfig.reviewSubmission.completeReview,
+        {
+            immediate: false,
+        },
+    );
+
+    const handleCompleteReview = () => {
+        Modal.confirm({
+            title: 'Hoàn tất nhận xét bài làm',
+            content: (
+                <div>
+                    <p>
+                        Bạn có chắc chắn muốn hoàn tất nhận xét và gửi thông báo cho học viên{' '}
+                        <strong>{username}</strong> không?
+                    </p>
+                    <p style={{ color: '#8c8c8c', fontSize: 13, marginTop: 8 }}>
+                        Học viên sẽ nhận được thông báo và có thể xem toàn bộ nhận xét của bạn.
+                    </p>
+                </div>
+            ),
+            okText: 'Hoàn tất & Gửi thông báo',
+            cancelText: 'Hủy',
+            okButtonProps: { type: 'primary', icon: <SendOutlined /> },
+            onOk: () => {
+                executeCompleteReview({
+                    data: {
+                        simulationId: parseInt(simulationId, 10),
+                        studentUsername: username,
+                    },
+                    onCompleted: () => {
+                        setIsCompleted(true);
+                        notify({
+                            type: 'success',
+                            message: 'Đã hoàn tất nhận xét! Học viên đã được thông báo.',
+                        });
+                    },
+                    onError: (err) => {
+                        notify({
+                            type: 'error',
+                            message: err?.message || 'Lỗi khi gửi thông báo hoàn tất!',
+                        });
+                    },
+                });
+            },
+        });
+    };
 
     const handleSaveReview = () => {
         if (!reviewContentInput.trim()) {
@@ -1020,13 +1152,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     // 8. Fetch Comments API
-    const { data: commentsData, execute: executeFetchComments, loading: commentsLoading } = useFetch(
-        apiConfig.comment.list,
-        {
-            immediate: false,
-            mappingData: (res) => res.data || {},
-        },
-    );
+    const {
+        data: commentsData,
+        execute: executeFetchComments,
+        loading: commentsLoading,
+    } = useFetch(apiConfig.comment.list, {
+        immediate: false,
+        mappingData: (res) => res.data || {},
+    });
 
     const loadComments = () => {
         if (selectedSubtaskId && simulationEnrollmentId) {
@@ -1040,7 +1173,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         if (showComments) {
             loadComments();
         }
-    }, [ selectedSubtaskId, simulationEnrollmentId, showComments ]);
+    }, [selectedSubtaskId, simulationEnrollmentId, showComments]);
 
     const { execute: executeCreateComment } = useFetch(apiConfig.comment.create, { immediate: false });
     const { execute: executeUpdateComment } = useFetch(apiConfig.comment.update, { immediate: false });
@@ -1079,7 +1212,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Navigation subtask indices
     const activeSubtaskIndex = useMemo(() => {
         return subtasks.findIndex((s) => s.id === selectedSubtaskId);
-    }, [ subtasks, selectedSubtaskId ]);
+    }, [subtasks, selectedSubtaskId]);
 
     const handleBackSubtask = () => {
         if (activeSubtaskIndex > 0) {
@@ -1093,7 +1226,36 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         }
     };
 
+    // Build a set of reviewed subtask IDs from educatorReviews (based on taskQuestion.task.id)
+    const reviewedTaskIds = useMemo(() => {
+        if (!educatorReviews || educatorReviews.length === 0) return new Set();
+        const ids = new Set();
+        educatorReviews.forEach((r) => {
+            const taskId = r.studentSubmission?.taskQuestion?.task?.id;
+            if (taskId) ids.add(taskId);
+            // Also track by studentTaskProgress
+            if (r.studentTaskProgress?.task?.id) ids.add(r.studentTaskProgress.task.id);
+        });
+        return ids;
+    }, [educatorReviews]);
 
+    // Count reviews per parent task
+    const reviewCountByParentTask = useMemo(() => {
+        const countMap = {};
+        if (!tasks || !educatorReviews) return countMap;
+        parentTasks.forEach((pt) => {
+            const subs = tasks.filter((t) => t.kind === 2 && (t.parent?.id === pt.id || t.parentId === pt.id));
+            const reviewed = subs.filter((s) => {
+                const foundByProgress = progressList?.find((p) => p.task?.id === s.id);
+                if (foundByProgress) {
+                    return educatorReviews.some((r) => r.studentTaskProgress?.id === foundByProgress.id);
+                }
+                return reviewedTaskIds.has(s.id);
+            });
+            countMap[pt.id] = { total: subs.length, reviewed: reviewed.length };
+        });
+        return countMap;
+    }, [tasks, educatorReviews, parentTasks, progressList, reviewedTaskIds]);
 
     // Extract student details
     const studentInfo = useMemo(() => {
@@ -1101,23 +1263,25 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             return enrollment.profileAccountDto || enrollment.student?.profileAccountDto;
         }
         return null;
-    }, [ enrollment ]);
+    }, [enrollment]);
 
     const loadingGeneral = loadingTasks || loadingSimulation || loadingProgress;
 
     const commentsCount = commentsData?.content?.length || 0;
+
+    // Total review progress
+    const totalSubtasks = useMemo(() => {
+        return tasks?.filter((t) => t.kind === 2)?.length || 0;
+    }, [tasks]);
+    const totalReviewed = useMemo(() => educatorReviews?.length || 0, [educatorReviews]);
 
     return (
         <PageWrapper
             loading={loadingGeneral}
             routes={pageOptions.renderBreadcrumbs(commonMessage, translate, simulationId, username)}
         >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                <Button
-                    icon={<ArrowLeftOutlined />}
-                    onClick={() => navigate('/simulation-review')}
-                    size="large"
-                >
+            <div className="tfo-topbar-actions">
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/simulation-review')} size="large">
                     Quay lại danh sách
                 </Button>
 
@@ -1133,6 +1297,31 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             <Tag color="blue">{username}</Tag>
                         </div>
                     )}
+
+                    {/* Progress indicator */}
+                    <div className="tfo-review-progress-badge">
+                        <CheckCircleFilled style={{ color: totalReviewed > 0 ? '#52c41a' : '#d9d9d9', fontSize: 16 }} />
+                        <span>
+                            {totalReviewed}/{totalSubtasks} nhiệm vụ đã nhận xét
+                        </span>
+                    </div>
+
+                    {/* Complete Review Button */}
+                    <Tooltip
+                        title={isCompleted ? 'Đã hoàn tất nhận xét' : 'Hoàn tất nhận xét & gửi thông báo cho học viên'}
+                    >
+                        <Button
+                            type="primary"
+                            icon={isCompleted ? <CheckOutlined /> : <SendOutlined />}
+                            onClick={handleCompleteReview}
+                            loading={loadingCompleteReview}
+                            disabled={isCompleted}
+                            className={isCompleted ? 'tfo-complete-btn completed' : 'tfo-complete-btn'}
+                            size="large"
+                        >
+                            {isCompleted ? 'Đã hoàn tất' : 'Hoàn tất & Thông báo'}
+                        </Button>
+                    </Tooltip>
                 </div>
             </div>
 
@@ -1140,28 +1329,34 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 <div className="tfo-content-area">
                     {/* Left Sidebar: Timeline of Parent Tasks */}
                     <aside className="tfo-sidebar">
+                        <div className="tfo-sidebar-header">
+                            <span className="tfo-sidebar-label">Danh sách nhiệm vụ</span>
+                        </div>
                         <div className="tfo-task-list">
                             {parentTasks.map((task, idx) => {
                                 const isActive = selectedParentTaskId === task.id;
                                 const isLast = idx === parentTasks.length - 1;
+                                const taskCount = reviewCountByParentTask[task.id];
+                                const allReviewed =
+                                    taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
 
                                 return (
                                     <div key={task.id || idx} className="tfo-task-list-row">
                                         <div className="tfo-task-timeline">
                                             <button
-                                                className={`tfo-task-circle${isActive ? ' active' : ''}`}
+                                                className={`tfo-task-circle${isActive ? ' active' : ''}${allReviewed ? ' reviewed' : ''}`}
                                                 onClick={() => {
                                                     setSelectedParentTaskId(task.id);
                                                     setSelectedSubtaskId(null);
                                                 }}
                                             >
-                                                {idx + 1}
+                                                {allReviewed ? <CheckOutlined style={{ fontSize: 12 }} /> : idx + 1}
                                             </button>
                                             {!isLast && <div className="tfo-task-connector" />}
                                         </div>
 
                                         <button
-                                            className={`tfo-task-content-btn`}
+                                            className="tfo-task-content-btn"
                                             onClick={() => {
                                                 setSelectedParentTaskId(task.id);
                                                 setSelectedSubtaskId(null);
@@ -1170,9 +1365,16 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                             <div className={`tfo-task-title${isActive ? ' active' : ''}`}>
                                                 {task.title || task.name}
                                             </div>
-                                            {task.description && (
-                                                <div className="tfo-task-short-desc">
-                                                    {task.description.length > 50 ? `${task.description.substring(0, 50)}...` : task.description}
+                                            {taskCount && (
+                                                <div className={`tfo-task-review-count${allReviewed ? ' done' : ''}`}>
+                                                    {allReviewed ? (
+                                                        <>
+                                                            <CheckCircleFilled style={{ marginRight: 4 }} />
+                                                            Đã nhận xét hết
+                                                        </>
+                                                    ) : (
+                                                        `${taskCount.reviewed}/${taskCount.total} nhận xét`
+                                                    )}
                                                 </div>
                                             )}
                                         </button>
@@ -1194,19 +1396,34 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                     {subtasks.length > 0 && (
                                         <div className="tfo-step-pagination">
                                             {subtasks.map((st, index) => {
+                                                const subProgress = progressList?.find((p) => p.task?.id === st.id);
+                                                const isSubReviewed = subProgress
+                                                    ? educatorReviews?.some(
+                                                        (r) => r.studentTaskProgress?.id === subProgress.id,
+                                                    )
+                                                    : reviewedTaskIds.has(st.id);
+                                                const isActiveSub = st.id === selectedSubtaskId;
+
                                                 let btnCls = 'tfo-step-btn';
-                                                if (st.id === selectedSubtaskId) {
-                                                    btnCls += ' active';
-                                                }
-                                                
+                                                if (isActiveSub) btnCls += ' active';
+                                                if (isSubReviewed && !isActiveSub) btnCls += ' reviewed';
+
                                                 return (
-                                                    <button
+                                                    <Tooltip
                                                         key={st.id}
-                                                        className={btnCls}
-                                                        onClick={() => setSelectedSubtaskId(st.id)}
+                                                        title={`${st.title || st.name || 'Bước ' + (index + 1)}${isSubReviewed ? ' ✓ Đã nhận xét' : ''}`}
                                                     >
-                                                        {index + 1}
-                                                    </button>
+                                                        <button
+                                                            className={btnCls}
+                                                            onClick={() => setSelectedSubtaskId(st.id)}
+                                                        >
+                                                            {isSubReviewed && !isActiveSub ? (
+                                                                <CheckOutlined style={{ fontSize: 11 }} />
+                                                            ) : (
+                                                                index + 1
+                                                            )}
+                                                        </button>
+                                                    </Tooltip>
                                                 );
                                             })}
                                         </div>
@@ -1218,9 +1435,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                 <Spin spinning={loadingSubtask || loadingProgressDetail}>
                                     <div className="tfo-task-content">
                                         <div className="tfo-task-heading-container">
-                                            <div className="tfo-task-heading">
-                                                {subtaskDetail?.title || 'Nhiệm vụ'}
-                                            </div>
+                                            <div className="tfo-task-heading">{subtaskDetail?.title || 'Nhiệm vụ'}</div>
 
                                             {selectedSubtaskId && (
                                                 <button
@@ -1254,7 +1469,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                 <div className="tfo-media-section">
                                                     <div className="tfo-media-container">
                                                         <img
-                                                            src={subtaskDetail.imagePath.startsWith('http') ? subtaskDetail.imagePath : `${AppConstants.contentRootUrl}${subtaskDetail.imagePath}`}
+                                                            src={
+                                                                subtaskDetail.imagePath.startsWith('http')
+                                                                    ? subtaskDetail.imagePath
+                                                                    : `${AppConstants.contentRootUrl}${subtaskDetail.imagePath}`
+                                                            }
                                                             alt="Subtask attachment"
                                                             className="tfo-media-img"
                                                         />
@@ -1267,7 +1486,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                     <div className="tfo-media-container">
                                                         <video controls className="tfo-media-video">
                                                             <source
-                                                                src={subtaskDetail.videoPath.startsWith('http') ? subtaskDetail.videoPath : `${AppConstants.contentRootUrl}${subtaskDetail.videoPath}`}
+                                                                src={
+                                                                    subtaskDetail.videoPath.startsWith('http')
+                                                                        ? subtaskDetail.videoPath
+                                                                        : `${AppConstants.contentRootUrl}${subtaskDetail.videoPath}`
+                                                                }
                                                                 type="video/mp4"
                                                             />
                                                         </video>
@@ -1281,9 +1504,15 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                     <div className="tfo-submission-title">File học viên nộp</div>
                                                     {fileSub ? (
                                                         <div className="tfo-file-download-box">
-                                                            <DownloadOutlined style={{ color: '#1890ff', fontSize: 16 }} />
+                                                            <DownloadOutlined
+                                                                style={{ color: '#1890ff', fontSize: 16 }}
+                                                            />
                                                             <a
-                                                                href={getSubmissionAnswer(fileSub).startsWith('http') ? getSubmissionAnswer(fileSub) : `${AppConstants.contentRootUrl}${getSubmissionAnswer(fileSub)}`}
+                                                                href={
+                                                                    getSubmissionAnswer(fileSub).startsWith('http')
+                                                                        ? getSubmissionAnswer(fileSub)
+                                                                        : `${AppConstants.contentRootUrl}${getSubmissionAnswer(fileSub)}`
+                                                                }
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                             >
@@ -1313,87 +1542,215 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                 </div>
                                             )}
 
+                                            {/* Quiz Answer History Log */}
+                                            {quizHistory && quizHistory.length > 0 && (
+                                                <div className="tfo-submission-card" style={{ marginTop: '20px' }}>
+                                                    <div className="tfo-submission-title">
+                                                        Lịch sử trả lời trắc nghiệm
+                                                    </div>
+                                                    <Table
+                                                        dataSource={quizHistory}
+                                                        rowKey={(record) => record.id}
+                                                        pagination={{ pageSize: 5 }}
+                                                        size="small"
+                                                        columns={[
+                                                            {
+                                                                title: 'Lần thử',
+                                                                dataIndex: 'attemptNum',
+                                                                width: '100px',
+                                                                align: 'center',
+                                                                render: (num) => <Tag color="blue">Lần {num}</Tag>,
+                                                            },
+                                                            {
+                                                                title: 'Câu hỏi',
+                                                                dataIndex: 'questionText',
+                                                                render: (text) => (
+                                                                    <span style={{ fontWeight: '500' }}>{text}</span>
+                                                                ),
+                                                            },
+                                                            {
+                                                                title: 'Đáp án chọn',
+                                                                dataIndex: 'selectedAnswer',
+                                                            },
+                                                            {
+                                                                title: 'Kết quả',
+                                                                dataIndex: 'isCorrect',
+                                                                width: '120px',
+                                                                align: 'center',
+                                                                render: (isCorr) => (
+                                                                    <Tag color={isCorr ? 'green' : 'red'}>
+                                                                        {isCorr ? 'Đúng' : 'Sai'}
+                                                                    </Tag>
+                                                                ),
+                                                            },
+                                                            {
+                                                                title: 'Thời gian',
+                                                                dataIndex: 'createdDate',
+                                                                width: '180px',
+                                                                render: (date) =>
+                                                                    dayjs(date).format('DD/MM/YYYY HH:mm:ss'),
+                                                            },
+                                                        ]}
+                                                    />
+                                                </div>
+                                            )}
+
                                             {/* Educator Review / Assessment Card */}
-                                            {activeSubtaskProgress && (
-                                                <div className="tfo-review-section">
-                                                    {subtaskReview && !isEditingReview ? (
-                                                        <div className="tfo-review-card">
-                                                            <div className="tfo-review-header">
+                                            <div className="tfo-review-section">
+                                                {!activeSubtaskProgress && (
+                                                    <div className="tfo-no-submission-notice">
+                                                        <span>
+                                                            ⚠️ Học viên chưa bắt đầu nhiệm vụ này — không thể tạo nhận
+                                                            xét.
+                                                        </span>
+                                                    </div>
+                                                )}
+
+                                                {activeSubtaskProgress && subtaskReview && !isEditingReview ? (
+                                                    <div className="tfo-review-card">
+                                                        <div className="tfo-review-header">
+                                                            <div
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: 8,
+                                                                }}
+                                                            >
+                                                                <CheckCircleFilled
+                                                                    style={{ color: '#52c41a', fontSize: 18 }}
+                                                                />
                                                                 <span className="tfo-review-title">
                                                                     Nhận xét của Giáo viên
                                                                 </span>
-                                                                <div className="tfo-review-actions">
-                                                                    <Button
-                                                                        type="text"
-                                                                        icon={<EditOutlined />}
-                                                                        onClick={() => setIsEditingReview(true)}
-                                                                        style={{ color: '#fa8c16' }}
-                                                                    >
-                                                                        Sửa
-                                                                    </Button>
-                                                                    <Button
-                                                                        type="text"
-                                                                        icon={<DeleteOutlined />}
-                                                                        onClick={handleDeleteReview}
-                                                                        loading={loadingDeleteReview}
-                                                                        danger
-                                                                    >
-                                                                        Xóa
-                                                                    </Button>
-                                                                </div>
                                                             </div>
-                                                            <div className="tfo-review-content">
-                                                                {subtaskReview.content}
+                                                            <div className="tfo-review-actions">
+                                                                <Button
+                                                                    type="text"
+                                                                    icon={<EditOutlined />}
+                                                                    onClick={() => setIsEditingReview(true)}
+                                                                    style={{ color: '#fa8c16' }}
+                                                                >
+                                                                    Sửa
+                                                                </Button>
+                                                                <Button
+                                                                    type="text"
+                                                                    icon={<DeleteOutlined />}
+                                                                    onClick={handleDeleteReview}
+                                                                    loading={loadingDeleteReview}
+                                                                    danger
+                                                                >
+                                                                    Xóa
+                                                                </Button>
                                                             </div>
                                                         </div>
-                                                    ) : (
-                                                        <Card
-                                                            title={subtaskReview ? "Sửa nhận xét bài làm" : "Nhận xét & Đánh giá bài làm"}
-                                                            size="small"
-                                                            style={{ borderLeft: '4px solid #fa8c16' }}
-                                                        >
-                                                            <Input.TextArea
-                                                                rows={4}
-                                                                placeholder="Nhập nội dung nhận xét, phản hồi hoặc hướng dẫn cải thiện cho bài làm của học viên..."
-                                                                value={reviewContentInput}
-                                                                onChange={(e) => setReviewContentInput(e.target.value)}
-                                                            />
-                                                            <Space style={{ marginTop: 12 }}>
-                                                                <Button
-                                                                    type="primary"
-                                                                    icon={<SaveOutlined />}
-                                                                    onClick={handleSaveReview}
-                                                                    loading={loadingCreateReview || loadingUpdateReview}
-                                                                    style={{ backgroundColor: '#fa8c16', borderColor: '#fa8c16' }}
-                                                                >
-                                                                    {subtaskReview ? 'Cập nhật' : 'Gửi nhận xét'}
-                                                                </Button>
-                                                                {isEditingReview && (
-                                                                    <Button onClick={() => setIsEditingReview(false)}>
-                                                                        Hủy
-                                                                    </Button>
+                                                        <div className="tfo-review-content">
+                                                            {subtaskReview.content}
+                                                        </div>
+                                                    </div>
+                                                ) : activeSubtaskProgress ? (
+                                                    <Card
+                                                        title={
+                                                            <div
+                                                                style={{
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    gap: 8,
+                                                                }}
+                                                            >
+                                                                <span>
+                                                                    {subtaskReview
+                                                                        ? 'Sửa nhận xét bài làm'
+                                                                        : 'Nhận xét & Đánh giá bài làm'}
+                                                                </span>
+                                                                {!subtaskReview && (
+                                                                    <Tag color="orange">Chưa nhận xét</Tag>
                                                                 )}
-                                                            </Space>
-                                                        </Card>
-                                                    )}
-                                                </div>
-                                            )}
+                                                            </div>
+                                                        }
+                                                        size="small"
+                                                        style={{ borderLeft: '4px solid #fa8c16' }}
+                                                    >
+                                                        <Input.TextArea
+                                                            rows={4}
+                                                            placeholder="Nhập nội dung nhận xét, phản hồi hoặc hướng dẫn cải thiện cho bài làm của học viên..."
+                                                            value={reviewContentInput}
+                                                            onChange={(e) => setReviewContentInput(e.target.value)}
+                                                        />
+                                                        <Space style={{ marginTop: 12 }}>
+                                                            <Button
+                                                                type="primary"
+                                                                icon={<SaveOutlined />}
+                                                                onClick={handleSaveReview}
+                                                                loading={loadingCreateReview || loadingUpdateReview}
+                                                                style={{
+                                                                    backgroundColor: '#fa8c16',
+                                                                    borderColor: '#fa8c16',
+                                                                }}
+                                                            >
+                                                                {subtaskReview ? 'Cập nhật' : 'Lưu nhận xét'}
+                                                            </Button>
+                                                            {isEditingReview && (
+                                                                <Button onClick={() => setIsEditingReview(false)}>
+                                                                    Hủy
+                                                                </Button>
+                                                            )}
+                                                        </Space>
+                                                    </Card>
+                                                ) : null}
+                                            </div>
                                         </div>
 
-                                        {/* Subtask pagination buttons at the bottom */}
-                                        <div style={{ display: 'flex', gap: 12, marginTop: 40 }}>
-                                            <Button
-                                                onClick={handleBackSubtask}
-                                                disabled={activeSubtaskIndex <= 0}
-                                            >
-                                                Nhiệm vụ trước
-                                            </Button>
-                                            <Button
-                                                onClick={handleNextSubtask}
-                                                disabled={activeSubtaskIndex >= subtasks.length - 1}
-                                            >
-                                                Nhiệm vụ sau
-                                            </Button>
+                                        {/* Subtask pagination buttons + complete bar at the bottom */}
+                                        <div className="tfo-bottom-nav">
+                                            <div style={{ display: 'flex', gap: 12 }}>
+                                                <Button onClick={handleBackSubtask} disabled={activeSubtaskIndex <= 0}>
+                                                    Nhiệm vụ trước
+                                                </Button>
+                                                <Button
+                                                    onClick={handleNextSubtask}
+                                                    disabled={activeSubtaskIndex >= subtasks.length - 1}
+                                                >
+                                                    Nhiệm vụ sau
+                                                </Button>
+                                            </div>
+
+                                            {/* Complete Review action bar */}
+                                            <div className={`tfo-complete-bar${isCompleted ? ' completed' : ''}`}>
+                                                {isCompleted ? (
+                                                    <div className="tfo-complete-bar-done">
+                                                        <CheckCircleFilled style={{ fontSize: 20, color: '#52c41a' }} />
+                                                        <span>Đã hoàn tất nhận xét và thông báo cho học viên</span>
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="tfo-complete-bar-info">
+                                                            <span>
+                                                                Đã nhận xét{' '}
+                                                                <strong>
+                                                                    {totalReviewed}/{totalSubtasks}
+                                                                </strong>{' '}
+                                                                nhiệm vụ.
+                                                            </span>
+                                                            {totalReviewed === 0 && (
+                                                                <span style={{ color: '#ff4d4f', marginLeft: 8 }}>
+                                                                    Vui lòng nhận xét ít nhất 1 nhiệm vụ trước khi hoàn
+                                                                    tất.
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <Button
+                                                            type="primary"
+                                                            icon={<SendOutlined />}
+                                                            onClick={handleCompleteReview}
+                                                            loading={loadingCompleteReview}
+                                                            disabled={totalReviewed === 0}
+                                                            className="tfo-complete-btn"
+                                                        >
+                                                            Hoàn tất & Gửi thông báo cho học viên
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 </Spin>
