@@ -904,6 +904,19 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedSubtaskId]);
 
+    const questionMap = useMemo(() => {
+        const map = {};
+        if (apiQuizQuestions) {
+            apiQuizQuestions.forEach((q) => {
+                const key = (q.question || '').trim();
+                if (key && q.id != null) {
+                    map[key] = String(q.id);
+                }
+            });
+        }
+        return map;
+    }, [apiQuizQuestions]);
+
     const quizSubmissionMap = useMemo(() => {
         const map = {};
         submissions.forEach((submission) => {
