@@ -89,6 +89,8 @@ export const commonMessage = defineMessages({
     birthday: 'Ngày sinh',
     Name: 'Tên',
     Province: 'Tỉnh',
+    organizationTypeUniversity: 'Đại học',
+    organizationTypeCompany: 'Doanh nghiệp',
     District: 'Quận',
     Village: 'Xã',
     Nation: 'Quốc gia',

@@ -137,6 +137,21 @@ export const UserTypes = {
     STUDENT: 3,
 };
 
+export const ORGANIZATION_TYPE_UNIVERSITY = 1;
+export const ORGANIZATION_TYPE_COMPANY = 2;
+export const ORGANIZATION_TYPES = [ORGANIZATION_TYPE_UNIVERSITY, ORGANIZATION_TYPE_COMPANY];
+
+export const ORGANIZATION_TYPE_OPTIONS = [
+    {
+        labelKey: 'organizationTypeUniversity',
+        value: ORGANIZATION_TYPE_UNIVERSITY,
+    },
+    {
+        labelKey: 'organizationTypeCompany',
+        value: ORGANIZATION_TYPE_COMPANY,
+    },
+];
+
 export const TaskTypes = {
     TASK: 1,
     SUBTASK: 2,
