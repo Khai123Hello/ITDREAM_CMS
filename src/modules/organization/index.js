@@ -80,12 +80,12 @@ const OrganizationListPage = ({ pageOptions = {} }) => {
             dataIndex: 'shortName',
             width: '150px',
         },
-        {
-            title: labels.description,
-            dataIndex: 'description',
-            width: '350px',
-            render: (text) => text || '-',
-        },
+        // {
+        //     title: labels.description,
+        //     dataIndex: 'description',
+        //     width: '350px',
+        //     render: (text) => text || '-',
+        // },
         mixinFuncs.renderActionColumn(
             {
                 edit: () => mixinFuncs.hasPermission([apiConfig.organization.update.permissionCode]),
@@ -102,10 +102,7 @@ const OrganizationListPage = ({ pageOptions = {} }) => {
         },
     ];
 
-    const breadcrumbs = [
-        { breadcrumbName: translate.formatMessage(commonMessage.home) },
-        { breadcrumbName: labels.organization },
-    ];
+    const breadcrumbs = [{ breadcrumbName: labels.organization }];
 
     return (
         <PageWrapper routes={breadcrumbs}>

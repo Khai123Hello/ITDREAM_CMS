@@ -225,6 +225,8 @@
     "locales.intl.commonMessage.title": "Tiêu đề",
     "locales.intl.commonMessage.category": "Danh mục",
     "locales.intl.commonMessage.password": "Mật khẩu",
+    "locales.intl.commonMessage.organizationTypeUniversity": "Đại học",
+    "locales.intl.commonMessage.organizationTypeCompany": "Doanh nghiệp",
     "locales.intl.commonMessage.confirmPassword": "Xác nhận mật khẩu",
     "locales.intl.commonMessage.email": "Email",
     "locales.intl.commonMessage.username": "Tên đăng nhập",

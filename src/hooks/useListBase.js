@@ -110,7 +110,7 @@ const useListBase = ({
     override,
 } = {}) => {
     const { params: queryParams, setQueryParams, serializeParams, deserializeParams } = useQueryParams();
-    const [data, setData] = useState(0);
+    const [data, setData] = useState([]);
     const [loading, setLoading] = useState(false);
     const userTokenProject = getData(storageKeys.USER_PROJECT_ACCESS_TOKEN);
     const { execute: executeGetList } = useFetch(
@@ -622,6 +622,7 @@ const useListBase = ({
             prepareGetListPathParams,
             actionColumnButtons,
             setQueryParams,
+            executeGetList,
         };
 
         override?.(centralizedHandler);
@@ -654,6 +655,7 @@ const useListBase = ({
         changeFilter,
         changePagination,
         pagination,
+        setPagination,
         mixinFuncs,
         getList,
         setLoading,

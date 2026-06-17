@@ -40,7 +40,6 @@ const OrganizationSavePage = ({ pageOptions = {} }) => {
         : detail?.name || translate.formatMessage(commonMessage.update);
 
     const breadcrumbs = [
-        { breadcrumbName: translate.formatMessage(commonMessage.home) },
         {
             breadcrumbName: 'Tổ chức',
             path: '/organization',
