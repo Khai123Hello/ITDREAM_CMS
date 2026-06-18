@@ -24,32 +24,32 @@ const GenericModal = ({ visible, onClose, titleMessage, sections, record }) => {
         >
             {record
                 ? sections.map((section, index) => (
-                    <fieldset key={index} style={{ marginBottom: '1rem' }}>
-                        <legend>{translate.formatMessage(section.titleMessage)}</legend>
-                        {section.header && section.header(record)}
-                        {section.fields
-                            ? section.fields.map((field, fieldIndex) => (
-                                <p key={fieldIndex}>
-                                    {field.labelMessage && (
-                                        <strong>{translate.formatMessage(field.labelMessage)}: </strong>
-                                    )}
-                                    {field.render
-                                        ? field.render(record)
-                                        : (() => {
-                                            const value = getNestedValue(record, field.dataKey);
-                                            const displayValue = field.formatter ? field.formatter(value) : value;
-                                            return (
-                                                displayValue ||
+                      <fieldset key={index} style={{ marginBottom: '1rem' }}>
+                          <legend>{translate.formatMessage(section.titleMessage)}</legend>
+                          {section.header && section.header(record)}
+                          {section.fields
+                              ? section.fields.map((field, fieldIndex) => (
+                                    <p key={fieldIndex}>
+                                        {field.labelMessage && (
+                                            <strong>{translate.formatMessage(field.labelMessage)}: </strong>
+                                        )}
+                                        {field.render
+                                            ? field.render(record)
+                                            : (() => {
+                                                  const value = getNestedValue(record, field.dataKey);
+                                                  const displayValue = field.formatter ? field.formatter(value) : value;
+                                                  return (
+                                                      displayValue ||
                                                       translate.formatMessage(
                                                           field.defaultMessage || modalMessages.noInfo,
                                                       )
-                                            );
-                                        })()}
-                                </p>
-                            ))
-                            : section.render && section.render(record)}
-                    </fieldset>
-                ))
+                                                  );
+                                              })()}
+                                    </p>
+                                ))
+                              : section.render && section.render(record)}
+                      </fieldset>
+                  ))
                 : null}
         </Modal>
     );

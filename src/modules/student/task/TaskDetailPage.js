@@ -142,14 +142,14 @@ const TaskDetailPage = ({ pageOptions }) => {
         if (!progress) return { text: 'Chưa bắt đầu', color: 'default' };
 
         switch (progress.state) {
-                        case 0:
-                            return { text: 'Chưa bắt đầu', color: 'default' };
-                        case 1:
-                            return { text: 'Đang thực hiện', color: 'processing' };
-                        case 2:
-                            return { text: 'Đã hoàn thành', color: 'success' };
-                        default:
-                            return { text: 'Chưa xác định', color: 'default' };
+            case 0:
+                return { text: 'Chưa bắt đầu', color: 'default' };
+            case 1:
+                return { text: 'Đang thực hiện', color: 'processing' };
+            case 2:
+                return { text: 'Đã hoàn thành', color: 'success' };
+            default:
+                return { text: 'Chưa xác định', color: 'default' };
         }
     };
 
@@ -286,8 +286,8 @@ const TaskDetailPage = ({ pageOptions }) => {
                                     progressStatus.color === 'success'
                                         ? 'success'
                                         : progressStatus.color === 'processing'
-                                            ? 'info'
-                                            : 'warning'
+                                          ? 'info'
+                                          : 'warning'
                                 }
                                 showIcon
                                 icon={

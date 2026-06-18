@@ -55,13 +55,13 @@ const CategorySavePage = ({ pageOptions = {} }) => {
     const breadcrumbs = pageOptions.renderBreadcrumbs
         ? pageOptions.renderBreadcrumbs(commonMessage, translate, title)
         : [
-            { breadcrumbName: translate.formatMessage(commonMessage.home) },
-            {
-                breadcrumbName: 'Danh mục',
-                path: '/category',
-            },
-            { breadcrumbName: title },
-        ];
+              { breadcrumbName: translate.formatMessage(commonMessage.home) },
+              {
+                  breadcrumbName: 'Danh mục',
+                  path: '/category',
+              },
+              { breadcrumbName: title },
+          ];
 
     return (
         <PageWrapper loading={loading} routes={breadcrumbs}>

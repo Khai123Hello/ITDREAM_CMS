@@ -12,7 +12,7 @@ const DEFAULT_OVERVIEW_TEMPLATE = {
     introduction: '',
     bager: ['Tự học theo tốc độ riêng', '1–2 giờ', 'Không có điểm số', 'Không có bài kiểm tra nào', 'Giới thiệu'],
     content: '',
-    skills: ['Chú ý chi tiết', 'Giải quyết vấn đề', 'Giao tiếp', 'Tư duy phản biện', 'Làm việc nhóm'],
+    skills: [],
 };
 
 const SimulationForm = (props) => {
@@ -73,7 +73,7 @@ const SimulationForm = (props) => {
                 'Giới thiệu',
             ],
             content: '',
-            skills: ['Chú ý chi tiết', 'Giải quyết vấn đề', 'Giao tiếp', 'Tư duy phản biện', 'Làm việc nhóm'],
+            skills: [],
         };
         if (!overviewStr) return fallbackTemplate;
         try {
@@ -84,10 +84,10 @@ const SimulationForm = (props) => {
                     bager: Array.isArray(parsed.bager)
                         ? parsed.bager
                         : Array.isArray(parsed.barger)
-                            ? parsed.barger
-                            : Array.isArray(parsed.hero?.badges)
-                                ? parsed.hero.badges
-                                : fallbackTemplate.bager,
+                          ? parsed.barger
+                          : Array.isArray(parsed.hero?.badges)
+                            ? parsed.hero.badges
+                            : fallbackTemplate.bager,
                     content: parsed.content || parsed.intro?.content || '',
                     skills: Array.isArray(parsed.skills) ? parsed.skills : fallbackTemplate.skills,
                 };
@@ -108,8 +108,8 @@ const SimulationForm = (props) => {
                 imagePath: overrides.imagePath ?? latest.imagePath,
                 videoPath: overrides.videoUrl ?? latest.videoUrl,
                 overviewData: overrides.overviewData ?? latest.overviewData,
-                category: categories?.find((c) => c.value === formValues.categoryId),
-                level: levels?.find((l) => l.value === formValues.level),
+                category: categories?.find((c) => c.value == formValues.categoryId),
+                level: levels?.find((l) => l.value == formValues.level),
             };
         },
         [form, categories, levels],
@@ -124,34 +124,56 @@ const SimulationForm = (props) => {
 
     // ── Load dataDetail ──────────────────────────────────────────────────────
     useEffect(() => {
-        if (!dataDetail || !Object.keys(dataDetail).length) return;
+        if (dataDetail && Object.keys(dataDetail).length > 0) {
+            form.setFieldsValue({
+                ...dataDetail,
+                categoryId: dataDetail.category?.id || dataDetail.specialization?.id,
+                totalEstimatedTime: dataDetail.duration || dataDetail.totalEstimatedTime,
+                description: dataDetail.description || '',
+            });
 
-        form.setFieldsValue({
-            ...dataDetail,
-            categoryId: dataDetail.category?.id || dataDetail.specialization?.id,
-            totalEstimatedTime: dataDetail.duration || dataDetail.totalEstimatedTime,
-            description: dataDetail.description || '',
-        });
+            const newImagePath = dataDetail.thumbnail || dataDetail.imagePath || null;
+            const newVideoUrl = dataDetail.videoPath || '';
+            const newOverviewData = dataDetail.overview
+                ? parseOverviewData(dataDetail.overview)
+                : DEFAULT_OVERVIEW_TEMPLATE;
 
-        const newImagePath = dataDetail.thumbnail || dataDetail.imagePath || null;
-        const newVideoUrl = dataDetail.videoPath || '';
-        const newOverviewData = dataDetail.overview
-            ? parseOverviewData(dataDetail.overview)
-            : DEFAULT_OVERVIEW_TEMPLATE;
+            latestState.current = {
+                imagePath: newImagePath,
+                videoUrl: newVideoUrl,
+                overviewData: newOverviewData,
+            };
 
-        // Ghi ref trước để buildPreviewData đọc đúng ngay
-        latestState.current = {
-            imagePath: newImagePath,
-            videoUrl: newVideoUrl,
-            overviewData: newOverviewData,
-        };
+            _setImagePath(newImagePath);
+            _setVideoUrl(newVideoUrl);
+            _setOverviewData(newOverviewData);
+        } else {
+            form.setFieldsValue({
+                title: '',
+                description: '',
+                totalEstimatedTime: '',
+                categoryId: undefined,
+                level: 1,
+            });
 
-        _setImagePath(newImagePath);
-        _setVideoUrl(newVideoUrl);
-        _setOverviewData(newOverviewData);
+            latestState.current = {
+                imagePath: null,
+                videoUrl: '',
+                overviewData: DEFAULT_OVERVIEW_TEMPLATE,
+            };
+
+            _setImagePath(null);
+            _setVideoUrl('');
+            _setOverviewData(DEFAULT_OVERVIEW_TEMPLATE);
+        }
 
         setPreviewData(buildPreviewData());
     }, [dataDetail]); // eslint-disable-line
+
+    // Cập nhật previewData khi categories hoặc levels hoàn thành việc tải/thay đổi
+    useEffect(() => {
+        setPreviewData(buildPreviewData());
+    }, [categories, levels, buildPreviewData]);
 
     // ────────────────────────────────────────────────────────────────────────
     // handleFieldChange — nhận edit từ preview, sync về form + state
