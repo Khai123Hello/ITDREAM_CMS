@@ -71,6 +71,7 @@ function EditableZone({
 
     const handleOpen = useCallback(() => {
         if (!editable) return;
+        if (open) return;
         const rect = zoneRef.current?.getBoundingClientRect();
 
         const popoverWidth = type === 'richtext' ? 480 : Math.max(320, rect?.width ?? 320);
@@ -85,12 +86,14 @@ function EditableZone({
         setPos({ top, left, width: popoverWidth });
         setDraft(value ?? '');
         setOpen(true);
-    }, [editable, type, value]);
+    }, [editable, type, value, open]);
 
-    const handleCommit = useCallback(() => {
+    const handleCommit = useCallback((overrideValue) => {
         setOpen(false);
-        if (draft !== value) {
-            onCommit?.(fieldPath, draft);
+        const isEvent = overrideValue && (overrideValue.nativeEvent || overrideValue instanceof Event || overrideValue.preventDefault);
+        const finalValue = (overrideValue !== undefined && !isEvent) ? overrideValue : draft;
+        if (finalValue !== value) {
+            onCommit?.(fieldPath, finalValue);
         }
     }, [draft, value, fieldPath, onCommit]);
 
@@ -198,10 +201,15 @@ const FloatingEditor = React.forwardRef(function FloatingEditor(
                 <select
                     ref={inputRef}
                     value={draft}
-                    onChange={(e) => onChange(e.target.value)}
+                    onChange={(e) => {
+                        const newVal = e.target.value;
+                        onChange(newVal);
+                        onCommit(newVal);
+                    }}
                     onKeyDown={onKeyDown}
                     style={inputStyle}
                 >
+                    <option value="" disabled hidden>-- Chọn --</option>
                     {options && options.map(opt => (
                         <option key={opt.value} value={opt.value}>
                             {opt.label}
@@ -240,7 +248,7 @@ const FloatingEditor = React.forwardRef(function FloatingEditor(
             {/* Actions */}
             <div style={{ display: 'flex', gap: 6, marginTop: 8, justifyContent: 'flex-end' }}>
                 <button onClick={onCancel} style={btnSecondaryStyle}>Huỷ</button>
-                <button onClick={onCommit} style={btnPrimaryStyle}>Lưu ✓</button>
+                <button onClick={() => onCommit()} style={btnPrimaryStyle}>Lưu ✓</button>
             </div>
         </div>
     );

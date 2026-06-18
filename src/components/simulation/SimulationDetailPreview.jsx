@@ -58,7 +58,7 @@ function SimulationDetailPreview({
         title:            previewData.title             || '',
         notice:           previewData.description       || '', // Mapped to description
         thumbnail:        previewData.imagePath         || null,
-        level:            previewData.level?.value      ?? previewData.level ?? 0,
+        level:            previewData.level?.value      ?? previewData.level ?? 1,
         duration:         previewData.totalEstimatedTime || '',
         description:      previewData.descriptionContent || '',
         overview:         previewData.overviewData      || null,
@@ -70,7 +70,7 @@ function SimulationDetailPreview({
     }), [previewData]);
 
     const getLevelLabel = (level) =>
-        ({ 0: 'Giới thiệu', 1: 'Cơ bản', 2: 'Trung cấp', 3: 'Nâng cao' }[level] ?? 'Giới thiệu');
+        ({ 1: 'Cơ bản', 2: 'Trung cấp', 3: 'Nâng cao' }[level] ?? 'Cơ bản');
 
     const getStarCount = (avgStar) => Math.round(avgStar || 0);
 
@@ -415,7 +415,6 @@ function SimulationDetailPreview({
                                                 type="select"
                                                 label="Cấp độ"
                                                 options={[
-                                                    { value: 0, label: 'Giới thiệu' },
                                                     { value: 1, label: 'Cơ bản' },
                                                     { value: 2, label: 'Trung cấp' },
                                                     { value: 3, label: 'Nâng cao' },

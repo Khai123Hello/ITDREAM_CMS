@@ -48,6 +48,8 @@ const TaskSavePage = ({ pageOptions }) => {
         }
         : {
             getById: apiConfig.task.getById,
+            create: apiConfig.task.create,
+            update: apiConfig.task.update,
         };
 
     const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing, title } = useSaveBase({
