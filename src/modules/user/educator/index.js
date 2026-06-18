@@ -122,12 +122,12 @@ const EducatorListPage = ({ pageOptions }) => {
                                             prevData.map((item) =>
                                                 item.id === id
                                                     ? {
-                                                          ...item,
-                                                          account: {
-                                                              ...item.account,
-                                                              status: accountStatus.ACTIVE,
-                                                          },
-                                                      }
+                                                        ...item,
+                                                        account: {
+                                                            ...item.account,
+                                                            status: accountStatus.ACTIVE,
+                                                        },
+                                                    }
                                                     : item,
                                             ),
                                         );
@@ -170,12 +170,12 @@ const EducatorListPage = ({ pageOptions }) => {
                                             prevData.map((item) =>
                                                 item.id === id
                                                     ? {
-                                                          ...item,
-                                                          account: {
-                                                              ...item.account,
-                                                              status: accountStatus.REJECT,
-                                                          },
-                                                      }
+                                                        ...item,
+                                                        account: {
+                                                            ...item.account,
+                                                            status: accountStatus.REJECT,
+                                                        },
+                                                    }
                                                     : item,
                                             ),
                                         );

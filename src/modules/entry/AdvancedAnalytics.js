@@ -135,7 +135,7 @@ const AdvancedAnalytics = () => {
 
     return (
         <div style={{ padding: '24px' }}>
-            <h1 style={{ marginBottom: '24px', fontWeight: 'bold' }}>Dashboard Phân Tích Hệ Thống</h1>
+            <h1 style={{ marginBottom: '24px', fontWeight: 'bold' }}>Dashboard</h1>
 
             {/* KPI Cards */}
             <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>

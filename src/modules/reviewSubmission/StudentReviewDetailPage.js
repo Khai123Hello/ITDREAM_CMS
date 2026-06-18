@@ -219,107 +219,107 @@ function QuizBlock({ block, studentAnswer = null, correctIndex = null }) {
 
 function BlockItem({ block, idx, allBlocks, quizSubmissionMap = {}, questionMap = {} }) {
     switch (block.type) {
-        case 'meta':
-            return (
-                <div className="tfo-block-meta">
-                    <span className="tfo-block-meta-val">{block.duration}</span>
-                    <span className="tfo-block-meta-dot">·</span>
-                    <span className="tfo-block-meta-val">{block.level}</span>
-                </div>
-            );
+                    case 'meta':
+                        return (
+                            <div className="tfo-block-meta">
+                                <span className="tfo-block-meta-val">{block.duration}</span>
+                                <span className="tfo-block-meta-dot">·</span>
+                                <span className="tfo-block-meta-val">{block.level}</span>
+                            </div>
+                        );
 
-        case 'section':
-            return (
-                <div className="tfo-block-section">
-                    <div className="tfo-block-section-header">
-                        <span className="tfo-block-section-icon">{block.icon}</span>
-                        <span className="tfo-block-section-title">{block.title}</span>
-                    </div>
-                    <ul className="tfo-block-section-list">
-                        {(block.bullets || []).filter(Boolean).map((b, i) => (
-                            <li key={i}>{b}</li>
-                        ))}
-                    </ul>
-                </div>
-            );
+                    case 'section':
+                        return (
+                            <div className="tfo-block-section">
+                                <div className="tfo-block-section-header">
+                                    <span className="tfo-block-section-icon">{block.icon}</span>
+                                    <span className="tfo-block-section-title">{block.title}</span>
+                                </div>
+                                <ul className="tfo-block-section-list">
+                                    {(block.bullets || []).filter(Boolean).map((b, i) => (
+                                        <li key={i}>{b}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        );
 
-        case 'text':
-            return <p className="tfo-block-text">{block.content}</p>;
+                    case 'text':
+                        return <p className="tfo-block-text">{block.content}</p>;
 
-        case 'h1':
-            return <h2 className="tfo-block-h1">{block.content}</h2>;
+                    case 'h1':
+                        return <h2 className="tfo-block-h1">{block.content}</h2>;
 
-        case 'h2':
-            return <h3 className="tfo-block-h2">{block.content}</h3>;
+                    case 'h2':
+                        return <h3 className="tfo-block-h2">{block.content}</h3>;
 
-        case 'h3':
-            return <h4 className="tfo-block-h3">{block.content}</h4>;
+                    case 'h3':
+                        return <h4 className="tfo-block-h3">{block.content}</h4>;
 
-        case 'bullet':
-            return (
-                <div className="tfo-block-bullet-wrap">
-                    <span className="tfo-block-bullet-dot">•</span>
-                    <span className="tfo-block-bullet-text">{block.content}</span>
-                </div>
-            );
+                    case 'bullet':
+                        return (
+                            <div className="tfo-block-bullet-wrap">
+                                <span className="tfo-block-bullet-dot">•</span>
+                                <span className="tfo-block-bullet-text">{block.content}</span>
+                            </div>
+                        );
 
-        case 'numbered': {
-            const num = allBlocks.filter((b, i) => b.type === 'numbered' && i <= idx).length;
-            return (
-                <div className="tfo-block-bullet-wrap">
-                    <span className="tfo-block-num-label">{num}.</span>
-                    <span className="tfo-block-bullet-text">{block.content}</span>
-                </div>
-            );
-        }
-
-        case 'divider':
-            return <hr className="tfo-block-divider" />;
-
-        case 'callout':
-            return (
-                <div className="tfo-block-callout">
-                    <span className="tfo-block-callout-icon">{block.icon || '💡'}</span>
-                    <span className="tfo-block-callout-text">{block.content}</span>
-                </div>
-            );
-
-        case 'code':
-            return (
-                <div className="tfo-block-code">
-                    <pre>{block.content}</pre>
-                </div>
-            );
-
-        case 'step': {
-            const renderStepBody = (text) => {
-                if (!text) return '';
-                const parts = text.split(/(`[^`]+`)/g);
-                return parts.map((part, pi) => {
-                    if (part.startsWith('`') && part.endsWith('`')) {
-                        return <code key={pi}>{part.slice(1, -1)}</code>;
+                    case 'numbered': {
+                        const num = allBlocks.filter((b, i) => b.type === 'numbered' && i <= idx).length;
+                        return (
+                            <div className="tfo-block-bullet-wrap">
+                                <span className="tfo-block-num-label">{num}.</span>
+                                <span className="tfo-block-bullet-text">{block.content}</span>
+                            </div>
+                        );
                     }
-                    return part;
-                });
-            };
-            return (
-                <div className="tfo-block-step">
-                    <span className="tfo-block-step-label">{block.label}:</span>
-                    <span className="tfo-block-step-body">{renderStepBody(block.body)}</span>
-                </div>
-            );
-        }
 
-        case 'quiz': {
-            const questionKey = (block.question || '').trim();
-            const questionId = questionKey ? (questionMap[questionKey] ?? null) : null;
-            const studentAnswer = questionId ? quizSubmissionMap[questionId] : null;
-            const correctIndex = (block.options || []).findIndex((o) => o.answer === true);
-            return <QuizBlock block={block} studentAnswer={studentAnswer} correctIndex={correctIndex} />;
-        }
+                    case 'divider':
+                        return <hr className="tfo-block-divider" />;
 
-        default:
-            return null;
+                    case 'callout':
+                        return (
+                            <div className="tfo-block-callout">
+                                <span className="tfo-block-callout-icon">{block.icon || '💡'}</span>
+                                <span className="tfo-block-callout-text">{block.content}</span>
+                            </div>
+                        );
+
+                    case 'code':
+                        return (
+                            <div className="tfo-block-code">
+                                <pre>{block.content}</pre>
+                            </div>
+                        );
+
+                    case 'step': {
+                        const renderStepBody = (text) => {
+                            if (!text) return '';
+                            const parts = text.split(/(`[^`]+`)/g);
+                            return parts.map((part, pi) => {
+                                if (part.startsWith('`') && part.endsWith('`')) {
+                                    return <code key={pi}>{part.slice(1, -1)}</code>;
+                                }
+                                return part;
+                            });
+                        };
+                        return (
+                            <div className="tfo-block-step">
+                                <span className="tfo-block-step-label">{block.label}:</span>
+                                <span className="tfo-block-step-body">{renderStepBody(block.body)}</span>
+                            </div>
+                        );
+                    }
+
+                    case 'quiz': {
+                        const questionKey = (block.question || '').trim();
+                        const questionId = questionKey ? (questionMap[questionKey] ?? null) : null;
+                        const studentAnswer = questionId ? quizSubmissionMap[questionId] : null;
+                        const correctIndex = (block.options || []).findIndex((o) => o.answer === true);
+                        return <QuizBlock block={block} studentAnswer={studentAnswer} correctIndex={correctIndex} />;
+                    }
+
+                    default:
+                        return null;
     }
 }
 
@@ -1382,8 +1382,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                 const subProgress = progressList?.find((p) => p.task?.id === st.id);
                                                 const isSubReviewed = subProgress
                                                     ? educatorReviews?.some(
-                                                          (r) => r.studentTaskProgress?.id === subProgress.id,
-                                                      )
+                                                        (r) => r.studentTaskProgress?.id === subProgress.id,
+                                                    )
                                                     : reviewedTaskIds.has(st.id);
                                                 const isActiveSub = st.id === selectedSubtaskId;
 

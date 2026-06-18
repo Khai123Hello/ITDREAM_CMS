@@ -1,7 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
-import { Empty, Tag, Button, message } from 'antd';
-import { QuestionCircleOutlined, RightOutlined, PlusOutlined, EditOutlined, MenuOutlined } from '@ant-design/icons';
+import { Empty, Tag, Button, message, Modal } from 'antd';
+import {
+    QuestionCircleOutlined,
+    RightOutlined,
+    PlusOutlined,
+    EditOutlined,
+    MenuOutlined,
+    DeleteOutlined,
+    ExclamationCircleOutlined,
+} from '@ant-design/icons';
 
 import useFetch from '@hooks/useFetch';
 import useListBase from '@hooks/useListBase';
@@ -74,14 +82,14 @@ const TaskListPage = ({ pageOptions }) => {
 
     const apiConfiguration = isEducator
         ? {
-              getList: apiConfig.task.listByEducator,
-              delete: apiConfig.task.delete,
-              create: apiConfig.task.create,
-              update: apiConfig.task.update,
-          }
+            getList: apiConfig.task.listByEducator,
+            delete: apiConfig.task.delete,
+            create: apiConfig.task.create,
+            update: apiConfig.task.update,
+        }
         : {
-              getList: apiConfig.task.getList,
-          };
+            getList: apiConfig.task.getList,
+        };
 
     const [taskItems, setTaskItems] = useState([]);
 
@@ -156,15 +164,15 @@ const TaskListPage = ({ pageOptions }) => {
                                                 dataRow.kind === TaskTypes.SUBTASK
                                                     ? dataRow.parent
                                                         ? {
-                                                              id: dataRow.parent.id,
-                                                              name: dataRow.parent.name,
-                                                              title: dataRow.parent.title,
-                                                          }
+                                                            id: dataRow.parent.id,
+                                                            name: dataRow.parent.name,
+                                                            title: dataRow.parent.title,
+                                                        }
                                                         : {
-                                                              id: dataRow.parentId,
-                                                              name: '',
-                                                              title: '',
-                                                          }
+                                                            id: dataRow.parentId,
+                                                            name: '',
+                                                            title: '',
+                                                        }
                                                     : null,
                                             parentOrder,
                                             taskOrder,
@@ -223,12 +231,12 @@ const TaskListPage = ({ pageOptions }) => {
                                     navigate(`/simulation/${simulationId}/task/${dataRow.id}/question`, {
                                         state: dataRow.parent
                                             ? {
-                                                  parentTask: {
-                                                      id: dataRow.parent.id,
-                                                      name: dataRow.parent.name,
-                                                      title: dataRow.parent.title,
-                                                  },
-                                              }
+                                                parentTask: {
+                                                    id: dataRow.parent.id,
+                                                    name: dataRow.parent.name,
+                                                    title: dataRow.parent.title,
+                                                },
+                                            }
                                             : null,
                                     });
                                 }}
@@ -250,23 +258,23 @@ const TaskListPage = ({ pageOptions }) => {
                                         state:
                                             dataRow.kind === TaskTypes.SUBTASK
                                                 ? {
-                                                      parentTask: dataRow.parent
-                                                          ? {
-                                                                id: dataRow.parent.id,
-                                                                name: dataRow.parent.name,
-                                                                title: dataRow.parent.title,
-                                                            }
-                                                          : {
-                                                                id: dataRow.parentId,
-                                                                name: '',
-                                                                title: '',
-                                                            },
-                                                      parentOrder,
-                                                      taskOrder,
-                                                  }
+                                                    parentTask: dataRow.parent
+                                                        ? {
+                                                            id: dataRow.parent.id,
+                                                            name: dataRow.parent.name,
+                                                            title: dataRow.parent.title,
+                                                        }
+                                                        : {
+                                                            id: dataRow.parentId,
+                                                            name: '',
+                                                            title: '',
+                                                        },
+                                                    parentOrder,
+                                                    taskOrder,
+                                                }
                                                 : {
-                                                      taskOrder,
-                                                  },
+                                                    taskOrder,
+                                                },
                                     });
                                 }}
                                 title={labels.viewDetails}
@@ -299,6 +307,70 @@ const TaskListPage = ({ pageOptions }) => {
     const { execute: executeUpdateOrder } = useFetch(apiConfig.task.updateOrder, {
         immediate: false,
     });
+
+    const { execute: executeDeleteTask } = useFetch(apiConfig.task.delete, {
+        immediate: false,
+    });
+
+    // State for delete confirmation modal
+    const [deleteModal, setDeleteModal] = useState({
+        visible: false,
+        task: null, // task object being deleted
+        hasSubtasks: false, // whether it's a parent task with subtasks
+        loading: false,
+    });
+
+    const handleDeleteClick = (e, task) => {
+        e.stopPropagation();
+        const hasSubtasks = !task.kind || task.kind === TaskTypes.TASK ? (task.children?.length || 0) > 0 : false;
+
+        if (hasSubtasks) {
+            // Parent task with subtasks: show confirmation modal
+            setDeleteModal({ visible: true, task, hasSubtasks: true, loading: false });
+        } else {
+            // Subtask or task without subtasks: simple confirm then delete
+            Modal.confirm({
+                title: 'Xác nhận xóa',
+                icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+                content: (
+                    <div>
+                        <p>
+                            Bạn có chắc chắn muốn xóa{' '}
+                            <strong>{`"${task.title || task.name || 'nhiệm vụ này'}"`}</strong>?
+                        </p>
+                        <p style={{ color: '#8c8c8c', fontSize: 13 }}>Hành động này không thể hoàn tác.</p>
+                    </div>
+                ),
+                okText: 'Xóa',
+                okType: 'danger',
+                cancelText: 'Hủy',
+                onOk: () => doDeleteTask(task.id),
+            });
+        }
+    };
+
+    const doDeleteTask = async (taskId) => {
+        try {
+            const result = await executeDeleteTask({
+                pathParams: { id: taskId },
+            });
+            if (result?.result === true) {
+                message.success('Xóa nhiệm vụ thành công!');
+                mixinFuncs.getList();
+            } else {
+                message.error(result?.message || 'Không thể xóa nhiệm vụ. Vui lòng thử lại.');
+            }
+        } catch (error) {
+            message.error('Có lỗi xảy ra khi xóa nhiệm vụ. Vui lòng thử lại.');
+        }
+    };
+
+    const handleConfirmDeleteWithSubtasks = async () => {
+        if (!deleteModal.task) return;
+        setDeleteModal((prev) => ({ ...prev, loading: true }));
+        await doDeleteTask(deleteModal.task.id);
+        setDeleteModal({ visible: false, task: null, hasSubtasks: false, loading: false });
+    };
 
     const [activeId, setActiveId] = useState(null);
     const [activeType, setActiveType] = useState(null);
@@ -585,13 +657,13 @@ const TaskListPage = ({ pageOptions }) => {
             state:
                 record.kind === TaskTypes.SUBTASK
                     ? {
-                          parentTask: getParentTaskState(record),
-                          parentOrder,
-                          taskOrder,
-                      }
+                        parentTask: getParentTaskState(record),
+                        parentOrder,
+                        taskOrder,
+                    }
                     : {
-                          taskOrder,
-                      },
+                        taskOrder,
+                    },
         });
     };
 
@@ -660,16 +732,25 @@ const TaskListPage = ({ pageOptions }) => {
                         {!isSubTask &&
                             isEducator &&
                             mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
-                                <Button
-                                    type="text"
-                                    icon={<PlusOutlined />}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        createSubTaskForTask(task);
-                                    }}
-                                    title={labels.createSubTask}
-                                />
-                            )}
+                            <Button
+                                type="text"
+                                icon={<PlusOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    createSubTaskForTask(task);
+                                }}
+                                title={labels.createSubTask}
+                            />
+                        )}
+                        {isEducator && mixinFuncs.hasPermission([apiConfig.task.delete.permissionCode]) && (
+                            <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={(e) => handleDeleteClick(e, task)}
+                                title="Xóa nhiệm vụ"
+                            />
+                        )}
                         <Button
                             type="text"
                             icon={<RightOutlined />}
@@ -738,14 +819,25 @@ const TaskListPage = ({ pageOptions }) => {
                         )}
                     </div>
                 </div>
-                <Button
-                    type="text"
-                    icon={<RightOutlined />}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleRowClick(subtask);
-                    }}
-                />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    {isEducator && mixinFuncs.hasPermission([apiConfig.task.delete.permissionCode]) && (
+                        <Button
+                            type="text"
+                            danger
+                            icon={<DeleteOutlined />}
+                            onClick={(e) => handleDeleteClick(e, subtask)}
+                            title="Xóa SubTask"
+                        />
+                    )}
+                    <Button
+                        type="text"
+                        icon={<RightOutlined />}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleRowClick(subtask);
+                        }}
+                    />
+                </div>
             </div>
         );
     };
@@ -795,6 +887,57 @@ const TaskListPage = ({ pageOptions }) => {
         </DndContext>
     );
 
+    const renderDeleteWithSubtasksModal = () => (
+        <Modal
+            title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#ff4d4f' }}>
+                    <ExclamationCircleOutlined />
+                    <span>Xóa Task và toàn bộ SubTask</span>
+                </div>
+            }
+            open={deleteModal.visible}
+            onCancel={() =>
+                !deleteModal.loading &&
+                setDeleteModal({ visible: false, task: null, hasSubtasks: false, loading: false })
+            }
+            footer={[
+                <Button
+                    key="cancel"
+                    disabled={deleteModal.loading}
+                    onClick={() => setDeleteModal({ visible: false, task: null, hasSubtasks: false, loading: false })}
+                >
+                    Hủy
+                </Button>,
+                <Button
+                    key="confirm"
+                    type="primary"
+                    danger
+                    loading={deleteModal.loading}
+                    onClick={handleConfirmDeleteWithSubtasks}
+                >
+                    Xóa tất cả
+                </Button>,
+            ]}
+            width={480}
+        >
+            <div style={{ padding: '8px 0' }}>
+                <p style={{ marginBottom: 12 }}>
+                    ⚠️ Bạn đang xóa Task{' '}
+                    <strong>{`"${deleteModal.task?.title || deleteModal.task?.name || ''}"`}</strong> — đây là một{' '}
+                    <strong>Task Cha</strong>.
+                </p>
+                <p style={{ color: '#595959', marginBottom: 12 }}>
+                    Task này hiện có{' '}
+                    <strong style={{ color: '#ff4d4f' }}>{deleteModal.task?.children?.length || 0} SubTask</strong> bên
+                    trong. Khi xóa Task Cha, <strong>toàn bộ SubTask thuộc về nó cũng sẽ bị xóa theo</strong>.
+                </p>
+                <p style={{ color: '#8c8c8c', fontSize: 13 }}>
+                    Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?
+                </p>
+            </div>
+        </Modal>
+    );
+
     const searchFields = [
         { key: 'title', placeholder: labels.title },
         {
@@ -821,6 +964,7 @@ const TaskListPage = ({ pageOptions }) => {
                 actionBar={isEducator ? mixinFuncs.renderActionBar() : null}
                 baseTable={renderTaskBoard()}
             />
+            {renderDeleteWithSubtasksModal()}
         </PageWrapper>
     );
 };

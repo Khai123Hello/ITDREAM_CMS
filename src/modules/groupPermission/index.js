@@ -10,7 +10,9 @@ import { FieldTypes } from '@constants/formConfig';
 import { getData } from '@utils/localStorage';
 import useTranslate from '@hooks/useTranslate';
 import { commonMessage } from '@locales/intl';
-import { Empty } from 'antd';
+import { Empty, Button, Row, Col } from 'antd';
+import { Link } from 'react-router-dom';
+import { KeyOutlined } from '@ant-design/icons';
 
 const GroupPermissionListPage = () => {
     const translate = useTranslate();
@@ -73,7 +75,22 @@ const GroupPermissionListPage = () => {
     return (
         <PageWrapper routes={[{ breadcrumbName: translate.formatMessage(commonMessage.role) }]}>
             <ListPage
-                actionBar={mixinFuncs.renderActionBar({})}
+                actionBar={
+                    <Row justify="end" gutter={12}>
+                        {mixinFuncs.hasPermission([apiConfig.permission.getList.permissionCode]) && (
+                            <Col>
+                                <Link to="/permission">
+                                    <Button type="default" icon={<KeyOutlined />}>
+                                        Quản lý Quyền
+                                    </Button>
+                                </Link>
+                            </Col>
+                        )}
+                        <Col>
+                            {mixinFuncs.renderActionBar({})}
+                        </Col>
+                    </Row>
+                }
                 searchForm={mixinFuncs.renderSearchForm({
                     fields: searchFields,
                     initialValues: { kind: useKind, ...queryFilter },
