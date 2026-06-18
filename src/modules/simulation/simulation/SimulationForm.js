@@ -84,10 +84,10 @@ const SimulationForm = (props) => {
                     bager: Array.isArray(parsed.bager)
                         ? parsed.bager
                         : Array.isArray(parsed.barger)
-                            ? parsed.barger
-                            : Array.isArray(parsed.hero?.badges)
-                                ? parsed.hero.badges
-                                : fallbackTemplate.bager,
+                          ? parsed.barger
+                          : Array.isArray(parsed.hero?.badges)
+                            ? parsed.hero.badges
+                            : fallbackTemplate.bager,
                     content: parsed.content || parsed.intro?.content || '',
                     skills: Array.isArray(parsed.skills) ? parsed.skills : fallbackTemplate.skills,
                 };
@@ -169,6 +169,11 @@ const SimulationForm = (props) => {
 
         setPreviewData(buildPreviewData());
     }, [dataDetail]); // eslint-disable-line
+
+    // Cập nhật previewData khi categories hoặc levels hoàn thành việc tải/thay đổi
+    useEffect(() => {
+        setPreviewData(buildPreviewData());
+    }, [categories, levels, buildPreviewData]);
 
     // ────────────────────────────────────────────────────────────────────────
     // handleFieldChange — nhận edit từ preview, sync về form + state

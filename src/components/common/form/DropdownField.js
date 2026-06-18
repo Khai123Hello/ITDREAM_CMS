@@ -59,15 +59,15 @@ const DropdownField = (props) => {
             >
                 {options
                     ? options.map((item) => (
-                        <Select.Option
-                            key={item[optionValueKey]}
-                            value={item[optionValueKey]}
-                            other={item[optionOtherKey]}
-                        >
-                            {noTranslate ? item[optionLabelKey] : item[optionLabelKey]}
-                            {labelInValue ? item[optionLabelKey] : null}
-                        </Select.Option>
-                    ))
+                          <Select.Option
+                              key={item[optionValueKey]}
+                              value={item[optionValueKey]}
+                              other={item[optionOtherKey]}
+                          >
+                              {noTranslate ? item[optionLabelKey] : item[optionLabelKey]}
+                              {labelInValue ? item[optionLabelKey] : null}
+                          </Select.Option>
+                      ))
                     : null}
             </Select>
         </Form.Item>

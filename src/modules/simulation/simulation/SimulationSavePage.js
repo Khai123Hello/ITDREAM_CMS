@@ -35,19 +35,19 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
     });
 
     // Translate level options for the dropdown
-    const levels = translate.formatKeys(levelOptions, ['label']);
+    const levels = React.useMemo(() => translate.formatKeys(levelOptions, ['label']), [translate]);
 
     const apiConfiguration = isEducator
         ? {
-            getById: apiConfig.simulation.getSimulationForEducator,
-            create: apiConfig.simulation.create,
-            update: apiConfig.simulation.update,
-        }
+              getById: apiConfig.simulation.getSimulationForEducator,
+              create: apiConfig.simulation.create,
+              update: apiConfig.simulation.update,
+          }
         : {
-            getById: apiConfig.simulation.getById,
-            create: apiConfig.simulation.create,
-            update: apiConfig.simulation.update,
-        };
+              getById: apiConfig.simulation.getById,
+              create: apiConfig.simulation.create,
+              update: apiConfig.simulation.update,
+          };
 
     const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing, title } = useSaveBase({
         apiConfig: apiConfiguration,

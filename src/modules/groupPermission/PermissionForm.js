@@ -97,21 +97,21 @@ const PermissionForm = (props) => {
                             <Checkbox.Group style={{ width: '100%', display: 'block' }} name="permissions">
                                 {group
                                     ? Object.keys(group).map((groupName) => (
-                                        <Card
-                                            key={groupName}
-                                            size="small"
-                                            title={groupName}
-                                            style={{ width: '100%', marginBottom: '4px' }}
-                                        >
-                                            <Row>
-                                                {group[groupName].map((permission) => (
-                                                    <Col span={8} key={permission.id}>
-                                                        <Checkbox value={permission.id}>{permission.name}</Checkbox>
-                                                    </Col>
-                                                ))}
-                                            </Row>
-                                        </Card>
-                                    ))
+                                          <Card
+                                              key={groupName}
+                                              size="small"
+                                              title={groupName}
+                                              style={{ width: '100%', marginBottom: '4px' }}
+                                          >
+                                              <Row>
+                                                  {group[groupName].map((permission) => (
+                                                      <Col span={8} key={permission.id}>
+                                                          <Checkbox value={permission.id}>{permission.name}</Checkbox>
+                                                      </Col>
+                                                  ))}
+                                              </Row>
+                                          </Card>
+                                      ))
                                     : null}
                             </Checkbox.Group>
                         </Form.Item>

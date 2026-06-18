@@ -754,415 +754,415 @@ export default function BlockEditor({
     // Render elements helper based on type
     const renderBlock = (b, index) => {
         switch (b.type) {
-                        case 'text':
-                            return (
-                                <EditableText
-                                    className="b-text"
-                                    value={b.content}
-                                    placeholder="Nhập văn bản hoặc gõ / để chọn block..."
-                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                    onInput={(val) => {
-                                        b.content = val;
-                                        handleBlocksChange([...blocks]);
-                                    }}
-                                    dataId={b.id}
-                                />
-                            );
-                        case 'h1':
-                            return (
-                                <EditableText
-                                    className="b-h1"
-                                    value={b.content}
-                                    placeholder="Tiêu đề 1"
-                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                    onInput={(val) => {
-                                        b.content = val;
-                                        handleBlocksChange([...blocks]);
-                                    }}
-                                    dataId={b.id}
-                                />
-                            );
-                        case 'h2':
-                            return (
-                                <EditableText
-                                    className="b-h2"
-                                    value={b.content}
-                                    placeholder="Tiêu đề 2"
-                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                    onInput={(val) => {
-                                        b.content = val;
-                                        handleBlocksChange([...blocks]);
-                                    }}
-                                    dataId={b.id}
-                                />
-                            );
-                        case 'h3':
-                            return (
-                                <EditableText
-                                    className="b-h3"
-                                    value={b.content}
-                                    placeholder="Tiêu đề 3"
-                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                    onInput={(val) => {
-                                        b.content = val;
-                                        handleBlocksChange([...blocks]);
-                                    }}
-                                    dataId={b.id}
-                                />
-                            );
-                        case 'bullet':
-                            return (
-                                <div className="b-bullet-wrap">
-                                    <span className="b-bullet-dot">•</span>
+            case 'text':
+                return (
+                    <EditableText
+                        className="b-text"
+                        value={b.content}
+                        placeholder="Nhập văn bản hoặc gõ / để chọn block..."
+                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                        onInput={(val) => {
+                            b.content = val;
+                            handleBlocksChange([...blocks]);
+                        }}
+                        dataId={b.id}
+                    />
+                );
+            case 'h1':
+                return (
+                    <EditableText
+                        className="b-h1"
+                        value={b.content}
+                        placeholder="Tiêu đề 1"
+                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                        onInput={(val) => {
+                            b.content = val;
+                            handleBlocksChange([...blocks]);
+                        }}
+                        dataId={b.id}
+                    />
+                );
+            case 'h2':
+                return (
+                    <EditableText
+                        className="b-h2"
+                        value={b.content}
+                        placeholder="Tiêu đề 2"
+                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                        onInput={(val) => {
+                            b.content = val;
+                            handleBlocksChange([...blocks]);
+                        }}
+                        dataId={b.id}
+                    />
+                );
+            case 'h3':
+                return (
+                    <EditableText
+                        className="b-h3"
+                        value={b.content}
+                        placeholder="Tiêu đề 3"
+                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                        onInput={(val) => {
+                            b.content = val;
+                            handleBlocksChange([...blocks]);
+                        }}
+                        dataId={b.id}
+                    />
+                );
+            case 'bullet':
+                return (
+                    <div className="b-bullet-wrap">
+                        <span className="b-bullet-dot">•</span>
+                        <EditableText
+                            className="b-bullet"
+                            value={b.content}
+                            placeholder="Dòng danh sách"
+                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                            onInput={(val) => {
+                                b.content = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                    </div>
+                );
+            case 'numbered': {
+                const count = blocks.filter((x, i2) => x.type === 'numbered' && i2 <= index).length;
+                return (
+                    <div className="b-num-wrap">
+                        <span className="b-num-label">{count}.</span>
+                        <EditableText
+                            className="b-num"
+                            value={b.content}
+                            placeholder="Dòng danh sách"
+                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                            onInput={(val) => {
+                                b.content = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                    </div>
+                );
+            }
+            case 'divider':
+                return <hr className="b-divider" />;
+            case 'callout':
+                return (
+                    <div className="b-callout-wrap">
+                        <span
+                            className="b-callout-icon"
+                            onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setEmojiPicker({
+                                    blockId: b.id,
+                                    left: rect.left,
+                                    top: rect.bottom + window.scrollY + 6,
+                                });
+                            }}
+                        >
+                            {b.icon || '💡'}
+                        </span>
+                        <EditableText
+                            className="b-callout-text"
+                            value={b.content}
+                            placeholder="Nội dung Callout"
+                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                            onInput={(val) => {
+                                b.content = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                    </div>
+                );
+            case 'code':
+                return (
+                    <div className="b-code-wrap">
+                        <EditableText
+                            className="b-code"
+                            value={b.content}
+                            placeholder="Code..."
+                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                            onInput={(val) => {
+                                b.content = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                    </div>
+                );
+            case 'meta':
+                return (
+                    <div className="b-meta-wrap">
+                        <EditableText
+                            className="b-meta-dur"
+                            value={b.duration}
+                            placeholder="1–2 hours"
+                            onInput={(val) => {
+                                b.duration = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                        <span className="b-meta-sep">·</span>
+                        <EditableText
+                            className="b-meta-level"
+                            value={b.level}
+                            placeholder="Introductory"
+                            onInput={(val) => {
+                                b.level = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                    </div>
+                );
+            case 'section':
+                return (
+                    <div className="b-section-wrap">
+                        <div className="b-section-header">
+                            <span
+                                className="b-section-icon"
+                                onClick={(e) => {
+                                    const rect = e.currentTarget.getBoundingClientRect();
+                                    setEmojiPicker({
+                                        blockId: b.id,
+                                        left: rect.left,
+                                        top: rect.bottom + window.scrollY + 6,
+                                    });
+                                }}
+                            >
+                                {b.icon || '🎓'}
+                            </span>
+                            <EditableText
+                                className="b-section-title"
+                                value={b.title}
+                                placeholder="Tiêu đề Section"
+                                onInput={(val) => {
+                                    b.title = val;
+                                    handleBlocksChange([...blocks]); // debounced OK
+                                }}
+                                dataId={b.id}
+                            />
+                        </div>
+                        <div className="b-section-bullets">
+                            {b.bullets.map((bullet, bi) => (
+                                <div key={bi} className="b-section-bullet-row">
+                                    <span className="b-section-bullet-dot">–</span>
                                     <EditableText
-                                        className="b-bullet"
-                                        value={b.content}
-                                        placeholder="Dòng danh sách"
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onInput={(val) => {
-                                            b.content = val;
-                                            handleBlocksChange([...blocks]);
-                                        }}
+                                        className="b-section-bullet-text"
+                                        value={bullet}
+                                        placeholder="Bullet item"
                                         dataId={b.id}
-                                    />
-                                </div>
-                            );
-                        case 'numbered': {
-                            const count = blocks.filter((x, i2) => x.type === 'numbered' && i2 <= index).length;
-                            return (
-                                <div className="b-num-wrap">
-                                    <span className="b-num-label">{count}.</span>
-                                    <EditableText
-                                        className="b-num"
-                                        value={b.content}
-                                        placeholder="Dòng danh sách"
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onInput={(val) => {
-                                            b.content = val;
-                                            handleBlocksChange([...blocks]);
+                                        dataBi={bi}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const newBullets = [...b.bullets];
+                                                newBullets.splice(bi + 1, 0, '');
+                                                b.bullets = newBullets;
+                                                handleBlocksChangeImmediate([...blocks]);
+                                                setTimeout(() => {
+                                                    const el = document.querySelector(
+                                                        `[data-id="${b.id}"][data-bi="${bi + 1}"]`,
+                                                    );
+                                                    if (el) el.focus();
+                                                }, 30);
+                                            }
+                                            if (e.key === 'Backspace' && bullet === '') {
+                                                e.preventDefault();
+                                                if (b.bullets.length > 1) {
+                                                    const newBullets = [...b.bullets];
+                                                    newBullets.splice(bi, 1);
+                                                    b.bullets = newBullets;
+                                                    handleBlocksChangeImmediate([...blocks]);
+                                                    setTimeout(() => {
+                                                        const prevIdx = Math.max(0, bi - 1);
+                                                        const el = document.querySelector(
+                                                            `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
+                                                        );
+                                                        if (el) el.focus();
+                                                    }, 30);
+                                                }
+                                            }
                                         }}
-                                        dataId={b.id}
+                                        onInput={(val) => {
+                                            const newBullets = [...b.bullets];
+                                            newBullets[bi] = val;
+                                            b.bullets = newBullets;
+                                            handleBlocksChange([...blocks]); // debounced
+                                        }}
                                     />
-                                </div>
-                            );
-                        }
-                        case 'divider':
-                            return <hr className="b-divider" />;
-                        case 'callout':
-                            return (
-                                <div className="b-callout-wrap">
-                                    <span
-                                        className="b-callout-icon"
-                                        onClick={(e) => {
-                                            const rect = e.currentTarget.getBoundingClientRect();
-                                            setEmojiPicker({
-                                                blockId: b.id,
-                                                left: rect.left,
-                                                top: rect.bottom + window.scrollY + 6,
-                                            });
+                                    <button
+                                        className="b-section-bullet-del"
+                                        onClick={() => {
+                                            if (b.bullets.length > 1) {
+                                                const newBullets = [...b.bullets];
+                                                newBullets.splice(bi, 1);
+                                                b.bullets = newBullets;
+                                                handleBlocksChangeImmediate([...blocks]);
+                                            }
                                         }}
                                     >
-                                        {b.icon || '💡'}
-                                    </span>
-                                    <EditableText
-                                        className="b-callout-text"
-                                        value={b.content}
-                                        placeholder="Nội dung Callout"
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onInput={(val) => {
-                                            b.content = val;
-                                            handleBlocksChange([...blocks]);
-                                        }}
-                                        dataId={b.id}
-                                    />
+                                        ✕
+                                    </button>
                                 </div>
-                            );
-                        case 'code':
-                            return (
-                                <div className="b-code-wrap">
-                                    <EditableText
-                                        className="b-code"
-                                        value={b.content}
-                                        placeholder="Code..."
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onInput={(val) => {
-                                            b.content = val;
-                                            handleBlocksChange([...blocks]);
+                            ))}
+                        </div>
+                        <button
+                            className="b-section-add-bullet"
+                            onClick={() => {
+                                b.bullets = [...b.bullets, ''];
+                                handleBlocksChangeImmediate([...blocks]);
+                                setTimeout(() => {
+                                    const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
+                                    const last = all[all.length - 1];
+                                    if (last) last.focus();
+                                }, 30);
+                            }}
+                        >
+                            ＋ Thêm dòng
+                        </button>
+                    </div>
+                );
+            case 'step':
+                return (
+                    <div className="b-step-wrap">
+                        <EditableText
+                            className="b-step-label"
+                            value={b.label}
+                            placeholder="Step One"
+                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                            onInput={(val) => {
+                                b.label = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                        <span className="b-step-colon">:</span>
+                        <EditableText
+                            className="b-step-body"
+                            value={b.body}
+                            placeholder="Nội dung bước"
+                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                            onInput={(val) => {
+                                b.body = val;
+                                handleBlocksChange([...blocks]);
+                            }}
+                            dataId={b.id}
+                        />
+                    </div>
+                );
+            case 'quiz':
+                return (
+                    <div className="b-quiz-wrap">
+                        <div className="b-quiz-question-row">
+                            <span className="b-quiz-icon">❓</span>
+                            <EditableText
+                                className="b-quiz-question"
+                                value={b.question}
+                                placeholder="Nhập câu hỏi trắc nghiệm..."
+                                onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                onInput={(val) => {
+                                    b.question = val;
+                                    handleBlocksChange([...blocks]);
+                                }}
+                                dataId={b.id}
+                            />
+                        </div>
+                        <div className="b-quiz-options-list">
+                            {b.options.map((opt, oi) => (
+                                <div key={oi} className="b-quiz-option-row">
+                                    <Checkbox
+                                        checked={opt.answer}
+                                        onChange={(e) => {
+                                            b.options = b.options.map((o, idx) => ({
+                                                ...o,
+                                                answer: idx === oi ? e.target.checked : false,
+                                            }));
+                                            handleBlocksChangeImmediate([...blocks]);
                                         }}
-                                        dataId={b.id}
                                     />
-                                </div>
-                            );
-                        case 'meta':
-                            return (
-                                <div className="b-meta-wrap">
+                                    <span className="b-quiz-option-letter">{String.fromCharCode(65 + oi)}.</span>
                                     <EditableText
-                                        className="b-meta-dur"
-                                        value={b.duration}
-                                        placeholder="1–2 hours"
-                                        onInput={(val) => {
-                                            b.duration = val;
-                                            handleBlocksChange([...blocks]);
-                                        }}
+                                        className="b-quiz-option-text"
+                                        value={opt.option}
+                                        placeholder="Nhập đáp án..."
                                         dataId={b.id}
-                                    />
-                                    <span className="b-meta-sep">·</span>
-                                    <EditableText
-                                        className="b-meta-level"
-                                        value={b.level}
-                                        placeholder="Introductory"
-                                        onInput={(val) => {
-                                            b.level = val;
-                                            handleBlocksChange([...blocks]);
+                                        dataBi={oi}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                const newOpts = [...b.options];
+                                                newOpts.splice(oi + 1, 0, { option: '', answer: false });
+                                                b.options = newOpts;
+                                                handleBlocksChangeImmediate([...blocks]);
+                                                setTimeout(() => {
+                                                    const el = document.querySelector(
+                                                        `[data-id="${b.id}"][data-bi="${oi + 1}"]`,
+                                                    );
+                                                    if (el) el.focus();
+                                                }, 30);
+                                            }
+                                            if (e.key === 'Backspace' && opt.option === '') {
+                                                e.preventDefault();
+                                                if (b.options.length > 2) {
+                                                    const newOpts = [...b.options];
+                                                    newOpts.splice(oi, 1);
+                                                    b.options = newOpts;
+                                                    handleBlocksChangeImmediate([...blocks]);
+                                                    setTimeout(() => {
+                                                        const prevIdx = Math.max(0, oi - 1);
+                                                        const el = document.querySelector(
+                                                            `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
+                                                        );
+                                                        if (el) el.focus();
+                                                    }, 30);
+                                                }
+                                            }
                                         }}
-                                        dataId={b.id}
+                                        onInput={(val) => {
+                                            const newOpts = [...b.options];
+                                            newOpts[oi] = { ...newOpts[oi], option: val };
+                                            b.options = newOpts;
+                                            handleBlocksChange([...blocks]); // debounced
+                                        }}
                                     />
-                                </div>
-                            );
-                        case 'section':
-                            return (
-                                <div className="b-section-wrap">
-                                    <div className="b-section-header">
-                                        <span
-                                            className="b-section-icon"
-                                            onClick={(e) => {
-                                                const rect = e.currentTarget.getBoundingClientRect();
-                                                setEmojiPicker({
-                                                    blockId: b.id,
-                                                    left: rect.left,
-                                                    top: rect.bottom + window.scrollY + 6,
-                                                });
+                                    {b.options.length > 2 && (
+                                        <button
+                                            className="b-quiz-option-del"
+                                            onClick={() => {
+                                                b.options = b.options.filter((_, idx) => idx !== oi);
+                                                handleBlocksChangeImmediate([...blocks]);
                                             }}
                                         >
-                                            {b.icon || '🎓'}
-                                        </span>
-                                        <EditableText
-                                            className="b-section-title"
-                                            value={b.title}
-                                            placeholder="Tiêu đề Section"
-                                            onInput={(val) => {
-                                                b.title = val;
-                                                handleBlocksChange([...blocks]); // debounced OK
-                                            }}
-                                            dataId={b.id}
-                                        />
-                                    </div>
-                                    <div className="b-section-bullets">
-                                        {b.bullets.map((bullet, bi) => (
-                                            <div key={bi} className="b-section-bullet-row">
-                                                <span className="b-section-bullet-dot">–</span>
-                                                <EditableText
-                                                    className="b-section-bullet-text"
-                                                    value={bullet}
-                                                    placeholder="Bullet item"
-                                                    dataId={b.id}
-                                                    dataBi={bi}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            const newBullets = [...b.bullets];
-                                                            newBullets.splice(bi + 1, 0, '');
-                                                            b.bullets = newBullets;
-                                                            handleBlocksChangeImmediate([...blocks]);
-                                                            setTimeout(() => {
-                                                                const el = document.querySelector(
-                                                                    `[data-id="${b.id}"][data-bi="${bi + 1}"]`,
-                                                                );
-                                                                if (el) el.focus();
-                                                            }, 30);
-                                                        }
-                                                        if (e.key === 'Backspace' && bullet === '') {
-                                                            e.preventDefault();
-                                                            if (b.bullets.length > 1) {
-                                                                const newBullets = [...b.bullets];
-                                                                newBullets.splice(bi, 1);
-                                                                b.bullets = newBullets;
-                                                                handleBlocksChangeImmediate([...blocks]);
-                                                                setTimeout(() => {
-                                                                    const prevIdx = Math.max(0, bi - 1);
-                                                                    const el = document.querySelector(
-                                                                        `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
-                                                                    );
-                                                                    if (el) el.focus();
-                                                                }, 30);
-                                                            }
-                                                        }
-                                                    }}
-                                                    onInput={(val) => {
-                                                        const newBullets = [...b.bullets];
-                                                        newBullets[bi] = val;
-                                                        b.bullets = newBullets;
-                                                        handleBlocksChange([...blocks]); // debounced
-                                                    }}
-                                                />
-                                                <button
-                                                    className="b-section-bullet-del"
-                                                    onClick={() => {
-                                                        if (b.bullets.length > 1) {
-                                                            const newBullets = [...b.bullets];
-                                                            newBullets.splice(bi, 1);
-                                                            b.bullets = newBullets;
-                                                            handleBlocksChangeImmediate([...blocks]);
-                                                        }
-                                                    }}
-                                                >
-                                        ✕
-                                                </button>
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button
-                                        className="b-section-add-bullet"
-                                        onClick={() => {
-                                            b.bullets = [...b.bullets, ''];
-                                            handleBlocksChangeImmediate([...blocks]);
-                                            setTimeout(() => {
-                                                const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
-                                                const last = all[all.length - 1];
-                                                if (last) last.focus();
-                                            }, 30);
-                                        }}
-                                    >
-                            ＋ Thêm dòng
-                                    </button>
-                                </div>
-                            );
-                        case 'step':
-                            return (
-                                <div className="b-step-wrap">
-                                    <EditableText
-                                        className="b-step-label"
-                                        value={b.label}
-                                        placeholder="Step One"
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onInput={(val) => {
-                                            b.label = val;
-                                            handleBlocksChange([...blocks]);
-                                        }}
-                                        dataId={b.id}
-                                    />
-                                    <span className="b-step-colon">:</span>
-                                    <EditableText
-                                        className="b-step-body"
-                                        value={b.body}
-                                        placeholder="Nội dung bước"
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onInput={(val) => {
-                                            b.body = val;
-                                            handleBlocksChange([...blocks]);
-                                        }}
-                                        dataId={b.id}
-                                    />
-                                </div>
-                            );
-                        case 'quiz':
-                            return (
-                                <div className="b-quiz-wrap">
-                                    <div className="b-quiz-question-row">
-                                        <span className="b-quiz-icon">❓</span>
-                                        <EditableText
-                                            className="b-quiz-question"
-                                            value={b.question}
-                                            placeholder="Nhập câu hỏi trắc nghiệm..."
-                                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                            onInput={(val) => {
-                                                b.question = val;
-                                                handleBlocksChange([...blocks]);
-                                            }}
-                                            dataId={b.id}
-                                        />
-                                    </div>
-                                    <div className="b-quiz-options-list">
-                                        {b.options.map((opt, oi) => (
-                                            <div key={oi} className="b-quiz-option-row">
-                                                <Checkbox
-                                                    checked={opt.answer}
-                                                    onChange={(e) => {
-                                                        b.options = b.options.map((o, idx) => ({
-                                                            ...o,
-                                                            answer: idx === oi ? e.target.checked : false,
-                                                        }));
-                                                        handleBlocksChangeImmediate([...blocks]);
-                                                    }}
-                                                />
-                                                <span className="b-quiz-option-letter">{String.fromCharCode(65 + oi)}.</span>
-                                                <EditableText
-                                                    className="b-quiz-option-text"
-                                                    value={opt.option}
-                                                    placeholder="Nhập đáp án..."
-                                                    dataId={b.id}
-                                                    dataBi={oi}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            e.preventDefault();
-                                                            const newOpts = [...b.options];
-                                                            newOpts.splice(oi + 1, 0, { option: '', answer: false });
-                                                            b.options = newOpts;
-                                                            handleBlocksChangeImmediate([...blocks]);
-                                                            setTimeout(() => {
-                                                                const el = document.querySelector(
-                                                                    `[data-id="${b.id}"][data-bi="${oi + 1}"]`,
-                                                                );
-                                                                if (el) el.focus();
-                                                            }, 30);
-                                                        }
-                                                        if (e.key === 'Backspace' && opt.option === '') {
-                                                            e.preventDefault();
-                                                            if (b.options.length > 2) {
-                                                                const newOpts = [...b.options];
-                                                                newOpts.splice(oi, 1);
-                                                                b.options = newOpts;
-                                                                handleBlocksChangeImmediate([...blocks]);
-                                                                setTimeout(() => {
-                                                                    const prevIdx = Math.max(0, oi - 1);
-                                                                    const el = document.querySelector(
-                                                                        `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
-                                                                    );
-                                                                    if (el) el.focus();
-                                                                }, 30);
-                                                            }
-                                                        }
-                                                    }}
-                                                    onInput={(val) => {
-                                                        const newOpts = [...b.options];
-                                                        newOpts[oi] = { ...newOpts[oi], option: val };
-                                                        b.options = newOpts;
-                                                        handleBlocksChange([...blocks]); // debounced
-                                                    }}
-                                                />
-                                                {b.options.length > 2 && (
-                                                    <button
-                                                        className="b-quiz-option-del"
-                                                        onClick={() => {
-                                                            b.options = b.options.filter((_, idx) => idx !== oi);
-                                                            handleBlocksChangeImmediate([...blocks]);
-                                                        }}
-                                                    >
                                             ✕
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <button
-                                        type="button"
-                                        className="b-quiz-add-option"
-                                        onClick={() => {
-                                            b.options = [...b.options, { option: '', answer: false }];
-                                            handleBlocksChangeImmediate([...blocks]);
-                                            setTimeout(() => {
-                                                const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
-                                                const last = all[all.length - 1];
-                                                if (last) last.focus();
-                                            }, 30);
-                                        }}
-                                    >
-                            ＋ Thêm đáp án
-                                    </button>
+                                        </button>
+                                    )}
                                 </div>
-                            );
-                        default:
-                            return null;
+                            ))}
+                        </div>
+                        <button
+                            type="button"
+                            className="b-quiz-add-option"
+                            onClick={() => {
+                                b.options = [...b.options, { option: '', answer: false }];
+                                handleBlocksChangeImmediate([...blocks]);
+                                setTimeout(() => {
+                                    const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
+                                    const last = all[all.length - 1];
+                                    if (last) last.focus();
+                                }, 30);
+                            }}
+                        >
+                            ＋ Thêm đáp án
+                        </button>
+                    </div>
+                );
+            default:
+                return null;
         }
     };
 
