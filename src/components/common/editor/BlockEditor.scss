@@ -34,6 +34,24 @@
   position: relative;
   min-height: 250px;
 
+  /* Reset input/textarea to look like contentEditable */
+  input[type="text"],
+  textarea {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-family: inherit;
+    resize: none;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+    &::placeholder {
+      color: var(--text3);
+      font-style: italic;
+    }
+  }
+
   .template-picker-btn-wrap {
     position: absolute;
     top: 0;
@@ -191,10 +209,8 @@
     min-height: 1.7em;
     white-space: pre-wrap;
     word-break: break-word;
-    &:empty::before {
-      content: attr(data-ph);
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
   }
@@ -207,10 +223,8 @@
     outline: none;
     min-height: 1.3em;
     margin: 8px 0 2px;
-    &:empty::before {
-      content: 'Heading 1';
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
   }
@@ -223,10 +237,8 @@
     outline: none;
     min-height: 1.4em;
     margin: 6px 0 2px;
-    &:empty::before {
-      content: 'Heading 2';
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
   }
@@ -241,12 +253,9 @@
     text-transform: uppercase;
     letter-spacing: .06em;
     margin: 4px 0 2px;
-    &:empty::before {
-      content: 'Heading 3';
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
-      text-transform: none;
     }
   }
   .b-bullet-wrap {
@@ -268,12 +277,6 @@
     outline: none;
     flex: 1;
     min-height: 1.65em;
-    &:empty::before {
-      content: 'List item';
-      color: var(--text3);
-      pointer-events: none;
-      font-style: italic;
-    }
   }
   .b-num-wrap {
     display: flex;
@@ -297,12 +300,6 @@
     outline: none;
     flex: 1;
     min-height: 1.65em;
-    &:empty::before {
-      content: 'List item';
-      color: var(--text3);
-      pointer-events: none;
-      font-style: italic;
-    }
   }
   .b-divider {
     border: none;
@@ -333,10 +330,8 @@
     outline: none;
     flex: 1;
     min-height: 1.65em;
-    &:empty::before {
-      content: 'Callout text';
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
   }
@@ -355,10 +350,8 @@
     line-height: 1.6;
     white-space: pre-wrap;
     word-break: break-all;
-    &:empty::before {
-      content: 'Code...';
+    &::placeholder {
       color: #4a5168;
-      pointer-events: none;
     }
   }
   .b-section-wrap {
@@ -397,10 +390,8 @@
     flex: 1;
     min-height: 1.4em;
     padding: 1px 3px;
-    &:empty::before {
-      content: 'Section title';
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
   }
@@ -434,10 +425,8 @@
     flex: 1;
     min-height: 1.6em;
     padding: 1px 2px;
-    &:empty::before {
-      content: 'Bullet item';
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
   }

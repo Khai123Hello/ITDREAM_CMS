@@ -57,9 +57,9 @@ const useSaveBase = ({
     const intl = useIntl();
     const title = intl?.formatMessage
         ? intl.formatMessage(message.title, {
-              action: params.id !== 'create',
-              objectName: options.objectName,
-          })
+            action: params.id !== 'create',
+            objectName: options.objectName,
+        })
         : '';
     const notification = useNotification();
     // const [ filter, setFilter ] = useState({});

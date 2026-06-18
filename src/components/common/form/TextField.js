@@ -58,7 +58,7 @@ const TextField = (props) => {
             validateStatus={validateStatus}
             initialValue={initialValue}
             help={help}
-            rules={[...rules, getTextFieldRules()]}
+            rules={[...rules, ...getTextFieldRules()]}
         >
             {type === 'textarea' ? (
                 <TextArea

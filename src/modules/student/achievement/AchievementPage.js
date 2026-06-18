@@ -112,14 +112,14 @@ const AchievementPage = ({ pageOptions }) => {
 
     const getRankIcon = (index) => {
         switch (index) {
-            case 0:
-                return <TrophyOutlined style={{ color: '#FFD700', fontSize: 24 }} />;
-            case 1:
-                return <TrophyOutlined style={{ color: '#C0C0C0', fontSize: 24 }} />;
-            case 2:
-                return <TrophyOutlined style={{ color: '#CD7F32', fontSize: 24 }} />;
-            default:
-                return <TrophyOutlined style={{ color: '#999', fontSize: 20 }} />;
+                        case 0:
+                            return <TrophyOutlined style={{ color: '#FFD700', fontSize: 24 }} />;
+                        case 1:
+                            return <TrophyOutlined style={{ color: '#C0C0C0', fontSize: 24 }} />;
+                        case 2:
+                            return <TrophyOutlined style={{ color: '#CD7F32', fontSize: 24 }} />;
+                        default:
+                            return <TrophyOutlined style={{ color: '#999', fontSize: 20 }} />;
         }
     };
 

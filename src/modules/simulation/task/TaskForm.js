@@ -90,127 +90,127 @@ const RenderPreviewBlocks = ({ content }) => {
             pushCurrentList();
 
             switch (b.type) {
-                case 'text':
-                    elements.push(
-                        <div key={idx} className="out-text">
-                            {b.content}
-                        </div>,
-                    );
-                    break;
-                case 'h1':
-                    elements.push(
-                        <div key={idx} className="out-h1">
-                            {b.content}
-                        </div>,
-                    );
-                    break;
-                case 'h2':
-                    elements.push(
-                        <div key={idx} className="out-h2">
-                            {b.content}
-                        </div>,
-                    );
-                    break;
-                case 'h3':
-                    elements.push(
-                        <div key={idx} className="out-h3">
-                            {b.content}
-                        </div>,
-                    );
-                    break;
-                case 'divider':
-                    elements.push(<hr key={idx} className="out-divider" />);
-                    break;
-                case 'callout':
-                    elements.push(
-                        <div key={idx} className="out-callout">
-                            <span className="out-callout-icon-preview">{b.icon}</span>
-                            <div style={{ flex: 1 }}>{b.content}</div>
-                        </div>,
-                    );
-                    break;
-                case 'meta':
-                    elements.push(
-                        <div key={idx} className="out-meta">
-                            <span>{b.duration}</span>
-                            <span className="out-meta-sep">·</span>
-                            <span>{b.level}</span>
-                        </div>,
-                    );
-                    break;
-                case 'section':
-                    elements.push(
-                        <div key={idx} className="out-section">
-                            <div className="out-sec-hdr">
-                                <span className="out-sec-icon">{b.icon}</span>
-                                {b.title}
-                            </div>
-                            <ul className="out-sec-bullets">
-                                {b.bullets
-                                    ?.filter((x) => x)
-                                    .map((bullet, bi) => (
-                                        <li key={bi}>{bullet}</li>
-                                    ))}
-                            </ul>
-                        </div>,
-                    );
-                    break;
-                case 'step': {
-                    const renderStepBody = (text) => {
-                        if (!text) return '';
-                        const parts = text.split(/(`[^`]+`)/g);
-                        return parts.map((part, pi) => {
-                            if (part.startsWith('`') && part.endsWith('`')) {
-                                return <code key={pi}>{part.slice(1, -1)}</code>;
+                            case 'text':
+                                elements.push(
+                                    <div key={idx} className="out-text">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'h1':
+                                elements.push(
+                                    <div key={idx} className="out-h1">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'h2':
+                                elements.push(
+                                    <div key={idx} className="out-h2">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'h3':
+                                elements.push(
+                                    <div key={idx} className="out-h3">
+                                        {b.content}
+                                    </div>,
+                                );
+                                break;
+                            case 'divider':
+                                elements.push(<hr key={idx} className="out-divider" />);
+                                break;
+                            case 'callout':
+                                elements.push(
+                                    <div key={idx} className="out-callout">
+                                        <span className="out-callout-icon-preview">{b.icon}</span>
+                                        <div style={{ flex: 1 }}>{b.content}</div>
+                                    </div>,
+                                );
+                                break;
+                            case 'meta':
+                                elements.push(
+                                    <div key={idx} className="out-meta">
+                                        <span>{b.duration}</span>
+                                        <span className="out-meta-sep">·</span>
+                                        <span>{b.level}</span>
+                                    </div>,
+                                );
+                                break;
+                            case 'section':
+                                elements.push(
+                                    <div key={idx} className="out-section">
+                                        <div className="out-sec-hdr">
+                                            <span className="out-sec-icon">{b.icon}</span>
+                                            {b.title}
+                                        </div>
+                                        <ul className="out-sec-bullets">
+                                            {b.bullets
+                                                ?.filter((x) => x)
+                                                .map((bullet, bi) => (
+                                                    <li key={bi}>{bullet}</li>
+                                                ))}
+                                        </ul>
+                                    </div>,
+                                );
+                                break;
+                            case 'step': {
+                                const renderStepBody = (text) => {
+                                    if (!text) return '';
+                                    const parts = text.split(/(`[^`]+`)/g);
+                                    return parts.map((part, pi) => {
+                                        if (part.startsWith('`') && part.endsWith('`')) {
+                                            return <code key={pi}>{part.slice(1, -1)}</code>;
+                                        }
+                                        return part;
+                                    });
+                                };
+                                elements.push(
+                                    <div key={idx} className="out-step">
+                                        <div className="out-step-row">
+                                            <span className="out-step-label">{b.label}: </span>
+                                            <span className="out-step-body">{renderStepBody(b.body)}</span>
+                                        </div>
+                                    </div>,
+                                );
+                                break;
                             }
-                            return part;
-                        });
-                    };
-                    elements.push(
-                        <div key={idx} className="out-step">
-                            <div className="out-step-row">
-                                <span className="out-step-label">{b.label}: </span>
-                                <span className="out-step-body">{renderStepBody(b.body)}</span>
-                            </div>
-                        </div>,
-                    );
-                    break;
-                }
-                case 'quiz':
-                    elements.push(
-                        <div
-                            key={idx}
-                            className="out-quiz-wrap"
-                            style={{
-                                border: '1.5px solid #d9d9d9',
-                                borderRadius: 10,
-                                padding: '16px 18px',
-                                background: '#fff',
-                                margin: '12px 0',
-                            }}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                                <span style={{ fontSize: 20 }}>❓</span>
-                                <div style={{ fontWeight: 600, fontSize: 15 }}>{b.question}</div>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 30 }}>
-                                {b.options?.map((opt, oi) => (
-                                    <div key={oi} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <span style={{ fontWeight: 600 }}>{String.fromCharCode(65 + oi)}.</span>
-                                        <span>{opt.option}</span>
-                                        {opt.answer && (
-                                            <Tag color="success" style={{ marginLeft: 8 }}>
+                            case 'quiz':
+                                elements.push(
+                                    <div
+                                        key={idx}
+                                        className="out-quiz-wrap"
+                                        style={{
+                                            border: '1.5px solid #d9d9d9',
+                                            borderRadius: 10,
+                                            padding: '16px 18px',
+                                            background: '#fff',
+                                            margin: '12px 0',
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                                            <span style={{ fontSize: 20 }}>❓</span>
+                                            <div style={{ fontWeight: 600, fontSize: 15 }}>{b.question}</div>
+                                        </div>
+                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 30 }}>
+                                            {b.options?.map((opt, oi) => (
+                                                <div key={oi} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <span style={{ fontWeight: 600 }}>{String.fromCharCode(65 + oi)}.</span>
+                                                    <span>{opt.option}</span>
+                                                    {opt.answer && (
+                                                        <Tag color="success" style={{ marginLeft: 8 }}>
                                                 ✓ Đáp án đúng
-                                            </Tag>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>,
-                    );
-                    break;
-                default:
-                    break;
+                                                        </Tag>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>,
+                                );
+                                break;
+                            default:
+                                break;
             }
         });
 
@@ -712,9 +712,7 @@ const TaskForm = (props) => {
                         <div style={{ display: 'none' }}>
                             <TextField
                                 label={translate.formatMessage(commonMessage.name)}
-                                required
                                 name="name"
-                                requiredMsg={translate.formatMessage(commonMessage.required)}
                                 placeholder="Nhập tên nhiệm vụ"
                                 disabled={!isEducator}
                             />
@@ -775,8 +773,8 @@ const TaskForm = (props) => {
                                             isEditing && Number(dataDetail?.type) === 2
                                                 ? 'quiz'
                                                 : Number(taskKind) === TaskTypes.TASK
-                                                  ? 'task'
-                                                  : 'guide'
+                                                    ? 'task'
+                                                    : 'guide'
                                         }
                                         onTemplateLoad={(snapshot) => setTemplateSnapshot(snapshot)}
                                         // Lightweight: title/desc update form fields only — no setContent, no re-render
@@ -924,30 +922,30 @@ const TaskForm = (props) => {
                                 {videoUrl &&
                                 (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
                                 videoUrl.endsWith('.mp4') ? (
-                                    <div
-                                        style={{
-                                            marginTop: 8,
-                                            borderRadius: 8,
-                                            overflow: 'hidden',
-                                            border: '1px solid #d9d9d9',
-                                        }}
-                                    >
-                                        <video
-                                            controls
+                                        <div
                                             style={{
-                                                width: '100%',
-                                                maxHeight: 400,
-                                                objectFit: 'contain',
-                                                background: '#000',
+                                                marginTop: 8,
+                                                borderRadius: 8,
+                                                overflow: 'hidden',
+                                                border: '1px solid #d9d9d9',
                                             }}
-                                            src={videoUrl}
-                                        />
-                                    </div>
-                                ) : videoUrl ? (
-                                    <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
+                                        >
+                                            <video
+                                                controls
+                                                style={{
+                                                    width: '100%',
+                                                    maxHeight: 400,
+                                                    objectFit: 'contain',
+                                                    background: '#000',
+                                                }}
+                                                src={videoUrl}
+                                            />
+                                        </div>
+                                    ) : videoUrl ? (
+                                        <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
                                         Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
-                                    </div>
-                                ) : null}
+                                        </div>
+                                    ) : null}
                             </div>
                         </Col>
 
@@ -1130,15 +1128,20 @@ const TaskForm = (props) => {
         try {
             setSubmitError(null);
 
-            if (!values.title?.trim()) {
+            const formValues = form.getFieldsValue(true);
+            const titleVal = formValues.title || values?.title;
+            const descVal = formValues.description || values?.description;
+            const nameVal = formValues.name || values?.name;
+
+            if (!titleVal?.trim()) {
                 message.error('Vui lòng nhập tiêu đề nhiệm vụ.');
                 return false;
             }
 
             const submitData = {
-                name: values.name?.trim() || '',
-                title: values.title?.trim() || '',
-                description: values.description?.trim() || '',
+                name: symbol || nameVal?.trim() || '',
+                title: titleVal?.trim() || '',
+                description: descVal?.trim() || '',
                 kind: isEditing ? dataDetail.kind : taskKind,
                 simulationId: simulationId || 0,
                 // Dùng contentRef.current để lấy nội dung mới nhất dù debounce chưa fire

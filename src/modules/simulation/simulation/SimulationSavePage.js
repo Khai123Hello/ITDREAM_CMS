@@ -39,15 +39,15 @@ const EducatorSimulationSavePage = ({ pageOptions }) => {
 
     const apiConfiguration = isEducator
         ? {
-              getById: apiConfig.simulation.getSimulationForEducator,
-              create: apiConfig.simulation.create,
-              update: apiConfig.simulation.update,
-          }
+            getById: apiConfig.simulation.getSimulationForEducator,
+            create: apiConfig.simulation.create,
+            update: apiConfig.simulation.update,
+        }
         : {
-              getById: apiConfig.simulation.getById,
-              create: apiConfig.simulation.create,
-              update: apiConfig.simulation.update,
-          };
+            getById: apiConfig.simulation.getById,
+            create: apiConfig.simulation.create,
+            update: apiConfig.simulation.update,
+        };
 
     const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing, title } = useSaveBase({
         apiConfig: apiConfiguration,

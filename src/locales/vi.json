@@ -267,6 +267,7 @@
     "locales.intl.commonMessage.platform": "Hệ điều hành",
     "locales.intl.commonMessage.deviceEmployee": "Thiết bị nhân viên",
     "locales.intl.commonMessage.permission": "Quyền",
+    "locales.intl.commonMessage.permissionManagement": "Quản lý Quyền",
     "locales.intl.commonMessage.manager": "Quản lý",
     "locales.intl.commonMessage.admin": "Quản trị viên",
     "locales.intl.commonMessage.admins": "Quản trị viên",

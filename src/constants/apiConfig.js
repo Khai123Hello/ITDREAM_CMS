@@ -915,12 +915,12 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'PER_L',
         },
-        getPemissionListByApp: {
-            baseURL: `${apiUrl}v1/project-role-permission/list-by-app`,
-            method: 'GET',
-            headers: baseHeader,
-            permissionCode: 'PRP_L_A',
-        },
+        // getPemissionListByApp: {
+        //     baseURL: `${apiUrl}v1/project-role-permission/list-by-app`,
+        //     method: 'GET',
+        //     headers: baseHeader,
+        //     permissionCode: 'PRP_L_A',
+        // },
         getById: {
             baseURL: `${apiUrl}v1/group/get/:id`,
             method: 'GET',
@@ -1361,6 +1361,32 @@ const apiConfig = {
             method: 'POST',
             headers: baseHeader,
             permissionCode: 'QQH_ST_C',
+        },
+    },
+    permission: {
+        getList: {
+            baseURL: `${apiUrl}v1/permission/list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'PER_L',
+        },
+        create: {
+            baseURL: `${apiUrl}v1/permission/create`,
+            method: 'POST',
+            headers: baseHeader,
+            permissionCode: 'PER_C',
+        },
+        update: {
+            baseURL: `${apiUrl}v1/permission/update`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'PER_U',
+        },
+        delete: {
+            baseURL: `${apiUrl}v1/permission/delete/:id`,
+            method: 'DELETE',
+            headers: baseHeader,
+            permissionCode: 'PER_D',
         },
     },
 };

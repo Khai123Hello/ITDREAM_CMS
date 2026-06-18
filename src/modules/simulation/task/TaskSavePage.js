@@ -42,15 +42,15 @@ const TaskSavePage = ({ pageOptions }) => {
 
     const apiConfiguration = isEducator
         ? {
-              getById: apiConfig.task.getByEducator,
-              create: apiConfig.task.create,
-              update: apiConfig.task.update,
-          }
+            getById: apiConfig.task.getByEducator,
+            create: apiConfig.task.create,
+            update: apiConfig.task.update,
+        }
         : {
-              getById: apiConfig.task.getById,
-              create: apiConfig.task.create,
-              update: apiConfig.task.update,
-          };
+            getById: apiConfig.task.getById,
+            create: apiConfig.task.create,
+            update: apiConfig.task.update,
+        };
 
     const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing, title } = useSaveBase({
         apiConfig: apiConfiguration,

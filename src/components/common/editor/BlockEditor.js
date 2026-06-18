@@ -155,29 +155,29 @@ const TEMPLATES = {
     },
 };
 
-// Custom Editable Text component to solve caret jumping in contenteditable React
-const EditableText = ({ className, value, onInput, onKeyDown, placeholder, dataId, dataBi }) => {
+// Auto-resize textarea — replaces contentEditable for reliable input
+const AutoResizeTextarea = ({ className, value, onChange, onKeyDown, placeholder, dataId, dataBi, rows }) => {
     const ref = useRef();
 
     useEffect(() => {
-        if (ref.current && ref.current.innerText !== value) {
-            ref.current.innerText = value || '';
+        const el = ref.current;
+        if (el) {
+            el.style.height = 'auto';
+            el.style.height = el.scrollHeight + 'px';
         }
     }, [value]);
 
     return (
-        <div
+        <textarea
             ref={ref}
             className={className}
-            contentEditable
-            suppressContentEditableWarning
             data-id={dataId}
             data-bi={dataBi}
-            data-ph={placeholder}
+            placeholder={placeholder}
+            value={value || ''}
+            rows={rows || 1}
+            onChange={(e) => onChange(e.target.value)}
             onKeyDown={onKeyDown}
-            onInput={(e) => {
-                onInput(e.target.innerText);
-            }}
         />
     );
 };
@@ -297,18 +297,17 @@ export default function BlockEditor({
     }, [slashMenu, emojiPicker]);
 
     // Focus block helper
-    const focusBlock = (id, positionAtEnd = false) => {
+    const focusBlock = (id, positionAtEnd = false, focusLast = false) => {
         setTimeout(() => {
-            const el = document.querySelector(`[data-id="${id}"]`);
-            if (el) {
-                el.focus();
-                if (positionAtEnd) {
-                    const range = document.createRange();
-                    range.selectNodeContents(el);
-                    range.collapse(false);
-                    const selection = window.getSelection();
-                    selection.removeAllRanges();
-                    selection.addRange(range);
+            const elements = document.querySelectorAll(`[data-id="${id}"]`);
+            if (elements.length > 0) {
+                const el = focusLast ? elements[elements.length - 1] : elements[0];
+                if (el) {
+                    el.focus();
+                    if (positionAtEnd && el.setSelectionRange) {
+                        const len = (el.value || '').length;
+                        el.setSelectionRange(len, len);
+                    }
                 }
             }
         }, 30);
@@ -410,14 +409,361 @@ export default function BlockEditor({
     };
 
     // Keyboard navigation inside blocks
-    const handleBlockKeyDown = (e, id, index) => {
+    const handleBlockKeyDown = (e, id, index, bi = null) => {
         const b = blocks[index];
+
+        if (b.type === 'meta') {
+            const isDur = e.target.classList.contains('b-meta-dur');
+            const isLevel = e.target.classList.contains('b-meta-level');
+            const val = e.target.value || '';
+
+            if (e.key === 'ArrowUp') {
+                if (isDur) {
+                    if (index > 0) {
+                        e.preventDefault();
+                        focusBlock(blocks[index - 1].id, true, true);
+                    }
+                } else if (isLevel) {
+                    e.preventDefault();
+                    focusBlock(id, true); // focus duration
+                }
+                return;
+            }
+
+            if (e.key === 'ArrowDown') {
+                if (isDur) {
+                    e.preventDefault();
+                    focusBlock(id, false, true); // focus level
+                } else if (isLevel) {
+                    if (index < blocks.length - 1) {
+                        e.preventDefault();
+                        focusBlock(blocks[index + 1].id);
+                    }
+                }
+                return;
+            }
+
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (isDur) {
+                    focusBlock(id, false, true); // focus level
+                } else if (isLevel) {
+                    insertBlockAfter(id, makeBlock('text'));
+                }
+                return;
+            }
+
+            if (e.key === 'Backspace') {
+                if (val === '') {
+                    e.preventDefault();
+                    if (isDur) {
+                        if (blocks.length > 1) {
+                            const newBlocks = [...blocks];
+                            newBlocks.splice(index, 1);
+                            handleBlocksChangeImmediate(newBlocks);
+                            const focusId = index > 0 ? blocks[index - 1].id : blocks[1]?.id;
+                            if (focusId) {
+                                focusBlock(focusId, index > 0, index > 0);
+                            }
+                        } else {
+                            const newBlock = makeBlock('text');
+                            handleBlocksChangeImmediate([newBlock]);
+                            focusBlock(newBlock.id);
+                        }
+                    } else if (isLevel) {
+                        focusBlock(id, true); // focus duration
+                    }
+                    return;
+                }
+            }
+            return;
+        }
+
+        if (b.type === 'section') {
+            const isTitle = e.target.classList.contains('b-section-title');
+            const isBullet = e.target.classList.contains('b-section-bullet-text');
+            const val = e.target.value || '';
+
+            if (isTitle) {
+                if (e.key === 'ArrowUp') {
+                    if (index > 0) {
+                        e.preventDefault();
+                        focusBlock(blocks[index - 1].id, true, true);
+                    }
+                    return;
+                }
+                if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                    e.preventDefault();
+                    const el = document.querySelector(`[data-id="${id}"][data-bi="0"]`);
+                    if (el) el.focus();
+                    return;
+                }
+                if (e.key === 'Backspace') {
+                    if (val === '') {
+                        e.preventDefault();
+                        if (blocks.length > 1) {
+                            const newBlocks = [...blocks];
+                            newBlocks.splice(index, 1);
+                            handleBlocksChangeImmediate(newBlocks);
+                            const focusId = index > 0 ? blocks[index - 1].id : blocks[1]?.id;
+                            if (focusId) {
+                                focusBlock(focusId, index > 0, index > 0);
+                            }
+                        } else {
+                            const newBlock = makeBlock('text');
+                            handleBlocksChangeImmediate([newBlock]);
+                            focusBlock(newBlock.id);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            if (isBullet && bi !== null) {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (bi === 0) {
+                        const el = document.querySelector(`.b-section-title[data-id="${id}"]`);
+                        if (el) el.focus();
+                    } else {
+                        const el = document.querySelector(`[data-id="${id}"][data-bi="${bi - 1}"]`);
+                        if (el) el.focus();
+                    }
+                    return;
+                }
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (bi === b.bullets.length - 1) {
+                        if (index < blocks.length - 1) {
+                            focusBlock(blocks[index + 1].id);
+                        }
+                    } else {
+                        const el = document.querySelector(`[data-id="${id}"][data-bi="${bi + 1}"]`);
+                        if (el) el.focus();
+                    }
+                    return;
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const newBullets = [...b.bullets];
+                    newBullets.splice(bi + 1, 0, '');
+                    b.bullets = newBullets;
+                    handleBlocksChangeImmediate([...blocks]);
+                    setTimeout(() => {
+                        const el = document.querySelector(`[data-id="${id}"][data-bi="${bi + 1}"]`);
+                        if (el) el.focus();
+                    }, 30);
+                    return;
+                }
+                if (e.key === 'Backspace') {
+                    if (val === '') {
+                        e.preventDefault();
+                        if (b.bullets.length > 1) {
+                            const newBullets = [...b.bullets];
+                            newBullets.splice(bi, 1);
+                            b.bullets = newBullets;
+                            handleBlocksChangeImmediate([...blocks]);
+                            setTimeout(() => {
+                                const prevIdx = Math.max(0, bi - 1);
+                                const el = document.querySelector(`[data-id="${id}"][data-bi="${prevIdx}"]`);
+                                if (el) el.focus();
+                            }, 30);
+                        } else {
+                            const el = document.querySelector(`.b-section-title[data-id="${id}"]`);
+                            if (el) el.focus();
+                        }
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+
+        if (b.type === 'step') {
+            const isLabel = e.target.classList.contains('b-step-label');
+            const isBody = e.target.classList.contains('b-step-body');
+            const val = e.target.value || '';
+
+            if (isLabel) {
+                if (e.key === 'ArrowUp') {
+                    if (index > 0) {
+                        e.preventDefault();
+                        focusBlock(blocks[index - 1].id, true, true);
+                    }
+                    return;
+                }
+                if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                    e.preventDefault();
+                    const el = document.querySelector(`.b-step-body[data-id="${id}"]`);
+                    if (el) el.focus();
+                    return;
+                }
+                if (e.key === 'Backspace') {
+                    if (val === '') {
+                        e.preventDefault();
+                        if (blocks.length > 1) {
+                            const newBlocks = [...blocks];
+                            newBlocks.splice(index, 1);
+                            handleBlocksChangeImmediate(newBlocks);
+                            const focusId = index > 0 ? blocks[index - 1].id : blocks[1]?.id;
+                            if (focusId) {
+                                focusBlock(focusId, index > 0, index > 0);
+                            }
+                        } else {
+                            const newBlock = makeBlock('text');
+                            handleBlocksChangeImmediate([newBlock]);
+                            focusBlock(newBlock.id);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            if (isBody) {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    const el = document.querySelector(`.b-step-label[data-id="${id}"]`);
+                    if (el) el.focus();
+                    return;
+                }
+                if (e.key === 'ArrowDown') {
+                    if (index < blocks.length - 1) {
+                        e.preventDefault();
+                        focusBlock(blocks[index + 1].id);
+                    }
+                    return;
+                }
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    insertBlockAfter(id, makeBlock('text'));
+                    return;
+                }
+                if (e.key === 'Backspace') {
+                    if (val === '') {
+                        e.preventDefault();
+                        const el = document.querySelector(`.b-step-label[data-id="${id}"]`);
+                        if (el) {
+                            el.focus();
+                            const len = el.value.length;
+                            el.setSelectionRange(len, len);
+                        }
+                        return;
+                    }
+                }
+            }
+            return;
+        }
+
+        if (b.type === 'quiz') {
+            const isQuestion = e.target.classList.contains('b-quiz-question');
+            const isOption = e.target.classList.contains('b-quiz-option-text');
+            const val = e.target.value || '';
+
+            if (isQuestion) {
+                if (e.key === 'ArrowUp') {
+                    if (index > 0) {
+                        e.preventDefault();
+                        focusBlock(blocks[index - 1].id, true, true);
+                    }
+                    return;
+                }
+                if (e.key === 'ArrowDown' || e.key === 'Enter') {
+                    e.preventDefault();
+                    const el = document.querySelector(`[data-id="${id}"][data-bi="0"]`);
+                    if (el) el.focus();
+                    return;
+                }
+                if (e.key === 'Backspace') {
+                    if (val === '') {
+                        e.preventDefault();
+                        if (blocks.length > 1) {
+                            const newBlocks = [...blocks];
+                            newBlocks.splice(index, 1);
+                            handleBlocksChangeImmediate(newBlocks);
+                            const focusId = index > 0 ? blocks[index - 1].id : blocks[1]?.id;
+                            if (focusId) {
+                                focusBlock(focusId, index > 0, index > 0);
+                            }
+                        } else {
+                            const newBlock = makeBlock('text');
+                            handleBlocksChangeImmediate([newBlock]);
+                            focusBlock(newBlock.id);
+                        }
+                        return;
+                    }
+                }
+            }
+
+            if (isOption && bi !== null) {
+                if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (bi === 0) {
+                        const el = document.querySelector(`.b-quiz-question[data-id="${id}"]`);
+                        if (el) el.focus();
+                    } else {
+                        const el = document.querySelector(`[data-id="${id}"][data-bi="${bi - 1}"]`);
+                        if (el) el.focus();
+                    }
+                    return;
+                }
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (bi === b.options.length - 1) {
+                        if (index < blocks.length - 1) {
+                            focusBlock(blocks[index + 1].id);
+                        }
+                    } else {
+                        const el = document.querySelector(`[data-id="${id}"][data-bi="${bi + 1}"]`);
+                        if (el) el.focus();
+                    }
+                    return;
+                }
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const newOpts = [...b.options];
+                    newOpts.splice(bi + 1, 0, { option: '', answer: false });
+                    b.options = newOpts;
+                    handleBlocksChangeImmediate([...blocks]);
+                    setTimeout(() => {
+                        const el = document.querySelector(`[data-id="${id}"][data-bi="${bi + 1}"]`);
+                        if (el) el.focus();
+                    }, 30);
+                    return;
+                }
+                if (e.key === 'Backspace') {
+                    if (val === '') {
+                        e.preventDefault();
+                        if (b.options.length > 2) {
+                            const newOpts = [...b.options];
+                            newOpts.splice(bi, 1);
+                            b.options = newOpts;
+                            handleBlocksChangeImmediate([...blocks]);
+                            setTimeout(() => {
+                                const prevIdx = Math.max(0, bi - 1);
+                                const el = document.querySelector(`[data-id="${id}"][data-bi="${prevIdx}"]`);
+                                if (el) el.focus();
+                            }, 30);
+                        } else {
+                            if (bi > 0) {
+                                const el = document.querySelector(`[data-id="${id}"][data-bi="${bi - 1}"]`);
+                                if (el) el.focus();
+                            } else {
+                                const el = document.querySelector(`.b-quiz-question[data-id="${id}"]`);
+                                if (el) el.focus();
+                            }
+                        }
+                        return;
+                    }
+                }
+            }
+            return;
+        }
 
         if (e.key === '/') {
             setTimeout(() => {
-                const sel = window.getSelection();
-                if (sel && sel.rangeCount > 0) {
-                    const rect = sel.getRangeAt(0).getBoundingClientRect();
+                const el = e.target;
+                if (el) {
+                    const rect = el.getBoundingClientRect();
                     setSlashMenu({
                         blockId: id,
                         query: '',
@@ -440,7 +786,7 @@ export default function BlockEditor({
                 }
             } else {
                 e.preventDefault();
-                focusBlock(blocks[index - 1].id, true);
+                focusBlock(blocks[index - 1].id, true, true);
             }
             return;
         }
@@ -460,8 +806,7 @@ export default function BlockEditor({
                 return;
             }
             if (b.type === 'bullet' || b.type === 'numbered') {
-                const el = document.querySelector(`[data-id="${id}"]`);
-                const text = el ? el.innerText.trim() : '';
+                const text = (b.content || '').trim();
                 if (text === '') {
                     e.preventDefault();
                     const newBlocks = [...blocks];
@@ -476,8 +821,7 @@ export default function BlockEditor({
         }
 
         if (e.key === 'Backspace') {
-            const el = e.target;
-            const text = el.innerText || '';
+            const text = e.target.value || '';
             if (text === '') {
                 if (blocks.length > 1) {
                     e.preventDefault();
@@ -485,8 +829,17 @@ export default function BlockEditor({
                     newBlocks.splice(index, 1);
                     handleBlocksChangeImmediate(newBlocks);
 
-                    const prevIndex = Math.max(0, index - 1);
-                    focusBlock(blocks[prevIndex]?.id, true);
+                    const focusId = index > 0 ? blocks[index - 1].id : blocks[1]?.id;
+                    if (focusId) {
+                        focusBlock(focusId, index > 0, index > 0);
+                    }
+                } else {
+                    if (b.type !== 'text') {
+                        e.preventDefault();
+                        const newBlock = makeBlock('text');
+                        handleBlocksChangeImmediate([newBlock]);
+                        focusBlock(newBlock.id);
+                    }
                 }
                 return;
             }
@@ -494,8 +847,7 @@ export default function BlockEditor({
 
         // Markdown shortcuts
         if (e.key === ' ' || e.key === 'Enter') {
-            const el = e.target;
-            const text = el.innerText.trim();
+            const text = (e.target.value || '').trim();
             const map = {
                 '#': 'h1',
                 '##': 'h2',
@@ -509,7 +861,6 @@ export default function BlockEditor({
             };
             if (map[text]) {
                 e.preventDefault();
-                el.innerText = '';
                 const newBlocks = [...blocks];
                 newBlocks[index] = makeBlock(map[text]);
                 handleBlocksChangeImmediate(newBlocks);
@@ -572,8 +923,7 @@ export default function BlockEditor({
         const idx = blocks.findIndex((x) => x.id === blockId);
         if (idx === -1) return;
 
-        const el = document.querySelector(`[data-id="${blockId}"]`);
-        const curText = el ? el.innerText.replace('/', '').trim() : '';
+        const curText = (blocks[idx].content || '').replace('/', '').trim();
 
         const newBlocks = [...blocks];
         if (blocks[idx].type === 'text' && curText === '') {
@@ -581,10 +931,7 @@ export default function BlockEditor({
             handleBlocksChangeImmediate(newBlocks);
             focusBlock(blockId);
         } else {
-            if (el) {
-                el.innerText = el.innerText.replace(/\/$/, '').trim();
-                blocks[idx].content = el.innerText;
-            }
+            newBlocks[idx] = { ...newBlocks[idx], content: (newBlocks[idx].content || '').replace(/\/$/, '').trim() };
             const newB = makeBlock(type);
             newBlocks.splice(idx + 1, 0, newB);
             handleBlocksChangeImmediate(newBlocks);
@@ -629,6 +976,10 @@ export default function BlockEditor({
             const newBlocks = [...blocks];
             newBlocks.splice(idx, 1);
             handleBlocksChangeImmediate(newBlocks);
+        } else {
+            const newBlock = makeBlock('text');
+            handleBlocksChangeImmediate([newBlock]);
+            focusBlock(newBlock.id);
         }
     };
 
@@ -754,415 +1105,367 @@ export default function BlockEditor({
     // Render elements helper based on type
     const renderBlock = (b, index) => {
         switch (b.type) {
-            case 'text':
-                return (
-                    <EditableText
-                        className="b-text"
-                        value={b.content}
-                        placeholder="Nhập văn bản hoặc gõ / để chọn block..."
-                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                        onInput={(val) => {
-                            b.content = val;
-                            handleBlocksChange([...blocks]);
-                        }}
-                        dataId={b.id}
-                    />
-                );
-            case 'h1':
-                return (
-                    <EditableText
-                        className="b-h1"
-                        value={b.content}
-                        placeholder="Tiêu đề 1"
-                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                        onInput={(val) => {
-                            b.content = val;
-                            handleBlocksChange([...blocks]);
-                        }}
-                        dataId={b.id}
-                    />
-                );
-            case 'h2':
-                return (
-                    <EditableText
-                        className="b-h2"
-                        value={b.content}
-                        placeholder="Tiêu đề 2"
-                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                        onInput={(val) => {
-                            b.content = val;
-                            handleBlocksChange([...blocks]);
-                        }}
-                        dataId={b.id}
-                    />
-                );
-            case 'h3':
-                return (
-                    <EditableText
-                        className="b-h3"
-                        value={b.content}
-                        placeholder="Tiêu đề 3"
-                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                        onInput={(val) => {
-                            b.content = val;
-                            handleBlocksChange([...blocks]);
-                        }}
-                        dataId={b.id}
-                    />
-                );
-            case 'bullet':
-                return (
-                    <div className="b-bullet-wrap">
-                        <span className="b-bullet-dot">•</span>
-                        <EditableText
-                            className="b-bullet"
-                            value={b.content}
-                            placeholder="Dòng danh sách"
-                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                            onInput={(val) => {
-                                b.content = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                    </div>
-                );
-            case 'numbered': {
-                const count = blocks.filter((x, i2) => x.type === 'numbered' && i2 <= index).length;
-                return (
-                    <div className="b-num-wrap">
-                        <span className="b-num-label">{count}.</span>
-                        <EditableText
-                            className="b-num"
-                            value={b.content}
-                            placeholder="Dòng danh sách"
-                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                            onInput={(val) => {
-                                b.content = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                    </div>
-                );
-            }
-            case 'divider':
-                return <hr className="b-divider" />;
-            case 'callout':
-                return (
-                    <div className="b-callout-wrap">
-                        <span
-                            className="b-callout-icon"
-                            onClick={(e) => {
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                setEmojiPicker({
-                                    blockId: b.id,
-                                    left: rect.left,
-                                    top: rect.bottom + window.scrollY + 6,
-                                });
-                            }}
-                        >
-                            {b.icon || '💡'}
-                        </span>
-                        <EditableText
-                            className="b-callout-text"
-                            value={b.content}
-                            placeholder="Nội dung Callout"
-                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                            onInput={(val) => {
-                                b.content = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                    </div>
-                );
-            case 'code':
-                return (
-                    <div className="b-code-wrap">
-                        <EditableText
-                            className="b-code"
-                            value={b.content}
-                            placeholder="Code..."
-                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                            onInput={(val) => {
-                                b.content = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                    </div>
-                );
-            case 'meta':
-                return (
-                    <div className="b-meta-wrap">
-                        <EditableText
-                            className="b-meta-dur"
-                            value={b.duration}
-                            placeholder="1–2 hours"
-                            onInput={(val) => {
-                                b.duration = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                        <span className="b-meta-sep">·</span>
-                        <EditableText
-                            className="b-meta-level"
-                            value={b.level}
-                            placeholder="Introductory"
-                            onInput={(val) => {
-                                b.level = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                    </div>
-                );
-            case 'section':
-                return (
-                    <div className="b-section-wrap">
-                        <div className="b-section-header">
-                            <span
-                                className="b-section-icon"
-                                onClick={(e) => {
-                                    const rect = e.currentTarget.getBoundingClientRect();
-                                    setEmojiPicker({
-                                        blockId: b.id,
-                                        left: rect.left,
-                                        top: rect.bottom + window.scrollY + 6,
-                                    });
-                                }}
-                            >
-                                {b.icon || '🎓'}
-                            </span>
-                            <EditableText
-                                className="b-section-title"
-                                value={b.title}
-                                placeholder="Tiêu đề Section"
-                                onInput={(val) => {
-                                    b.title = val;
-                                    handleBlocksChange([...blocks]); // debounced OK
-                                }}
-                                dataId={b.id}
-                            />
-                        </div>
-                        <div className="b-section-bullets">
-                            {b.bullets.map((bullet, bi) => (
-                                <div key={bi} className="b-section-bullet-row">
-                                    <span className="b-section-bullet-dot">–</span>
-                                    <EditableText
-                                        className="b-section-bullet-text"
-                                        value={bullet}
-                                        placeholder="Bullet item"
-                                        dataId={b.id}
-                                        dataBi={bi}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                const newBullets = [...b.bullets];
-                                                newBullets.splice(bi + 1, 0, '');
-                                                b.bullets = newBullets;
-                                                handleBlocksChangeImmediate([...blocks]);
-                                                setTimeout(() => {
-                                                    const el = document.querySelector(
-                                                        `[data-id="${b.id}"][data-bi="${bi + 1}"]`,
-                                                    );
-                                                    if (el) el.focus();
-                                                }, 30);
-                                            }
-                                            if (e.key === 'Backspace' && bullet === '') {
-                                                e.preventDefault();
-                                                if (b.bullets.length > 1) {
-                                                    const newBullets = [...b.bullets];
-                                                    newBullets.splice(bi, 1);
-                                                    b.bullets = newBullets;
-                                                    handleBlocksChangeImmediate([...blocks]);
-                                                    setTimeout(() => {
-                                                        const prevIdx = Math.max(0, bi - 1);
-                                                        const el = document.querySelector(
-                                                            `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
-                                                        );
-                                                        if (el) el.focus();
-                                                    }, 30);
-                                                }
-                                            }
-                                        }}
-                                        onInput={(val) => {
-                                            const newBullets = [...b.bullets];
-                                            newBullets[bi] = val;
-                                            b.bullets = newBullets;
-                                            handleBlocksChange([...blocks]); // debounced
+                        case 'text':
+                            return (
+                                <AutoResizeTextarea
+                                    className="b-text"
+                                    value={b.content}
+                                    placeholder="Nhập văn bản hoặc gõ / để chọn block..."
+                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                    onChange={(val) => {
+                                        b.content = val;
+                                        handleBlocksChange([...blocks]);
+                                    }}
+                                    dataId={b.id}
+                                />
+                            );
+                        case 'h1':
+                            return (
+                                <AutoResizeTextarea
+                                    className="b-h1"
+                                    value={b.content}
+                                    placeholder="Tiêu đề 1"
+                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                    onChange={(val) => {
+                                        b.content = val;
+                                        handleBlocksChange([...blocks]);
+                                    }}
+                                    dataId={b.id}
+                                />
+                            );
+                        case 'h2':
+                            return (
+                                <AutoResizeTextarea
+                                    className="b-h2"
+                                    value={b.content}
+                                    placeholder="Tiêu đề 2"
+                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                    onChange={(val) => {
+                                        b.content = val;
+                                        handleBlocksChange([...blocks]);
+                                    }}
+                                    dataId={b.id}
+                                />
+                            );
+                        case 'h3':
+                            return (
+                                <AutoResizeTextarea
+                                    className="b-h3"
+                                    value={b.content}
+                                    placeholder="Tiêu đề 3"
+                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                    onChange={(val) => {
+                                        b.content = val;
+                                        handleBlocksChange([...blocks]);
+                                    }}
+                                    dataId={b.id}
+                                />
+                            );
+                        case 'bullet':
+                            return (
+                                <div className="b-bullet-wrap">
+                                    <span className="b-bullet-dot">•</span>
+                                    <input
+                                        type="text"
+                                        className="b-bullet"
+                                        data-id={b.id}
+                                        placeholder="Dòng danh sách"
+                                        value={b.content || ''}
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(e) => {
+                                            b.content = e.target.value;
+                                            handleBlocksChange([...blocks]);
                                         }}
                                     />
-                                    <button
-                                        className="b-section-bullet-del"
-                                        onClick={() => {
-                                            if (b.bullets.length > 1) {
-                                                const newBullets = [...b.bullets];
-                                                newBullets.splice(bi, 1);
-                                                b.bullets = newBullets;
-                                                handleBlocksChangeImmediate([...blocks]);
-                                            }
+                                </div>
+                            );
+                        case 'numbered': {
+                            const count = blocks.filter((x, i2) => x.type === 'numbered' && i2 <= index).length;
+                            return (
+                                <div className="b-num-wrap">
+                                    <span className="b-num-label">{count}.</span>
+                                    <input
+                                        type="text"
+                                        className="b-num"
+                                        data-id={b.id}
+                                        placeholder="Dòng danh sách"
+                                        value={b.content || ''}
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(e) => {
+                                            b.content = e.target.value;
+                                            handleBlocksChange([...blocks]);
+                                        }}
+                                    />
+                                </div>
+                            );
+                        }
+                        case 'divider':
+                            return <hr className="b-divider" />;
+                        case 'callout':
+                            return (
+                                <div className="b-callout-wrap">
+                                    <span
+                                        className="b-callout-icon"
+                                        onClick={(e) => {
+                                            const rect = e.currentTarget.getBoundingClientRect();
+                                            setEmojiPicker({
+                                                blockId: b.id,
+                                                left: rect.left,
+                                                top: rect.bottom + window.scrollY + 6,
+                                            });
                                         }}
                                     >
-                                        ✕
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                        <button
-                            className="b-section-add-bullet"
-                            onClick={() => {
-                                b.bullets = [...b.bullets, ''];
-                                handleBlocksChangeImmediate([...blocks]);
-                                setTimeout(() => {
-                                    const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
-                                    const last = all[all.length - 1];
-                                    if (last) last.focus();
-                                }, 30);
-                            }}
-                        >
-                            ＋ Thêm dòng
-                        </button>
-                    </div>
-                );
-            case 'step':
-                return (
-                    <div className="b-step-wrap">
-                        <EditableText
-                            className="b-step-label"
-                            value={b.label}
-                            placeholder="Step One"
-                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                            onInput={(val) => {
-                                b.label = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                        <span className="b-step-colon">:</span>
-                        <EditableText
-                            className="b-step-body"
-                            value={b.body}
-                            placeholder="Nội dung bước"
-                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                            onInput={(val) => {
-                                b.body = val;
-                                handleBlocksChange([...blocks]);
-                            }}
-                            dataId={b.id}
-                        />
-                    </div>
-                );
-            case 'quiz':
-                return (
-                    <div className="b-quiz-wrap">
-                        <div className="b-quiz-question-row">
-                            <span className="b-quiz-icon">❓</span>
-                            <EditableText
-                                className="b-quiz-question"
-                                value={b.question}
-                                placeholder="Nhập câu hỏi trắc nghiệm..."
-                                onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                onInput={(val) => {
-                                    b.question = val;
-                                    handleBlocksChange([...blocks]);
-                                }}
-                                dataId={b.id}
-                            />
-                        </div>
-                        <div className="b-quiz-options-list">
-                            {b.options.map((opt, oi) => (
-                                <div key={oi} className="b-quiz-option-row">
-                                    <Checkbox
-                                        checked={opt.answer}
-                                        onChange={(e) => {
-                                            b.options = b.options.map((o, idx) => ({
-                                                ...o,
-                                                answer: idx === oi ? e.target.checked : false,
-                                            }));
-                                            handleBlocksChangeImmediate([...blocks]);
+                                        {b.icon || '💡'}
+                                    </span>
+                                    <AutoResizeTextarea
+                                        className="b-callout-text"
+                                        value={b.content}
+                                        placeholder="Nội dung Callout"
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(val) => {
+                                            b.content = val;
+                                            handleBlocksChange([...blocks]);
                                         }}
-                                    />
-                                    <span className="b-quiz-option-letter">{String.fromCharCode(65 + oi)}.</span>
-                                    <EditableText
-                                        className="b-quiz-option-text"
-                                        value={opt.option}
-                                        placeholder="Nhập đáp án..."
                                         dataId={b.id}
-                                        dataBi={oi}
-                                        onKeyDown={(e) => {
-                                            if (e.key === 'Enter') {
-                                                e.preventDefault();
-                                                const newOpts = [...b.options];
-                                                newOpts.splice(oi + 1, 0, { option: '', answer: false });
-                                                b.options = newOpts;
-                                                handleBlocksChangeImmediate([...blocks]);
-                                                setTimeout(() => {
-                                                    const el = document.querySelector(
-                                                        `[data-id="${b.id}"][data-bi="${oi + 1}"]`,
-                                                    );
-                                                    if (el) el.focus();
-                                                }, 30);
-                                            }
-                                            if (e.key === 'Backspace' && opt.option === '') {
-                                                e.preventDefault();
-                                                if (b.options.length > 2) {
-                                                    const newOpts = [...b.options];
-                                                    newOpts.splice(oi, 1);
-                                                    b.options = newOpts;
-                                                    handleBlocksChangeImmediate([...blocks]);
-                                                    setTimeout(() => {
-                                                        const prevIdx = Math.max(0, oi - 1);
-                                                        const el = document.querySelector(
-                                                            `[data-id="${b.id}"][data-bi="${prevIdx}"]`,
-                                                        );
-                                                        if (el) el.focus();
-                                                    }, 30);
-                                                }
-                                            }
+                                    />
+                                </div>
+                            );
+                        case 'code':
+                            return (
+                                <div className="b-code-wrap">
+                                    <AutoResizeTextarea
+                                        className="b-code"
+                                        value={b.content}
+                                        placeholder="Code..."
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(val) => {
+                                            b.content = val;
+                                            handleBlocksChange([...blocks]);
                                         }}
-                                        onInput={(val) => {
-                                            const newOpts = [...b.options];
-                                            newOpts[oi] = { ...newOpts[oi], option: val };
-                                            b.options = newOpts;
-                                            handleBlocksChange([...blocks]); // debounced
+                                        dataId={b.id}
+                                    />
+                                </div>
+                            );
+                        case 'meta':
+                            return (
+                                <div className="b-meta-wrap">
+                                    <input
+                                        type="text"
+                                        className="b-meta-dur"
+                                        data-id={b.id}
+                                        placeholder="1–2 hours"
+                                        value={b.duration || ''}
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(e) => {
+                                            b.duration = e.target.value;
+                                            handleBlocksChange([...blocks]);
                                         }}
                                     />
-                                    {b.options.length > 2 && (
-                                        <button
-                                            className="b-quiz-option-del"
-                                            onClick={() => {
-                                                b.options = b.options.filter((_, idx) => idx !== oi);
-                                                handleBlocksChangeImmediate([...blocks]);
+                                    <span className="b-meta-sep">·</span>
+                                    <input
+                                        type="text"
+                                        className="b-meta-level"
+                                        data-id={b.id}
+                                        placeholder="Introductory"
+                                        value={b.level || ''}
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(e) => {
+                                            b.level = e.target.value;
+                                            handleBlocksChange([...blocks]);
+                                        }}
+                                    />
+                                </div>
+                            );
+                        case 'section':
+                            return (
+                                <div className="b-section-wrap">
+                                    <div className="b-section-header">
+                                        <span
+                                            className="b-section-icon"
+                                            onClick={(e) => {
+                                                const rect = e.currentTarget.getBoundingClientRect();
+                                                setEmojiPicker({
+                                                    blockId: b.id,
+                                                    left: rect.left,
+                                                    top: rect.bottom + window.scrollY + 6,
+                                                });
                                             }}
                                         >
-                                            ✕
-                                        </button>
-                                    )}
+                                            {b.icon || '🎓'}
+                                        </span>
+                                        <input
+                                            type="text"
+                                            className="b-section-title"
+                                            data-id={b.id}
+                                            placeholder="Tiêu đề Section"
+                                            value={b.title || ''}
+                                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                            onChange={(e) => {
+                                                b.title = e.target.value;
+                                                handleBlocksChange([...blocks]);
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="b-section-bullets">
+                                        {b.bullets.map((bullet, bi) => (
+                                            <div key={bi} className="b-section-bullet-row">
+                                                <span className="b-section-bullet-dot">–</span>
+                                                <input
+                                                    type="text"
+                                                    className="b-section-bullet-text"
+                                                    data-id={b.id}
+                                                    data-bi={bi}
+                                                    placeholder="Bullet item"
+                                                    value={bullet || ''}
+                                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index, bi)}
+                                                    onChange={(e) => {
+                                                        const newBullets = [...b.bullets];
+                                                        newBullets[bi] = e.target.value;
+                                                        b.bullets = newBullets;
+                                                        handleBlocksChange([...blocks]);
+                                                    }}
+                                                />
+                                                <button
+                                                    className="b-section-bullet-del"
+                                                    onClick={() => {
+                                                        if (b.bullets.length > 1) {
+                                                            const newBullets = [...b.bullets];
+                                                            newBullets.splice(bi, 1);
+                                                            b.bullets = newBullets;
+                                                            handleBlocksChangeImmediate([...blocks]);
+                                                        }
+                                                    }}
+                                                >
+                                        ✕
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        className="b-section-add-bullet"
+                                        onClick={() => {
+                                            b.bullets = [...b.bullets, ''];
+                                            handleBlocksChangeImmediate([...blocks]);
+                                            setTimeout(() => {
+                                                const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
+                                                const last = all[all.length - 1];
+                                                if (last) last.focus();
+                                            }, 30);
+                                        }}
+                                    >
+                            ＋ Thêm dòng
+                                    </button>
                                 </div>
-                            ))}
-                        </div>
-                        <button
-                            type="button"
-                            className="b-quiz-add-option"
-                            onClick={() => {
-                                b.options = [...b.options, { option: '', answer: false }];
-                                handleBlocksChangeImmediate([...blocks]);
-                                setTimeout(() => {
-                                    const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
-                                    const last = all[all.length - 1];
-                                    if (last) last.focus();
-                                }, 30);
-                            }}
-                        >
+                            );
+                        case 'step':
+                            return (
+                                <div className="b-step-wrap">
+                                    <input
+                                        type="text"
+                                        className="b-step-label"
+                                        data-id={b.id}
+                                        placeholder="Step One"
+                                        value={b.label || ''}
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(e) => {
+                                            b.label = e.target.value;
+                                            handleBlocksChange([...blocks]);
+                                        }}
+                                    />
+                                    <span className="b-step-colon">:</span>
+                                    <AutoResizeTextarea
+                                        className="b-step-body"
+                                        value={b.body}
+                                        placeholder="Nội dung bước"
+                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                        onChange={(val) => {
+                                            b.body = val;
+                                            handleBlocksChange([...blocks]);
+                                        }}
+                                        dataId={b.id}
+                                    />
+                                </div>
+                            );
+                        case 'quiz':
+                            return (
+                                <div className="b-quiz-wrap">
+                                    <div className="b-quiz-question-row">
+                                        <span className="b-quiz-icon">❓</span>
+                                        <input
+                                            type="text"
+                                            className="b-quiz-question"
+                                            data-id={b.id}
+                                            placeholder="Nhập câu hỏi trắc nghiệm..."
+                                            value={b.question || ''}
+                                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                            onChange={(e) => {
+                                                b.question = e.target.value;
+                                                handleBlocksChange([...blocks]);
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="b-quiz-options-list">
+                                        {b.options.map((opt, oi) => (
+                                            <div key={oi} className="b-quiz-option-row">
+                                                <Checkbox
+                                                    checked={opt.answer}
+                                                    onChange={(e) => {
+                                                        b.options = b.options.map((o, idx) => ({
+                                                            ...o,
+                                                            answer: idx === oi ? e.target.checked : false,
+                                                        }));
+                                                        handleBlocksChangeImmediate([...blocks]);
+                                                    }}
+                                                />
+                                                <span className="b-quiz-option-letter">{String.fromCharCode(65 + oi)}.</span>
+                                                <input
+                                                    type="text"
+                                                    className="b-quiz-option-text"
+                                                    data-id={b.id}
+                                                    data-bi={oi}
+                                                    placeholder="Nhập đáp án..."
+                                                    value={opt.option || ''}
+                                                    onKeyDown={(e) => handleBlockKeyDown(e, b.id, index, oi)}
+                                                    onChange={(e) => {
+                                                        const newOpts = [...b.options];
+                                                        newOpts[oi] = { ...newOpts[oi], option: e.target.value };
+                                                        b.options = newOpts;
+                                                        handleBlocksChange([...blocks]);
+                                                    }}
+                                                />
+                                                {b.options.length > 2 && (
+                                                    <button
+                                                        className="b-quiz-option-del"
+                                                        onClick={() => {
+                                                            b.options = b.options.filter((_, idx) => idx !== oi);
+                                                            handleBlocksChangeImmediate([...blocks]);
+                                                        }}
+                                                    >
+                                            ✕
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="b-quiz-add-option"
+                                        onClick={() => {
+                                            b.options = [...b.options, { option: '', answer: false }];
+                                            handleBlocksChangeImmediate([...blocks]);
+                                            setTimeout(() => {
+                                                const all = document.querySelectorAll(`[data-id="${b.id}"][data-bi]`);
+                                                const last = all[all.length - 1];
+                                                if (last) last.focus();
+                                            }, 30);
+                                        }}
+                                    >
                             ＋ Thêm đáp án
-                        </button>
-                    </div>
-                );
-            default:
-                return null;
+                                    </button>
+                                </div>
+                            );
+                        default:
+                            return null;
         }
     };
 

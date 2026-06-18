@@ -1,6 +1,5 @@
 import React from 'react';
 import { TeamOutlined, BookOutlined } from '@ant-design/icons';
-import routes from '@routes';
 import { FormattedMessage } from 'react-intl';
 import apiConfig from './apiConfig';
 import { IconSettings } from '@tabler/icons-react';
@@ -15,19 +14,19 @@ export const navMenuConfig = [
             {
                 label: <FormattedMessage defaultMessage="Quản trị viên" />,
                 key: 'admin',
-                path: routes.adminListPage.path,
+                path: '/admins',
                 permission: apiConfig.account.getList.permissionCode,
             },
             {
                 label: <FormattedMessage defaultMessage="Educator" />,
                 key: 'educator',
-                path: routes.educatorListPage.path,
+                path: '/educators',
                 permission: apiConfig.educator.getList.permissionCode,
             },
             {
                 label: <FormattedMessage defaultMessage="Student" />,
                 key: 'student',
-                path: routes.studentListPage.path,
+                path: '/students',
                 permission: apiConfig.student.getList.permissionCode,
             },
         ],
@@ -40,13 +39,13 @@ export const navMenuConfig = [
             {
                 label: <FormattedMessage defaultMessage="Quyền hạn" />,
                 key: 'role',
-                path: routes.groupPermissionPage.path,
+                path: '/group-permission',
                 permission: [apiConfig.groupPermission.getList.permissionCode],
             },
             {
                 label: <FormattedMessage defaultMessage="Tổ chức" />,
                 key: 'organization',
-                path: routes.organizationListPage.path,
+                path: '/organization',
                 permission: [apiConfig.organization.list.permissionCode],
             },
         ],
@@ -59,24 +58,24 @@ export const navMenuConfig = [
             {
                 label: <FormattedMessage defaultMessage="Danh sách mô phỏng" />,
                 key: 'simulation',
-                path: routes.simulationListPage.path,
+                path: '/simulation',
             },
             {
                 label: <FormattedMessage defaultMessage="Nhận xét bài mô phỏng" />,
                 key: 'review-submission',
-                path: routes.simulationReviewList.path,
+                path: '/simulation-review',
                 permission: [apiConfig.simulation.getListForEducator.permissionCode],
             },
             {
                 label: <FormattedMessage defaultMessage="Quản lý Bình luận" />,
                 key: 'comment',
-                path: routes.commentListPage.path,
+                path: '/comment',
                 permission: [apiConfig.comment.list.permissionCode],
             },
             {
                 label: <FormattedMessage defaultMessage="Quản lý Đánh giá" />,
                 key: 'feedback',
-                path: routes.feedbackListPage.path,
+                path: '/feedback',
                 permission: [apiConfig.feedback.list.permissionCode],
             },
         ],
@@ -108,13 +107,13 @@ export const navMenuConfig = [
             {
                 label: <FormattedMessage defaultMessage="Danh sách Blog" />,
                 key: 'blog',
-                path: routes.blogListPage.path,
+                path: '/blog',
                 permission: [apiConfig.blog.getList.permissionCode, apiConfig.blog.educatorList.permissionCode],
             },
             {
                 label: <FormattedMessage defaultMessage="Duyệt bài viết" />,
                 key: 'blog-moderation',
-                path: routes.blogModerationListPage.path,
+                path: '/blog-moderation',
                 permission: [apiConfig.blog.approve.permissionCode],
             },
         ],

@@ -408,31 +408,31 @@ const useListBase = ({
         Object.entries(actions).forEach(([type, value]) => {
             if (value || value?.show) {
                 switch (type) {
-                    case 'delete':
-                        if (isProjectToken) {
-                            isShow = true;
-                        } else mixinFuncs.hasPermission([apiConfig.delete?.permissionCode]);
-                        {
-                            isShow = true;
-                        }
-                        break;
+                                case 'delete':
+                                    if (isProjectToken) {
+                                        isShow = true;
+                                    } else mixinFuncs.hasPermission([apiConfig.delete?.permissionCode]);
+                                    {
+                                        isShow = true;
+                                    }
+                                    break;
 
-                    case 'edit':
-                        if (isProjectToken) {
-                            isShow = true;
-                        } else
-                            mixinFuncs.hasPermission([
-                                apiConfig.update?.permissionCode,
-                                apiConfig.getById?.permissionCode,
-                            ]);
-                        {
-                            isShow = true;
-                        }
+                                case 'edit':
+                                    if (isProjectToken) {
+                                        isShow = true;
+                                    } else
+                                        mixinFuncs.hasPermission([
+                                            apiConfig.update?.permissionCode,
+                                            apiConfig.getById?.permissionCode,
+                                        ]);
+                                    {
+                                        isShow = true;
+                                    }
 
-                        break;
-                    default:
-                        isShow = true;
-                        break;
+                                    break;
+                                default:
+                                    isShow = true;
+                                    break;
                 }
                 return;
             }

@@ -42,27 +42,27 @@ const SimulationListPage = ({ pageOptions }) => {
 
     const getLevelColor = (level) => {
         switch (level) {
-            case 1:
-                return 'green';
-            case 2:
-                return 'orange';
-            case 3:
-                return 'red';
-            default:
-                return 'default';
+                        case 1:
+                            return 'green';
+                        case 2:
+                            return 'orange';
+                        case 3:
+                            return 'red';
+                        default:
+                            return 'default';
         }
     };
 
     const getLevelText = (level) => {
         switch (level) {
-            case 1:
-                return 'Dễ';
-            case 2:
-                return 'Trung bình';
-            case 3:
-                return 'Khó';
-            default:
-                return 'Chưa xác định';
+                        case 1:
+                            return 'Dễ';
+                        case 2:
+                            return 'Trung bình';
+                        case 3:
+                            return 'Khó';
+                        default:
+                            return 'Chưa xác định';
         }
     };
 
