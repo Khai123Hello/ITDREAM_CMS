@@ -1360,30 +1360,32 @@ export default function BlockEditor({
                         case 'step':
                             return (
                                 <div className="b-step-wrap">
-                                    <input
-                                        type="text"
-                                        className="b-step-label"
-                                        data-id={b.id}
-                                        placeholder="Step One"
-                                        value={b.label || ''}
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onChange={(e) => {
-                                            b.label = e.target.value;
-                                            handleBlocksChange([...blocks]);
-                                        }}
-                                    />
-                                    <span className="b-step-colon">:</span>
-                                    <AutoResizeTextarea
-                                        className="b-step-body"
-                                        value={b.body}
-                                        placeholder="Nội dung bước"
-                                        onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
-                                        onChange={(val) => {
-                                            b.body = val;
-                                            handleBlocksChange([...blocks]);
-                                        }}
-                                        dataId={b.id}
-                                    />
+                                    <div className="b-step-badge">{index + 1}</div>
+                                    <div className="b-step-content">
+                                        <input
+                                            type="text"
+                                            className="b-step-label"
+                                            data-id={b.id}
+                                            placeholder="Tên bước (ví dụ: Bước 1)"
+                                            value={b.label || ''}
+                                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                            onChange={(e) => {
+                                                b.label = e.target.value;
+                                                handleBlocksChange([...blocks]);
+                                            }}
+                                        />
+                                        <AutoResizeTextarea
+                                            className="b-step-body"
+                                            value={b.body || ''}
+                                            placeholder="Mô tả nội dung bước này..."
+                                            onKeyDown={(e) => handleBlockKeyDown(e, b.id, index)}
+                                            onChange={(val) => {
+                                                b.body = val;
+                                                handleBlocksChange([...blocks]);
+                                            }}
+                                            dataId={b.id}
+                                        />
+                                    </div>
                                 </div>
                             );
                         case 'quiz':

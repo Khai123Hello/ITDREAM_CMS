@@ -21,7 +21,7 @@ export const commonMessage = defineMessages({
     serial: 'Serial',
     model: 'Mẫu',
     brand: 'Thương hiệu',
-    home: 'Trung chủ',
+    home: 'Trang chủ',
     admins: 'Quản trị viên',
     posts: 'Bài viết',
     adminsLeader: 'Trưởng quản trị',
