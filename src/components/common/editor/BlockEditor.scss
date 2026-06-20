@@ -470,45 +470,73 @@
   }
   .b-step-wrap {
     display: flex;
-    align-items: baseline;
-    gap: 0;
-    padding: 3px 0;
-  }
-  .b-step-label {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
-    outline: none;
-    min-width: 1em;
-    padding: 1px 3px;
-    flex-shrink: 0;
-    &:empty::before {
-      content: 'Step One';
-      color: var(--text3);
-      pointer-events: none;
-      font-style: italic;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    margin: 4px 0;
+    background: #f8faff;
+    border: 1px solid #e0eaff;
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+    transition: box-shadow .15s, border-color .15s;
+    &:hover {
+      box-shadow: 0 2px 8px rgba(22, 119, 255, 0.08);
+      border-color: #b0caff;
+      border-left-color: var(--accent);
+    }
+    &:focus-within {
+      box-shadow: 0 0 0 3px var(--accent-soft);
+      border-color: var(--accent);
+      border-left-color: var(--accent);
     }
   }
-  .b-step-colon {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--text);
+  .b-step-badge {
     flex-shrink: 0;
-    padding: 1px 3px 1px 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
     user-select: none;
+    letter-spacing: 0;
+  }
+  .b-step-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .b-step-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    outline: none;
+    width: 100%;
+    padding: 0;
+    letter-spacing: .01em;
+    &::placeholder {
+      color: #a0b4e8;
+      font-style: italic;
+      font-weight: 400;
+    }
   }
   .b-step-body {
-    font-size: 15px;
-    color: var(--text);
+    font-size: 14px;
+    color: var(--text2);
     line-height: 1.7;
     outline: none;
-    flex: 1;
+    width: 100%;
     min-height: 1.7em;
-    padding: 1px 3px;
-    &:empty::before {
-      content: 'Step description';
+    padding: 0;
+    &::placeholder {
       color: var(--text3);
-      pointer-events: none;
       font-style: italic;
     }
     code {
@@ -517,7 +545,7 @@
       border-radius: 4px;
       padding: 1px 5px;
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 12px;
       color: var(--blue);
     }
   }
@@ -1078,30 +1106,55 @@
     }
   }
   .out-step {
-    margin-bottom: 14px;
-  }
-  .out-step-row {
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    background: #f8faff;
+    border: 1px solid #e0eaff;
+    border-left: 3px solid var(--accent);
+    border-radius: 10px;
+  }
+  .out-step-badge {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+    user-select: none;
+  }
+  .out-step-content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
   .out-step-label {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
-    color: var(--text);
+    color: var(--accent);
     white-space: nowrap;
   }
   .out-step-body {
-    font-size: 15px;
+    font-size: 14px;
     color: #374151;
     line-height: 1.7;
-    margin-left: 4px;
     code {
       background: #f3f4f6;
       border: 1px solid #e5e7eb;
       border-radius: 4px;
       padding: 1px 5px;
       font-family: var(--font-mono);
-      font-size: 13px;
+      font-size: 12px;
       color: var(--blue);
     }
   }

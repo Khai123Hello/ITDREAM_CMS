@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import { Form, Button, Input, message as antMessage, DatePicker, Select } from 'antd';
+import { Form, Button, Input, message as antMessage, DatePicker, Select, Row, Col } from 'antd';
 import useFetch from '@hooks/useFetch';
 import apiConfig from '@constants/apiConfig';
 import { DEFAULT_FORMAT } from '@constants';
 import {
     LockOutlined,
     MailOutlined,
-    GoogleOutlined,
-    FacebookFilled,
     UserOutlined,
     PhoneOutlined,
+    CalendarOutlined,
+    BankOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import styles from './index.module.scss';
@@ -17,7 +17,6 @@ import { useNavigate } from 'react-router-dom';
 import useRegisterEducator from '@hooks/useRegisterEducator';
 import useRegisterStudent from '@hooks/useRegisterStudent';
 import useVerifyOtpEducator from '@hooks/useVerifyOtpEducator';
-import { Row, Col } from 'antd';
 
 const RegisterPage = () => {
     const role = 'educator'; // always educator now
@@ -42,7 +41,7 @@ const RegisterPage = () => {
     const { verifyOtp, loading: verifying } = useVerifyOtpEducator();
     const { execute: executeResendVerify, loading: resendingOtp } = useFetch(apiConfig.account.resendVerify);
 
-    // Fetch organization list on mount/when role changes to educator
+    // Fetch organization list on mount
     React.useEffect(() => {
         if (role === 'educator') {
             setOrgLoading(true);
@@ -64,28 +63,16 @@ const RegisterPage = () => {
     }, [role, fetchOrgs]);
 
     const onRegisterFinish = (values) => {
-        let payload;
         const formattedBirthday = dayjs(values.birthday).format(DEFAULT_FORMAT);
-        if (role === 'student') {
-            payload = {
-                fullName: values.fullName,
-                username: values.username,
-                email: values.email,
-                password: values.password,
-                phone: values.phone,
-                birthday: formattedBirthday,
-            };
-        } else {
-            payload = {
-                fullName: values.fullName,
-                username: values.username,
-                email: values.email,
-                password: values.password,
-                phone: values.phone,
-                birthday: formattedBirthday,
-                organizationId: values.organizationId,
-            };
-        }
+        const payload = {
+            fullName: values.fullName,
+            username: values.username,
+            email: values.email,
+            password: values.password,
+            phone: values.phone,
+            birthday: formattedBirthday,
+            organizationId: values.organizationId,
+        };
 
         const afterRegisterSuccess = (res) => {
             antMessage.success(res?.message || 'Đăng ký thành công!');
@@ -94,14 +81,11 @@ const RegisterPage = () => {
             setStep('otp');
         };
         const afterRegisterError = (err) => {
-            antMessage.error(err?.message || 'Đăng ký thất bại!');
+            const errMsg = err?.response?.data?.message || err?.message || 'Đăng ký thất bại!';
+            antMessage.error(errMsg);
         };
 
-        if (role === 'student') {
-            registerStudent(payload, afterRegisterSuccess, afterRegisterError);
-        } else {
-            registerEducator(payload, afterRegisterSuccess, afterRegisterError);
-        }
+        registerEducator(payload, afterRegisterSuccess, afterRegisterError);
     };
 
     const onOtpFinish = (values) => {
@@ -117,7 +101,8 @@ const RegisterPage = () => {
                 navigate('/login');
             },
             (err) => {
-                antMessage.error(err?.message || 'Xác thực OTP thất bại!');
+                const errMsg = err?.response?.data?.message || err?.message || 'Xác thực OTP thất bại!';
+                antMessage.error(errMsg);
             },
         );
     };
@@ -140,7 +125,8 @@ const RegisterPage = () => {
                 }
             },
             onError: (err) => {
-                antMessage.error(err?.message || 'Có lỗi xảy ra khi gửi lại mã OTP!');
+                const errMsg = err?.response?.data?.message || err?.message || 'Có lỗi xảy ra khi gửi lại mã OTP!';
+                antMessage.error(errMsg);
             },
         });
     };
@@ -148,7 +134,7 @@ const RegisterPage = () => {
     return (
         <div className={styles.wrapper}>
             <div className={styles.container}>
-                {/* Left */}
+                {/* Left Section */}
                 <div className={styles.left}>
                     <div className={styles.leftContent}>
                         <h2>Chào mừng đến với cộng đồng lớn nhất của chúng tôi</h2>
@@ -164,7 +150,7 @@ const RegisterPage = () => {
                     </div>
                 </div>
 
-                {/* Right */}
+                {/* Right Section */}
                 <div className={styles.right}>
                     <div className={styles.formBox}>
                         <img src="/images/element/03.svg" className={styles.waveIcon} alt="icon" />
@@ -177,34 +163,6 @@ const RegisterPage = () => {
                                 </div>
 
                                 <Form layout="vertical" form={form} onFinish={onRegisterFinish} requiredMark={false}>
-                                    {role === 'educator' && (
-                                        <Form.Item
-                                            name="organizationId"
-                                            label="Tổ chức/Doanh nghiệp"
-                                            rules={[{ required: true, message: 'Vui lòng chọn tổ chức' }]}
-                                            style={{ marginBottom: 16 }}
-                                        >
-                                            <Select
-                                                showSearch
-                                                placeholder="Chọn tổ chức hoặc doanh nghiệp"
-                                                optionFilterProp="children"
-                                                loading={orgLoading}
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                                }
-                                            >
-                                                {orgOptions.map((org) => (
-                                                    <Select.Option
-                                                        value={org.id}
-                                                        key={org.id}
-                                                        label={org.shortName || org.name}
-                                                    >
-                                                        {org.shortName ? `${org.shortName} - ${org.name}` : org.name}
-                                                    </Select.Option>
-                                                ))}
-                                            </Select>
-                                        </Form.Item>
-                                    )}
                                     <Row gutter={16}>
                                         <Col xs={24} md={12}>
                                             <Form.Item
@@ -290,12 +248,45 @@ const RegisterPage = () => {
                                                     style={{ width: '100%' }}
                                                     format="DD/MM/YYYY"
                                                     placeholder="Chọn ngày sinh"
+                                                    suffixIcon={<CalendarOutlined className={styles.inputIcon} />}
                                                     disabledDate={(current) =>
                                                         current && current > dayjs().endOf('day')
                                                     }
                                                 />
                                             </Form.Item>
                                         </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
+                                                name="organizationId"
+                                                label="Tổ chức/Doanh nghiệp"
+                                                rules={[{ required: true, message: 'Vui lòng chọn tổ chức' }]}
+                                            >
+                                                <Select
+                                                    showSearch
+                                                    size="large"
+                                                    placeholder="Chọn tổ chức hoặc doanh nghiệp"
+                                                    optionFilterProp="children"
+                                                    loading={orgLoading}
+                                                    suffixIcon={<BankOutlined className={styles.inputIcon} />}
+                                                    filterOption={(input, option) =>
+                                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                    }
+                                                >
+                                                    {orgOptions.map((org) => (
+                                                        <Select.Option
+                                                            value={org.id}
+                                                            key={org.id}
+                                                            label={org.shortName || org.name}
+                                                        >
+                                                            {org.shortName ? `${org.shortName} - ${org.name}` : org.name}
+                                                        </Select.Option>
+                                                    ))}
+                                                </Select>
+                                            </Form.Item>
+                                        </Col>
+                                    </Row>
+
+                                    <Row gutter={16}>
                                         <Col xs={24} md={12}>
                                             <Form.Item
                                                 name="password"
@@ -312,30 +303,31 @@ const RegisterPage = () => {
                                                 />
                                             </Form.Item>
                                         </Col>
+                                        <Col xs={24} md={12}>
+                                            <Form.Item
+                                                name="confirmPassword"
+                                                label="Xác nhận mật khẩu"
+                                                dependencies={['password']}
+                                                rules={[
+                                                    { required: true, message: 'Vui lòng xác nhận mật khẩu' },
+                                                    ({ getFieldValue }) => ({
+                                                        validator(_, value) {
+                                                            if (!value || getFieldValue('password') === value) {
+                                                                return Promise.resolve();
+                                                            }
+                                                            return Promise.reject(new Error('Mật khẩu không khớp!'));
+                                                        },
+                                                    }),
+                                                ]}
+                                            >
+                                                <Input.Password
+                                                    size="large"
+                                                    prefix={<LockOutlined className={styles.inputIcon} />}
+                                                    placeholder="Xác nhận mật khẩu"
+                                                />
+                                            </Form.Item>
+                                        </Col>
                                     </Row>
-
-                                    <Form.Item
-                                        name="confirmPassword"
-                                        label="Xác nhận mật khẩu"
-                                        dependencies={['password']}
-                                        rules={[
-                                            { required: true, message: 'Vui lòng xác nhận mật khẩu' },
-                                            ({ getFieldValue }) => ({
-                                                validator(_, value) {
-                                                    if (!value || getFieldValue('password') === value) {
-                                                        return Promise.resolve();
-                                                    }
-                                                    return Promise.reject(new Error('Mật khẩu không khớp!'));
-                                                },
-                                            }),
-                                        ]}
-                                    >
-                                        <Input.Password
-                                            size="large"
-                                            prefix={<LockOutlined className={styles.inputIcon} />}
-                                            placeholder="Xác nhận mật khẩu"
-                                        />
-                                    </Form.Item>
 
                                     <Form.Item className={styles.submitButton}>
                                         <Button
@@ -343,25 +335,12 @@ const RegisterPage = () => {
                                             htmlType="submit"
                                             size="large"
                                             block
-                                            loading={role === 'student' ? studentRegistering : educatorRegistering}
+                                            loading={educatorRegistering}
                                         >
                                             Tạo tài khoản
                                         </Button>
                                     </Form.Item>
                                 </Form>
-
-                                <div className={styles.divider}>
-                                    <span>Hoặc tiếp tục với</span>
-                                </div>
-
-                                <div className={styles.socialButtons}>
-                                    <Button icon={<GoogleOutlined />} size="large" block className={styles.google}>
-                                        Google
-                                    </Button>
-                                    <Button icon={<FacebookFilled />} size="large" block className={styles.facebook}>
-                                        Facebook
-                                    </Button>
-                                </div>
 
                                 <div className={styles.signInRedirect}>
                                     Đã có tài khoản? <a href="/login">Đăng nhập tại đây</a>
@@ -384,7 +363,7 @@ const RegisterPage = () => {
                                             { len: 6, message: 'Mã OTP phải có 6 chữ số' },
                                         ]}
                                     >
-                                        <Input size="large" placeholder="Nhập mã 6 chữ số" maxLength={6} />
+                                        <Input size="large" placeholder="Nhập mã 6 chữ số" maxLength={6} className={styles.otpInput} />
                                     </Form.Item>
 
                                     <Form.Item>

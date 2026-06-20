@@ -168,8 +168,9 @@ const RenderPreviewBlocks = ({ content }) => {
                                 };
                                 elements.push(
                                     <div key={idx} className="out-step">
-                                        <div className="out-step-row">
-                                            <span className="out-step-label">{b.label}: </span>
+                                        <div className="out-step-badge">{idx + 1}</div>
+                                        <div className="out-step-content">
+                                            <span className="out-step-label">{b.label}</span>
                                             <span className="out-step-body">{renderStepBody(b.body)}</span>
                                         </div>
                                     </div>,
@@ -1129,14 +1130,9 @@ const TaskForm = (props) => {
             setSubmitError(null);
 
             const formValues = form.getFieldsValue(true);
-            const titleVal = formValues.title || values?.title;
+            const titleVal = formValues.title || values?.title || '';
             const descVal = formValues.description || values?.description;
             const nameVal = formValues.name || values?.name;
-
-            if (!titleVal?.trim()) {
-                message.error('Vui lòng nhập tiêu đề nhiệm vụ.');
-                return false;
-            }
 
             const submitData = {
                 name: symbol || nameVal?.trim() || '',
