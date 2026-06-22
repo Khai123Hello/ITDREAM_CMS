@@ -1,19 +1,32 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&display=swap');
 
+/* Curated Color Palettes & Variables */
+$primary-color: #1890ff;
+$primary-hover: #40a9ff;
+$success-color: #52c41a;
+$warning-color: #fa8c16;
+$border-color: #e4e4e4;
+$bg-workspace: #f8fafc;
+$bg-card: #ffffff;
+$text-main: #1e293b;
+$text-secondary: #64748b;
+$font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
+
 .tfo-content-area {
   display: flex;
   background-color: #ffffff;
-  border: 1px solid #e4e4e4;
-  border-radius: 8px;
+  border: 1px solid $border-color;
+  border-radius: 12px;
   overflow: hidden;
-  font-family: 'DM Sans', Helvetica, sans-serif;
+  font-family: $font-family;
   height: calc(100vh - 200px);
   margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .tfo-sidebar {
   width: 280px;
-  border-right: 1px solid #e4e4e4;
+  border-right: 1px solid $border-color;
   background-color: #ffffff;
   flex-shrink: 0;
   display: flex;
@@ -49,37 +62,44 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 2px solid #e4e4e4;
+  border: 2px solid $border-color;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
-  color: #555555;
+  color: $text-secondary;
   background: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
   z-index: 1;
-}
 
-.tfo-task-circle.active {
-  background: #1890ff;
-  color: #ffffff;
-  border-color: #1890ff;
-  box-shadow: 0 2px 6px rgba(24, 144, 255, 0.2);
-}
+  &.active {
+    background: $primary-color;
+    color: #ffffff;
+    border-color: $primary-color;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.25);
+  }
 
-.tfo-task-circle:hover:not(.active) {
-  background: rgba(24, 144, 255, 0.05);
-  border-color: #1890ff;
+  &.reviewed {
+    background: $success-color;
+    color: #ffffff;
+    border-color: $success-color;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2);
+  }
+
+  &:hover:not(.active):not(.reviewed) {
+    background: rgba(24, 144, 255, 0.05);
+    border-color: $primary-color;
+  }
 }
 
 .tfo-task-connector {
   width: 2px;
   flex: 1;
-  min-height: 24px;
-  border-left: 2px dotted #e4e4e4;
+  min-height: 28px;
+  border-left: 2px dotted $border-color;
   margin: 6px 0;
 }
 
@@ -93,80 +113,54 @@
   cursor: pointer;
   flex: 1;
   text-align: left;
-}
 
-.tfo-task-content-btn:hover .tfo-task-title:not(.active) {
-  color: #1890ff;
+  &:hover .tfo-task-title:not(.active) {
+    color: $primary-color;
+  }
 }
 
 .tfo-task-title {
   font-size: 14px;
   font-weight: 600;
-  color: #111236;
+  color: $text-main;
   line-height: 1.3;
   transition: color 0.15s;
-}
 
-.tfo-task-title.active {
-  color: #1890ff;
-  font-weight: 700;
-}
-
-.tfo-task-short-desc {
-  font-size: 12px;
-  color: #8c8c8c;
-  line-height: 1.4;
-}
-
-.tfo-task-meta {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 6px;
-  font-size: 12px;
-  color: #8c8c8c;
-}
-
-.tfo-task-difficulty {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  .dots {
-    color: #1890ff;
-    font-size: 14px;
-    letter-spacing: 0.5px;
+  &.active {
+    color: $primary-color;
+    font-weight: 700;
   }
 }
 
-.tfo-task-time {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.tfo-task-review-count {
+  font-size: 11px;
+  color: $text-secondary;
+  margin-top: 2px;
+  font-weight: 500;
+
+  &.done {
+    color: $success-color;
+    font-weight: 600;
+  }
 }
 
-.tfo-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  overflow: hidden;
-  background-color: #fcfcfc;
-}
-
-.tfo-pane-layout {
-  display: flex;
+/* ─── 3-Column Split Workspace ─── */
+.tfo-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
   flex: 1;
   height: 100%;
   overflow: hidden;
+  background-color: $bg-workspace;
 }
 
-.tfo-pane-left {
+.tfo-pane-middle {
   flex: 1;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  padding: 0 32px 32px;
+  padding: 0 24px 24px;
 }
 
 .tfo-pane-topbar {
@@ -178,17 +172,18 @@
 
 .tfo-pane-title {
   font-weight: 600;
-  color: #8c8c8c;
+  color: $text-secondary;
   font-size: 14px;
   letter-spacing: 0.2px;
 }
 
 .tfo-step-pagination {
   display: inline-flex;
-  border-radius: 6px;
-  border: 1px solid #e4e4e4;
+  border-radius: 8px;
+  border: 1px solid $border-color;
   overflow: hidden;
   background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
 }
 
 .tfo-step-btn {
@@ -199,11 +194,11 @@
   justify-content: center;
   background-color: #ffffff;
   font-weight: 500;
-  color: #8c8c8c;
+  color: $text-secondary;
   font-size: 14px;
   cursor: pointer;
   border: none;
-  border-right: 1px solid #e4e4e4;
+  border-right: 1px solid $border-color;
   transition: all 0.2s ease;
 
   &:last-child {
@@ -211,63 +206,47 @@
   }
 
   &:hover {
-    background-color: #f5f7fa;
-    color: #1890ff;
+    background-color: #f8fafc;
+    color: $primary-color;
   }
 
   &.active {
-    background-color: #1890ff;
+    background-color: $primary-color;
     color: #ffffff;
     font-weight: 700;
+  }
+
+  &.reviewed {
+    background-color: #f0fdf4;
+    color: $success-color;
+    border-right-color: #b7eb8f;
   }
 }
 
 .tfo-separator {
   width: 100%;
   height: 1px;
-  border-top: 1px solid #e4e4e4;
+  border-top: 1px solid $border-color;
   margin-bottom: 20px;
 }
 
 .tfo-task-content {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 .tfo-task-heading-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
 }
 
 .tfo-task-heading {
-  font-weight: 500;
-  color: #262626;
-  font-size: 28px;
+  font-weight: 600;
+  color: $text-main;
+  font-size: 26px;
   line-height: 1.3;
-}
-
-.tfo-comments-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 16px;
-  background-color: #ffffff;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  color: #595959;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover, &.active {
-    color: #1890ff;
-    border-color: #1890ff;
-    background-color: #e6f7ff;
-  }
 }
 
 .tfo-task-body {
@@ -280,49 +259,45 @@
 
 .tfo-body-text {
   font-weight: 400;
-  color: #262626;
-  font-size: 16px;
+  color: $text-main;
+  font-size: 15px;
   line-height: 1.6;
 }
 
-/* Blocks styling */
+/* Blocks Styling */
 .tfo-blocks-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 }
 
 .tfo-block-meta {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #8c8c8c;
+  color: $text-secondary;
   font-size: 13px;
   font-weight: 500;
 }
 
 .tfo-block-section {
-  background: #f5f5f5;
+  background: #f1f5f9;
   border-radius: 8px;
   padding: 16px;
-  border: 1px solid #e8e8e8;
+  border: 1px solid #e2e8f0;
 }
 
 .tfo-block-section-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 12px;
-}
-
-.tfo-block-section-icon {
-  font-size: 18px;
+  margin-bottom: 8px;
 }
 
 .tfo-block-section-title {
   font-weight: 600;
-  font-size: 16px;
-  color: #262626;
+  font-size: 15px;
+  color: $text-main;
 }
 
 .tfo-block-section-list {
@@ -330,20 +305,20 @@
   margin: 0;
   li {
     margin-bottom: 6px;
-    color: #595959;
+    color: $text-secondary;
   }
 }
 
 .tfo-block-text {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
-  color: #262626;
+  color: $text-main;
   margin: 0;
 }
 
-.tfo-block-h1 { font-size: 22px; font-weight: 600; color: #262626; margin: 16px 0 8px; }
-.tfo-block-h2 { font-size: 18px; font-weight: 600; color: #262626; margin: 14px 0 6px; }
-.tfo-block-h3 { font-size: 16px; font-weight: 600; color: #262626; margin: 12px 0 4px; }
+.tfo-block-h1 { font-size: 20px; font-weight: 600; color: $text-main; margin: 12px 0 6px; }
+.tfo-block-h2 { font-size: 17px; font-weight: 600; color: $text-main; margin: 10px 0 4px; }
+.tfo-block-h3 { font-size: 15px; font-weight: 600; color: $text-main; margin: 8px 0 2px; }
 
 .tfo-block-bullet-wrap {
   display: flex;
@@ -351,28 +326,29 @@
   align-items: flex-start;
 }
 .tfo-block-bullet-dot, .tfo-block-num-label {
-  color: #1890ff;
+  color: $primary-color;
   font-weight: bold;
 }
 
 .tfo-block-callout {
   display: flex;
   gap: 12px;
-  background-color: #e6f7ff;
-  border-left: 4px solid #1890ff;
+  background-color: #eff6ff;
+  border-left: 4px solid $primary-color;
   padding: 12px 16px;
   border-radius: 0 8px 8px 0;
 }
 
 .tfo-block-code {
-  background: #272822;
-  color: #f8f8f2;
-  padding: 16px;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 14px;
   border-radius: 8px;
   overflow-x: auto;
   pre {
     margin: 0;
-    font-family: monospace;
+    font-family: Consolas, monospace;
+    font-size: 13px;
   }
 }
 
@@ -380,19 +356,19 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: #f8faff;
-  border: 1px solid #e0eaff;
-  border-left: 3px solid #1677ff;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid $primary-color;
   padding: 10px 14px;
-  border-radius: 10px;
-  margin-bottom: 8px;
+  border-radius: 8px;
 }
+
 .tfo-block-step-badge {
   flex-shrink: 0;
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: #1677ff;
+  background: $primary-color;
   color: #fff;
   font-size: 12px;
   font-weight: 700;
@@ -400,44 +376,45 @@
   align-items: center;
   justify-content: center;
   margin-top: 1px;
-  user-select: none;
 }
+
 .tfo-block-step-content {
   flex: 1;
-  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
+
 .tfo-block-step-label {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  color: #1677ff;
-}
-.tfo-block-step-body {
-  font-size: 14px;
-  color: #374151;
-  line-height: 1.7;
+  color: $primary-color;
 }
 
-/* Quiz styling */
+.tfo-block-step-body {
+  font-size: 13px;
+  color: $text-main;
+  line-height: 1.6;
+}
+
+/* Quiz block */
 .tfo-block-quiz {
   background: #ffffff;
-  border: 1px solid #d9d9d9;
+  border: 1px solid $border-color;
   border-radius: 8px;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   margin: 12px 0;
 
   &.quiz-correct {
-    border-color: #52c41a;
-    background-color: #f6ffed;
+    border-color: $success-color;
+    background-color: #f0fdf4;
   }
   &.quiz-wrong {
-    border-color: #ff4d4f;
-    background-color: #fff2f0;
+    border-color: #ef4444;
+    background-color: #fef2f2;
   }
 }
 
@@ -446,7 +423,7 @@
   gap: 8px;
   align-items: flex-start;
   font-weight: 600;
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .tfo-block-quiz-options {
@@ -459,83 +436,88 @@
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 12px 16px;
+  padding: 10px 14px;
   border-radius: 6px;
-  border: 1px solid #d9d9d9;
+  border: 1px solid $border-color;
   background-color: #ffffff;
   text-align: left;
-  gap: 12px;
-  cursor: pointer;
+  gap: 10px;
+  font-size: 13px;
 
   &.selected {
-    border-color: #1890ff;
-    background-color: #e6f7ff;
+    border-color: $primary-color;
+    background-color: #eff6ff;
   }
   &.answer-correct {
-    border-color: #52c41a;
-    background-color: #f6ffed;
+    border-color: $success-color;
+    background-color: #f0fdf4;
     font-weight: bold;
   }
   &.answer-wrong {
-    border-color: #ff4d4f;
-    background-color: #fff2f0;
+    border-color: #ef4444;
+    background-color: #fef2f2;
   }
 }
 
 .tfo-quiz-option-letter {
   font-weight: 700;
-  color: #8c8c8c;
+  color: $text-secondary;
 }
 
 .tfo-quiz-option-badge {
   margin-left: auto;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   padding: 2px 8px;
   border-radius: 10px;
   
-  &.correct { background: #52c41a; color: white; }
-  &.wrong { background: #ff4d4f; color: white; }
+  &.correct { background: $success-color; color: white; }
+  &.wrong { background: #ef4444; color: white; }
 }
 
 .tfo-block-quiz-footer {
   font-weight: bold;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .tfo-quiz-result-label {
-  &.correct { color: #52c41a; }
-  &.wrong { color: #ff4d4f; }
+  &.correct { color: $success-color; }
+  &.wrong { color: #ef4444; }
 }
 
-/* File download card */
+/* Submission Card */
 .tfo-submission-card {
-  border: 1px solid #d9d9d9;
+  border: 1px solid $border-color;
   border-radius: 8px;
   padding: 16px;
-  background-color: #fafafa;
-  margin-top: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  margin-top: 12px;
 }
 
 .tfo-submission-title {
   font-weight: 600;
-  margin-bottom: 8px;
-  color: #262626;
+  font-size: 14px;
+  margin-bottom: 12px;
+  color: $text-main;
+  display: flex;
+  align-items: center;
 }
 
 .tfo-file-download-box {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid $border-color;
   border-radius: 6px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   
   a {
-    color: #1890ff;
-    font-weight: 500;
+    color: $primary-color;
+    font-weight: 600;
     text-decoration: none;
+    font-size: 13px;
     &:hover {
       text-decoration: underline;
     }
@@ -543,105 +525,126 @@
 }
 
 .tfo-text-answer-box {
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
+  background: #f8fafc;
+  border: 1px solid $border-color;
   border-radius: 6px;
-  padding: 12px 16px;
+  padding: 12px;
   white-space: pre-wrap;
-  color: #262626;
-  font-size: 14px;
+  color: $text-main;
+  font-size: 13px;
   line-height: 1.5;
 }
 
-/* Educator Review Card */
-.tfo-review-section {
-  margin-top: 24px;
-  border-top: 2px dashed #d9d9d9;
-  padding-top: 24px;
+.tfo-empty-submission {
+  color: $text-secondary;
+  font-style: italic;
+  font-size: 13px;
+  background: #f8fafc;
+  border: 1px dashed $border-color;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
 }
 
-.tfo-review-card {
-  background: #fffbe6;
-  border: 1px solid #ffe58f;
+/* Media containers */
+.tfo-media-section {
+  margin: 12px 0;
   border-radius: 8px;
-  padding: 20px;
+  overflow: hidden;
 }
 
-.tfo-review-header {
+.tfo-media-img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+}
+
+.tfo-media-video {
+  width: 100%;
+  border-radius: 8px;
+  border: 1px solid $border-color;
+}
+
+/* Bottom Nav */
+.tfo-bottom-nav {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid $border-color;
 }
 
-.tfo-review-title {
-  font-weight: 700;
-  font-size: 16px;
-  color: #d46b08;
-}
-
-.tfo-review-actions {
-  display: flex;
-  gap: 12px;
-}
-
-.tfo-review-content {
-  font-size: 14px;
-  color: #595959;
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-/* Comment Panel */
-.tfo-comments-panel {
+/* ─── Column 3: Tabbed Collaboration Drawer ─── */
+.tfo-pane-right {
   width: 380px;
-  border-left: 1px solid #e4e4e4;
+  border-left: 1px solid $border-color;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   height: 100%;
   flex-shrink: 0;
-  z-index: 10;
 }
 
-.tfo-comments-panel-header {
+.tfo-right-tabs-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 20px;
-  border-bottom: 1px solid #e4e4e4;
+  border-bottom: 1px solid $border-color;
+  background-color: #ffffff;
 }
 
-.tfo-comments-panel-title {
-  font-weight: 600;
-  font-size: 16px;
-  margin: 0;
-  color: #262626;
-}
-
-.tfo-comments-close-btn {
+.tfo-right-tab-btn {
+  flex: 1;
   background: none;
   border: none;
+  padding: 14px 10px;
+  font-weight: 600;
+  font-size: 13px;
+  color: $text-secondary;
   cursor: pointer;
-  color: #8c8c8c;
   display: flex;
   align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+
   &:hover {
-    color: #ff4d4f;
+    color: $primary-color;
   }
+
+  &.active {
+    color: $primary-color;
+    border-bottom-color: $primary-color;
+    background-color: rgba(24, 144, 255, 0.02);
+  }
+}
+
+.tfo-right-tabs-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Comments Panel Inner Tab */
+.tfo-comments-pane-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex: 1;
 }
 
 .tfo-comments-list-container {
   flex: 1;
   overflow-y: auto;
-  background-color: #fafafa;
+  background-color: #f8fafc;
 }
 
 .tfo-comments-scrollable {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .tfo-comment-thread {
@@ -651,13 +654,19 @@
 
 .tfo-comment-card {
   background: #ffffff;
-  border: 1px solid #e8e8e8;
-  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
   padding: 12px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-  
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.02);
+  }
+
   &.reply {
-    border-color: #f0f0f0;
+    background: #f8fafc;
+    border-color: #e2e8f0;
   }
 }
 
@@ -665,26 +674,26 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .tfo-comment-avatar {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   object-fit: cover;
 }
 
 .tfo-comment-avatar-initials {
-  width: 28px;
-  height: 28px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .tfo-comment-user-info {
@@ -694,45 +703,56 @@
 
 .tfo-comment-fullname {
   font-weight: 600;
-  font-size: 13px;
-  color: #262626;
+  font-size: 12px;
+  color: $text-main;
 }
 
 .tfo-comment-time {
-  font-size: 11px;
-  color: #8c8c8c;
+  font-size: 10px;
+  color: $text-secondary;
 }
 
-.tfo-comment-edit-btn {
+.tfo-comment-actions {
   margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: #8c8c8c;
-  &:hover {
-    color: #1890ff;
+  display: flex;
+  gap: 6px;
+
+  button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: $text-secondary;
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+
+    &:hover {
+      background-color: #f1f5f9;
+      color: $primary-color;
+    }
   }
 }
 
 .tfo-comment-card-body {
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .tfo-comment-text {
-  font-size: 13px;
-  color: #595959;
+  font-size: 12.5px;
+  color: $text-main;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
 .tfo-comment-mention {
-  color: #1890ff;
+  color: $primary-color;
   font-weight: 600;
 }
 
 .tfo-comment-card-footer {
   display: flex;
-  gap: 12px;
+  gap: 8px;
 }
 
 .tfo-comment-action-link {
@@ -740,9 +760,9 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  color: #1890ff;
+  color: $primary-color;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   &:hover {
     text-decoration: underline;
   }
@@ -750,78 +770,84 @@
 
 .tfo-comment-thread-replies {
   display: flex;
-  margin-top: 8px;
-  padding-left: 20px;
+  margin-top: 6px;
+  padding-left: 16px;
   position: relative;
 }
 
 .tfo-comment-thread-line {
   position: absolute;
-  left: 8px;
+  left: 6px;
   top: 0;
-  bottom: 14px;
-  width: 2px;
-  background-color: #f0f0f0;
+  bottom: 12px;
+  width: 1.5px;
+  background-color: #e2e8f0;
 }
 
 .tfo-comment-replies-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
 }
 
 .tfo-comment-reply-item {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: 6px;
 }
 
 .tfo-comment-reply-arrow {
-  color: #d9d9d9;
+  color: #cbd5e1;
   margin-top: 6px;
+  font-size: 11px;
   flex-shrink: 0;
 }
 
 .tfo-comments-panel-footer {
-  padding: 16px;
-  border-top: 1px solid #e4e4e4;
+  padding: 12px;
+  border-top: 1px solid $border-color;
   display: flex;
   gap: 8px;
   align-items: center;
+  background-color: #ffffff;
 }
 
 .tfo-comments-main-textarea, .tfo-comment-input-textarea {
   flex: 1;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 13px;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 12.5px;
   resize: none;
   outline: none;
+  font-family: $font-family;
+  transition: border-color 0.2s;
+
   &:focus {
-    border-color: #1890ff;
+    border-color: $primary-color;
   }
 }
 
 .tfo-comments-send-btn {
-  background-color: #1890ff;
+  background-color: $primary-color;
   color: white;
   border: none;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s;
+
   &:hover {
-    background-color: #40a9ff;
+    background-color: $primary-hover;
   }
   &:disabled {
-    background-color: #f5f5f5;
-    color: #bfbfbf;
+    background-color: #f1f5f9;
+    color: #cbd5e1;
     cursor: not-allowed;
   }
 }
@@ -843,32 +869,130 @@
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 12px;
-  color: #8c8c8c;
+  font-size: 11px;
+  color: $text-secondary;
   &:hover {
-    color: #595959;
+    color: $text-main;
   }
 }
 
 .tfo-comment-btn-filled {
-  background: #1890ff;
+  background: $primary-color;
   color: white;
   border: none;
   border-radius: 4px;
-  padding: 4px 12px;
-  font-size: 12px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
   cursor: pointer;
+
   &:hover {
-    background: #40a9ff;
+    background: $primary-hover;
   }
   &:disabled {
-    background: #f5f5f5;
-    color: #bfbfbf;
+    background: #f1f5f9;
+    color: #cbd5e1;
     cursor: not-allowed;
   }
 }
 
-/* ─── Top Bar Actions ─── */
+/* Educator Review Tab Panel */
+.tfo-review-tab-pane {
+  padding: 20px;
+  background-color: #ffffff;
+  flex: 1;
+}
+
+.tfo-review-card {
+  background: #fefaf0;
+  border: 1px solid #ffe8cc;
+  border-left: 4px solid $warning-color;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(250, 140, 22, 0.05);
+}
+
+.tfo-review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.tfo-review-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #d97706;
+}
+
+.tfo-review-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.tfo-review-content {
+  font-size: 13px;
+  color: #475569;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.tfo-review-editor-card {
+  background-color: #ffffff;
+  border-radius: 10px;
+  border: 1px solid $border-color;
+}
+
+.tfo-quick-templates {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tfo-quick-templates-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+.tfo-quick-templates-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tfo-quick-template-badge {
+  background: #f8fafc;
+  border: 1px dashed $border-color;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: $text-secondary;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $warning-color;
+    color: $warning-color;
+    background-color: #fffbeb;
+  }
+}
+
+.tfo-save-review-btn {
+  background: $warning-color !important;
+  border-color: $warning-color !important;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+
+  &:hover {
+    background: #e07a00 !important;
+    border-color: #e07a00 !important;
+  }
+}
+
+/* Top bar and indicators */
 .tfo-topbar-actions {
   display: flex;
   justify-content: space-between;
@@ -878,33 +1002,31 @@
   flex-wrap: wrap;
 }
 
-/* ─── Review Progress Badge ─── */
 .tfo-review-progress-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: #f6ffed;
+  background: #f0fdf4;
   border: 1px solid #b7eb8f;
   border-radius: 20px;
   padding: 4px 12px;
   font-size: 13px;
-  font-weight: 500;
-  color: #389e0d;
+  font-weight: 600;
+  color: $success-color;
   white-space: nowrap;
 }
 
-/* ─── Complete Button ─── */
 .tfo-complete-btn {
   background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%) !important;
   border-color: #52c41a !important;
   border-radius: 8px !important;
   font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.35) !important;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3) !important;
   transition: all 0.2s ease !important;
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.45) !important;
+    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4) !important;
   }
 
   &.completed {
@@ -913,105 +1035,246 @@
   }
 }
 
-/* ─── Bottom Navigation Bar ─── */
-.tfo-bottom-nav {
+/* ─────────────────────────── Simulation Review List Page (Index) ─────────────────────────── */
+.tfo-sim-grid {
+  padding: 4px;
+}
+
+.tfo-sim-card {
+  border-radius: 12px;
+  border: 1px solid $border-color;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s ease;
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+    border-color: $primary-hover;
+  }
+}
+
+.tfo-sim-card-header {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 16px;
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid #e4e4e4;
-}
-
-/* ─── Complete Bar ─── */
-.tfo-complete-bar {
-  display: flex;
   align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  background: #f9f9f9;
-  border: 1px solid #e4e4e4;
-  border-radius: 10px;
-  padding: 12px 20px;
-  flex: 1;
-  min-width: 280px;
-
-  &.completed {
-    background: #f6ffed;
-    border-color: #b7eb8f;
-  }
+  margin-bottom: 12px;
 }
 
-.tfo-complete-bar-info {
-  flex: 1;
-  font-size: 14px;
-  color: #595959;
-  line-height: 1.5;
-}
-
-.tfo-complete-bar-done {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
+.tfo-sim-level-tag {
+  border-radius: 4px;
   font-weight: 600;
-  color: #389e0d;
-}
-
-/* ─── Sidebar Header ─── */
-.tfo-sidebar-header {
-  padding: 12px 16px 8px;
-  border-bottom: 1px solid #f0f0f0;
-  margin-bottom: 4px;
-}
-
-.tfo-sidebar-label {
   font-size: 11px;
+}
+
+.tfo-sim-rating {
+  font-size: 13px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #8c8c8c;
+  color: #fa8c16;
+  display: inline-flex;
+  align-items: center;
 }
 
-/* ─── Task Review Count badge in sidebar ─── */
-.tfo-task-review-count {
-  font-size: 11px;
-  color: #8c8c8c;
-  margin-top: 2px;
-  font-weight: 500;
+.tfo-sim-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-main;
+  line-height: 1.4;
+  margin: 0 0 14px 0;
+  height: 48px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
 
-  &.done {
-    color: #52c41a;
+.tfo-sim-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+  flex: 1;
+}
+
+.tfo-sim-meta-item {
+  display: flex;
+  align-items: center;
+  font-size: 12.5px;
+  color: $text-secondary;
+}
+
+.tfo-sim-card-footer {
+  margin-top: auto;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 14px;
+}
+
+.tfo-sim-action-btn {
+  width: 100%;
+  border-radius: 6px !important;
+  font-weight: 600 !important;
+}
+
+/* Right Drawer Panel Styles */
+.tfo-students-drawer {
+  .ant-drawer-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid $border-color;
   }
 }
 
-/* ─── Task circle: reviewed state ─── */
-.tfo-task-circle.reviewed {
-  background: #52c41a;
-  color: #ffffff;
-  border-color: #52c41a;
-  box-shadow: 0 2px 6px rgba(82, 196, 26, 0.25);
-}
-
-/* ─── Step button: reviewed state ─── */
-.tfo-step-btn.reviewed {
-  background-color: #f6ffed;
-  color: #52c41a;
-  border-right-color: #b7eb8f;
-}
-
-/* ─── No submission notice ─── */
-.tfo-no-submission-notice {
-  background: #fffbe6;
-  border: 1px solid #ffe58f;
-  border-radius: 8px;
-  padding: 12px 16px;
-  color: #d46b08;
-  font-size: 14px;
-  margin-top: 16px;
+.tfo-drawer-header {
   display: flex;
+  align-items: center;
+  font-weight: 700;
+}
+
+.tfo-drawer-banner {
+  background-color: #f8fafc;
+  padding: 16px;
+  border-bottom: 1px solid $border-color;
+}
+
+.tfo-drawer-sim-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-main;
+  margin: 0 0 12px 0;
+}
+
+.tfo-drawer-progress-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tfo-drawer-progress-lbl {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  span { color: $text-secondary; }
+  strong { color: $text-main; }
+}
+
+.tfo-drawer-filters {
+  padding: 16px;
+  border-bottom: 1px solid $border-color;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tfo-drawer-search {
+  border-radius: 6px !important;
+}
+
+.tfo-drawer-status-toggle {
+  width: 100%;
+  display: flex;
+  
+  .ant-radio-button-wrapper {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 0;
+    height: 32px;
+    line-height: 30px;
+  }
+}
+
+.tfo-drawer-list-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  background-color: #f8fafc;
+}
+
+.tfo-student-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tfo-student-row-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid $border-color;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: $primary-color;
+    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.05);
+    .tfo-student-row-chevron {
+      color: $primary-color;
+      transform: translateX(2px);
+    }
+  }
+}
+
+.tfo-student-row-avatar {
+  flex-shrink: 0;
+  border: 1.5px solid $border-color;
+}
+
+.tfo-student-row-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-left: 12px;
+  min-width: 0;
+}
+
+.tfo-student-row-name-box {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
+}
+
+.tfo-student-row-name {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: $text-main;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tfo-student-row-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 0 6px;
+  border-radius: 4px;
+  line-height: 1.6;
+}
+
+.tfo-student-row-username {
+  font-size: 11px;
+  color: $text-secondary;
+}
+
+.tfo-student-row-email {
+  font-size: 11px;
+  color: $text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.tfo-student-row-chevron {
+  color: #cbd5e1;
+  font-size: 12px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.tfo-drawer-empty {
+  padding: 32px 0;
+  text-align: center;
 }

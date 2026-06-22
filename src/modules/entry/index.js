@@ -2,7 +2,7 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 import useAuth from '@hooks/useAuth';
 import { UserTypes } from '@constants';
-import AdvancedAnalytics from './AdvancedAnalytics';
+import AdminDashboard from '../dashboard_new/AdminDashboard';
 
 const Dashboard = () => {
     const { profile } = useAuth();
@@ -15,11 +15,9 @@ const Dashboard = () => {
     if (profile.kind === UserTypes.EDUCATOR) {
         return <Navigate to="/educator/dashboard" />;
     }
-    if (profile.kind === UserTypes.STUDENT) {
-        return <Navigate to="/not-allowed" />;
-    }
+
     // fallback (e.g. admin or unknown)
-    return <AdvancedAnalytics />;
+    return <AdminDashboard />;
 };
 
 export default Dashboard;
