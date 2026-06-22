@@ -1,4 +1,4 @@
-import EducatorDashboard from './index';
+import EducatorDashboard from '../dashboard_new/EducatorDashboard';
 
 export default {
     educatorDashboardPage: {

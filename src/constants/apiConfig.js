@@ -81,15 +81,6 @@ const apiConfig = {
                 };
             }
 
-            if (userType === UserTypes.STUDENT) {
-                return {
-                    baseURL: `${apiUrl}v1/student/profile`,
-                    method: 'GET',
-                    headers: baseHeader,
-                    permissionCode: 'ST_U_P',
-                };
-            }
-
             return {
                 baseURL: `${apiUrl}v1/account/profile`,
                 method: 'GET',
@@ -105,15 +96,6 @@ const apiConfig = {
                     method: `PUT`,
                     headers: baseHeader,
                     permissionCode: 'ED_U_U',
-                };
-            }
-
-            if (userType === UserTypes.STUDENT) {
-                return {
-                    baseURL: `${apiUrl}v1/student/update`,
-                    method: `PUT`,
-                    headers: baseHeader,
-                    permissionCode: 'ST_U',
                 };
             }
 
@@ -854,6 +836,12 @@ const apiConfig = {
             method: 'GET',
             headers: baseHeader,
             permissionCode: 'STP_ED_V',
+        },
+        educatorList: {
+            baseURL: `${apiUrl}v1/task_progress/educator_list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'STP_ST_L',
         },
     },
     comment: {

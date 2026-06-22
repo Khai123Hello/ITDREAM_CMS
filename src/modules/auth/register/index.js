@@ -15,7 +15,6 @@ import dayjs from 'dayjs';
 import styles from './index.module.scss';
 import { useNavigate } from 'react-router-dom';
 import useRegisterEducator from '@hooks/useRegisterEducator';
-import useRegisterStudent from '@hooks/useRegisterStudent';
 import useVerifyOtpEducator from '@hooks/useVerifyOtpEducator';
 
 const RegisterPage = () => {
@@ -37,7 +36,6 @@ const RegisterPage = () => {
     } = useFetch(apiConfig.organization.guestList);
 
     const { register: registerEducator, loading: educatorRegistering } = useRegisterEducator();
-    const { register: registerStudent, loading: studentRegistering } = useRegisterStudent();
     const { verifyOtp, loading: verifying } = useVerifyOtpEducator();
     const { execute: executeResendVerify, loading: resendingOtp } = useFetch(apiConfig.account.resendVerify);
 

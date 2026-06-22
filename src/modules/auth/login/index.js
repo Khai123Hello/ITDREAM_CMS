@@ -29,10 +29,8 @@ const LoginPage = () => {
     };
 
     const { execute: loginEducator, loading: loadingEducator } = useFetch(loginOptions);
-    const { execute: loginStudent, loading: loadingStudent } = useFetch(loginOptions);
     const { execute: loginAdmin, loading: loadingAdmin } = useFetch(loginOptions);
     const { execute: fetchEducatorProfile } = useFetch(apiConfig.educator.profile);
-    const { execute: fetchStudentProfile } = useFetch(apiConfig.student.profile);
     const { execute: fetchProfile } = useFetchAction(accountActions.getProfile, {
         loading: useFetchAction.LOADING_TYPE.APP,
     });
@@ -45,7 +43,7 @@ const LoginPage = () => {
     const [organizations, setOrganizations] = useState([]);
     const [tempGoogleToken, setTempGoogleToken] = useState(null);
 
-    const loading = loadingEducator || loadingStudent || loadingAdmin || loadingGoogleAuth;
+    const loading = loadingEducator || loadingAdmin || loadingGoogleAuth;
 
     const handleLoginSuccess = (res) => {
         setCacheAccessToken(res.access_token);
@@ -62,16 +60,6 @@ const LoginPage = () => {
                 },
                 onError: () => {
                     antMessage.error('Không thể tải thông tin Khoa chuyên môn!');
-                },
-            });
-        } else if (userType === UserTypes.STUDENT) {
-            fetchStudentProfile({
-                onCompleted: () => {
-                    antMessage.success('Đăng nhập thành công!');
-                    navigate('/dashboard');
-                },
-                onError: () => {
-                    antMessage.error('Không thể tải thông tin học viên!');
                 },
             });
         } else {
@@ -156,12 +144,6 @@ const LoginPage = () => {
             grant_type: 'educator',
         };
 
-        const studentPayload = {
-            email: values.email,
-            password: values.password,
-            grant_type: 'student',
-        };
-
         const adminPayload = {
             username: values.username,
             password: values.password,
@@ -176,14 +158,6 @@ const LoginPage = () => {
                     antMessage.error(
                         'Đăng nhập thất bại! Thông tin không đúng hoặc Quản trị viên chưa kích hoạt tài khoản.',
                     );
-                },
-            });
-        } else if (userType === UserTypes.STUDENT) {
-            loginStudent({
-                data: studentPayload,
-                onCompleted: handleLoginSuccess,
-                onError: () => {
-                    antMessage.error('Đăng nhập thất bại!');
                 },
             });
         } else {
