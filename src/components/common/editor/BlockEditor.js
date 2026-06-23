@@ -876,14 +876,8 @@ export default function BlockEditor({
             .deleteRange({ from: startPos, to: endPos })
             .run();
 
-        if (item.type === 'callout') {
-            editor.commands.insertContent({ type: 'callout' });
-        } else if (item.type === 'stepBlock') {
-            editor.commands.insertContent({ type: 'stepBlock' });
-        } else if (item.type === 'sectionBlock') {
-            editor.commands.insertContent({ type: 'sectionBlock' });
-        } else if (item.type === 'quizBlock') {
-            editor.commands.insertContent({ type: 'quizBlock' });
+        if (['callout', 'stepBlock', 'sectionBlock', 'quizBlock'].includes(item.type)) {
+            safeInsertContent(item.type);
         } else if (item.type === 'bulletList') {
             editor.chain().focus().toggleBulletList().run();
         } else if (item.type === 'orderedList') {
@@ -927,6 +921,19 @@ export default function BlockEditor({
     useEffect(() => {
         onChangeRef.current = onChange;
     }, [onChange]);
+
+    const safeInsertContent = useCallback(
+        (type) => {
+            if (!editor) return;
+            const { selection } = editor.state;
+            if (selection && selection.node) {
+                editor.chain().focus().insertContentAt(selection.to, { type }).run();
+            } else {
+                editor.chain().focus().insertContent({ type }).run();
+            }
+        },
+        [editor],
+    );
 
     const buildPayload = useCallback((newTitle, newDesc, newBlocks) => {
         const cleanBlocks = newBlocks.map((block) => {
@@ -1338,7 +1345,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn callout-ib"
-                                onClick={() => editor.chain().focus().insertContent({ type: 'callout' }).run()}
+                                onClick={() => safeInsertContent('callout')}
                                 title="Chèn Hộp Lưu ý"
                             >
                                 <InfoCircleOutlined /> Lưu ý
@@ -1346,7 +1353,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn step-ib"
-                                onClick={() => editor.chain().focus().insertContent({ type: 'stepBlock' }).run()}
+                                onClick={() => safeInsertContent('stepBlock')}
                                 title="Chèn Bước Hướng dẫn"
                             >
                                 <BookOutlined /> Bước
@@ -1354,7 +1361,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn section-ib"
-                                onClick={() => editor.chain().focus().insertContent({ type: 'sectionBlock' }).run()}
+                                onClick={() => safeInsertContent('sectionBlock')}
                                 title="Chèn Section"
                             >
                                 <PlusOutlined /> Mục lớn
@@ -1362,7 +1369,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn quiz-ib"
-                                onClick={() => editor.chain().focus().insertContent({ type: 'quizBlock' }).run()}
+                                onClick={() => safeInsertContent('quizBlock')}
                                 title="Chèn Trắc nghiệm"
                             >
                                 <QuestionCircleOutlined /> Trắc nghiệm
