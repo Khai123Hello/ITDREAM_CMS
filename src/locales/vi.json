@@ -400,5 +400,7 @@
     "locales.intl.commonMessage.statusReject": "Từ chối",
     "locales.intl.commonMessage.statusInactive": "Không hoạt động",
     "locales.intl.commonMessage.statusLock": "Khóa",
-    "locales.intl.commonMessage.statusWaitingOtp": "Chờ điền OTP"
+    "locales.intl.commonMessage.statusWaitingOtp": "Chờ điền OTP",
+    "task": "Nhiệm vụ chính",
+    "subtask": "Nhiệm vụ phụ"
 }

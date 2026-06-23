@@ -632,7 +632,7 @@ const TaskForm = (props) => {
     // ── kind label ────────────────────────────
     const getCurrentKindLabel = () => {
         const currentKind = isEditing ? Number(dataDetail?.kind) : Number(taskKind);
-        return kindValues.find((k) => Number(k.value) === currentKind)?.label || 'Task';
+        return kindValues.find((k) => Number(k.value) === currentKind)?.label || 'Nhiệm vụ';
     };
 
     const tabItems = [
@@ -664,7 +664,7 @@ const TaskForm = (props) => {
                     {/* Lỗi submit */}
                     {submitError && (
                         <Alert
-                            message="Lỗi khi lưu Task"
+                            message="Lỗi khi lưu nhiệm vụ"
                             description={submitError}
                             type="error"
                             showIcon
@@ -688,7 +688,7 @@ const TaskForm = (props) => {
                                             <>
                                                 <span>•</span>
                                                 <span>
-                                                    Thuộc Task: <strong>{parentTaskInfo.title || 'N/A'}</strong>
+                                                    Thuộc nhiệm vụ: <strong>{parentTaskInfo.title || 'N/A'}</strong>
                                                 </span>
                                             </>
                                         )}
@@ -719,33 +719,6 @@ const TaskForm = (props) => {
                             />
                         </div>
 
-                        {Number(taskKind) === TaskTypes.SUBTASK ? (
-                            <Col span={24}>
-                                <div style={{ marginBottom: 24 }}>
-                                    <label style={{ fontWeight: 600, display: 'block', marginBottom: 8 }}>
-                                        Yêu cầu nộp bài của học viên
-                                    </label>
-                                    <CheckboxField
-                                        optionLabel="Học viên cần tải file bài làm lên (.zip, .pdf, .docx, v.v.)"
-                                        disabled={!isEducator}
-                                        onChange={(e) => setRequiresFileUpload(e.target.checked)}
-                                        fieldProps={{
-                                            checked: requiresFileUpload,
-                                        }}
-                                        formItemProps={{ style: { marginBottom: 8 } }}
-                                    />
-                                    <CheckboxField
-                                        optionLabel="Học viên cần nhập câu trả lời dạng văn bản (text)"
-                                        disabled={!isEducator}
-                                        onChange={(e) => setRequiresTextResponse(e.target.checked)}
-                                        fieldProps={{
-                                            checked: requiresTextResponse,
-                                        }}
-                                        formItemProps={{ style: { marginBottom: 0 } }}
-                                    />
-                                </div>
-                            </Col>
-                        ) : null}
                     </Row>
 
                     {/* BlockEditor for Title, Description & Content */}
@@ -827,8 +800,8 @@ const TaskForm = (props) => {
                         </Col>
                     </Row>
 
-                    {/* ── Media & Files ────────────────────────── */}
-                    <Divider orientation="left">Media & Files</Divider>
+                    {/* ── Phương tiện & Tài liệu ────────────────────────── */}
+                    <Divider orientation="left">Phương tiện & Tài liệu</Divider>
 
                     <Row gutter={[16, 24]}>
                         <Col span={24}>
@@ -994,6 +967,32 @@ const TaskForm = (props) => {
                             {filePath && <FilePreview url={getMediaUrl(filePath)} />}
                         </Col>
                     </Row>
+
+                    {Number(taskKind) === TaskTypes.SUBTASK ? (
+                        <div style={{ marginTop: 24, marginBottom: 24 }}>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8 }}>
+                                Yêu cầu nộp bài của học viên
+                            </label>
+                            <CheckboxField
+                                optionLabel="Học viên cần tải file bài làm lên (.zip, .pdf, .docx, v.v.)"
+                                disabled={!isEducator}
+                                onChange={(e) => setRequiresFileUpload(e.target.checked)}
+                                fieldProps={{
+                                    checked: requiresFileUpload,
+                                }}
+                                formItemProps={{ style: { marginBottom: 8 } }}
+                            />
+                            <CheckboxField
+                                optionLabel="Học viên cần nhập câu trả lời dạng văn bản (text)"
+                                disabled={!isEducator}
+                                onChange={(e) => setRequiresTextResponse(e.target.checked)}
+                                fieldProps={{
+                                    checked: requiresTextResponse,
+                                }}
+                                formItemProps={{ style: { marginBottom: 0 } }}
+                            />
+                        </div>
+                    ) : null}
                 </>
             ),
         },
@@ -1046,7 +1045,7 @@ const TaskForm = (props) => {
             setContent(dataDetail.content || dataDetail.introduction || '');
         } catch (error) {
             console.error('Error loading task detail:', error);
-            message.error('Không thể tải dữ liệu Task. Vui lòng tải lại trang.');
+            message.error('Không thể tải dữ liệu nhiệm vụ. Vui lòng tải lại trang.');
         }
     }, [dataDetail]);
 
@@ -1106,7 +1105,7 @@ const TaskForm = (props) => {
         try {
             const result = await mixinFuncs.handleSubmit(submitData);
             if (result?.result === false) {
-                const msg = result.message || 'Không thể lưu Task. Vui lòng thử lại.';
+                const msg = result.message || 'Không thể lưu nhiệm vụ. Vui lòng thử lại.';
                 setSubmitError(msg);
                 message.error(msg);
                 return false;
@@ -1117,7 +1116,7 @@ const TaskForm = (props) => {
             setDraftData(null);
             return result;
         } catch (error) {
-            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu Task.';
+            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu nhiệm vụ.';
             setSubmitError(msg);
             message.error(msg);
             return false;
@@ -1162,7 +1161,7 @@ const TaskForm = (props) => {
 
             return await doSave(submitData);
         } catch (error) {
-            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu Task.';
+            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu nhiệm vụ.';
             setSubmitError(msg);
             message.error(msg);
             return false;

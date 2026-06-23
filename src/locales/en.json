@@ -346,5 +346,7 @@
     "locales.intl.commonMessage.statusReject": "Rejected",
     "locales.intl.commonMessage.statusInactive": "Inactive",
     "locales.intl.commonMessage.statusLock": "Locked",
-    "locales.intl.commonMessage.statusWaitingOtp": "Waiting for OTP"
+    "locales.intl.commonMessage.statusWaitingOtp": "Waiting for OTP",
+    "task": "Task",
+    "subtask": "SubTask"
 }

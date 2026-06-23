@@ -62,7 +62,6 @@ const TEMPLATES = {
         description:
             'Nhập mô tả ngắn gọn về bài học ở đây (ví dụ: Bài viết giúp học viên làm quen với thư viện ReactJS cơ bản)',
         blocks: () => [
-            makeBlock('meta', { duration: 'Thời gian học (ví dụ: 1–2 giờ)', level: 'Cấp độ (ví dụ: Cơ bản)' }),
             makeBlock('section', {
                 icon: '🎓',
                 title: 'Kiến thức sẽ đạt được (ví dụ: Mục tiêu bài học)',

@@ -185,7 +185,7 @@ export const commonMessage = defineMessages({
     filePath: 'Đường dẫn file',
     update: 'Cập nhật',
     // Task Kind
-    subtask: 'Nhiệm vụ con',
+    subtask: 'Nhiệm vụ phụ',
     taskKindTheory: 'Lý thuyết',
     taskKindPractice: 'Thực hành',
     taskKindQuiz: 'Bài kiểm tra',

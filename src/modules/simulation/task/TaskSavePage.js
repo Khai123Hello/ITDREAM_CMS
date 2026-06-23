@@ -74,7 +74,7 @@ const TaskSavePage = ({ pageOptions }) => {
                 // Kiểm tra data có hợp lệ không
                 if (!data || !data.data) {
                     console.error('❌ Invalid data structure:', data);
-                    message.error('Không thể tải dữ liệu Task. Dữ liệu không hợp lệ.');
+                    message.error('Không thể tải dữ liệu nhiệm vụ. Dữ liệu không hợp lệ.');
                     return {};
                 }
 
@@ -96,7 +96,7 @@ const TaskSavePage = ({ pageOptions }) => {
                     const errorMsg =
                         error?.response?.data?.message ||
                         error?.message ||
-                        'Không thể tải thông tin Task. Vui lòng thử lại.';
+                        'Không thể tải thông tin nhiệm vụ. Vui lòng thử lại.';
                     message.error(errorMsg);
                     throw error;
                 }
@@ -183,7 +183,7 @@ const TaskSavePage = ({ pageOptions }) => {
     useEffect(() => {
         if (!isCreating && !loading && !detail) {
             console.warn('⚠️ No task detail loaded for editing');
-            message.warning('Không tìm thấy thông tin Task. Vui lòng kiểm tra lại.');
+            message.warning('Không tìm thấy thông tin nhiệm vụ. Vui lòng kiểm tra lại.');
         }
     }, [detail, loading, isCreating]);
 
@@ -197,9 +197,9 @@ const TaskSavePage = ({ pageOptions }) => {
 
     const getPageTitle = () => {
         if (isCreating) {
-            return parentTaskFromState ? 'Tạo SubTask' : 'Tạo Task';
+            return parentTaskFromState ? 'Tạo nhiệm vụ phụ' : 'Tạo nhiệm vụ chính';
         }
-        return title || 'Chi tiết Task';
+        return title || 'Chi tiết nhiệm vụ';
     };
 
     return (
@@ -222,7 +222,7 @@ const TaskSavePage = ({ pageOptions }) => {
                 <div style={{ padding: '24px', textAlign: 'center' }}>
                     <Alert
                         message="Không thể tải dữ liệu"
-                        description="Task không tồn tại hoặc bạn không có quyền truy cập. Vui lòng quay lại trang trước."
+                        description="Nhiệm vụ không tồn tại hoặc bạn không có quyền truy cập. Vui lòng quay lại trang trước."
                         type="error"
                         showIcon
                     />
