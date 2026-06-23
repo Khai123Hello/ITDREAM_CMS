@@ -1381,8 +1381,7 @@ export default function BlockEditor({
                         placeholder="Tiêu đề bài học..."
                         rows="1"
                         value={title}
-                        onInput={(e) => handleTitleChange(e.target.value)}
-                        onChange={() => {}}
+                        onChange={(e) => handleTitleChange(e.target.value)}
                     />
                     <textarea
                         className="doc-description"
@@ -1390,8 +1389,7 @@ export default function BlockEditor({
                         placeholder="Mô tả ngắn bài học..."
                         rows="1"
                         value={description}
-                        onInput={(e) => handleDescriptionChange(e.target.value)}
-                        onChange={() => {}}
+                        onChange={(e) => handleDescriptionChange(e.target.value)}
                     />
 
                     <EditorContent editor={editor} className="tiptap-editor-canvas" />

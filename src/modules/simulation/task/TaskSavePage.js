@@ -210,7 +210,7 @@ const TaskSavePage = ({ pageOptions }) => {
             {!loading && (isCreating || detail) ? (
                 <TaskForm
                     setIsChangedFormValues={setIsChangedFormValues}
-                    dataDetail={isCreating ? {} : detail || {}}
+                    dataDetail={isCreating ? null : detail || null}
                     formId={mixinFuncs.getFormId()}
                     isEditing={isEditing}
                     actions={mixinFuncs.renderActions()}
