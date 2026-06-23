@@ -27,6 +27,7 @@ import {
     STATE_WAITING_OTP,
     TaskTypes,
     accountStatus,
+    ReviewStatus,
 } from '@constants';
 import { defineMessages } from 'react-intl';
 import { actionMessage } from './intl';
@@ -147,4 +148,9 @@ export const questionTypeOptions = [
         label: { id: 'question.type.choice', defaultMessage: 'Multiple Choice' },
         color: 'orange',
     },
+];
+
+export const reviewStatusOptions = [
+    { value: ReviewStatus.NOT_REVIEWED, label: 'Chưa nhận xét', color: 'warning' },
+    { value: ReviewStatus.REVIEWED,     label: 'Đã nhận xét',   color: 'success' },
 ];

@@ -37,9 +37,11 @@ function CommentPanel({
     comments = [],
     loading = false,
     profile = {},
+    readOnly = false,
     onSendComment = () => {},
     onUpdateComment = () => {},
     onDeleteComment = () => {},
+    studentUsername = '',
 }) {
     const [mainText, setMainText] = useState('');
     const [replyingToId, setReplyingToId] = useState(null);
@@ -129,18 +131,45 @@ function CommentPanel({
         const isSelf = comment.user?.username === currentUsername;
         const isEditing = editingId === comment.id;
         const isReplying = replyingToId === comment.id;
+        
+        const isStudent = studentUsername && comment.user?.username
+            ? comment.user.username.toLowerCase() === studentUsername.toLowerCase()
+            : true;
+        const isTeacher = !isStudent;
+
+        let cardClass = `tfo-comment-card`;
+        if (isReply) cardClass += ' reply';
+        if (isTeacher) cardClass += ' teacher-comment';
 
         return (
-            <div key={comment.id} className={`tfo-comment-card${isReply ? ' reply' : ''}`}>
+            <div key={comment.id} className={cardClass}>
                 <div className="tfo-comment-card-header">
                     {renderAvatar(comment.user)}
                     <div className="tfo-comment-user-info">
-                        <span className="tfo-comment-fullname">
-                            {comment.user?.fullName || comment.user?.username || 'Học viên'}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span className="tfo-comment-fullname">
+                                {comment.user?.fullName || comment.user?.username || 'Học viên'}
+                            </span>
+                            {isTeacher && (
+                                <span style={{
+                                    fontSize: '9px',
+                                    fontWeight: 700,
+                                    backgroundColor: '#bae6fd',
+                                    color: '#0369a1',
+                                    padding: '2px 6px',
+                                    borderRadius: '10px',
+                                    lineHeight: '1.2',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.3px',
+                                    display: 'inline-block',
+                                }}>
+                                    Giáo viên
+                                </span>
+                            )}
+                        </div>
                         <span className="tfo-comment-time">{dayjs(comment.createdDate).fromNow()}</span>
                     </div>
-                    {isSelf && !isEditing && (
+                    {isSelf && !isEditing && !readOnly && (
                         <div className="tfo-comment-actions">
                             <button
                                 className="tfo-comment-edit-btn"
@@ -197,7 +226,7 @@ function CommentPanel({
                     )}
                 </div>
 
-                {!isEditing && (
+                {!isEditing && !readOnly && (
                     <div className="tfo-comment-card-footer">
                         <button
                             className="tfo-comment-action-link"
@@ -212,7 +241,7 @@ function CommentPanel({
                     </div>
                 )}
 
-                {isReplying && (
+                {isReplying && !readOnly && (
                     <form onSubmit={(e) => handleReplySubmit(e, comment.id)} className="tfo-comment-reply-form">
                         <textarea
                             className="tfo-comment-input-textarea"
@@ -282,23 +311,40 @@ function CommentPanel({
                 )}
             </div>
 
-            <form onSubmit={handleMainSubmit} className="tfo-comments-panel-footer">
-                <textarea
-                    className="tfo-comments-main-textarea"
-                    placeholder="Viết bình luận..."
-                    value={mainText}
-                    onChange={(e) => setMainText(e.target.value)}
-                    rows={2}
-                />
-                <button
-                    type="submit"
-                    className="tfo-comments-send-btn"
-                    disabled={!mainText.trim()}
-                    title="Gửi bình luận"
+            {readOnly ? (
+                <div
+                    className="tfo-comments-read-only-banner"
+                    style={{
+                        padding: '12px 16px',
+                        background: '#f8fafc',
+                        borderTop: '1px solid #e2e8f0',
+                        color: '#64748b',
+                        fontSize: 13,
+                        textAlign: 'center',
+                        fontWeight: 500,
+                    }}
                 >
-                    <SendOutlined style={{ fontSize: 14 }} />
-                </button>
-            </form>
+                    Bạn đang xem thảo luận ở chế độ chỉ đọc.
+                </div>
+            ) : (
+                <form onSubmit={handleMainSubmit} className="tfo-comments-panel-footer">
+                    <textarea
+                        className="tfo-comments-main-textarea"
+                        placeholder="Viết bình luận..."
+                        value={mainText}
+                        onChange={(e) => setMainText(e.target.value)}
+                        rows={2}
+                    />
+                    <button
+                        type="submit"
+                        className="tfo-comments-send-btn"
+                        disabled={!mainText.trim()}
+                        title="Gửi bình luận"
+                    >
+                        <SendOutlined style={{ fontSize: 14 }} />
+                    </button>
+                </form>
+            )}
         </div>
     );
 }

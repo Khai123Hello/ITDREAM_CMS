@@ -1,38 +1,95 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Outfit:wght@100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-/* Curated Color Palettes & Variables */
-$primary-color: #1890ff;
-$primary-hover: #40a9ff;
-$success-color: #52c41a;
-$warning-color: #fa8c16;
-$border-color: #e4e4e4;
-$bg-workspace: #f8fafc;
+/* Modern Curated Color Palettes & Variables */
+$primary-color: #6366f1;
+$primary-hover: #4f46e5;
+$primary-light: #eef2ff;
+$success-color: #10b981;
+$success-light: #d1fae5;
+$warning-color: #f59e0b;
+$warning-light: #fef3c7;
+$danger-color: #ef4444;
+$danger-light: #fee2e2;
+$border-color: #e5e7eb;
+$border-light: #f3f4f6;
+$bg-workspace: #f9fafb;
 $bg-card: #ffffff;
-$text-main: #1e293b;
-$text-secondary: #64748b;
-$font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
+$text-main: #0f172a;
+$text-secondary: #475569;
+$text-muted: #94a3b8;
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-.tfo-content-area {
+/* Custom Thin Scrollbars */
+.tfo-review-container, 
+.tfo-sidebar, 
+.tfo-pane-middle, 
+.tfo-pane-right, 
+.tfo-comments-list-container, 
+.tfo-review-tab-pane {
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.tfo-review-container {
   display: flex;
   background-color: #ffffff;
   border: 1px solid $border-color;
-  border-radius: 12px;
-  overflow: hidden;
+  border-radius: 20px;
   font-family: $font-family;
-  height: calc(100vh - 200px);
+  min-height: calc(100vh - 220px);
   margin-top: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  box-shadow: 0 20px 60px -12px rgba(15, 23, 42, 0.1), 0 4px 12px -4px rgba(15, 23, 42, 0.05);
+
+  *, *::before, *::after {
+    font-family: $font-family !important;
+  }
 }
 
 .tfo-sidebar {
-  width: 280px;
+  width: 300px;
   border-right: 1px solid $border-color;
   background-color: #ffffff;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: 16px 0;
+  padding: 20px 0;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  &.collapsed {
+    width: 0;
+    padding: 20px 0;
+    border-right: none;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.tfo-sidebar-header {
+  padding: 0 20px 16px;
+  border-bottom: 1px solid $border-light;
+  margin-bottom: 16px;
+}
+
+.tfo-sidebar-label {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-main;
 }
 
 .tfo-task-list {
@@ -40,126 +97,147 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
   display: flex;
   flex-direction: column;
   padding: 0 16px;
+  gap: 8px;
 }
 
 .tfo-task-list-row {
   display: flex;
-  align-items: flex-start;
-  gap: 12px;
+  margin: 0;
 }
 
-.tfo-task-timeline {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex-shrink: 0;
-  padding-top: 2px;
-}
-
-.tfo-task-circle {
+.tfo-task-item {
   all: unset;
   box-sizing: border-box;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+
+  &:hover {
+    background-color: $bg-workspace;
+  }
+
+  &.active {
+    background: linear-gradient(135deg, $primary-light 0%, rgba(99, 102, 241, 0.08) 100%);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
+
+    .tfo-task-item-number {
+      background: linear-gradient(135deg, $primary-color 0%, $primary-hover 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .tfo-task-item-title {
+      color: $primary-color;
+      font-weight: 700;
+    }
+  }
+
+  &.reviewed {
+    .tfo-task-item-number {
+      background: linear-gradient(135deg, $success-color 0%, #059669 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+    }
+  }
+
+  &.has-draft {
+    .tfo-task-item-number {
+      background: linear-gradient(135deg, $warning-color 0%, #d97706 100%);
+      color: white;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+  }
+}
+
+.tfo-task-item-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   border: 2px solid $border-color;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: $text-secondary;
-  background: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  background-color: white;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
   flex-shrink: 0;
-  z-index: 1;
-
-  &.active {
-    background: $primary-color;
-    color: #ffffff;
-    border-color: $primary-color;
-    box-shadow: 0 2px 8px rgba(24, 144, 255, 0.25);
-  }
-
-  &.reviewed {
-    background: $success-color;
-    color: #ffffff;
-    border-color: $success-color;
-    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2);
-  }
-
-  &:hover:not(.active):not(.reviewed) {
-    background: rgba(24, 144, 255, 0.05);
-    border-color: $primary-color;
-  }
 }
 
-.tfo-task-connector {
-  width: 2px;
+.tfo-task-item-content {
   flex: 1;
-  min-height: 28px;
-  border-left: 2px dotted $border-color;
-  margin: 6px 0;
-}
-
-.tfo-task-content-btn {
-  all: unset;
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 2px 0 24px;
-  cursor: pointer;
-  flex: 1;
-  text-align: left;
-
-  &:hover .tfo-task-title:not(.active) {
-    color: $primary-color;
-  }
+  gap: 2px;
+  min-width: 0;
 }
 
-.tfo-task-title {
+.tfo-task-item-title {
   font-size: 14px;
   font-weight: 600;
   color: $text-main;
-  line-height: 1.3;
-  transition: color 0.15s;
-
-  &.active {
-    color: $primary-color;
-    font-weight: 700;
-  }
+  line-height: 1.4;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tfo-task-review-count {
+.tfo-task-item-draft {
+  font-size: 11px;
+  color: $warning-color;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.tfo-task-item-reviews-count {
   font-size: 11px;
   color: $text-secondary;
-  margin-top: 2px;
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
 
-  &.done {
-    color: $success-color;
-    font-weight: 600;
-  }
+.tfo-task-item-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: $warning-color;
+  flex-shrink: 0;
 }
 
 /* ─── 3-Column Split Workspace ─── */
 .tfo-workspace-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: 1fr 340px;
   flex: 1;
-  height: 100%;
-  overflow: hidden;
+  min-height: 100%;
   background-color: $bg-workspace;
+
+  &.preview-mode {
+    grid-template-columns: 1fr;
+  }
 }
 
 .tfo-pane-middle {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow-y: auto;
   padding: 0 24px 24px;
 }
 
@@ -487,12 +565,18 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
 
 /* Submission Card */
 .tfo-submission-card {
-  border: 1px solid $border-color;
-  border-radius: 8px;
-  padding: 16px;
+  border: 1px solid $border-light;
+  border-radius: 16px;
+  padding: 20px;
   background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
   margin-top: 12px;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  
+  &:hover {
+    box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.1);
+    border-color: $border-color;
+  }
 }
 
 .tfo-submission-title {
@@ -577,13 +661,124 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
 
 /* ─── Column 3: Tabbed Collaboration Drawer ─── */
 .tfo-pane-right {
-  width: 380px;
+  width: 340px;
   border-left: 1px solid $border-color;
   background-color: #ffffff;
   display: flex;
   flex-direction: column;
   height: 100%;
   flex-shrink: 0;
+}
+
+.tfo-bottom-collaboration-container {
+  margin-top: 24px;
+  background-color: #ffffff;
+  border: 1px solid $border-color;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+  animation: tfoFadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+
+  .tfo-review-tab-pane, .tfo-comments-pane-inner {
+    padding: 16px;
+    background-color: #ffffff;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+.tfo-comments-pane-inner {
+  padding: 16px;
+  background-color: #ffffff;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Premium Segmented Switch Tab Styling */
+.tfo-pane-right, .tfo-bottom-collaboration-container {
+  .ant-tabs {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    
+    .ant-tabs-nav {
+      margin: 0 !important;
+      padding: 16px 20px 8px !important;
+      border-bottom: 1px solid $border-color;
+      background: #ffffff;
+      
+      .ant-tabs-nav-wrap {
+        background: #f1f5f9;
+        padding: 4px;
+        border-radius: 10px;
+      }
+      
+      .ant-tabs-nav-list {
+        width: 100%;
+        display: flex;
+      }
+      
+      .ant-tabs-tab {
+        flex: 1;
+        justify-content: center;
+        margin: 0 !important;
+        padding: 8px 12px !important;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        border-bottom: none !important;
+        
+        .ant-tabs-tab-btn {
+          font-weight: 500;
+          color: #64748b;
+          font-size: 13px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+        
+        &.ant-tabs-tab-active {
+          background: #ffffff;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+          
+          .ant-tabs-tab-btn {
+            color: $primary-color !important;
+            font-weight: 600;
+          }
+        }
+        
+        &:hover:not(.ant-tabs-tab-active) {
+          .ant-tabs-tab-btn {
+            color: #1e293b;
+          }
+        }
+      }
+      
+      .ant-tabs-ink-bar {
+        display: none !important;
+      }
+    }
+    
+    .ant-tabs-content-holder {
+      flex: 1;
+      overflow: hidden;
+      height: 100%;
+    }
+    
+    .ant-tabs-content {
+      height: 100%;
+    }
+    
+    .ant-tabs-tabpane {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  }
 }
 
 .tfo-right-tabs-header {
@@ -621,9 +816,9 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
 
 .tfo-right-tabs-content {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* Comments Panel Inner Tab */
@@ -654,19 +849,32 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
 
 .tfo-comment-card {
   background: #ffffff;
-  border: 1px solid #f1f5f9;
-  border-radius: 10px;
-  padding: 12px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.01);
-  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid $border-light;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.03);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
 
   &:hover {
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.1);
+    transform: translateY(-2px);
+    border-color: $border-color;
   }
 
   &.reply {
-    background: #f8fafc;
-    border-color: #e2e8f0;
+    background: $bg-workspace;
+    border-color: $border-light;
+  }
+  
+  &.teacher-comment {
+    background: $primary-light;
+    border-color: #c7d2fe;
+    border-left: 4px solid $primary-color;
+    
+    &.reply {
+      background: $bg-workspace;
+      border-color: #c7d2fe;
+    }
   }
 }
 
@@ -898,97 +1106,318 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
 
 /* Educator Review Tab Panel */
 .tfo-review-tab-pane {
-  padding: 20px;
+  padding: 16px;
   background-color: #ffffff;
   flex: 1;
+  overflow-y: auto;
+  height: 100%;
 }
 
-.tfo-review-card {
-  background: #fefaf0;
-  border: 1px solid #ffe8cc;
-  border-left: 4px solid $warning-color;
+.tfo-review-read-only-banner {
+  padding: 10px 14px;
+  background: #fffbe6;
+  border: 1px solid #ffe58f;
+  color: #d46b08;
+  font-size: 12.5px;
+  text-align: center;
+  font-weight: 500;
+  margin-bottom: 16px;
   border-radius: 8px;
-  padding: 16px;
-  box-shadow: 0 2px 6px rgba(250, 140, 22, 0.05);
 }
 
-.tfo-review-header {
+.tfo-review-section-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed $border-color;
 }
 
-.tfo-review-title {
+.tfo-review-section-title {
   font-weight: 700;
   font-size: 14px;
-  color: #d97706;
+  color: $text-main;
 }
 
-.tfo-review-actions {
+/* Review Content Card (Premium Display Card) */
+.tfo-review-display {
+  background: #ffffff;
+  border: 1px solid $border-light;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  
+  &:hover {
+    box-shadow: 0 12px 40px -12px rgba(15, 23, 42, 0.15);
+    transform: translateY(-2px);
+    border-color: $border-color;
+  }
+  
+  &.draft-card {
+    border-left: 4px solid $warning-color;
+    background-color: $warning-light;
+  }
+  
+  &.saved-card {
+    border-left: 4px solid $success-color;
+    background-color: $success-light;
+  }
+}
+
+.tfo-review-display__header {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
-.tfo-review-content {
-  font-size: 13px;
-  color: #475569;
-  line-height: 1.55;
-  white-space: pre-wrap;
+.tfo-review-display__avatar {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #e2e8f0;
+  flex-shrink: 0;
 }
 
-.tfo-review-editor-card {
-  background-color: #ffffff;
-  border-radius: 10px;
-  border: 1px solid $border-color;
+.tfo-review-display__meta {
+  flex: 1;
+  min-width: 0;
 }
 
-.tfo-quick-templates {
-  margin-top: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tfo-quick-templates-lbl {
-  font-size: 12px;
+.tfo-review-display__name {
   font-weight: 600;
+  color: $text-main;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tfo-draft-badge {
+  border-radius: 4px;
+  margin: 0;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.tfo-review-display__role {
+  font-size: 11px;
   color: $text-secondary;
 }
 
-.tfo-quick-templates-list {
+.tfo-review-display__date {
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.tfo-review-display__quote {
+  font-size: 13.5px;
+  color: #334155;
+  line-height: 1.6;
+  padding-left: 12px;
+  border-left: 2.5px solid #e2e8f0;
+  margin: 12px 0 16px;
+  white-space: pre-wrap;
+  font-style: italic;
+  position: relative;
+}
+
+.tfo-review-display__toolbar {
   display: flex;
-  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+
+.tfo-toolbar-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+  color: $text-secondary;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #f1f5f9;
+    color: $primary-color;
+  }
+
+  &.tfo-edit-btn:hover {
+    color: #ea580c;
+    background-color: #fff7ed;
+  }
+
+  &.tfo-delete-btn:hover {
+    color: #ef4444;
+    background-color: #fef2f2;
+  }
+}
+
+/* Review Editor (Compact & Integrated) */
+.tfo-review-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tfo-review-editor__textarea-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.tfo-review-editor__textarea {
+  width: 100%;
+  border-radius: 8px !important;
+  font-size: 13px;
+  padding-bottom: 24px !important;
+  border: 1px solid #cbd5e1;
+  transition: all 0.2s ease;
+
+  &:focus {
+    border-color: $primary-color;
+    box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+  }
+}
+
+.tfo-review-editor__counter {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.tfo-review-editor__templates {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .tfo-quick-template-badge {
   background: #f8fafc;
-  border: 1px dashed $border-color;
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 11px;
-  color: $text-secondary;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #475569;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &:hover {
-    border-color: $warning-color;
-    color: $warning-color;
-    background-color: #fffbeb;
+    border-color: $primary-color;
+    color: $primary-color;
+    background-color: #f0f9ff;
+    transform: translateX(2px);
+    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.08);
   }
 }
 
-.tfo-save-review-btn {
-  background: $warning-color !important;
-  border-color: $warning-color !important;
-  border-radius: 6px !important;
-  font-weight: 600 !important;
+.tfo-review-editor__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
 
-  &:hover {
-    background: #e07a00 !important;
-    border-color: #e07a00 !important;
+  .tfo-save-review-btn {
+    background: $primary-color !important;
+    border-color: $primary-color !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    box-shadow: 0 2px 6px rgba(24, 144, 255, 0.15) !important;
+    height: 32px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: white;
+
+    &:hover {
+      background: $primary-hover !important;
+      border-color: $primary-hover !important;
+    }
+  }
+
+  .tfo-btn-secondary {
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    height: 32px;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: $text-secondary;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    cursor: pointer;
+
+    &:hover {
+      color: $text-main;
+      border-color: $text-secondary;
+      background-color: #f8fafc;
+    }
+  }
+}
+
+/* Empty State Styling */
+.tfo-review-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  border-radius: 12px;
+  text-align: center;
+  gap: 10px;
+}
+
+.tfo-review-empty__icon {
+  font-size: 24px;
+  color: #cbd5e1;
+}
+
+.tfo-review-empty__text {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* Animations */
+.tfo-review-fade-in {
+  animation: tfoFadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tfoFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
@@ -1009,29 +1438,98 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
   background: #f0fdf4;
   border: 1px solid #b7eb8f;
   border-radius: 20px;
-  padding: 4px 12px;
+  padding: 0 12px;
+  height: 32px;
+  box-sizing: border-box;
   font-size: 13px;
   font-weight: 600;
   color: $success-color;
   white-space: nowrap;
 }
 
+.tfo-layout-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  height: 32px;
+  box-sizing: border-box;
+
+  .ant-btn {
+    height: 26px !important;
+    width: 26px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.tfo-mode-switcher {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+  height: 32px;
+  box-sizing: border-box;
+
+  .ant-btn {
+    height: 26px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    padding: 0 10px !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+}
+
+.tfo-back-link-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: #64748b !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+  padding: 0 !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  transition: color 0.2s ease !important;
+
+  &:hover {
+    color: $primary-color !important;
+  }
+}
+
 .tfo-complete-btn {
-  background: linear-gradient(135deg, #52c41a 0%, #389e0d 100%) !important;
-  border-color: #52c41a !important;
-  border-radius: 8px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.3) !important;
-  transition: all 0.2s ease !important;
+  background: linear-gradient(135deg, $success-color 0%, #059669 100%) !important;
+  border-color: transparent !important;
+  border-radius: 12px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.4) !important;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(82, 196, 26, 0.4) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -6px rgba(16, 185, 129, 0.5) !important;
   }
 
   &.completed {
-    background: linear-gradient(135deg, #52c41a 0%, #237804 100%) !important;
-    border-color: #237804 !important;
+    background: linear-gradient(135deg, $success-color 0%, #047857 100%) !important;
+    border-color: transparent !important;
   }
 }
 
@@ -1278,3 +1776,5 @@ $font-family: 'DM Sans', 'Outfit', Helvetica, sans-serif;
   padding: 32px 0;
   text-align: center;
 }
+
+

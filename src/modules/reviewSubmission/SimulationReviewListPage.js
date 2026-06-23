@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Empty, Tag, Button, Card, Row, Col, Avatar, Spin, Input, Radio, Progress, Statistic, Select } from 'antd';
+import { Empty, Tag, Button, Card, Row, Col, Spin, Input, Radio, Progress, Statistic, Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { 
     UserOutlined, 
     SearchOutlined,
     RightOutlined,
     CheckCircleOutlined,
+    ArrowLeftOutlined,
 } from '@ant-design/icons';
 
 import useTranslate from '@hooks/useTranslate';
@@ -17,6 +18,7 @@ import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
+import SimulationListForReview from './SimulationListForReview';
 
 // Helpers to match feedback/index.js visual style
 const getInitials = (fullName) => {
@@ -49,7 +51,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
     const { params: queryParams, setQueryParams } = useQueryParams();
     
     const [simulations, setSimulations] = useState([]);
-    const [selectedSimulationId, setSelectedSimulationId] = useState(queryParams.simulationId || null);
+    const [selectedSimulationId, setSelectedSimulationId] = useState(queryParams.get('simulationId') || null);
     
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PENDING, GRADED
@@ -71,42 +73,46 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             onCompleted: (res) => {
                 const fetchedSims = res.data?.content || [];
                 setSimulations(fetchedSims);
-                
-                if (!selectedSimulationId && fetchedSims.length > 0) {
-                    const firstId = fetchedSims[0].id;
-                    setSelectedSimulationId(firstId);
-                    setQueryParams({ simulationId: firstId });
-                }
             },
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
-        if (selectedSimulationId) {
+        const simId = queryParams.get('simulationId');
+        setSelectedSimulationId(simId || null);
+        if (simId) {
             fetchStudents({
-                params: { simulationId: selectedSimulationId, size: 1000 },
+                params: { simulationId: simId, size: 1000 },
             });
-            setQueryParams({ simulationId: selectedSimulationId });
             setSearchQuery('');
             setFilterStatus('ALL');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSimulationId]);
+    }, [queryParams.get('simulationId')]);
 
     const activeSimulation = simulations.find((s) => String(s.id) === String(selectedSimulationId));
 
+    // Đọc reviewStatus trực tiếp từ API response (có fallback về isReviewed nếu BE cũ)
+    const studentsWithReviewStatus = useMemo(() => {
+        return (students || []).map((item) => ({
+            ...item,
+            // reviewStatus: 1 = đã nhận xét, 0 = chưa nhận xét
+            // Ưu tiên field reviewStatus từ BE, fallback về isReviewed (boolean) nếu chưa có
+            isReviewed: item.reviewStatus === 1 || item.isReviewed === true,
+        }));
+    }, [students]);
     const stats = useMemo(() => {
-        if (!students || students.length === 0) return { total: 0, graded: 0, percent: 0 };
-        const total = students.length;
-        const graded = students.filter((s) => s.isReviewed).length;
+        if (!studentsWithReviewStatus || studentsWithReviewStatus.length === 0) return { total: 0, graded: 0, percent: 0 };
+        const total = studentsWithReviewStatus.length;
+        const graded = studentsWithReviewStatus.filter((s) => s.isReviewed).length;
         const percent = Math.round((graded / total) * 100);
         return { total, graded, percent };
-    }, [students]);
+    }, [studentsWithReviewStatus]);
 
     const filteredStudents = useMemo(() => {
-        if (!students) return [];
-        return students.filter((item) => {
+        if (!studentsWithReviewStatus) return [];
+        return studentsWithReviewStatus.filter((item) => {
             const profileAccountDto = item.student?.profileAccountDto || {};
             const fullName = (profileAccountDto.fullName || '').toLowerCase();
             const username = (profileAccountDto.username || '').toLowerCase();
@@ -124,142 +130,140 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             }
             return matchesSearch;
         });
-    }, [students, searchQuery, filterStatus]);
+    }, [studentsWithReviewStatus, searchQuery, filterStatus]);
 
     const breadcrumbs = pageOptions.renderBreadcrumbs(commonMessage, translate);
 
-    const renderStudentCard = (item) => {
-        const profileAccountDto = item.student?.profileAccountDto || {};
-        const { isReviewed } = item;
-        const fullName = profileAccountDto.fullName || '-';
-        const username = profileAccountDto.username ? `@${profileAccountDto.username}` : '';
-        const avatar = profileAccountDto.avatar;
-        const avatarUrl = avatar
-            ? avatar.startsWith('http')
-                ? avatar
-                : `${AppConstants.contentRootUrl}${avatar}`
-            : null;
-        
-        const initials = getInitials(fullName);
-        const avatarBg = getAvatarColor(fullName);
-
+    if (!queryParams.get('simulationId')) {
         return (
-            <Col xs={24} md={12} lg={8} xl={6} key={item.simulationEnrollmentId || profileAccountDto.username}>
-                <div 
-                    className="tfo-student-card" 
-                    onClick={() => {
-                        navigate(
-                            `/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`,
-                            { state: { simulationEnrollmentId: item.simulationEnrollmentId } },
-                        );
-                    }}
-                    style={{ 
-                        padding: 16, 
-                        borderRadius: 12, 
-                        border: '1px solid #f1f5f9', 
-                        background: '#ffffff', 
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                        height: '100%',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        justifyContent: 'space-between',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out',
-                    }}
-                >
-                    <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                            {avatarUrl ? (
-                                <img 
-                                    src={avatarUrl} 
-                                    alt={fullName} 
-                                    style={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid #e2e8f0', objectFit: 'cover', flexShrink: 0 }} 
-                                />
-                            ) : (
-                                <div 
-                                    style={{ 
-                                        background: avatarBg, 
-                                        width: 44, 
-                                        height: 44, 
-                                        borderRadius: '50%', 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        justifyContent: 'center', 
-                                        color: '#ffffff', 
-                                        fontWeight: 600, 
-                                        fontSize: 16, 
-                                        flexShrink: 0, 
-                                    }}
-                                >
-                                    {initials}
-                                </div>
-                            )}
-                            <div style={{ flex: 1, minWidth: 0 }}>
-                                <div style={{ fontWeight: 600, color: '#1e293b', fontSize: 14, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                    {fullName}
-                                </div>
-                                <div style={{ fontSize: 11, color: '#64748b' }}>{username || 'Học viên'}</div>
-                            </div>
-                        </div>
-
-                        <div style={{ 
-                            fontSize: 12, 
-                            color: '#334155', 
-                            lineHeight: 1.6, 
-                            backgroundColor: '#f8fafc',
-                            padding: 12,
-                            borderRadius: 8,
-                            marginBottom: 12,
-                        }}>
-                            <div style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap', marginBottom: 4 }}>
-                                <span style={{ color: '#94a3b8', marginRight: 4 }}>Email:</span> 
-                                <strong>{profileAccountDto.email || '-'}</strong>
-                            </div>
-                            <div style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                                <span style={{ color: '#94a3b8', marginRight: 4 }}>SĐT:</span> 
-                                <strong>{profileAccountDto.phone || '-'}</strong>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 10 }}>
-                        <Tag color={isReviewed ? 'success' : 'warning'} style={{ borderRadius: 4, fontSize: 11, fontWeight: 600, margin: 0 }}>
-                            {isReviewed ? 'Đã chấm' : 'Chưa chấm'}
-                        </Tag>
-                        <Button 
-                            type="link" 
-                            size="small" 
-                            icon={<RightOutlined />} 
-                            style={{ padding: 0, fontSize: 13, fontWeight: 600 }}
-                        >
-                            Chấm điểm
-                        </Button>
-                    </div>
-                </div>
-            </Col>
+            <PageWrapper routes={breadcrumbs}>
+                <SimulationListForReview />
+            </PageWrapper>
         );
-    };
+    }
+
+    const columns = [
+        {
+            title: 'Học viên',
+            dataIndex: 'studentInfo',
+            key: 'studentInfo',
+            render: (_, item) => {
+                const profileAccountDto = item.student?.profileAccountDto || {};
+                const fullName = profileAccountDto.fullName || '-';
+                const username = profileAccountDto.username ? `@${profileAccountDto.username}` : '';
+                const avatar = profileAccountDto.avatar;
+                const avatarUrl = avatar
+                    ? avatar.startsWith('http')
+                        ? avatar
+                        : `${AppConstants.contentRootUrl}${avatar}`
+                    : null;
+                
+                const initials = getInitials(fullName);
+                const avatarBg = getAvatarColor(fullName);
+
+                return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        {avatarUrl ? (
+                            <img 
+                                src={avatarUrl} 
+                                alt={fullName} 
+                                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid #e2e8f0', objectFit: 'cover', flexShrink: 0 }} 
+                            />
+                        ) : (
+                            <div 
+                                style={{ 
+                                    background: avatarBg, 
+                                    width: 40, 
+                                    height: 40, 
+                                    borderRadius: '50%', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center', 
+                                    color: '#ffffff', 
+                                    fontWeight: 600, 
+                                    fontSize: 14, 
+                                    flexShrink: 0, 
+                                }}
+                            >
+                                {initials}
+                            </div>
+                        )}
+                        <div>
+                            <div style={{ fontWeight: 600, color: '#1e293b', fontSize: 14 }}>
+                                {fullName}
+                            </div>
+                            <div style={{ fontSize: 12, color: '#64748b' }}>{username || 'Học viên'}</div>
+                        </div>
+                    </div>
+                );
+            },
+        },
+        {
+            title: 'Liên hệ',
+            dataIndex: 'contact',
+            key: 'contact',
+            render: (_, item) => {
+                const profileAccountDto = item.student?.profileAccountDto || {};
+                return (
+                    <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>
+                        <div><span style={{ color: '#94a3b8', marginRight: 4 }}>Email:</span> <strong>{profileAccountDto.email || '-'}</strong></div>
+                        <div><span style={{ color: '#94a3b8', marginRight: 4 }}>SĐT:</span> <strong>{profileAccountDto.phone || '-'}</strong></div>
+                    </div>
+                );
+            },
+        },
+        {
+            title: 'Trạng thái',
+            dataIndex: 'isReviewed',
+            key: 'status',
+            render: (isReviewed) => (
+                <Tag color={isReviewed ? 'success' : 'warning'} style={{ borderRadius: 4, fontWeight: 600 }}>
+                    {isReviewed ? 'Đã chấm' : 'Chưa chấm'}
+                </Tag>
+            ),
+        },
+        {
+            title: 'Thao tác',
+            key: 'action',
+            align: 'right',
+            render: (_, item) => {
+                const profileAccountDto = item.student?.profileAccountDto || {};
+                return (
+                    <Button 
+                        type="primary" 
+                        icon={<RightOutlined />} 
+                        style={{ borderRadius: 6, fontWeight: 600 }}
+                        onClick={() => {
+                            navigate(
+                                `/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`,
+                                { state: { simulationEnrollmentId: item.id } },
+                            );
+                        }}
+                    >
+                        Chấm điểm
+                    </Button>
+                );
+            },
+        },
+    ];
 
     return (
         <PageWrapper routes={breadcrumbs}>
-            {/* Top Dropdown Filter */}
-            <div style={{ background: '#ffffff', padding: '16px 24px', borderRadius: 12, marginBottom: 24, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                <Row align="middle" gutter={16}>
-                    <Col>
-                        <span style={{ fontWeight: 600, color: '#475569', fontSize: 14 }}>Chọn bài mô phỏng:</span>
-                    </Col>
-                    <Col flex="auto" style={{ maxWidth: 400 }}>
-                        <Select
-                            style={{ width: '100%' }}
-                            value={selectedSimulationId}
-                            onChange={(val) => setSelectedSimulationId(val)}
-                            options={simulations.map((s) => ({ label: s.name || s.title, value: s.id }))}
-                            placeholder="Chọn bài mô phỏng"
-                            showSearch
-                            optionFilterProp="label"
-                        />
-                    </Col>
-                </Row>
+            {/* Back Button and Title */}
+            <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
+                <Button 
+                    icon={<ArrowLeftOutlined />} 
+                    onClick={() => {
+                        setQueryParams({ simulationId: null });
+                        navigate('/simulation-review');
+                    }}
+                    style={{ borderRadius: 8, fontWeight: 500 }}
+                >
+                    Danh sách bài mô phỏng
+                </Button>
+                <div style={{ fontWeight: 600, fontSize: 18, color: '#1e293b' }}>
+                    {activeSimulation?.title || activeSimulation?.name || 'Chi tiết bài mô phỏng'}
+                </div>
             </div>
 
             {/* Dashboard Stats Row */}
@@ -342,16 +346,16 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                     </Radio.Group>
                 </div>
 
-                {/* Grid */}
-                <Spin spinning={loadingStudents}>
-                    {filteredStudents && filteredStudents.length > 0 ? (
-                        <Row gutter={[16, 16]}>
-                            {filteredStudents.map(renderStudentCard)}
-                        </Row>
-                    ) : (
-                        <Empty description="Không tìm thấy học viên hoàn thành phù hợp" />
-                    )}
-                </Spin>
+                {/* Table List */}
+                <Table 
+                    columns={columns}
+                    dataSource={filteredStudents}
+                    rowKey={(item) => item.id || item.student?.profileAccountDto?.username || Math.random()}
+                    loading={loadingStudents}
+                    pagination={{ pageSize: 10, showSizeChanger: true }}
+                    locale={{ emptyText: <Empty description="Không tìm thấy học viên hoàn thành phù hợp" /> }}
+                    style={{ marginTop: 8 }}
+                />
             </div>
             
         </PageWrapper>

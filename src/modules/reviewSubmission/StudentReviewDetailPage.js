@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, Tag, Button, Space, Modal, Spin, Avatar, Input, message, Tooltip } from 'antd';
+import { Tag, Button, Modal, Spin, Avatar, Input, message, Tooltip, Badge } from 'antd';
 import StudentSubmissionViewer from '@components/simulation/StudentSubmissionViewer';
 import CommentPanel from '@components/simulation/CommentPanel';
 import {
@@ -13,6 +13,12 @@ import {
     SendOutlined,
     CheckOutlined,
     CommentOutlined,
+    UndoOutlined,
+    ClockCircleOutlined,
+    PicRightOutlined,
+    VerticalAlignBottomOutlined,
+    MenuFoldOutlined,
+    MenuUnfoldOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -22,9 +28,11 @@ import useFetch from '@hooks/useFetch';
 import useTranslate from '@hooks/useTranslate';
 import useAuth from '@hooks/useAuth';
 import useNotification from '@hooks/useNotification';
+import useValidatePermission from '@hooks/useValidatePermission';
 
 import apiConfig from '@constants/apiConfig';
 import { AppConstants, UserTypes, storageKeys } from '@constants';
+import { ReviewStatus } from '@constants';
 import { getData } from '@utils/localStorage';
 import { commonMessage } from '@locales/intl';
 
@@ -47,6 +55,14 @@ const parseSubtaskName = (name = '') => {
         requiresFileUpload: suffix === '_FILE' || suffix === '_FILE_TEXT',
         requiresTextResponse: suffix === '_TEXT' || suffix === '_FILE_TEXT',
     };
+};
+
+const hasAssignmentContent = (task) => {
+    const name = task?.name || '';
+    const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
+    if (!match) return false;
+    const suffix = match[3] || '';
+    return suffix === '_FILE' || suffix === '_TEXT' || suffix === '_FILE_TEXT';
 };
 
 const getSubmissionAnswer = (submission = {}) => submission.answer || submission.answear || '';
@@ -118,17 +134,68 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const [selectedParentTaskId, setSelectedParentTaskId] = useState(null);
     const [selectedSubtaskId, setSelectedSubtaskId] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
-    const [activeRightTab, setActiveRightTab] = useState('comments'); // comments, review
+    const [workspaceMode, setWorkspaceMode] = useState('review'); // preview, review, comments
+
+    const [layoutMode, setLayoutMode] = useState(() => {
+        try {
+            const saved = localStorage.getItem('review_layout_mode');
+            return saved || 'split';
+        } catch (e) {
+            return 'split';
+        }
+    });
+
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
+    const handleLayoutModeChange = (mode) => {
+        setLayoutMode(mode);
+        try {
+            localStorage.setItem('review_layout_mode', mode);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    const validatePermission = useValidatePermission();
+    const canWriteReview = validatePermission([apiConfig.reviewSubmission.create.permissionCode]);
+    const canWriteComment = validatePermission([apiConfig.comment.create.permissionCode]);
+
+    const [draftReviews, setDraftReviews] = useState({});
+    const [lastSubtaskId, setLastSubtaskId] = useState(null);
 
     // Educator review editing states (per subtask)
     const [reviewContentInput, setReviewContentInput] = useState('');
     const [isEditingReview, setIsEditingReview] = useState(false);
+
+
 
     // Simulation Enrollment ID resolution
     const [simulationEnrollmentId, setSimulationEnrollmentId] = useState(
         () => location.state?.simulationEnrollmentId || null,
     );
     const [enrollment, setEnrollment] = useState(null);
+
+    useEffect(() => {
+        if (simulationEnrollmentId) {
+            try {
+                const saved = localStorage.getItem(`review_drafts_${simulationEnrollmentId}`);
+                if (saved) {
+                    setDraftReviews(JSON.parse(saved));
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }, [simulationEnrollmentId]);
+
+    useEffect(() => {
+        if (simulationEnrollmentId) {
+            try {
+                localStorage.setItem(`review_drafts_${simulationEnrollmentId}`, JSON.stringify(draftReviews));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }, [draftReviews, simulationEnrollmentId]);
 
     // API calls
 
@@ -152,13 +219,15 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         },
     );
 
+
+
     // 3. Fallback: Fetch student completes to resolve simulationEnrollmentId if missing in state
     const { execute: fetchEnrollments } = useFetch(apiConfig.simulation.studentComplete, {
         immediate: false,
     });
 
     useEffect(() => {
-        if (!simulationEnrollmentId && simulationId) {
+        if (simulationId && username) {
             fetchEnrollments({
                 params: { simulationId },
                 onCompleted: (res) => {
@@ -167,6 +236,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     if (found) {
                         setSimulationEnrollmentId(found.id);
                         setEnrollment(found);
+                        // Ưu tiên reviewStatus từ DB (1 = đã nhận xét), fallback về isReviewed (boolean)
+                        setIsCompleted(found.reviewStatus === ReviewStatus.REVIEWED || found.isReviewed === true);
                     } else {
                         notify({
                             type: 'error',
@@ -183,7 +254,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [simulationEnrollmentId, simulationId, username]);
+    }, [simulationId, username]);
 
     // 4. Load task progress list once simulationEnrollmentId is resolved
     const {
@@ -205,15 +276,17 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     }, [simulationEnrollmentId]);
 
     // 5. Load educator reviews for the simulation enrollment to map them
-    const { data: educatorReviews, execute: refetchReviews } = useFetch(apiConfig.reviewSubmission.educatorList, {
-        immediate: false,
-        mappingData: (res) => res.data?.content || [],
-    });
+    const { data: educatorReviews, execute: refetchReviews } = useFetch(
+        isEducator ? apiConfig.reviewSubmission.educatorList : apiConfig.reviewSubmission.studentList,
+        {
+            immediate: false,
+            mappingData: (res) => res.data?.content || [],
+        });
 
     useEffect(() => {
         if (simulationEnrollmentId) {
             refetchReviews({
-                params: { size: 1000 },
+                params: { simulationEnrollmentId, size: 1000 },
             });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -223,7 +296,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const filteredEducatorReviews = useMemo(() => {
         if (!educatorReviews || !simulationEnrollmentId) return [];
         return educatorReviews.filter(
-            (r) => r.studentSubmission?.studentTaskProgress?.simulationEnrollment?.id === simulationEnrollmentId,
+            (r) => {
+                const rEnrollId = r.simulationEnrollmentId || r.studentSubmission?.studentTaskProgress?.simulationEnrollment?.id;
+                return String(rEnrollId) === String(simulationEnrollmentId);
+            },
         );
     }, [educatorReviews, simulationEnrollmentId]);
 
@@ -282,7 +358,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Find progress ID for active subtask
     const activeSubtaskProgress = useMemo(() => {
         if (!selectedSubtaskId || !progressList) return null;
-        return progressList.find((p) => p.task?.id === selectedSubtaskId);
+        return progressList.find((p) => String(p.task?.id) === String(selectedSubtaskId));
     }, [selectedSubtaskId, progressList]);
 
     // 7. Fetch active subtask progress detail (to get actual student submissions)
@@ -355,14 +431,17 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         if (!filteredEducatorReviews) return null;
         if (activeSubtaskProgress?.id) {
             const foundByProgress = filteredEducatorReviews.find(
-                (r) => r.studentSubmission?.studentTaskProgress?.id === activeSubtaskProgress.id,
+                (r) => {
+                    const rProgressId = r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id;
+                    return String(rProgressId) === String(activeSubtaskProgress.id);
+                },
             );
             if (foundByProgress) return foundByProgress;
         }
 
         const subId = fileSub?.id || textSub?.id;
         if (subId) {
-            const foundBySub = filteredEducatorReviews.find((r) => r.studentSubmission?.id === subId);
+            const foundBySub = filteredEducatorReviews.find((r) => String(r.studentSubmission?.id) === String(subId));
             if (foundBySub) return foundBySub;
         }
 
@@ -370,14 +449,62 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     }, [filteredEducatorReviews, activeSubtaskProgress, fileSub, textSub]);
 
     useEffect(() => {
-        if (subtaskReview) {
-            setReviewContentInput(subtaskReview.content || '');
+        if (selectedSubtaskId !== lastSubtaskId) {
+            setLastSubtaskId(selectedSubtaskId);
+            const draft = draftReviews[selectedSubtaskId];
+            if (draft !== undefined) {
+                setReviewContentInput(draft.content || '');
+            } else {
+                setReviewContentInput(subtaskReview?.content || '');
+            }
             setIsEditingReview(false);
         } else {
-            setReviewContentInput('');
-            setIsEditingReview(false);
+            const draft = draftReviews[selectedSubtaskId];
+            if (draft === undefined && subtaskReview) {
+                setReviewContentInput(subtaskReview.content || '');
+            }
         }
-    }, [subtaskReview, selectedSubtaskId]);
+    }, [selectedSubtaskId, subtaskReview, draftReviews, lastSubtaskId]);
+
+    const handleTextareaChange = (val) => {
+        setReviewContentInput(val);
+        if (selectedSubtaskId) {
+            const activeSubtaskProgressId = activeSubtaskProgress?.id || null;
+            let activeSubmissionId = fileSub?.id || textSub?.id || (submissions.length > 0 ? submissions[0].id : null);
+
+            // Fallback: If activeSubmissionId is null but activeSubtaskProgress is available, try to resolve it from there
+            if (!activeSubmissionId && activeSubtaskProgress) {
+                const subs = getSubmissions(activeSubtaskProgress);
+                const fSub = subs.find(
+                    (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                );
+                const tSub = subs.find(
+                    (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                );
+                activeSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
+            }
+
+            setDraftReviews((prev) => ({
+                ...prev,
+                [selectedSubtaskId]: {
+                    content: val,
+                    studentSubmissionId: activeSubmissionId,
+                    studentTaskProgressId: activeSubtaskProgressId,
+                },
+            }));
+        }
+    };
+
+    const handleResetDraft = () => {
+        if (!selectedSubtaskId) return;
+        setDraftReviews((prev) => {
+            const next = { ...prev };
+            delete next[selectedSubtaskId];
+            return next;
+        });
+        setReviewContentInput(subtaskReview?.content || '');
+        message.info('Đã khôi phục về nhận xét gốc');
+    };
 
     // Educator Review CRUD API Executions
     const { execute: executeCreateReview, loading: loadingCreateReview } = useFetch(apiConfig.reviewSubmission.create, {
@@ -399,7 +526,100 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         },
     );
 
+    const hasUnsavedDrafts = useMemo(() => {
+        const draftKeys = Object.keys(draftReviews);
+        if (draftKeys.length === 0) return false;
+
+        return draftKeys.some((subId) => {
+            const draft = draftReviews[subId];
+            if (!draft || !draft.content?.trim()) return false;
+
+            const progress = progressList?.find((p) => String(p.task?.id) === String(subId));
+            const dbReview = progress
+                ? filteredEducatorReviews?.find(
+                    (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(progress.id),
+                )
+                : null;
+            const dbContent = dbReview?.content || '';
+
+            return draft.content.trim() !== dbContent.trim();
+        });
+    }, [draftReviews, progressList, filteredEducatorReviews]);
+
+    const hasUnsavedDraftForActiveSubtask = useMemo(() => {
+        const draft = draftReviews[selectedSubtaskId];
+        if (!draft || !draft.content?.trim()) return false;
+
+        const progress = progressList?.find(
+            (p) => String(p.task?.id) === String(selectedSubtaskId),
+        );
+        const dbReview = progress
+            ? filteredEducatorReviews?.find(
+                (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(progress.id),
+            )
+            : null;
+        const dbContent = dbReview?.content || '';
+
+        return draft.content.trim() !== dbContent.trim();
+    }, [draftReviews, selectedSubtaskId, progressList, filteredEducatorReviews]);
+
+    const isCompleteBtnDisabled = isCompleted && !hasUnsavedDrafts;
+
     const handleCompleteReview = () => {
+        // Collect all drafts that are unsaved across the entire simulation
+        const unsavedDrafts = [];
+        const allSubtasks = tasks?.filter((t) => t.kind === 2) || [];
+        allSubtasks.forEach((st) => {
+            const subId = st.id;
+            const draft = draftReviews[subId];
+            if (!draft || !draft.content) return;
+
+            const progress = progressList?.find((p) => String(p.task?.id) === String(subId));
+            const dbReview = filteredEducatorReviews?.find(
+                (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(progress?.id),
+            );
+            const dbContent = dbReview?.content || '';
+
+            if (draft.content.trim() !== dbContent.trim()) {
+                unsavedDrafts.push({
+                    subtaskId: subId,
+                    dbReviewId: dbReview?.id,
+                    content: draft.content.trim(),
+                    studentSubmissionId: draft.studentSubmissionId,
+                    studentTaskProgressId: draft.studentTaskProgressId,
+                });
+            }
+        });
+
+        const performComplete = () => {
+            executeCompleteReview({
+                data: {
+                    simulationId: parseInt(simulationId, 10),
+                    studentUsername: username,
+                },
+                onCompleted: () => {
+                    setIsCompleted(true);
+                    setDraftReviews({});
+                    try {
+                        localStorage.removeItem(`review_drafts_${simulationEnrollmentId}`);
+                    } catch (e) {
+                        console.error(e);
+                    }
+                    notify({
+                        type: 'success',
+                        message: 'Đã hoàn tất nhận xét! Học viên đã được thông báo.',
+                    });
+                    navigate('/simulation-review');
+                },
+                onError: (err) => {
+                    notify({
+                        type: 'error',
+                        message: err?.message || 'Lỗi khi gửi thông báo hoàn tất!',
+                    });
+                },
+            });
+        };
+
         Modal.confirm({
             title: 'Hoàn tất nhận xét bài làm',
             content: (
@@ -408,6 +628,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         Bạn có chắc chắn muốn hoàn tất nhận xét và gửi thông báo cho học viên{' '}
                         <strong>{username}</strong> không?
                     </p>
+                    {unsavedDrafts.length > 0 && (
+                        <p style={{ color: '#fa8c16', fontWeight: 600 }}>
+                            Có {unsavedDrafts.length} nhận xét đang soạn nháp sẽ được đồng bộ lên hệ thống.
+                        </p>
+                    )}
                     <p style={{ color: '#8c8c8c', fontSize: 13, marginTop: 8 }}>
                         Học viên sẽ nhận được thông báo và có thể xem toàn bộ nhận xét của bạn.
                     </p>
@@ -416,26 +641,71 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             okText: 'Hoàn tất & Gửi thông báo',
             cancelText: 'Hủy',
             okButtonProps: { type: 'primary', icon: <SendOutlined /> },
-            onOk: () => {
-                executeCompleteReview({
-                    data: {
-                        simulationId: parseInt(simulationId, 10),
-                        studentUsername: username,
-                    },
-                    onCompleted: () => {
-                        setIsCompleted(true);
-                        notify({
-                            type: 'success',
-                            message: 'Đã hoàn tất nhận xét! Học viên đã được thông báo.',
+            onOk: async () => {
+                if (unsavedDrafts.length > 0) {
+                    // Try resolving fallbacks
+                    const finalUnsavedDrafts = unsavedDrafts.map((d) => {
+                        const progress = progressList?.find((p) => String(p.task?.id) === String(d.subtaskId));
+                        const subs = getSubmissions(progress);
+                        const fSub = subs.find(
+                            (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                        );
+                        const tSub = subs.find(
+                            (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                        );
+                        const fallbackSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
+                        const fallbackProgressId = progress?.id || null;
+
+                        return {
+                            ...d,
+                            studentSubmissionId: d.studentSubmissionId || fallbackSubmissionId,
+                            studentTaskProgressId: d.studentTaskProgressId || fallbackProgressId,
+                        };
+                    });
+
+
+
+                    const validSyncDrafts = finalUnsavedDrafts.filter(d => d.dbReviewId || d.studentSubmissionId);
+
+                    try {
+                        const syncPromises = validSyncDrafts.map((draft) => {
+                            if (draft.dbReviewId) {
+                                return executeUpdateReview({
+                                    data: {
+                                        id: draft.dbReviewId,
+                                        content: draft.content,
+                                    },
+                                });
+                            } else {
+                                return executeCreateReview({
+                                    data: {
+                                        content: draft.content,
+                                        studentSubmissionId: draft.studentSubmissionId,
+                                        studentTaskProgressId: draft.studentTaskProgressId,
+                                    },
+                                });
+                            }
                         });
-                    },
-                    onError: (err) => {
+
+                        const results = await Promise.all(syncPromises);
+                        const hasError = results.some(res => !res || res.result === false || (res.statusCode !== undefined && res.statusCode !== 200) || res instanceof Error || res.response);
+                        if (hasError) {
+                            notify({
+                                type: 'error',
+                                message: 'Đồng bộ một số nhận xét nháp thất bại. Vui lòng thử lại.',
+                            });
+                            return;
+                        }
+                        performComplete();
+                    } catch (syncErr) {
                         notify({
                             type: 'error',
-                            message: err?.message || 'Lỗi khi gửi thông báo hoàn tất!',
+                            message: 'Lỗi khi đồng bộ nhận xét nháp lên hệ thống!',
                         });
-                    },
-                });
+                    }
+                } else {
+                    performComplete();
+                }
             },
         });
     };
@@ -446,55 +716,61 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             return;
         }
 
-        if (subtaskReview?.id) {
-            // Update review
-            executeUpdateReview({
-                data: {
-                    id: subtaskReview.id,
-                    content: reviewContentInput.trim(),
-                },
-                onCompleted: () => {
-                    notify({ type: 'success', message: 'Cập nhật nhận xét thành công!' });
-                    refetchReviews({ params: { size: 1000 } });
-                    setIsEditingReview(false);
-                },
-                onError: (err) => {
-                    notify({ type: 'error', message: err?.message || 'Lỗi cập nhật nhận xét!' });
-                },
-            });
-        } else {
-            // Create review
-            const activeSubtaskProgressId = activeSubtaskProgress?.id || null;
-            const activeSubmissionId = fileSub?.id || textSub?.id || (submissions.length > 0 ? submissions[0].id : null);
+        const activeSubtaskProgressId = activeSubtaskProgress?.id || null;
+        let activeSubmissionId = fileSub?.id || textSub?.id || (submissions.length > 0 ? submissions[0].id : null);
 
-            if (!activeSubmissionId) {
-                notify({ type: 'warning', message: 'Không tìm thấy bài nộp hợp lệ để gắn nhận xét!' });
-                return;
-            }
-
-            executeCreateReview({
-                data: {
-                    content: reviewContentInput.trim(),
-                    studentSubmissionId: activeSubmissionId,
-                    studentTaskProgressId: activeSubtaskProgressId,
-                },
-                onCompleted: () => {
-                    notify({ type: 'success', message: 'Tạo nhận xét thành công!' });
-                    refetchReviews({ params: { size: 1000 } });
-                },
-                onError: (err) => {
-                    notify({ type: 'error', message: err?.message || 'Lỗi lưu nhận xét!' });
-                },
-            });
+        // Fallback: If activeSubmissionId is null but activeSubtaskProgress is available, try to resolve it from there
+        if (!activeSubmissionId && activeSubtaskProgress) {
+            const subs = getSubmissions(activeSubtaskProgress);
+            const fSub = subs.find(
+                (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+            );
+            const tSub = subs.find(
+                (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+            );
+            activeSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
         }
+
+
+
+        setDraftReviews((prev) => ({
+            ...prev,
+            [selectedSubtaskId]: {
+                content: reviewContentInput.trim(),
+                studentSubmissionId: activeSubmissionId,
+                studentTaskProgressId: activeSubtaskProgressId,
+            },
+        }));
+
+        setIsEditingReview(false);
+        notify({ type: 'success', message: 'Đã lưu nhận xét vào bản nháp cục bộ!' });
     };
 
     const handleDeleteReview = () => {
-        if (!subtaskReview?.id) return;
+        if (!subtaskReview?.id) {
+            Modal.confirm({
+                title: 'Xác nhận xóa bản nháp',
+                content: 'Bạn có chắc chắn muốn xóa bản nháp nhận xét này không?',
+                okText: 'Xóa',
+                cancelText: 'Hủy',
+                okButtonProps: { danger: true },
+                onOk: () => {
+                    setDraftReviews((prev) => {
+                        const next = { ...prev };
+                        delete next[selectedSubtaskId];
+                        return next;
+                    });
+                    setReviewContentInput('');
+                    setIsEditingReview(false);
+                    notify({ type: 'success', message: 'Đã xóa bản nháp!' });
+                },
+            });
+            return;
+        }
 
         Modal.confirm({
             title: 'Xác nhận xóa',
-            content: 'Bạn có chắc chắn muốn xóa nhận xét này không?',
+            content: 'Bạn có chắc chắn muốn xóa nhận xét này không? Thao tác này sẽ xóa vĩnh viễn khỏi hệ thống.',
             okText: 'Xóa',
             cancelText: 'Hủy',
             okButtonProps: { danger: true },
@@ -502,8 +778,15 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 executeDeleteReview({
                     pathParams: { id: subtaskReview.id },
                     onCompleted: () => {
+                        setDraftReviews((prev) => {
+                            const next = { ...prev };
+                            delete next[selectedSubtaskId];
+                            return next;
+                        });
+                        setReviewContentInput('');
+                        setIsEditingReview(false);
                         notify({ type: 'success', message: 'Xóa nhận xét thành công!' });
-                        refetchReviews({ params: { size: 1000 } });
+                        refetchReviews({ params: { simulationEnrollmentId, size: 1000 } });
                     },
                     onError: (err) => {
                         notify({ type: 'error', message: err?.message || 'Lỗi xóa nhận xét!' });
@@ -647,7 +930,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         const countMap = {};
         if (!tasks || !filteredEducatorReviews) return countMap;
         parentTasks.forEach((pt) => {
-            const subs = tasks.filter((t) => t.kind === 2 && (t.parent?.id === pt.id || t.parentId === pt.id));
+            const subs = tasks.filter((t) => t.kind === 2 && hasAssignmentContent(t) && (t.parent?.id === pt.id || t.parentId === pt.id));
             const reviewed = subs.filter((s) => reviewedTaskIds.has(s.id));
             countMap[pt.id] = { total: subs.length, reviewed: reviewed.length };
         });
@@ -663,13 +946,281 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     }, [enrollment]);
 
     const loadingGeneral = loadingTasks || loadingSimulation || loadingProgress;
-    const commentsCount = commentsData?.content?.length || 0;
+
+
 
     // Total review progress
     const totalSubtasks = useMemo(() => {
-        return tasks?.filter((t) => t.kind === 2)?.length || 0;
+        return tasks?.filter((t) => t.kind === 2 && hasAssignmentContent(t))?.length || 0;
     }, [tasks]);
-    const totalReviewed = useMemo(() => reviewedTaskIds.size, [reviewedTaskIds]);
+    const totalReviewed = useMemo(() => {
+        let count = 0;
+        reviewedTaskIds.forEach((id) => {
+            const task = tasks?.find((t) => t.id === id);
+            if (task && hasAssignmentContent(task)) {
+                count++;
+            }
+        });
+        return count;
+    }, [reviewedTaskIds, tasks]);
+
+    // Helper functions to render review elements cleanly and dynamically
+    const renderReviewStatus = () => {
+        const hasDbReview = !!subtaskReview;
+        const draft = draftReviews[selectedSubtaskId];
+        const hasDraft = draft && draft.content?.trim() !== (subtaskReview?.content || '').trim();
+        
+        if (hasDbReview) {
+            return (
+                <Tag icon={<CheckCircleFilled />} color="success" className="tfo-draft-badge">
+                    Đã lưu
+                </Tag>
+            );
+        } else if (hasDraft) {
+            return (
+                <Tag icon={<EditOutlined />} color="warning" className="tfo-draft-badge">
+                    Bản nháp
+                </Tag>
+            );
+        }
+        return (
+            <Tag 
+                icon={<ClockCircleOutlined />} 
+                color="default" 
+                className="tfo-draft-badge"
+                style={{
+                    backgroundColor: '#fff7ed',
+                    color: '#c2410c',
+                    borderColor: '#ffedd5',
+                }}
+            >
+                Chưa nhận xét
+            </Tag>
+        );
+    };
+
+    const renderReviewHeader = () => {
+        return (
+            <div className="tfo-review-section-header">
+                <span className="tfo-review-section-title">Nhận xét & Đánh giá</span>
+                {renderReviewStatus()}
+            </div>
+        );
+    };
+
+    const renderReviewDisplay = () => {
+        const activeDraft = draftReviews[selectedSubtaskId];
+        const hasUnsavedDraft = activeDraft && activeDraft.content.trim() !== (subtaskReview?.content || '').trim();
+        const displayReviewContent = activeDraft ? activeDraft.content : (subtaskReview?.content || '');
+
+        const isOwnReview = !subtaskReview || !subtaskReview.createdBy || subtaskReview.createdBy === profile?.username;
+        const reviewerName = isOwnReview ? (profile?.fullName || profile?.username || 'Giáo viên') : subtaskReview.createdBy;
+        const reviewerAvatar = isOwnReview && profile?.avatar ? `${AppConstants.contentRootUrl}${profile.avatar}` : null;
+        const initials = getInitials(reviewerName);
+        const avatarBg = getAvatarColor(reviewerName);
+
+        const cardClass = `tfo-review-display tfo-review-fade-in ${hasUnsavedDraft ? 'draft-card' : 'saved-card'}`;
+
+        return (
+            <div className={cardClass}>
+                <div className="tfo-review-display__header">
+                    {reviewerAvatar ? (
+                        <Avatar 
+                            src={reviewerAvatar} 
+                            alt={reviewerName} 
+                            className="tfo-review-display__avatar" 
+                        />
+                    ) : (
+                        <Avatar 
+                            style={{ background: avatarBg }} 
+                            className="tfo-review-display__avatar"
+                        >
+                            {initials}
+                        </Avatar>
+                    )}
+                    <div className="tfo-review-display__meta">
+                        <div className="tfo-review-display__name">
+                            {reviewerName}
+                            {hasUnsavedDraft && (
+                                <Tag color="orange" className="tfo-draft-badge">Bản nháp</Tag>
+                            )}
+                        </div>
+                        <div className="tfo-review-display__role">Giáo viên hướng dẫn</div>
+                    </div>
+                    <span className="tfo-review-display__date">
+                        {subtaskReview?.createdDate ? dayjs(subtaskReview.createdDate).format('DD/MM/YYYY') : 'Chưa lưu'}
+                    </span>
+                </div>
+
+                <blockquote className="tfo-review-display__quote">
+                    {displayReviewContent}
+                </blockquote>
+
+                {canWriteReview && (
+                    <div className="tfo-review-display__toolbar">
+                        {hasUnsavedDraft && (
+                            <Tooltip title="Khôi phục gốc">
+                                <Button
+                                    type="text"
+                                    icon={<UndoOutlined />}
+                                    onClick={handleResetDraft}
+                                    className="tfo-toolbar-btn"
+                                />
+                            </Tooltip>
+                        )}
+                        <Tooltip title="Sửa nhận xét">
+                            <Button
+                                type="text"
+                                icon={<EditOutlined />}
+                                onClick={() => setIsEditingReview(true)}
+                                className="tfo-toolbar-btn tfo-edit-btn"
+                            />
+                        </Tooltip>
+                        <Tooltip title="Xóa nhận xét">
+                            <Button
+                                type="text"
+                                icon={<DeleteOutlined />}
+                                onClick={handleDeleteReview}
+                                loading={loadingDeleteReview}
+                                danger
+                                className="tfo-toolbar-btn tfo-delete-btn"
+                            />
+                        </Tooltip>
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    const renderReviewEditor = () => {
+        return (
+            <div className="tfo-review-editor tfo-review-fade-in">
+                <div className="tfo-review-editor__textarea-wrapper">
+                    <Input.TextArea
+                        rows={6}
+                        placeholder="Nhập nội dung nhận xét, phản hồi hoặc hướng dẫn..."
+                        value={reviewContentInput}
+                        onChange={(e) => handleTextareaChange(e.target.value)}
+                        maxLength={2000}
+                        className="tfo-review-editor__textarea"
+                    />
+                    <span className="tfo-review-editor__counter">
+                        {(reviewContentInput || '').length}/2000
+                    </span>
+                </div>
+
+                <div className="tfo-review-editor__templates">
+                    {quickReviewTemplates.map((tpl, idx) => (
+                        <Tooltip key={idx} title={tpl} mouseEnterDelay={0.5}>
+                            <button 
+                                type="button"
+                                className="tfo-quick-template-badge"
+                                onClick={() => handleTextareaChange(tpl)}
+                            >
+                                {tpl}
+                            </button>
+                        </Tooltip>
+                    ))}
+                </div>
+
+                <div className="tfo-review-editor__actions">
+                    <Button
+                        type="primary"
+                        icon={<SaveOutlined />}
+                        onClick={handleSaveReview}
+                        loading={loadingCreateReview || loadingUpdateReview}
+                        className="tfo-save-review-btn"
+                    >
+                        Lưu bản nháp
+                    </Button>
+                    {draftReviews[selectedSubtaskId] && (
+                        <Button 
+                            icon={<UndoOutlined />} 
+                            onClick={handleResetDraft}
+                            className="tfo-btn-secondary"
+                        >
+                            Khôi phục gốc
+                        </Button>
+                    )}
+                    {isEditingReview && (
+                        <Button 
+                            onClick={() => setIsEditingReview(false)}
+                            className="tfo-btn-secondary"
+                        >
+                            Hủy
+                        </Button>
+                    )}
+                </div>
+            </div>
+        );
+    };
+
+    const renderReviewEmpty = () => {
+        return (
+            <div className="tfo-review-empty tfo-review-fade-in">
+                <CheckCircleFilled className="tfo-review-empty__icon" />
+                <p className="tfo-review-empty__text">Chưa có nhận xét cho bước này</p>
+            </div>
+        );
+    };
+
+    const renderCollaborationPanel = () => {
+        if (workspaceMode === 'review') {
+            const hasSubmission = loadingProgressDetail || !!(fileSub?.id || textSub?.id || (submissions.length > 0 ? submissions[0].id : null));
+
+            return (
+                <div className="tfo-review-tab-pane">
+                    {!canWriteReview && (
+                        <div className="tfo-review-read-only-banner">
+                            Bạn đang xem thông tin ở chế độ chỉ đọc.
+                        </div>
+                    )}
+
+                    {renderReviewHeader()}
+
+                    {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview ? (
+                        renderReviewDisplay()
+                    ) : (
+                        !hasSubmission ? (
+                            <div className="tfo-review-empty tfo-review-fade-in" style={{ padding: '24px 16px', textAlign: 'center' }}>
+                                <ClockCircleOutlined className="tfo-review-empty__icon" style={{ color: '#fa8c16', fontSize: 32, marginBottom: 12 }} />
+                                <p className="tfo-review-empty__text" style={{ color: '#fa8c16', fontWeight: 500 }}>
+                                    Không có bài nộp của học viên để nhận xét
+                                </p>
+                            </div>
+                        ) : (
+                            canWriteReview ? renderReviewEditor() : renderReviewEmpty()
+                        )
+                    )}
+                </div>
+            );
+        } else {
+            return (
+                <div className="tfo-comments-pane-inner">
+                    <div className="tfo-review-section-header">
+                        <span className="tfo-review-section-title">Thảo luận & Bình luận</span>
+                        {commentsData?.content?.length > 0 && (
+                            <Badge 
+                                count={commentsData.content.length} 
+                                size="small" 
+                                style={{ backgroundColor: '#1890ff', marginLeft: 6 }} 
+                            />
+                        )}
+                    </div>
+                    <CommentPanel
+                        comments={commentsData?.content || []}
+                        loading={commentsLoading}
+                        profile={profile}
+                        readOnly={!canWriteComment}
+                        onSendComment={handleSendComment}
+                        onUpdateComment={handleUpdateComment}
+                        onDeleteComment={handleDeleteComment}
+                        studentUsername={username}
+                    />
+                </div>
+            );
+        }
+    };
 
     return (
         <PageWrapper
@@ -677,54 +1228,118 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             routes={pageOptions.renderBreadcrumbs(commonMessage, translate, simulationId, username)}
         >
             <div className="tfo-topbar-actions">
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/simulation-review')} size="large">
+                <Button 
+                    type="link" 
+                    icon={<ArrowLeftOutlined />} 
+                    onClick={() => navigate('/simulation-review')} 
+                    className="tfo-back-link-btn"
+                >
                     Quay lại danh sách
                 </Button>
 
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                     {studentInfo && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, height: 32 }}>
                             <Avatar
                                 size="small"
                                 icon={<UserOutlined />}
                                 src={studentInfo.avatar ? `${AppConstants.contentRootUrl}${studentInfo.avatar}` : null}
                             />
                             <strong>{studentInfo.fullName || username}</strong>
-                            <Tag color="blue">{username}</Tag>
+                            <Tag color="blue" style={{ margin: 0 }}>{username}</Tag>
+                            {/* Badge trạng thái nhận xét — hiển thị rõ đã nhận xét hay chưa */}
+                            {isCompleted ? (
+                                <Tag color="success" icon={<CheckCircleFilled />} style={{ margin: 0, fontWeight: 600 }}>
+                                    Đã nhận xét
+                                </Tag>
+                            ) : (
+                                <Tag color="warning" icon={<ClockCircleOutlined />} style={{ margin: 0, fontWeight: 600 }}>
+                                    Chưa nhận xét
+                                </Tag>
+                            )}
                         </div>
                     )}
 
-                    {/* Progress indicator */}
-                    <div className="tfo-review-progress-badge">
-                        <CheckCircleFilled style={{ color: totalReviewed > 0 ? '#52c41a' : '#d9d9d9', fontSize: 16 }} />
-                        <span>
-                            {totalReviewed}/{totalSubtasks} nhiệm vụ đã nhận xét
-                        </span>
+
+
+                    {/* Layout switcher */}
+                    <div className="tfo-layout-switcher">
+                        <Tooltip title="Bố cục bên cạnh">
+                            <Button 
+                                icon={<PicRightOutlined />} 
+                                type={layoutMode === 'split' ? 'primary' : 'text'}
+                                onClick={() => handleLayoutModeChange('split')}
+                                size="small"
+                            />
+                        </Tooltip>
+                        <Tooltip title="Bố cục bên dưới">
+                            <Button 
+                                icon={<VerticalAlignBottomOutlined />} 
+                                type={layoutMode === 'bottom' ? 'primary' : 'text'}
+                                onClick={() => handleLayoutModeChange('bottom')}
+                                size="small"
+                            />
+                        </Tooltip>
                     </div>
 
+                    {/* Mode switcher (Nhận xét & Đánh giá / Thảo luận & Bình luận) */}
+                    <div className="tfo-mode-switcher">
+                        <Tooltip title="Chế độ Nhận xét & Đánh giá">
+                            <Button 
+                                icon={<EditOutlined />} 
+                                type={workspaceMode === 'review' ? 'primary' : 'text'}
+                                onClick={() => setWorkspaceMode('review')}
+                                size="small"
+                            >
+                                <span>Nhận xét & Đánh giá</span>
+                                {hasUnsavedDraftForActiveSubtask && (
+                                    <Badge status="warning" style={{ marginLeft: 2 }} />
+                                )}
+                            </Button>
+                        </Tooltip>
+                        <Tooltip title="Chế độ Thảo luận & Bình luận">
+                            <Button 
+                                icon={<CommentOutlined />} 
+                                type={workspaceMode === 'comments' ? 'primary' : 'text'}
+                                onClick={() => setWorkspaceMode('comments')}
+                                size="small"
+                            >
+                                Thảo luận & Bình luận
+                            </Button>
+                        </Tooltip>
+                    </div>
+
+
                     {/* Complete Review Button */}
-                    <Tooltip
-                        title={isCompleted ? 'Đã hoàn tất nhận xét' : 'Hoàn tất nhận xét & gửi thông báo cho học viên'}
-                    >
-                        <Button
-                            type="primary"
-                            icon={isCompleted ? <CheckOutlined /> : <SendOutlined />}
-                            onClick={handleCompleteReview}
-                            loading={loadingCompleteReview}
-                            disabled={isCompleted}
-                            className={isCompleted ? 'tfo-complete-btn completed' : 'tfo-complete-btn'}
-                            size="large"
+                    {canWriteReview && (
+                        <Tooltip
+                            title={
+                                hasUnsavedDrafts
+                                    ? 'Đồng bộ các bản nháp và hoàn tất nhận xét'
+                                    : isCompleted
+                                        ? 'Đã hoàn tất nhận xét'
+                                        : 'Hoàn tất nhận xét & gửi thông báo cho học viên'
+                            }
                         >
-                            {isCompleted ? 'Đã hoàn tất' : 'Hoàn tất & Thông báo'}
-                        </Button>
-                    </Tooltip>
+                            <Button
+                                type="primary"
+                                icon={<CheckCircleFilled />}
+                                onClick={handleCompleteReview}
+                                disabled={isCompleteBtnDisabled}
+                                loading={loadingCompleteReview}
+                                className={`tfo-complete-btn ${isCompleted ? 'completed' : ''}`}
+                            >
+                                {isCompleted ? 'Đã hoàn tất nhận xét' : 'Hoàn tất nhận xét'}
+                            </Button>
+                        </Tooltip>
+                    )}
                 </div>
             </div>
 
             <Spin spinning={loadingGeneral}>
-                <div className="tfo-content-area">
+                <div className="tfo-review-container">
                     {/* Left Sidebar: Timeline of Parent Tasks */}
-                    <aside className="tfo-sidebar">
+                    <aside className={`tfo-sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
                         <div className="tfo-sidebar-header">
                             <span className="tfo-sidebar-label">Danh sách nhiệm vụ</span>
                         </div>
@@ -736,42 +1351,47 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                 const allReviewed =
                                     taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
 
+                                // Check if this parent task has any subtasks with drafts
+                                const parentSubtasks = tasks?.filter((t) => t.kind === 2 && (t.parent?.id === task.id || t.parentId === task.id)) || [];
+                                const hasParentDrafts = parentSubtasks.some(st => {
+                                    const draft = draftReviews[st.id];
+                                    if (!draft || !draft.content?.trim()) return false;
+                                    const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
+                                    const dbReview = subProgress
+                                        ? filteredEducatorReviews?.find(
+                                            (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
+                                        )
+                                        : null;
+                                    return draft.content.trim() !== (dbReview?.content || '').trim();
+                                });
+
                                 return (
                                     <div key={task.id || idx} className="tfo-task-list-row">
-                                        <div className="tfo-task-timeline">
-                                            <button
-                                                className={`tfo-task-circle${isActive ? ' active' : ''}${allReviewed ? ' reviewed' : ''}`}
-                                                onClick={() => {
-                                                    setSelectedParentTaskId(task.id);
-                                                    setSelectedSubtaskId(null);
-                                                }}
-                                            >
-                                                {allReviewed ? <CheckOutlined style={{ fontSize: 12 }} /> : idx + 1}
-                                            </button>
-                                            {!isLast && <div className="tfo-task-connector" />}
-                                        </div>
-
                                         <button
-                                            className="tfo-task-content-btn"
+                                            className={`tfo-task-item${isActive ? ' active' : ''}${allReviewed ? ' reviewed' : ''}${hasParentDrafts ? ' has-draft' : ''}`}
                                             onClick={() => {
                                                 setSelectedParentTaskId(task.id);
                                                 setSelectedSubtaskId(null);
                                             }}
                                         >
-                                            <div className={`tfo-task-title${isActive ? ' active' : ''}`}>
-                                                {task.title || task.name}
+                                            <div className="tfo-task-item-number">
+                                                {allReviewed && !hasParentDrafts ? <CheckOutlined /> : idx + 1}
                                             </div>
-                                            {taskCount && (
-                                                <div className={`tfo-task-review-count${allReviewed ? ' done' : ''}`}>
-                                                    {allReviewed ? (
-                                                        <>
-                                                            <CheckCircleFilled style={{ marginRight: 4 }} />
-                                                            Đã nhận xét hết
-                                                        </>
-                                                    ) : (
-                                                        `${taskCount.reviewed}/${taskCount.total} nhận xét`
-                                                    )}
+                                            <div className="tfo-task-item-content">
+                                                <div className="tfo-task-item-title">
+                                                    {task.title || task.name}
                                                 </div>
+
+
+
+                                                {hasParentDrafts && (
+                                                    <div className="tfo-task-item-draft">
+                                                        Có bản nháp
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {hasParentDrafts && (
+                                                <div className="tfo-task-item-dot" />
                                             )}
                                         </button>
                                     </div>
@@ -781,21 +1401,40 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     </aside>
 
                     {/* Split Workspace Layout */}
-                    <div className="tfo-workspace-grid">
+                    <div className={`tfo-workspace-grid${workspaceMode === 'preview' || layoutMode === 'bottom' ? ' preview-mode' : ''}`}>
                         
                         {/* Middle Pane: Submission reader */}
                         <div className="tfo-pane-middle">
                             <div className="tfo-pane-topbar">
-                                <div className="tfo-pane-title">
-                                    {simulationDetail?.title || 'Đang xem bài làm'}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                    <Tooltip title={sidebarCollapsed ? "Mở rộng danh sách" : "Thu gọn danh sách"}>
+                                        <Button 
+                                            icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} 
+                                            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                                            type="text"
+                                            style={{ 
+                                                fontSize: 16, 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                justifyContent: 'center',
+                                                background: '#f1f5f9',
+                                                borderRadius: 8,
+                                                width: 32,
+                                                height: 32,
+                                            }}
+                                        />
+                                    </Tooltip>
+                                    <div className="tfo-pane-title">
+                                        {simulationDetail?.title || 'Đang xem bài làm'}
+                                    </div>
                                 </div>
                                 {subtasks.length > 0 && (
                                     <div className="tfo-step-pagination">
                                         {subtasks.map((st, index) => {
-                                            const subProgress = progressList?.find((p) => p.task?.id === st.id);
+                                            const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
                                             const isSubReviewed = subProgress
                                                 ? filteredEducatorReviews?.some(
-                                                    (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
+                                                    (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
                                                 )
                                                 : reviewedTaskIds.has(st.id);
                                             const isActiveSub = st.id === selectedSubtaskId;
@@ -803,6 +1442,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                             let btnCls = 'tfo-step-btn';
                                             if (isActiveSub) btnCls += ' active';
                                             if (isSubReviewed && !isActiveSub) btnCls += ' reviewed';
+
+                                            const dbReviewForSub = subProgress
+                                                ? filteredEducatorReviews?.find(
+                                                    (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
+                                                )
+                                                : null;
+                                            const draftForSub = draftReviews[st.id];
+                                            const hasDraftForSub = draftForSub && draftForSub.content?.trim() !== (dbReviewForSub?.content || '').trim();
 
                                             return (
                                                 <Tooltip
@@ -812,7 +1459,19 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                     <button
                                                         className={btnCls}
                                                         onClick={() => setSelectedSubtaskId(st.id)}
+                                                        style={{ position: 'relative' }}
                                                     >
+                                                        {hasDraftForSub && (
+                                                            <span style={{
+                                                                position: 'absolute',
+                                                                top: 2,
+                                                                right: 2,
+                                                                width: 6,
+                                                                height: 6,
+                                                                borderRadius: '50%',
+                                                                backgroundColor: '#fa8c16',
+                                                            }} />
+                                                        )}
                                                         {isSubReviewed && !isActiveSub ? (
                                                             <CheckOutlined style={{ fontSize: 11 }} />
                                                         ) : (
@@ -849,177 +1508,21 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                     </Button>
                                 </div>
                             </div>
+
+                            {/* Bottom Collaboration Panel */}
+                            {workspaceMode !== 'preview' && layoutMode === 'bottom' && (
+                                <div className="tfo-bottom-collaboration-container">
+                                    {renderCollaborationPanel()}
+                                </div>
+                            )}
                         </div>
 
                         {/* Right Pane: Collaboration Workspace */}
-                        <div className="tfo-pane-right">
-                            <div className="tfo-right-tabs-header">
-                                <button 
-                                    className={`tfo-right-tab-btn${activeRightTab === 'comments' ? ' active' : ''}`}
-                                    onClick={() => setActiveRightTab('comments')}
-                                >
-                                    <CommentOutlined /> Thảo luận ({commentsCount})
-                                </button>
-                                <button 
-                                    className={`tfo-right-tab-btn${activeRightTab === 'review' ? ' active' : ''}`}
-                                    onClick={() => setActiveRightTab('review')}
-                                >
-                                    <CheckCircleFilled /> Nhận xét
-                                </button>
+                        {workspaceMode !== 'preview' && layoutMode !== 'bottom' && (
+                            <div className="tfo-pane-right">
+                                {renderCollaborationPanel()}
                             </div>
-
-                            <div className="tfo-right-tabs-content">
-                                {activeRightTab === 'comments' ? (
-                                    <CommentPanel
-                                        comments={commentsData?.content || []}
-                                        loading={commentsLoading}
-                                        profile={profile}
-                                        onSendComment={handleSendComment}
-                                        onUpdateComment={handleUpdateComment}
-                                        onDeleteComment={handleDeleteComment}
-                                    />
-                                ) : (
-                                    <div className="tfo-review-tab-pane">
-                                        {subtaskReview && !isEditingReview ? (() => {
-                                            const isOwnReview = !subtaskReview.createdBy || subtaskReview.createdBy === profile?.username;
-                                            const reviewerName = isOwnReview ? (profile?.fullName || profile?.username || 'Giáo viên') : subtaskReview.createdBy;
-                                            const reviewerAvatar = isOwnReview && profile?.avatar ? `${AppConstants.contentRootUrl}${profile.avatar}` : null;
-                                            const initials = getInitials(reviewerName);
-                                            const avatarBg = getAvatarColor(reviewerName);
-                                            return (
-                                                <div className="tfo-review-card" style={{ padding: 16, borderRadius: 12, border: '1px solid #f1f5f9', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                                                        {reviewerAvatar ? (
-                                                            <img 
-                                                                src={reviewerAvatar} 
-                                                                alt={reviewerName} 
-                                                                style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #e2e8f0', objectFit: 'cover', flexShrink: 0 }} 
-                                                            />
-                                                        ) : (
-                                                            <div 
-                                                                style={{ 
-                                                                    background: avatarBg, 
-                                                                    width: 36, 
-                                                                    height: 36, 
-                                                                    borderRadius: '50%', 
-                                                                    display: 'flex', 
-                                                                    alignItems: 'center', 
-                                                                    justifyContent: 'center', 
-                                                                    color: '#ffffff', 
-                                                                    fontWeight: 600, 
-                                                                    fontSize: 13, 
-                                                                    flexShrink: 0, 
-                                                                }}
-                                                            >
-                                                                {initials}
-                                                            </div>
-                                                        )}
-                                                        <div style={{ flex: 1, minWidth: 0 }}>
-                                                            <div style={{ fontWeight: 600, color: '#1e293b', fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                                {reviewerName}
-                                                            </div>
-                                                            <div style={{ fontSize: 10, color: '#64748b' }}>Giáo viên hướng dẫn</div>
-                                                        </div>
-                                                        <span style={{ fontSize: 10, color: '#94a3b8' }}>
-                                                            {subtaskReview.createdDate ? dayjs(subtaskReview.createdDate).format('DD/MM/YYYY') : ''}
-                                                        </span>
-                                                    </div>
-
-                                                    <div style={{ 
-                                                        fontSize: 13, 
-                                                        color: '#334155', 
-                                                        lineHeight: 1.6, 
-                                                        backgroundColor: '#f8fafc',
-                                                        padding: 12,
-                                                        borderRadius: 8,
-                                                        marginBottom: 12,
-                                                        whiteSpace: 'pre-wrap',
-                                                    }}>
-                                                        {subtaskReview.content}
-                                                    </div>
-
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
-                                                        <Button
-                                                            type="text"
-                                                            icon={<EditOutlined />}
-                                                            onClick={() => setIsEditingReview(true)}
-                                                            size="small"
-                                                            style={{ color: '#fa8c16', fontWeight: 600, fontSize: 12 }}
-                                                        >
-                                                            Sửa
-                                                        </Button>
-                                                        <Button
-                                                            type="text"
-                                                            icon={<DeleteOutlined />}
-                                                            onClick={handleDeleteReview}
-                                                            loading={loadingDeleteReview}
-                                                            size="small"
-                                                            danger
-                                                            style={{ fontWeight: 600, fontSize: 12 }}
-                                                        >
-                                                            Xóa
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })() : (
-                                            <Card
-                                                title={
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        <span>{subtaskReview ? 'Sửa nhận xét bài làm' : 'Nhận xét & Đánh giá'}</span>
-                                                        {!subtaskReview && <Tag color="orange">Chưa nhận xét</Tag>}
-                                                    </div>
-                                                }
-                                                bordered={false}
-                                                className="tfo-review-editor-card"
-                                            >
-                                                <Input.TextArea
-                                                    rows={6}
-                                                    placeholder="Nhập nội dung nhận xét, phản hồi hoặc hướng dẫn cho học viên..."
-                                                    value={reviewContentInput}
-                                                    onChange={(e) => setReviewContentInput(e.target.value)}
-                                                />
-
-                                                {/* Quick Review templates */}
-                                                <div className="tfo-quick-templates">
-                                                    <span className="tfo-quick-templates-lbl">Mẫu nhận xét nhanh:</span>
-                                                    <div className="tfo-quick-templates-list">
-                                                        {quickReviewTemplates.map((tpl, idx) => (
-                                                            <button 
-                                                                key={idx}
-                                                                type="button"
-                                                                className="tfo-quick-template-badge"
-                                                                onClick={() => setReviewContentInput(tpl)}
-                                                                title={tpl}
-                                                            >
-                                                                {tpl.length > 25 ? tpl.substring(0, 25) + '...' : tpl}
-                                                            </button>
-                                                        ))}
-                                                    </div>
-                                                </div>
-
-                                                <Space style={{ marginTop: 16 }}>
-                                                    <Button
-                                                        type="primary"
-                                                        icon={<SaveOutlined />}
-                                                        onClick={handleSaveReview}
-                                                        loading={loadingCreateReview || loadingUpdateReview}
-                                                        className="tfo-save-review-btn"
-                                                    >
-                                                        {subtaskReview ? 'Cập nhật' : 'Lưu nhận xét'}
-                                                    </Button>
-                                                    {isEditingReview && (
-                                                        <Button onClick={() => setIsEditingReview(false)}>
-                                                            Hủy
-                                                        </Button>
-                                                    )}
-                                                </Space>
-                                            </Card>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+                        )}
 
                     </div>
                 </div>

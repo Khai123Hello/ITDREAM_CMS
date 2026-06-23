@@ -2,6 +2,7 @@ import { commonMessage } from '@locales/intl';
 import apiConfig from '@constants/apiConfig';
 import SimulationListPage from '@modules/simulation/simulation/index';
 import SimulationSavePage from '@modules/simulation/simulation/SimulationSavePage';
+import SimulationPreviewPage from '@modules/simulation/simulation/SimulationPreviewPage';
 
 // Task imports
 import TaskListPage from '@modules/simulation/task';
@@ -14,6 +15,7 @@ const paths = {
     // Simulation paths
     simulationListPage: '/simulation',
     simulationSavePage: '/simulation/:id',
+    simulationPreviewPage: '/simulation/:id/preview',
 
     // Task paths - liên kết với Simulation
     taskListPage: '/simulation/:simulationId/task',
@@ -47,6 +49,20 @@ export default {
             renderBreadcrumbs: (messages, t, title) => [
                 { breadcrumbName: t.formatMessage(commonMessage.simulation), path: paths.simulationListPage },
                 { breadcrumbName: title },
+            ],
+        },
+    },
+    simulationPreviewPage: {
+        path: paths.simulationPreviewPage,
+        auth: true,
+        component: SimulationPreviewPage,
+        permissions: [apiConfig.simulation.getList.permissionCode],
+        pageOptions: {
+            objectName: commonMessage.simulation,
+            listPageUrl: paths.simulationListPage,
+            renderBreadcrumbs: (messages, t, title) => [
+                { breadcrumbName: t.formatMessage(commonMessage.simulation), path: paths.simulationListPage },
+                { breadcrumbName: title || 'Xem trước' },
             ],
         },
     },

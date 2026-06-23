@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Empty, Tag, Button, Modal, Input } from 'antd';
+import { Empty, Tag, Button, Modal, Input, Drawer } from 'antd';
 import {
     AppstoreOutlined,
     UnorderedListOutlined,
@@ -8,6 +8,9 @@ import {
     CloseCircleOutlined,
     BellOutlined,
     ClockCircleOutlined,
+    EyeOutlined,
+    CommentOutlined,
+    MessageOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useListBase from '@hooks/useListBase';
@@ -56,6 +59,10 @@ const SimulationListPage = ({ pageOptions }) => {
     const userType = getData(storageKeys.USER_TYPE);
     const isEducator = userType === UserTypes.EDUCATOR;
 
+    // State cho Drawer Thảo luận bài mẫu
+    const [isCommentDrawerVisible, setIsCommentDrawerVisible] = useState(false);
+    const [commentSimulationTitle, setCommentSimulationTitle] = useState('');
+
     const formattedStatusOptions = translate.formatKeys(simulationStatusOptions, ['label']);
     const formattedLevelOptions = translate.formatKeys(levelOptions, ['label']);
 
@@ -90,6 +97,12 @@ const SimulationListPage = ({ pageOptions }) => {
     const showNoticeModal = (notice) => {
         setCurrentNotice(notice);
         setIsNoticeModalVisible(true);
+    };
+
+    // Hàm mở drawer thảo luận bài mẫu
+    const handleShowTemplateComments = (id, title) => {
+        setCommentSimulationTitle(title);
+        setIsCommentDrawerVisible(true);
     };
 
     // Cấu hình API theo role
@@ -426,6 +439,7 @@ const SimulationListPage = ({ pageOptions }) => {
                     task: ({ id }) => (
                         <Button
                             type="link"
+                            style={{ padding: 0 }}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/simulation/${id}/task`);
@@ -440,6 +454,7 @@ const SimulationListPage = ({ pageOptions }) => {
                         notice && notice.trim() ? (
                             <Button
                                 type="link"
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     showNoticeModal(notice);
@@ -449,6 +464,20 @@ const SimulationListPage = ({ pageOptions }) => {
                                 <BellOutlined />
                             </Button>
                         ) : null,
+                    // Nút Xem trước bài mẫu
+                    preview: ({ id, title }) => (
+                        <Button
+                            type="link"
+                            style={{ padding: 0 }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                navigate(`/simulation/${id}/preview`, { state: { title } });
+                            }}
+                            title="Xem trước"
+                        >
+                            <EyeOutlined />
+                        </Button>
+                    ),
                 };
 
                 if (isEducator) {
@@ -458,6 +487,7 @@ const SimulationListPage = ({ pageOptions }) => {
                             <Button
                                 type="link"
                                 danger
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     funcs.handleEducatorDelete(id);
@@ -475,6 +505,7 @@ const SimulationListPage = ({ pageOptions }) => {
                             <Button
                                 type="link"
                                 danger
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     funcs.handleRequestDelete(id);
@@ -491,6 +522,7 @@ const SimulationListPage = ({ pageOptions }) => {
                         status === STATUS_WAITING_APPROVE ? (
                             <Button
                                 type="link"
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     funcs.handleApprove(id);
@@ -508,6 +540,7 @@ const SimulationListPage = ({ pageOptions }) => {
                             <Button
                                 type="link"
                                 danger
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     funcs.showRejectModal(id);
@@ -524,6 +557,7 @@ const SimulationListPage = ({ pageOptions }) => {
                         status === STATUS_WAITING_APPROVE_DELETE ? (
                             <Button
                                 type="link"
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     funcs.handleApproveDelete(id);
@@ -541,6 +575,7 @@ const SimulationListPage = ({ pageOptions }) => {
                             <Button
                                 type="link"
                                 danger
+                                style={{ padding: 0 }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     funcs.handleRejectDelete(id);
@@ -713,6 +748,7 @@ const SimulationListPage = ({ pageOptions }) => {
             isEducator
                 ? {
                     task: () => mixinFuncs.hasPermission([apiConfig.task.listByEducator.permissionCode]),
+                    preview: () => true,
                     requestDelete: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE &&
                           dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
@@ -727,6 +763,7 @@ const SimulationListPage = ({ pageOptions }) => {
                 }
                 : {
                     task: () => mixinFuncs.hasPermission([apiConfig.task.getList.permissionCode]),
+                    preview: () => true,
                     approve: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     reject: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     approveDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
@@ -734,7 +771,7 @@ const SimulationListPage = ({ pageOptions }) => {
                     viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
                     edit: () => mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                 },
-            { width: '237px', title: labels.action },
+            { width: '300px', title: labels.action },
         ),
     ];
 
@@ -830,6 +867,54 @@ const SimulationListPage = ({ pageOptions }) => {
                     {currentNotice || 'Không có thông báo'}
                 </div>
             </Modal>
+
+            {/* Drawer Thảo luận cấu trúc bài học mẫu */}
+            <Drawer
+                title={
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <span style={{ fontSize: 16, fontWeight: 600 }}>Thảo luận bài mô phỏng</span>
+                        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 400 }}>{commentSimulationTitle}</span>
+                    </div>
+                }
+                placement="right"
+                width={450}
+                onClose={() => {
+                    setIsCommentDrawerVisible(false);
+                }}
+                open={isCommentDrawerVisible}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                    <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
+                        <div style={{ 
+                            padding: 16, 
+                            background: '#f8fafc', 
+                            border: '1px dashed #cbd5e1', 
+                            borderRadius: 8, 
+                            textAlign: 'center', 
+                            color: '#64748b',
+                            fontSize: 13,
+                            lineHeight: 1.6,
+                            marginTop: 20,
+                        }}>
+                            <MessageOutlined style={{ fontSize: 24, color: '#cbd5e1', marginBottom: 8, display: 'block' }} />
+                            <strong>Kênh thảo luận cấu trúc nội bộ</strong>
+                            <p style={{ margin: '8px 0 0' }}>
+                                Tính năng thảo luận chung cho cấu trúc bài mô phỏng đang được lên kế hoạch tích hợp cùng API Backend mới.
+                            </p>
+                        </div>
+                    </div>
+                    <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 16, display: 'flex', gap: 8 }}>
+                        <Input.TextArea 
+                            rows={2} 
+                            placeholder="Nhập ý kiến thảo luận cấu trúc..." 
+                            disabled 
+                        />
+                        <Button type="primary" disabled style={{ height: 'auto' }}>
+                            Gửi
+                        </Button>
+                    </div>
+                </div>
+            </Drawer>
         </PageWrapper>
     );
 };

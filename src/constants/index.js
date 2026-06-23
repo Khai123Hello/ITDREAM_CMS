@@ -273,3 +273,8 @@ export const ERROR_CATEGORY_EXIST = 'ERROR-CATEGORY-0001';
 export const ERROR_ACCOUNT_EXIST = 'ERROR-ACCOUNT-0001';
 export const ERROR_USERNAME_EXISTED = 'ERROR-ACCOUNT-0001';
 
+// Review Status for SimulationEnrollment
+export const ReviewStatus = {
+    NOT_REVIEWED: 0, // Chưa nhận xét
+    REVIEWED: 1,     // Đã nhận xét hoàn tất
+};
