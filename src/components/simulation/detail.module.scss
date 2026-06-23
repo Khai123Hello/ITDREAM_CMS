@@ -813,3 +813,223 @@ $max-w: 1160px;
 
   &:hover { opacity: .75; }
 }
+
+// ═══════════════════════════════════════════
+// STUDENT REVIEW (FEEDBACK) DASHBOARD
+// ═══════════════════════════════════════════
+.dashboardContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 20px;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.avgCard {
+  @include card;
+  padding: 24px;
+  background: $white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.avgVal {
+  font-family: $font-display;
+  font-size: 52px;
+  font-weight: 700;
+  color: $amber;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+.avgStars {
+  margin: 12px 0 6px;
+  font-size: 20px;
+}
+
+.avgCount {
+  font-size: 13px;
+  color: $ink3;
+}
+
+.distributionCard {
+  @include card;
+  padding: 20px 24px;
+  background: $white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.distRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: $ink2;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.distLabel {
+  width: 32px;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.distBar {
+  flex: 1;
+  :global(.ant-progress-bg) {
+    background-color: $amber !important;
+  }
+  :global(.ant-progress-trail) {
+    background-color: $cream2 !important;
+  }
+}
+
+.distCount {
+  width: 32px;
+  text-align: right;
+  color: $ink3;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.feedbackCard {
+  @include card;
+  padding: 20px;
+  background: $white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 180px;
+  transition: transform .2s, box-shadow .2s;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.cardAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid $cream3;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.cardAvatarText {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $white;
+  font-weight: 600;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.cardMeta {
+  flex: 1;
+  min-width: 0;
+}
+
+.cardName {
+  font-weight: 600;
+  color: $ink;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardUsername {
+  font-size: 11px;
+  color: $ink3;
+}
+
+.cardRatingArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.cardRating {
+  font-size: 11px;
+}
+
+.cardDate {
+  font-size: 10px;
+  color: $ink3;
+}
+
+.cardContent {
+  font-size: 13px;
+  color: $ink2;
+  line-height: 1.6;
+  background-color: $cream;
+  padding: 12px;
+  border-radius: $radius-sm;
+  margin-bottom: 12px;
+  white-space: pre-wrap;
+  flex: 1;
+  
+  &.empty {
+    font-style: italic;
+    color: $ink3;
+  }
+}
+
+.deleteBtn {
+  font-size: 12px;
+  font-weight: 600;
+  color: $red;
+  border-color: rgba($red, 0.2);
+  border-radius: $radius-sm;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  height: auto;
+  margin-left: auto;
+  
+  &:hover, &:focus {
+    color: lighten($red, 10%) !important;
+    border-color: lighten($red, 10%) !important;
+    background: rgba($red, 0.05) !important;
+  }
+}

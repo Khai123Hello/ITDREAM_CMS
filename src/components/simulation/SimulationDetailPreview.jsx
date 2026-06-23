@@ -1,10 +1,13 @@
 import React, { useMemo, useState } from 'react';
 import { Empty, Modal, Upload, Input, Button, Tabs, message, Spin } from 'antd';
 import { UploadOutlined, FileAddOutlined, BookOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import useFetch from '@hooks/useFetch';
 import apiConfig from '@constants/apiConfig';
 import { AppConstants } from '@constants';
 import EditableZone from './EditableZone';
+import StudentReviewDashboard from './StudentReviewDashboard';
+import SimulationTaskPanel from './SimulationTaskPanel';
 import styles from './detail.module.scss';
 
 /**
@@ -15,6 +18,7 @@ import styles from './detail.module.scss';
  *   tasks         – array nhiệm vụ (optional, default [])
  *   editable      – boolean (default false)
  *   onFieldChange – callback(fieldPath, value)
+ *   simulationId  – ID của bài mô phỏng để quản lý chấm điểm
  *
  * fieldPath map:
  *   "title"                  → form.title
@@ -31,11 +35,21 @@ function SimulationDetailPreview({
     editable = false,
     onFieldChange,
     categories = [],
+    simulationId,
 }) {
     const [activeTab, setActiveTab] = useState('overview');
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const { execute: executeUpFile } = useFetch(apiConfig.file.upload, { immediate: false });
+    const navigate = useNavigate();
+
+    const handleJoinFree = () => {
+        if (!simulationId || simulationId === 'create') {
+            message.warning('Vui lòng lưu bài mô phỏng trước khi xem trước!');
+            return;
+        }
+        navigate(`/simulation/${simulationId}/preview`);
+    };
 
     const getImageUrl = (path) => {
         if (!path) return null;
@@ -239,7 +253,11 @@ function SimulationDetailPreview({
                                 <li><span className={styles.checkIcon}>✓</span> Nhận chứng chỉ bổ sung vào hồ sơ & LinkedIn.</li>
                                 <li><span className={styles.checkIcon}>✓</span> Không tính điểm, không áp lực.</li>
                             </ul>
-                            <button className={styles.ctaBtn} disabled style={{ cursor: 'not-allowed', opacity: 0.7 }}>
+                            <button 
+                                className={styles.ctaBtn} 
+                                onClick={handleJoinFree}
+                                style={{ cursor: 'pointer' }}
+                            >
                                 Tham gia miễn phí
                             </button>
                             <p className={styles.enrollNote}>Hoàn toàn miễn phí · Không cần thẻ tín dụng</p>
@@ -439,42 +457,16 @@ function SimulationDetailPreview({
 
                     {/* ── TASKS TAB ── */}
                     {activeTab === 'tasks' && (
-                        <div className={styles.tasksLayout}>
-                            {tasks.length > 0 ? (
-                                <p style={{ padding: 24 }}>TaskPanel: {tasks.length} nhiệm vụ</p>
-                            ) : (
-                                <div className={styles.emptyWrap}>
-                                    <Empty description="Chưa có nhiệm vụ nào" />
-                                </div>
-                            )}
-                        </div>
+                        <SimulationTaskPanel simulationId={simulationId} />
                     )}
 
                     {/* ── REVIEWS TAB ── */}
                     {activeTab === 'reviews' && (
-                        <div className={styles.reviewsLayout}>
-                            <div className={styles.reviewsSummary}>
-                                <div className={styles.reviewsScore}>{simulation.avgStar?.toFixed(1) || '—'}</div>
-                                <div className={styles.reviewsStars}>
-                                    {[1, 2, 3, 4, 5].map((n) => (
-                                        <span key={n} className={n <= getStarCount(simulation.avgStar) ? styles.starFilled : styles.starEmpty}>★</span>
-                                    ))}
-                                </div>
-                                <div className={styles.reviewsTotal}>{simulation.totalParticipant || 0} đánh giá</div>
-                            </div>
-                            <div className={styles.reviewsCarousel}>
-                                <button className={styles.reviewArrow}>
-                                    <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11L5 7l4-4"/></svg>
-                                </button>
-                                <blockquote className={styles.reviewQuote}>
-                                    <p>&quot;Bài mô phỏng rất hấp dẫn và thực tế.&quot;</p>
-                                    <footer>— Học viên từ {simulation.educator?.organization?.name || 'cộng đồng'}</footer>
-                                </blockquote>
-                                <button className={styles.reviewArrow}>
-                                    <svg width="16" height="16" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 3l4 4-4 4"/></svg>
-                                </button>
-                            </div>
-                        </div>
+                        <StudentReviewDashboard 
+                            simulationId={simulationId} 
+                            avgStar={simulation.avgStar}
+                            totalParticipant={simulation.totalParticipant}
+                        />
                     )}
                 </main>
 

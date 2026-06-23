@@ -20,7 +20,7 @@ import reviewSubmissionRoutes from '@modules/reviewSubmission/routes';
 import blogRoutes from '@modules/blog/routes';
 import organizationRoutes from '@modules/organization/routes';
 import commentRoutes from '@modules/comment/routes';
-import feedbackRoutes from '@modules/feedback/routes';
+
 import permissionRoutes from '@modules/permission/routes';
 
 /*
@@ -97,7 +97,7 @@ const routes = {
     ...blogRoutes,
     ...organizationRoutes,
     ...commentRoutes,
-    ...feedbackRoutes,
+
     ...permissionRoutes,
     // keep this at last
     notFound: {
