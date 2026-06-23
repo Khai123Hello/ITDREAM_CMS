@@ -72,12 +72,7 @@ export const navMenuConfig = [
             //     path: '/comment',
             //     permission: [apiConfig.comment.list.permissionCode],
             // },
-            {
-                label: <FormattedMessage defaultMessage="Quản lý Đánh giá" />,
-                key: 'feedback',
-                path: '/feedback',
-                permission: [apiConfig.feedback.list.permissionCode],
-            },
+
         ],
     },
     {

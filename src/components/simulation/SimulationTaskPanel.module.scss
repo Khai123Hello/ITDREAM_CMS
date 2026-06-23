@@ -1,0 +1,686 @@
+// ═══════════════════════════════════════════
+// TOKENS (Unified with detail.module.scss)
+// ═══════════════════════════════════════════
+$cream:       #faf9f6;
+$cream2:      #f3f1ec;
+$cream3:      #e8e4dc;
+$ink:         #1a1814;
+$ink2:        #45433e;
+$ink3:        #8a877f;
+$white:       #ffffff;
+
+$amber:       #d97706;
+$amber-soft:  rgba(217, 119, 6, 0.1);
+$amber-mid:   rgba(217, 119, 6, 0.18);
+
+$font-display: 'Lora', 'Georgia', serif;
+$font-body:    'DM Sans', 'Helvetica Neue', sans-serif;
+$font-mono:    'JetBrains Mono', monospace;
+
+$radius-sm:   6px;
+$radius-md:   10px;
+$radius-lg:   16px;
+
+// ═══════════════════════════════════════════
+// MAIN PANEL
+// ═══════════════════════════════════════════
+.panel {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    min-height: 500px;
+    width: 100%;
+}
+
+// ═══════════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════════
+.sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: $white;
+    padding: 16px;
+    border: 1px solid $cream3;
+    border-radius: $radius-lg;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.sidebarItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: $radius-md;
+    cursor: pointer;
+    text-align: left;
+    font-family: $font-body;
+    transition: all 0.2s ease;
+
+    &:hover {
+        background: $cream2;
+        transform: translateX(2px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid $amber;
+        outline-offset: 2px;
+    }
+}
+
+.sidebarItemActive {
+    background: $cream2;
+    border-color: $cream3;
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.04);
+
+    &:hover {
+        background: $cream2;
+        transform: none;
+    }
+}
+
+.sidebarBadge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: $cream2;
+    border: 1.5px solid $cream3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: $ink3;
+    transition: all 0.2s ease;
+}
+
+.sidebarBadgeActive {
+    background: $amber;
+    border-color: $amber;
+    color: $white;
+}
+
+.sidebarBadgeFlag {
+    color: $ink3;
+    border-radius: 8px;
+    background: $cream2;
+
+    &.sidebarBadgeActive {
+        background: $amber-soft;
+        color: $amber;
+        border-color: $amber-mid;
+    }
+}
+
+.sidebarNum {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.sidebarName {
+    font-size: 14px;
+    font-weight: 600;
+    color: $ink2;
+    line-height: 1.4;
+    transition: color 0.2s ease;
+
+    .sidebarItemActive & {
+        color: $amber;
+    }
+}
+
+.flagIcon {
+    stroke: currentColor;
+}
+
+// ═══════════════════════════════════════════
+// DETAIL
+// ═══════════════════════════════════════════
+.detail {
+    flex: 1;
+    min-width: 0;
+    background: $white;
+    border: 1px solid $cream3;
+    border-radius: $radius-lg;
+    padding: 32px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.detailHeader {
+    margin-bottom: 24px;
+}
+
+.detailTitle {
+    font-family: $font-display;
+    font-size: 24px;
+    font-weight: 700;
+    color: $ink;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+}
+
+.detailDescription {
+    font-size: 14.5px;
+    color: $ink2;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.detailDivider {
+    border: 0;
+    height: 1px;
+    background: $cream3;
+    margin: 24px 0;
+}
+
+.detailContent {
+    font-size: 15px;
+    color: $ink;
+    line-height: 1.75;
+}
+
+.noTask {
+    font-size: 15px;
+    color: $ink3;
+    text-align: center;
+    padding: 48px 0;
+}
+
+// ─────────────────────────────────────────
+// RENDERERS
+// ─────────────────────────────────────────
+
+// Plain text
+.plainText {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    p {
+        margin: 0;
+        color: $ink2;
+    }
+}
+
+// Markdown Content
+.markdownContent {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .mdH1 {
+        font-family: $font-display;
+        font-size: 22px;
+        font-weight: 700;
+        color: $ink;
+        margin: 20px 0 8px 0;
+        line-height: 1.4;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    .mdH2 {
+        font-family: $font-display;
+        font-size: 19px;
+        font-weight: 700;
+        color: $ink;
+        margin: 16px 0 6px 0;
+        line-height: 1.4;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    .mdH3 {
+        font-size: 16px;
+        font-weight: 700;
+        color: $ink;
+        margin: 14px 0 6px 0;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    .mdPara {
+        margin: 0;
+        color: $ink2;
+
+        strong {
+            color: $ink;
+            font-weight: 700;
+        }
+
+        code {
+            background: $cream2;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: $font-mono;
+            font-size: 13.5px;
+            color: #b91c1c;
+        }
+
+        a {
+            color: $amber;
+            text-decoration: underline;
+            font-weight: 600;
+
+            &:hover {
+                color: $ink;
+            }
+        }
+    }
+
+    .mdList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        li {
+            position: relative;
+            padding-left: 20px;
+            color: $ink2;
+
+            &::before {
+                content: "•";
+                position: absolute;
+                left: 6px;
+                color: $amber;
+                font-weight: bold;
+            }
+
+            strong {
+                color: $ink;
+            }
+
+            code {
+                background: $cream2;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-family: $font-mono;
+                font-size: 13.5px;
+                color: #b91c1c;
+            }
+
+            a {
+                color: $amber;
+                text-decoration: underline;
+                font-weight: 600;
+
+                &:hover {
+                    color: $ink;
+                }
+            }
+        }
+    }
+}
+
+// Blocks Content
+.blocksContent {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.blockMeta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: $ink3;
+    background: $cream2;
+    padding: 4px 10px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.blockMetaVal {
+    color: $ink2;
+}
+
+.blockMetaDot {
+    color: $cream3;
+}
+
+.blockSection {
+    background: $white;
+    border: 1px solid $cream3;
+    border-radius: $radius-lg;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.blockSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.blockSectionIcon {
+    font-size: 18px;
+}
+
+.blockSectionTitle {
+    font-family: $font-display;
+    font-size: 17px;
+    font-weight: 700;
+    color: $ink;
+}
+
+.blockSectionList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    li {
+        position: relative;
+        padding-left: 20px;
+        font-size: 14px;
+        color: $ink2;
+
+        &::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: $amber;
+            font-weight: bold;
+            font-size: 12px;
+        }
+    }
+}
+
+.blockText {
+    margin: 0;
+    color: $ink2;
+}
+
+.blockH1 {
+    font-family: $font-display;
+    font-size: 22px;
+    font-weight: 700;
+    color: $ink;
+    margin: 10px 0 0 0;
+}
+
+.blockH2 {
+    font-family: $font-display;
+    font-size: 18px;
+    font-weight: 700;
+    color: $ink;
+    margin: 8px 0 0 0;
+}
+
+.blockH3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: $ink;
+    margin: 6px 0 0 0;
+}
+
+.blockBulletWrap {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.blockBulletDot {
+    color: $amber;
+    font-weight: bold;
+}
+
+.blockNumLabel {
+    color: $amber;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.blockBulletText {
+    font-size: 14.5px;
+    color: $ink2;
+}
+
+.blockDivider {
+    border: 0;
+    height: 1px;
+    background: $cream3;
+    margin: 10px 0;
+}
+
+.blockCallout {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    background: $amber-soft;
+    border: 1px solid $amber-mid;
+    border-radius: $radius-md;
+    padding: 16px;
+}
+
+.blockCalloutIcon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.blockCalloutText {
+    font-size: 14px;
+    color: $ink2;
+    line-height: 1.6;
+}
+
+.blockCode {
+    background: #0f172a;
+    padding: 16px;
+    border-radius: $radius-md;
+    overflow-x: auto;
+
+    pre {
+        margin: 0;
+        font-family: $font-mono;
+        font-size: 13.5px;
+        color: #f8fafc;
+    }
+}
+
+.blockStep {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.blockStepLabel {
+    font-weight: 700;
+    color: $ink;
+}
+
+.blockStepBody {
+    color: $ink2;
+}
+
+.emptyContent {
+    font-size: 14.5px;
+    color: $ink3;
+    font-style: italic;
+}
+
+/* ── Sidebar timeline layout ── */
+.sidebarRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.sidebarTimeline {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding-top: 2px;
+}
+
+.sidebarCircle {
+  all: unset;
+  box-sizing: border-box;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid $cream3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: $ink3;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.sidebarCircleActive {
+  background: $amber;
+  color: #ffffff;
+  border-color: $amber;
+}
+
+.sidebarCircle:hover:not(.sidebarCircleActive) {
+  background: $amber-soft;
+  border-color: $amber;
+  color: $amber;
+}
+
+.sidebarConnector {
+  width: 2px;
+  flex: 1;
+  min-height: 24px;
+  background-color: $cream3;
+  margin: 4px 0;
+}
+
+/* ── Sidebar content button ── */
+.sidebarContentBtn {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 0 20px;
+  cursor: pointer;
+  flex: 1;
+  text-align: left;
+}
+
+.sidebarContentBtn:hover .sidebarTitle:not(.sidebarTitleActive) {
+  color: $amber;
+}
+
+.sidebarTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: $ink;
+  line-height: 1.3;
+  transition: color 0.15s;
+}
+
+.sidebarTitleActive {
+  color: $amber;
+}
+
+.sidebarDesc {
+  font-size: 12px;
+  font-weight: 400;
+  color: $ink3;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.sidebarTime {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: $ink3;
+  margin-top: 4px;
+  
+  svg {
+     stroke: currentColor;
+  }
+}
+
+/* ── Detail topbar ── */
+.detailTopbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.detailTopbarLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: $ink2;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-right: 12px;
+}
+
+/* ── Subtask pagination ── */
+.subtaskPagination {
+  display: inline-flex;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid $cream3;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.subtaskPageBtn {
+  all: unset;
+  box-sizing: border-box;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 10px;
+  background-color: $cream2;
+  font-weight: 500;
+  color: $ink2;
+  font-size: 15px;
+  cursor: pointer;
+  border-right: 1px solid $cream3;
+  transition: background 0.15s;
+}
+
+.subtaskPageBtn:last-child {
+  border-right: none;
+}
+
+.subtaskPageBtn:hover:not(.subtaskPageBtnActive) {
+  background-color: $cream3;
+}
+
+.subtaskPageBtnActive {
+  background-color: #ffffff;
+  color: $amber;
+  font-weight: 700;
+}

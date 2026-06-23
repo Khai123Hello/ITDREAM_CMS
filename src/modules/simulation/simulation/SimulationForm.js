@@ -348,6 +348,7 @@ const SimulationForm = (props) => {
                     editable={previewEditable && canEdit}
                     onFieldChange={handleFieldChange}
                     categories={categories}
+                    simulationId={dataDetail?.id}
                 />
             </div>
         </div>
