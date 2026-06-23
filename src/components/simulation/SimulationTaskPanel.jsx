@@ -255,65 +255,19 @@ const SimulationTaskPanel = ({ simulationId }) => {
         [ tasks ],
     );
 
-    // Map parentId → subtasks[]
-    const subTaskMap = useMemo(() => {
-        const map = {};
-        (tasks || [])
-            .filter((t) => t.kind === 2)
-            .forEach((t) => {
-                const pid = t.parent?.id || t.parentId;
-                if (pid == null) return;
-                if (!map[pid]) map[pid] = [];
-                map[pid].push(t);
-            });
-        // sort each group
-        Object.keys(map).forEach((pid) => {
-            map[pid].sort((a, b) => (a.orderInParent ?? 0) - (b.orderInParent ?? 0));
-        });
-        return map;
-    }, [ tasks ]);
-
     const [ activeParentId, setActiveParentId ] = useState(null);
-    const [ activeSubId, setActiveSubId ] = useState(null);
 
-    // Set first parent & first sub active once tasks loaded
+    // Set first parent active once tasks loaded
     useEffect(() => {
         if (parentTasks.length > 0) {
-            const firstParent = parentTasks[0].id;
-            setActiveParentId(firstParent);
-            const subs = subTaskMap[firstParent] || [];
-            if (subs.length > 0) {
-                setActiveSubId(subs[0].id);
-            } else {
-                setActiveSubId(null);
-            }
+            setActiveParentId(parentTasks[0].id);
         } else {
             setActiveParentId(null);
-            setActiveSubId(null);
         }
-    }, [ parentTasks, subTaskMap ]);
-
-    // Subtasks of currently active parent task
-    const currentSubTasks = useMemo(
-        () => (activeParentId != null ? (subTaskMap[activeParentId] ?? []) : []),
-        [ activeParentId, subTaskMap ],
-    );
-
-    // Subtask currently showing
-    const activeSubTask = useMemo(
-        () => currentSubTasks.find((s) => s.id === activeSubId) ?? currentSubTasks[0] ?? null,
-        [ currentSubTasks, activeSubId ],
-    );
+    }, [ parentTasks ]);
 
     const handleSelectParent = (parentId) => {
         setActiveParentId(parentId);
-        const subs = subTaskMap[parentId] ?? [];
-        const firstSub = subs[0] ?? null;
-        setActiveSubId(firstSub?.id ?? null);
-    };
-
-    const handleSelectSub = (subId) => {
-        setActiveSubId(subId);
     };
 
     if (!simulationId || simulationId === 'create') {
@@ -397,63 +351,20 @@ const SimulationTaskPanel = ({ simulationId }) => {
                 })}
             </aside>
 
-            {/* ── DETAIL (subtask) ── */}
+            {/* ── DETAIL (Task chính) ── */}
             <div className={styles.detail}>
-                {activeSubTask ? (
-                    <>
-                        {/* Topbar: tên task cha + pagination subtasks */}
-                        <div className={styles.detailTopbar}>
-                            <span className={styles.detailTopbarLabel}>
-                                {parentTasks.find((p) => p.id === activeParentId)?.title ||
-                                    parentTasks.find((p) => p.id === activeParentId)?.name ||
-                                    ''}
-                            </span>
-
-                            {currentSubTasks.length > 1 && (
-                                <div className={styles.subtaskPagination}>
-                                    {currentSubTasks.map((sub, i) => {
-                                        const isActiveSub = sub.id === activeSubTask.id;
-                                        return (
-                                            <button
-                                                key={sub.id}
-                                                className={`${styles.subtaskPageBtn} ${isActiveSub ? styles.subtaskPageBtnActive : ''}`}
-                                                onClick={() => handleSelectSub(sub.id)}
-                                                aria-label={`Step ${i + 1}`}
-                                            >
-                                                {i + 1}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                        </div>
-
-                        <hr className={styles.detailDivider} />
-
-                        {/* Subtask content */}
+                {(() => {
+                    const parent = parentTasks.find((p) => p.id === activeParentId);
+                    return parent ? (
                         <div className={styles.detailContent}>
-                            <h1 className={styles.detailTitle}>{activeSubTask.title || activeSubTask.name}</h1>
-                            {activeSubTask.description && (
-                                <p className={styles.detailDescription}>{activeSubTask.description}</p>
-                            )}
-                            <ContentRenderer content={activeSubTask.content} />
+                            <h1 className={styles.detailTitle}>{parent.title || parent.name}</h1>
+                            {parent.description && <p className={styles.detailDescription}>{parent.description}</p>}
+                            <ContentRenderer content={parent.content} />
                         </div>
-                    </>
-                ) : (
-                    /* Task cha không có subtask — hiển thị nội dung task cha */
-                    (() => {
-                        const parent = parentTasks.find((p) => p.id === activeParentId);
-                        return parent ? (
-                            <div className={styles.detailContent}>
-                                <h1 className={styles.detailTitle}>{parent.title || parent.name}</h1>
-                                {parent.description && <p className={styles.detailDescription}>{parent.description}</p>}
-                                <ContentRenderer content={parent.content} />
-                            </div>
-                        ) : (
-                            <div className={styles.noTask}>Chọn một nhiệm vụ để xem nội dung.</div>
-                        );
-                    })()
-                )}
+                    ) : (
+                        <div className={styles.noTask}>Chọn một nhiệm vụ để xem nội dung.</div>
+                    );
+                })()}
             </div>
         </div>
     );

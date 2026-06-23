@@ -807,19 +807,21 @@ const TaskForm = (props) => {
                     </Row>
 
                     {/* ── Phương tiện & Tài liệu ────────────────────────── */}
-                    <Divider orientation="left">Phương tiện & Tài liệu</Divider>
+                    {Number(taskKind) === TaskTypes.SUBTASK && (
+                        <>
+                            <Divider orientation="left">Phương tiện & Tài liệu</Divider>
 
-                    <Row gutter={[16, 24]}>
-                        <Col span={24}>
-                            <label style={labelStyle}>Ảnh</label>
-                            <Tabs
-                                items={[
-                                    {
-                                        key: 'upload',
-                                        label: 'Tải lên',
-                                        children: (
-                                            <>
-                                                <style>{`
+                            <Row gutter={[16, 24]}>
+                                <Col span={24}>
+                                    <label style={labelStyle}>Ảnh</label>
+                                    <Tabs
+                                        items={[
+                                            {
+                                                key: 'upload',
+                                                label: 'Tải lên',
+                                                children: (
+                                                    <>
+                                                        <style>{`
                                                     .large-image-preview .ant-upload {
                                                         width: 100% !important;
                                                         height: auto !important;
@@ -834,145 +836,147 @@ const TaskForm = (props) => {
                                                         object-fit: contain !important;
                                                     }
                                                 `}</style>
-                                                <div className="large-image-preview">
-                                                    <CropImageField
-                                                        label=""
-                                                        name="imagePath"
-                                                        imageUrl={getMediaUrl(imagePath)}
-                                                        aspect={16 / 9}
-                                                        uploadFile={(file, onSuccess, onError) =>
-                                                            uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)
-                                                        }
-                                                        disabled={!isEducator}
-                                                    />
-                                                </div>
-                                            </>
-                                        ),
-                                    },
-                                    {
-                                        key: 'url',
-                                        label: 'Đường dẫn (URL)',
-                                        children: (
-                                            <div style={{ marginBottom: 16 }}>
-                                                <Input
-                                                    value={imagePath}
-                                                    onChange={(e) => {
-                                                        setImagePath(e.target.value);
-                                                        setIsChangedFormValues(true);
-                                                    }}
-                                                    placeholder="https://..."
-                                                    size="large"
-                                                    disabled={!isEducator}
-                                                />
-                                                {imagePath && (
-                                                    <div style={{ marginTop: 8 }}>
-                                                        <img
-                                                            src={getMediaUrl(imagePath)}
-                                                            alt="Preview"
-                                                            style={{
-                                                                maxWidth: '100%',
-                                                                maxHeight: 400,
-                                                                borderRadius: 8,
-                                                                border: '1px solid #d9d9d9',
-                                                                objectFit: 'contain',
+                                                        <div className="large-image-preview">
+                                                            <CropImageField
+                                                                label=""
+                                                                name="imagePath"
+                                                                imageUrl={getMediaUrl(imagePath)}
+                                                                aspect={16 / 9}
+                                                                uploadFile={(file, onSuccess, onError) =>
+                                                                    uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)
+                                                                }
+                                                                disabled={!isEducator}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                ),
+                                            },
+                                            {
+                                                key: 'url',
+                                                label: 'Đường dẫn (URL)',
+                                                children: (
+                                                    <div style={{ marginBottom: 16 }}>
+                                                        <Input
+                                                            value={imagePath}
+                                                            onChange={(e) => {
+                                                                setImagePath(e.target.value);
+                                                                setIsChangedFormValues(true);
                                                             }}
+                                                            placeholder="https://..."
+                                                            size="large"
+                                                            disabled={!isEducator}
                                                         />
+                                                        {imagePath && (
+                                                            <div style={{ marginTop: 8 }}>
+                                                                <img
+                                                                    src={getMediaUrl(imagePath)}
+                                                                    alt="Preview"
+                                                                    style={{
+                                                                        maxWidth: '100%',
+                                                                        maxHeight: 400,
+                                                                        borderRadius: 8,
+                                                                        border: '1px solid #d9d9d9',
+                                                                        objectFit: 'contain',
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        ),
-                                    },
-                                ]}
-                            />
-                        </Col>
+                                                ),
+                                            },
+                                        ]}
+                                    />
+                                </Col>
 
-                        <Col span={24}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={labelStyle}>Video URL</label>
-                                <Input
-                                    value={videoUrl}
-                                    onChange={(e) => {
-                                        setVideoUrl(e.target.value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="https://...mp4"
-                                    size="large"
-                                    disabled={!isEducator}
-                                />
-                                {videoUrl &&
+                                <Col span={24}>
+                                    <div style={{ marginBottom: 16 }}>
+                                        <label style={labelStyle}>Video URL</label>
+                                        <Input
+                                            value={videoUrl}
+                                            onChange={(e) => {
+                                                setVideoUrl(e.target.value);
+                                                setIsChangedFormValues(true);
+                                            }}
+                                            placeholder="https://...mp4"
+                                            size="large"
+                                            disabled={!isEducator}
+                                        />
+                                        {videoUrl &&
                                 (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
                                 videoUrl.endsWith('.mp4') ? (
-                                        <div
-                                            style={{
-                                                marginTop: 8,
-                                                borderRadius: 8,
-                                                overflow: 'hidden',
-                                                border: '1px solid #d9d9d9',
-                                            }}
-                                        >
-                                            <video
-                                                controls
-                                                style={{
-                                                    width: '100%',
-                                                    maxHeight: 400,
-                                                    objectFit: 'contain',
-                                                    background: '#000',
-                                                }}
-                                                src={videoUrl}
-                                            />
-                                        </div>
-                                    ) : videoUrl ? (
-                                        <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
+                                                <div
+                                                    style={{
+                                                        marginTop: 8,
+                                                        borderRadius: 8,
+                                                        overflow: 'hidden',
+                                                        border: '1px solid #d9d9d9',
+                                                    }}
+                                                >
+                                                    <video
+                                                        controls
+                                                        style={{
+                                                            width: '100%',
+                                                            maxHeight: 400,
+                                                            objectFit: 'contain',
+                                                            background: '#000',
+                                                        }}
+                                                        src={videoUrl}
+                                                    />
+                                                </div>
+                                            ) : videoUrl ? (
+                                                <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
                                         Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
-                                        </div>
-                                    ) : null}
-                            </div>
-                        </Col>
+                                                </div>
+                                            ) : null}
+                                    </div>
+                                </Col>
 
-                        <Col span={24}>
-                            <label style={labelStyle}>File Tài Liệu</label>
-                            <Tabs
-                                items={[
-                                    {
-                                        key: 'upload',
-                                        label: 'Tải lên',
-                                        children: (
-                                            <Upload.Dragger
-                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
-                                                customRequest={({ file, onSuccess, onError }) =>
-                                                    uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)
-                                                }
-                                                showUploadList={false}
-                                                disabled={!isEducator}
-                                            >
-                                                <p className="ant-upload-drag-icon">
-                                                    <UploadOutlined />
-                                                </p>
-                                                <p className="ant-upload-text">Kéo thả hoặc click để tải lên</p>
-                                            </Upload.Dragger>
-                                        ),
-                                    },
-                                    {
-                                        key: 'url',
-                                        label: 'Đường dẫn (URL)',
-                                        children: (
-                                            <Input
-                                                value={filePath}
-                                                onChange={(e) => {
-                                                    setFilePath(e.target.value);
-                                                    setIsChangedFormValues(true);
-                                                }}
-                                                placeholder="https://..."
-                                                size="large"
-                                                disabled={!isEducator}
-                                            />
-                                        ),
-                                    },
-                                ]}
-                            />
-                            {filePath && <FilePreview url={getMediaUrl(filePath)} />}
-                        </Col>
-                    </Row>
+                                <Col span={24}>
+                                    <label style={labelStyle}>File Tài Liệu</label>
+                                    <Tabs
+                                        items={[
+                                            {
+                                                key: 'upload',
+                                                label: 'Tải lên',
+                                                children: (
+                                                    <Upload.Dragger
+                                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                                                        customRequest={({ file, onSuccess, onError }) =>
+                                                            uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)
+                                                        }
+                                                        showUploadList={false}
+                                                        disabled={!isEducator}
+                                                    >
+                                                        <p className="ant-upload-drag-icon">
+                                                            <UploadOutlined />
+                                                        </p>
+                                                        <p className="ant-upload-text">Kéo thả hoặc click để tải lên</p>
+                                                    </Upload.Dragger>
+                                                ),
+                                            },
+                                            {
+                                                key: 'url',
+                                                label: 'Đường dẫn (URL)',
+                                                children: (
+                                                    <Input
+                                                        value={filePath}
+                                                        onChange={(e) => {
+                                                            setFilePath(e.target.value);
+                                                            setIsChangedFormValues(true);
+                                                        }}
+                                                        placeholder="https://..."
+                                                        size="large"
+                                                        disabled={!isEducator}
+                                                    />
+                                                ),
+                                            },
+                                        ]}
+                                    />
+                                    {filePath && <FilePreview url={getMediaUrl(filePath)} />}
+                                </Col>
+                            </Row>
+                        </>
+                    )}
 
                     {Number(taskKind) === TaskTypes.SUBTASK ? (
                         <div style={{ marginTop: 24, marginBottom: 24 }}>
@@ -1157,17 +1161,19 @@ const TaskForm = (props) => {
             const descVal = descriptionRef.current || description || formValues.description || values?.description || '';
             const nameVal = formValues.name || values?.name;
 
+            const currentKind = isEditing ? dataDetail.kind : taskKind;
+            const isSubtask = Number(currentKind) === TaskTypes.SUBTASK;
             const submitData = {
                 name: symbol || nameVal?.trim() || '',
                 title: titleVal?.trim() || '',
                 description: descVal?.trim() || '',
-                kind: isEditing ? dataDetail.kind : taskKind,
+                kind: currentKind,
                 simulationId: simulationId || 0,
                 // Dùng contentRef.current để lấy nội dung mới nhất dù debounce chưa fire
                 content: contentRef.current || content,
-                imagePath: imagePath || null,
-                videoPath: videoUrl || null,
-                filePath: filePath || null,
+                imagePath: isSubtask ? (imagePath || null) : null,
+                videoPath: isSubtask ? (videoUrl || null) : null,
+                filePath: isSubtask ? (filePath || null) : null,
             };
 
             if (submitData.kind === TaskTypes.SUBTASK) {

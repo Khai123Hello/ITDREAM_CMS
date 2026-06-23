@@ -128,6 +128,54 @@ const SimulationPreviewPage = ({ pageOptions }) => {
         }
     };
 
+    const activePreviewSubtaskIndex = previewSubtasks.findIndex((st) => st.id === selectedPreviewSubtaskId);
+
+    const activePreviewParentTaskIndex = previewParentTasks.findIndex((t) => t.id === selectedPreviewParentTaskId);
+
+    // Helper: get sorted subtasks for a given preview parent task id
+    const getPreviewSubtasksForParent = (parentId) => {
+        return (
+            previewTasks
+                ?.filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
+                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+        );
+    };
+
+    const handleBackPreviewSubtask = () => {
+        if (activePreviewSubtaskIndex > 0) {
+            // Navigate to previous subtask within current parent task
+            setSelectedPreviewSubtaskId(previewSubtasks[activePreviewSubtaskIndex - 1].id);
+        } else if (activePreviewParentTaskIndex > 0) {
+            // At first subtask of current task → jump to previous parent task's LAST subtask
+            const prevParent = previewParentTasks[activePreviewParentTaskIndex - 1];
+            const prevSubs = getPreviewSubtasksForParent(prevParent.id);
+            setSelectedPreviewParentTaskId(prevParent.id);
+            if (prevSubs.length > 0) {
+                setSelectedPreviewSubtaskId(prevSubs[prevSubs.length - 1].id);
+            }
+        }
+    };
+
+    const handleNextPreviewSubtask = () => {
+        if (activePreviewSubtaskIndex >= 0 && activePreviewSubtaskIndex < previewSubtasks.length - 1) {
+            // Navigate to next subtask within current parent task
+            setSelectedPreviewSubtaskId(previewSubtasks[activePreviewSubtaskIndex + 1].id);
+        } else if (activePreviewParentTaskIndex < previewParentTasks.length - 1) {
+            // At last subtask of current task → jump to next parent task's FIRST subtask
+            const nextParent = previewParentTasks[activePreviewParentTaskIndex + 1];
+            const nextSubs = getPreviewSubtasksForParent(nextParent.id);
+            setSelectedPreviewParentTaskId(nextParent.id);
+            if (nextSubs.length > 0) {
+                setSelectedPreviewSubtaskId(nextSubs[0].id);
+            }
+        }
+    };
+
+    // True when at the very first subtask of the very first task
+    const isPreviewAtGlobalStart = activePreviewParentTaskIndex <= 0 && activePreviewSubtaskIndex <= 0;
+    // True when at the very last subtask of the very last task
+    const isPreviewAtGlobalEnd = activePreviewParentTaskIndex >= previewParentTasks.length - 1 && activePreviewSubtaskIndex >= previewSubtasks.length - 1;
+
     return (
         <PageWrapper
             routes={pageOptions?.renderBreadcrumbs?.(null, { formatMessage: (msg) => msg.defaultMessage }, simulationTitle, { simulationId: id })}
@@ -217,12 +265,36 @@ const SimulationPreviewPage = ({ pageOptions }) => {
                                     <div className="tfo-separator" />
 
                                     {selectedPreviewSubtaskId ? (
-                                        <StudentSubmissionViewer
-                                            subtaskDetail={previewSubtaskDetail}
-                                            submissions={[]}
-                                            apiQuizQuestions={previewQuizQuestions}
-                                            loading={loadingPreviewSubtask || loadingPreviewTasks}
-                                        />
+                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                                            <StudentSubmissionViewer
+                                                subtaskDetail={previewSubtaskDetail}
+                                                submissions={[]}
+                                                apiQuizQuestions={previewQuizQuestions}
+                                                loading={loadingPreviewSubtask || loadingPreviewTasks}
+                                            />
+                                            {previewSubtasks.length > 0 && (
+                                                <div className="tfo-bottom-nav" style={{ marginTop: 'auto' }}>
+                                                    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                                                        <Button
+                                                            type="text"
+                                                            onClick={handleBackPreviewSubtask}
+                                                            disabled={isPreviewAtGlobalStart}
+                                                            className="tfo-btn-back"
+                                                        >
+                                                            Quay lại
+                                                        </Button>
+                                                        <Button
+                                                            type="primary"
+                                                            onClick={handleNextPreviewSubtask}
+                                                            disabled={isPreviewAtGlobalEnd}
+                                                            className="tfo-btn-continue"
+                                                        >
+                                                            Tiếp tục
+                                                        </Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
                                     ) : (
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontStyle: 'italic', padding: 20 }}>
                                             Không có nhiệm vụ nào trong bài mô phỏng này

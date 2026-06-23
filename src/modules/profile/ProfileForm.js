@@ -6,10 +6,8 @@ import dayjs from 'dayjs';
 import useBasicForm from '@hooks/useBasicForm';
 import { defineMessages } from 'react-intl';
 import useTranslate from '@hooks/useTranslate';
-import { Card, Form } from 'antd';
-import usePasswordValidation from '@hooks/usePasswordValidation';
-import { DEFAULT_FORMAT, UserTypes, storageKeys, AppConstants, UploadFileTypes } from '@constants';
-import { getData } from '@utils/localStorage';
+import { Card, Form, Radio, Space } from 'antd';
+import { DEFAULT_FORMAT, AppConstants, UploadFileTypes } from '@constants';
 import useFetch from '@hooks/useFetch';
 import apiConfig from '@constants/apiConfig';
 
@@ -32,24 +30,21 @@ const parseDateString = (dateStr) => {
 const messages = defineMessages({
     username: 'Username',
     fullName: 'Full Name',
-    email: 'Email',
     phoneNumber: 'Phone Number',
     birthday: 'Birthday',
     avatar: 'Avatar',
-    currentPassword: 'Current password',
-    newPassword: 'New password',
-    confirmPassword: 'Confirm password',
 });
+
+// Chế độ nhập avatar: upload file hoặc nhập URL
+const AVATAR_MODE_UPLOAD = 'upload';
+const AVATAR_MODE_URL = 'url';
 
 const ProfileForm = (props) => {
     const { formId, dataDetail, onSubmit, setIsChangedFormValues, actions } = props;
     const translate = useTranslate();
 
-    const userType = getData(storageKeys.USER_TYPE);
-    const isAdmin = userType === UserTypes.ADMIN;
-    const isEducator = userType === UserTypes.EDUCATOR;
-
     const [avatarUrl, setAvatarUrl] = useState(null);
+    const [avatarMode, setAvatarMode] = useState(AVATAR_MODE_UPLOAD);
 
     const { execute: executeUpFile } = useFetch(apiConfig.file.upload, { immediate: false });
 
@@ -80,56 +75,39 @@ const ProfileForm = (props) => {
         }
     };
 
-    const { passwordRules, confirmPasswordRules } = usePasswordValidation(6);
-
     useEffect(() => {
         if (dataDetail) {
             form.setFieldsValue({
-                ...dataDetail,
-                // Ưu tiên lấy fullName từ dataDetail để hiển thị lên ô input có name="fullName"
-                fullName: dataDetail.fullName,
-                avatar: dataDetail.avatar || dataDetail.avatarPath,
+                username: dataDetail.username,
+                fullName: dataDetail.fullName || dataDetail.fullname,
+                phone: dataDetail.phone,
                 birthday: parseDateString(dataDetail.birthday),
+                avatar: dataDetail.avatar || dataDetail.avatarPath,
             });
             setAvatarUrl(dataDetail.avatar || dataDetail.avatarPath);
         }
     }, [dataDetail, form]);
 
     const handleFinish = (values) => {
-        // Khởi tạo payload cơ bản
         const payload = {
-            ...values,
             id: dataDetail?.id,
-            avatarPath: values.avatar,
+            username: values.username,
+            fullname: values.fullName,
+            phone: values.phone,
             birthday: values.birthday ? values.birthday.format(DEFAULT_FORMAT) : null,
+            avatarPath: values.avatar || null,
         };
-
-        if (isAdmin) {
-            // 1. Nếu là ADMIN: API yêu cầu key "fullName"
-            // Vì TextField đang có name="fullName" nên values.fullName đã tồn tại trong ...values
-            payload.fullName = values.fullName;
-            if (values.oldPassword) {
-                payload.oldPassword = values.oldPassword;
-            }
-            if (values.newPassword) {
-                payload.password = values.newPassword; // Map newPassword vào key password của Admin API
-            }
-        } else {
-            // 2. Nếu là STUDENT/EDUCATOR: API yêu cầu key "fullname" (viết thường)
-            payload.fullname = values.fullName;
-            // Xóa fullName (CamelCase) để tránh gửi thừa 2 field lên server
-            delete payload.fullName;
-        }
-
-        // Dọn dẹp các field rác của UI trước khi gửi đi
-        delete payload.avatar;
-        delete payload.newPassword;
-        delete payload.confirmPassword;
 
         mixinFuncs.handleSubmit(payload);
     };
 
     const format = (msg) => (translate?.formatMessage ? translate.formatMessage(msg) : '');
+
+    const resolvedAvatarUrl = avatarUrl
+        ? avatarUrl.startsWith('http')
+            ? avatarUrl
+            : `${AppConstants.contentRootUrl}${avatarUrl.replace(/\\/g, '/').replace(/^\/?/, '/')}`
+        : null;
 
     return (
         <Card className="card-form" bordered={false} style={{ minHeight: 'calc(100vh - 190px)' }}>
@@ -142,77 +120,52 @@ const ProfileForm = (props) => {
                 layout="horizontal"
                 onValuesChange={handleValuesChange}
             >
-                <TextField required readOnly label={format(messages.username)} name="username" />
+                {/* Username: chỉ hiển thị, không cho sửa */}
+                <TextField readOnly label={format(messages.username)} name="username" />
 
-                <TextField required label={format(messages.email)} name="email" />
-
+                {/* Full Name */}
                 <TextField required label={format(messages.fullName)} name="fullName" />
 
+                {/* Phone */}
                 <TextField required label={format(messages.phoneNumber)} name="phone" />
 
+                {/* Birthday */}
                 <DatePickerField name="birthday" label="Ngày sinh" format="DD/MM/YYYY" showTime={false} />
 
-                {(isAdmin || isEducator) && (
-                    <>
-                        <CropImageField
-                            label={format(messages.avatar)}
-                            name="avatar"
-                            imageUrl={
-                                avatarUrl
-                                    ? avatarUrl.startsWith('http')
-                                        ? avatarUrl
-                                        : `${AppConstants.contentRootUrl}${avatarUrl.replace(/\\/g, '/').replace(/^\/?/, '/')}`
-                                    : null
-                            }
-                            aspect={1}
-                            uploadFile={uploadFile}
-                        />
-                        <TextField
-                            label="Avatar URL"
-                            name="avatar"
-                            placeholder="Hoặc nhập đường dẫn hình ảnh (URL)..."
-                        />
-                    </>
-                )}
+                {/* Avatar: chọn chế độ upload hoặc nhập URL */}
+                <Form.Item label={format(messages.avatar)}>
+                    <Space direction="vertical" style={{ width: '100%' }}>
+                        <Radio.Group
+                            value={avatarMode}
+                            onChange={(e) => {
+                                setAvatarMode(e.target.value);
+                                // Reset avatar field khi đổi chế độ
+                                form.setFieldsValue({ avatar: null });
+                                setAvatarUrl(null);
+                                setIsChangedFormValues(true);
+                            }}
+                        >
+                            <Radio value={AVATAR_MODE_UPLOAD}>Upload ảnh</Radio>
+                            <Radio value={AVATAR_MODE_URL}>Nhập đường dẫn URL</Radio>
+                        </Radio.Group>
 
-                {isAdmin && (
-                    <>
-                        <TextField
-                            type="password"
-                            required
-                            label={format(messages.currentPassword)}
-                            name="oldPassword"
-                        />
-
-                        <TextField
-                            type="password"
-                            label={format(messages.newPassword)}
-                            name="newPassword"
-                            rules={passwordRules.filter((r) => !r.required)}
-                        />
-
-                        <TextField
-                            type="password"
-                            label={format(messages.confirmPassword)}
-                            name="confirmPassword"
-                            dependencies={['newPassword']}
-                            rules={[
-                                {
-                                    validator(_, value) {
-                                        const newPassword = form.getFieldValue('newPassword');
-                                        if (newPassword && !value) {
-                                            return Promise.reject(new Error('Vui lòng xác nhận mật khẩu!'));
-                                        }
-                                        if (!newPassword || newPassword === value) {
-                                            return Promise.resolve();
-                                        }
-                                        return Promise.reject(new Error('Mật khẩu không trùng khớp!'));
-                                    },
-                                },
-                            ]}
-                        />
-                    </>
-                )}
+                        {avatarMode === AVATAR_MODE_UPLOAD ? (
+                            <CropImageField
+                                label={null}
+                                name="avatar"
+                                imageUrl={resolvedAvatarUrl}
+                                aspect={1}
+                                uploadFile={uploadFile}
+                            />
+                        ) : (
+                            <TextField
+                                label={null}
+                                name="avatar"
+                                placeholder="Nhập đường dẫn hình ảnh (URL)..."
+                            />
+                        )}
+                    </Space>
+                </Form.Item>
 
                 <div className="footer-card-form">{actions}</div>
             </Form>

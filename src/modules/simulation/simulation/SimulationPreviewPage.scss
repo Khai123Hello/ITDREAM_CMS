@@ -190,6 +190,9 @@ $text-secondary: #64748b;
   .tfo-pane-middle {
     background: #ffffff;
     padding: 0 32px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
   }
 
   .tfo-pane-topbar {
@@ -242,5 +245,73 @@ $text-secondary: #64748b;
     height: 1px;
     background: linear-gradient(to right, #e2e8f0, transparent);
     margin-bottom: 24px;
+  }
+
+  .tfo-bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-top: none;
+    flex-shrink: 0;
+  }
+
+  .tfo-btn-back {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #1890ff !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    padding: 0 16px !important;
+    height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s ease !important;
+
+    &:hover:not(:disabled) {
+      color: #40a9ff !important;
+      background: rgba(24, 144, 255, 0.05) !important;
+    }
+
+    &:disabled {
+      color: #bfbfbf !important;
+      background: transparent !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  .tfo-btn-continue {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    background-color: #1890ff !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    padding: 0 24px !important;
+    height: 38px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: 0 2px 0 rgba(24, 144, 255, 0.1) !important;
+    cursor: pointer;
+    transition: all 0.2s ease !important;
+
+    &:hover:not(:disabled) {
+      background-color: #40a9ff !important;
+      box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2) !important;
+    }
+
+    &:disabled {
+      background-color: #f5f5f5 !important;
+      color: rgba(0, 0, 0, 0.25) !important;
+      border: 1px solid #d9d9d9 !important;
+      cursor: not-allowed !important;
+      box-shadow: none !important;
+    }
   }
 }

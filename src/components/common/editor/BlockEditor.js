@@ -922,18 +922,6 @@ export default function BlockEditor({
         onChangeRef.current = onChange;
     }, [onChange]);
 
-    const safeInsertContent = useCallback(
-        (type) => {
-            if (!editor) return;
-            const { selection } = editor.state;
-            if (selection && selection.node) {
-                editor.chain().focus().insertContentAt(selection.to, { type }).run();
-            } else {
-                editor.chain().focus().insertContent({ type }).run();
-            }
-        },
-        [editor],
-    );
 
     const buildPayload = useCallback((newTitle, newDesc, newBlocks) => {
         const cleanBlocks = newBlocks.map((block) => {
@@ -1083,6 +1071,19 @@ export default function BlockEditor({
             }, 200);
         },
     });
+
+    const safeInsertContent = useCallback(
+        (type) => {
+            if (!editor) return;
+            const { selection } = editor.state;
+            if (selection && selection.node) {
+                editor.chain().focus().insertContentAt(selection.to, { type }).run();
+            } else {
+                editor.chain().focus().insertContent({ type }).run();
+            }
+        },
+        [editor],
+    );
 
     // Auto-load template on initial mount
     useEffect(() => {
