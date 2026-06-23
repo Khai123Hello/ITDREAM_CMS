@@ -299,7 +299,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             (r) => {
                 const rEnrollId = r.simulationEnrollmentId || r.studentSubmission?.studentTaskProgress?.simulationEnrollment?.id;
                 return String(rEnrollId) === String(simulationEnrollmentId);
-            }
+            },
         );
     }, [educatorReviews, simulationEnrollmentId]);
 
@@ -434,7 +434,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 (r) => {
                     const rProgressId = r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id;
                     return String(rProgressId) === String(activeSubtaskProgress.id);
-                }
+                },
             );
             if (foundByProgress) return foundByProgress;
         }
