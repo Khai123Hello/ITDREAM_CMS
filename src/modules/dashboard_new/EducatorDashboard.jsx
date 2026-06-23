@@ -34,6 +34,7 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 export default function EducatorDashboard() {
     const [mySimulations, setMySimulations] = useState([]);
     const [selectedSimId, setSelectedSimId] = useState('all');
+    const [mainTab, setMainTab] = useState('operations');
     
     const [kpis, setKpis] = useState({
         totalSims: 0,
@@ -228,219 +229,228 @@ export default function EducatorDashboard() {
             {/* KPIs */}
             <div className={styles.kpiGrid}>
                 <div className={styles.kpiCard}>
-                    <div className={styles.kpiHeader}>
-                        <span className={styles.kpiTitle}>Số Mô Phỏng của tôi</span>
-                        <div className={`${styles.kpiIcon} ${styles.emerald}`}>
-                            <IconBook size={20} />
-                        </div>
+                    <div className={`${styles.kpiIcon} ${styles.emerald}`}>
+                        <IconBook size={20} />
                     </div>
-                    <div>
+                    <div className={styles.kpiContent}>
+                        <span className={styles.kpiTitle}>Mô Phỏng Của Tôi</span>
                         <span className={styles.kpiValue}>{kpis.totalSims}</span>
-                        <p className={styles.kpiSubtext}>Đã được phê duyệt active</p>
                     </div>
                 </div>
 
                 <div className={styles.kpiCard}>
-                    <div className={styles.kpiHeader}>
+                    <div className={`${styles.kpiIcon} ${styles.blue}`}>
+                        <IconUsers size={20} />
+                    </div>
+                    <div className={styles.kpiContent}>
                         <span className={styles.kpiTitle}>Tổng Lượt Tham Gia</span>
-                        <div className={`${styles.kpiIcon} ${styles.blue}`}>
-                            <IconUsers size={20} />
-                        </div>
-                    </div>
-                    <div>
                         <span className={styles.kpiValue}>{kpis.totalParticipants}</span>
-                        <p className={styles.kpiSubtext}>Số lượt học viên đăng ký học</p>
                     </div>
                 </div>
 
                 <div className={styles.kpiCard}>
-                    <div className={styles.kpiHeader}>
-                        <span className={styles.kpiTitle}>Đánh Giá Sao Trung Bình</span>
-                        <div className={`${styles.kpiIcon} ${styles.amber}`}>
-                            <IconStar size={20} />
-                        </div>
+                    <div className={`${styles.kpiIcon} ${styles.amber}`}>
+                        <IconStar size={20} />
                     </div>
-                    <div>
+                    <div className={styles.kpiContent}>
+                        <span className={styles.kpiTitle}>Đánh Giá Trung Bình</span>
                         <span className={styles.kpiValue} style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                            {kpis.avgRating} <span style={{ fontSize: 14, fontWeight: 500, color: '#94a3b8' }}>/ 5.0</span>
+                            {kpis.avgRating} <span style={{ fontSize: 11, fontWeight: 500, color: '#94a3b8' }}>/ 5.0</span>
                         </span>
-                        <p className={styles.kpiSubtext}>Tỷ lệ mức độ hài lòng chung</p>
                     </div>
                 </div>
 
                 <div className={styles.kpiCardPending}>
-                    <div className={styles.kpiHeader}>
-                        <span className={styles.kpiTitle} style={{ color: 'inherit' }}>Bài Làm Chờ Chấm Điểm</span>
-                        <div className={`${styles.kpiIcon} ${styles.teal}`}>
-                            <IconClipboardList size={20} />
-                        </div>
+                    <div className={`${styles.kpiIcon} ${styles.teal}`}>
+                        <IconClipboardList size={20} />
                     </div>
-                    <div>
+                    <div className={styles.kpiContent}>
+                        <span className={styles.kpiTitle}>Bài Chờ Chấm Điểm</span>
                         <span className={styles.kpiValue}>{kpis.pendingGrading}</span>
-                        <p className={`${styles.kpiSubtext} ${styles.emeraldText}`}>Cần nhận xét đánh giá gấp</p>
                     </div>
                 </div>
             </div>
 
-            {/* Charts Grid */}
-            <div className={styles.chartsGrid}>
-                {/* Bar Chart: Enrollments vs Completions */}
-                <div className={styles.chartCardLarge}>
-                    <h2 className={styles.cardTitle}>Hiệu Suất Đăng Ký &amp; Hoàn Thành</h2>
-                    <p className={styles.cardSubtitle}>So sánh số lượng học viên đăng ký với số lượng hoàn thành trên mỗi bài mô phỏng.</p>
-                    <div style={{ height: 280 }}>
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={simPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                                <XAxis dataKey="name" tickLine={false} axisLine={false} style={{ fontSize: 11 }} />
-                                <YAxis tickLine={false} axisLine={false} style={{ fontSize: 11 }} />
-                                <Tooltip />
-                                <Legend verticalAlign="top" height={36} iconType="circle" />
-                                <Bar dataKey="Lượt đăng ký" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-                                <Bar dataKey="Hoàn thành" fill="#10b981" radius={[4, 4, 0, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                {/* Pie Chart: Ratings Distribution */}
-                <div className={styles.chartCardSmall}>
-                    <h2 className={styles.cardTitle}>Mức Độ Hài Lòng (Sao Đánh Giá)</h2>
-                    <p className={styles.cardSubtitle}>
-                        {selectedSimId === 'all' ? 'Phân bổ sao của mô phỏng đầu tiên' : 'Phân bổ sao của mô phỏng đang chọn'}
-                    </p>
-                    <div className={styles.donutContainer}>
-                        <ResponsiveContainer width="100%" height="80%">
-                            <PieChart>
-                                <Pie
-                                    data={starDistribution}
-                                    cx="50%"
-                                    cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
-                                    paddingAngle={3}
-                                    dataKey="value"
-                                >
-                                    {starDistribution.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip formatter={(value) => `${value} lượt`} />
-                            </PieChart>
-                        </ResponsiveContainer>
-                        <div className={styles.legendList}>
-                            {starDistribution.map((entry, index) => (
-                                <div key={entry.name} className={styles.legendItem}>
-                                    <span className={styles.legendDot} style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
-                                    <span>{entry.name}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
+            {/* Main Tabs Switcher */}
+            <div className={styles.mainTabHeader}>
+                <button
+                    onClick={() => setMainTab('operations')}
+                    className={`${styles.mainTabBtn} ${mainTab === 'operations' ? styles.active : ''}`}
+                >
+                    Hàng đợi chấm bài ({gradingQueue.length})
+                </button>
+                <button
+                    onClick={() => setMainTab('analytics')}
+                    className={`${styles.mainTabBtn} ${mainTab === 'analytics' ? styles.active : ''}`}
+                >
+                    Thống kê hiệu suất
+                </button>
             </div>
 
-            {/* Tables Grid */}
-            <div className={styles.mainWorkspace}>
-                {/* Grading Queue Table */}
-                <div className={styles.queueCard}>
-                    <div className={styles.queueHeader}>
-                        <div>
-                            <h2 className={styles.cardTitle}>Hàng Đợi Chấm Bài</h2>
-                            <p className={styles.cardSubtitle} style={{ marginBottom: 0 }}>Danh sách học viên đã hoàn tất nội dung mô phỏng, cần giảng viên chấm điểm năng lực.</p>
-                        </div>
-                        <div className={styles.headerBadge}>
-                            <IconUserCheck size={16} />
-                            <span>{gradingQueue.length} Chờ review</span>
-                        </div>
-                    </div>
-
-                    <div className={styles.queueBody}>
-                        <div className={styles.tableWrapper}>
-                            <table className={styles.customTable}>
-                                <thead>
-                                    <tr>
-                                        <th>Học viên</th>
-                                        <th>Bài mô phỏng</th>
-                                        <th>Hoàn thành ngày</th>
-                                        <th style={{ textAlign: 'right' }}>Thao tác</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {gradingQueue.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={4} style={{ py: 8, textAlign: 'center', color: '#94a3b8' }}>
-                                                Không có bài làm nào đang chờ đánh giá!
-                                            </td>
-                                        </tr>
-                                    ) : (
-                                        gradingQueue.map(item => (
-                                            <tr key={item.id}>
-                                                <td>
-                                                    <div style={{ fontWeight: 650 }}>{item.studentName}</div>
-                                                    <div style={{ fontSize: 12, color: '#94a3b8' }}>@{item.studentUsername}</div>
-                                                </td>
-                                                <td style={{ fontWeight: 600 }}>{item.simulationTitle}</td>
-                                                <td>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12 }}>
-                                                        <IconClock size={14} style={{ color: '#94a3b8' }} />
-                                                        <span>{item.createdDate ? new Date(item.createdDate).toLocaleDateString('vi-VN') : 'N/A'}</span>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                                        <button
-                                                            onClick={() => handleOpenReview(item)}
-                                                            className={styles.gradeBtn}
-                                                        >
-                                                            <span>Chấm điểm</span>
-                                                            <IconChevronRight size={14} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Feedbacks Panel */}
-                <div className={styles.feedbackCard}>
-                    <div className={styles.feedbackHeader}>
-                        <h2 className={styles.cardTitle}>Phản Hồi &amp; Thảo Luận</h2>
-                        <div className={styles.headerCounter}>
-                            {selectedSimulationFeedbacks.length} Đánh giá
-                        </div>
-                    </div>
-                    <div className={styles.feedbackList}>
-                        {selectedSimulationFeedbacks.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '32px 0', color: '#94a3b8' }}>
-                                <IconFolderOpen style={{ color: '#cbd5e1', marginBottom: 8 }} size={32} />
-                                <div>Chưa nhận được phản hồi nào cho bài mô phỏng này.</div>
+            {/* Tab Contents */}
+            <div className={styles.tabContentContainer}>
+                {mainTab === 'analytics' ? (
+                    /* Charts Grid */
+                    <div className={styles.chartsGrid}>
+                        {/* Bar Chart: Enrollments vs Completions */}
+                        <div className={styles.chartCardLarge}>
+                            <h2 className={styles.cardTitle}>Hiệu Suất Đăng Ký &amp; Hoàn Thành</h2>
+                            <p className={styles.cardSubtitle}>So sánh số lượng học viên đăng ký với số lượng hoàn thành trên mỗi bài mô phỏng.</p>
+                            <div style={{ height: 200 }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={simPerformanceData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                                        <XAxis dataKey="name" tickLine={false} axisLine={false} style={{ fontSize: 11 }} />
+                                        <YAxis tickLine={false} axisLine={false} style={{ fontSize: 11 }} />
+                                        <Tooltip />
+                                        <Legend verticalAlign="top" height={28} iconType="circle" />
+                                        <Bar dataKey="Lượt đăng ký" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                        <Bar dataKey="Hoàn thành" fill="#10b981" radius={[4, 4, 0, 0]} />
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
-                        ) : (
-                            selectedSimulationFeedbacks.map(fb => (
-                                <div key={fb.id} className={styles.feedbackItem}>
-                                    <div className={styles.feedbackMeta}>
-                                        <span className={styles.studentName}>{fb.student?.account?.fullName}</span>
-                                        <span className={styles.feedbackDate}>{fb.createdDate ? new Date(fb.createdDate).toLocaleDateString('vi-VN') : ''}</span>
-                                    </div>
-                                    <div className={styles.stars}>
-                                        {[...Array(5)].map((_, i) => (
-                                            <IconStar key={i} size={12} fill={i < fb.star ? 'currentColor' : 'none'} />
-                                        ))}
-                                    </div>
-                                    <p className={styles.feedbackText}>
-                                        &quot;{fb.content}&quot;
-                                    </p>
+                        </div>
+
+                        {/* Pie Chart: Ratings Distribution */}
+                        <div className={styles.chartCardSmall}>
+                            <h2 className={styles.cardTitle}>Mức Độ Hài Lòng</h2>
+                            <p className={styles.cardSubtitle}>
+                                {selectedSimId === 'all' ? 'Phân bổ sao của mô phỏng đầu tiên' : 'Phân bổ sao của mô phỏng đang chọn'}
+                            </p>
+                            <div className={styles.donutContainer}>
+                                <ResponsiveContainer width="100%" height="80%">
+                                    <PieChart>
+                                        <Pie
+                                            data={starDistribution}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={50}
+                                            outerRadius={65}
+                                            paddingAngle={3}
+                                            dataKey="value"
+                                        >
+                                            {starDistribution.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value) => `${value} lượt`} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                                <div className={styles.legendList}>
+                                    {starDistribution.map((entry, index) => (
+                                        <div key={entry.name} className={styles.legendItem}>
+                                            <span className={styles.legendDot} style={{ backgroundColor: COLORS[index % COLORS.length] }}></span>
+                                            <span>{entry.name}</span>
+                                        </div>
+                                    ))}
                                 </div>
-                            ))
-                        )}
+                            </div>
+                        </div>
                     </div>
-                </div>
+                ) : (
+                    /* Tables Grid */
+                    <div className={styles.mainWorkspace}>
+                        {/* Grading Queue Table */}
+                        <div className={styles.queueCard}>
+                            <div className={styles.queueHeader}>
+                                <div>
+                                    <h2 className={styles.cardTitle}>Hàng Đợi Chấm Bài</h2>
+                                    <p className={styles.cardSubtitle} style={{ marginBottom: 0 }}>Danh sách học viên đã hoàn tất, cần giảng viên nhận xét năng lực.</p>
+                                </div>
+                                <div className={styles.headerBadge}>
+                                    <IconUserCheck size={16} />
+                                    <span>{gradingQueue.length} Chờ review</span>
+                                </div>
+                            </div>
+
+                            <div className={styles.queueBody}>
+                                <div className={styles.tableWrapper}>
+                                    <table className={styles.customTable}>
+                                        <thead>
+                                            <tr>
+                                                <th>Học viên</th>
+                                                <th>Bài mô phỏng</th>
+                                                <th>Hoàn thành ngày</th>
+                                                <th style={{ textAlign: 'right' }}>Thao tác</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {gradingQueue.length === 0 ? (
+                                                <tr>
+                                                    <td colSpan={4} style={{ padding: '16px 0', textAlign: 'center', color: '#94a3b8' }}>
+                                                        Không có bài làm nào đang chờ đánh giá!
+                                                    </td>
+                                                </tr>
+                                            ) : (
+                                                gradingQueue.map(item => (
+                                                    <tr key={item.id}>
+                                                        <td>
+                                                            <div style={{ fontWeight: 650 }}>{item.studentName}</div>
+                                                            <div style={{ fontSize: 11, color: '#94a3b8' }}>@{item.studentUsername}</div>
+                                                        </td>
+                                                        <td style={{ fontWeight: 600 }}>{item.simulationTitle}</td>
+                                                        <td>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
+                                                                <IconClock size={14} style={{ color: '#94a3b8' }} />
+                                                                <span>{item.createdDate ? new Date(item.createdDate).toLocaleDateString('vi-VN') : 'N/A'}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td>
+                                                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                                                <button
+                                                                    onClick={() => handleOpenReview(item)}
+                                                                    className={styles.gradeBtn}
+                                                                >
+                                                                    <span>Chấm điểm</span>
+                                                                    <IconChevronRight size={14} />
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Feedbacks Panel */}
+                        <div className={styles.feedbackCard}>
+                            <div className={styles.feedbackHeader}>
+                                <h2 className={styles.cardTitle}>Phản Hồi &amp; Thảo Luận</h2>
+                                <div className={styles.headerCounter}>
+                                    {selectedSimulationFeedbacks.length} Đánh giá
+                                </div>
+                            </div>
+                            <div className={styles.feedbackList}>
+                                {selectedSimulationFeedbacks.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '24px 0', color: '#94a3b8' }}>
+                                        <IconFolderOpen style={{ color: '#cbd5e1', marginBottom: 8 }} size={28} />
+                                        <div style={{ fontSize: 12 }}>Chưa nhận được phản hồi nào cho bài mô phỏng này.</div>
+                                    </div>
+                                ) : (
+                                    selectedSimulationFeedbacks.map(fb => (
+                                        <div key={fb.id} className={styles.feedbackItem}>
+                                            <div className={styles.feedbackMeta}>
+                                                <span className={styles.studentName}>{fb.student?.account?.fullName}</span>
+                                                <span className={styles.feedbackDate}>{fb.createdDate ? new Date(fb.createdDate).toLocaleDateString('vi-VN') : ''}</span>
+                                            </div>
+                                            <div className={styles.stars}>
+                                                {[...Array(5)].map((_, i) => (
+                                                    <IconStar key={i} size={11} fill={i < fb.star ? 'currentColor' : 'none'} />
+                                                ))}
+                                            </div>
+                                            <p className={styles.feedbackText}>
+                                                &quot;{fb.content}&quot;
+                                            </p>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Grading / Review Modal */}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import useAuth from '@hooks/useAuth';
-import { UserTypes } from '@constants';
+import { UserTypes, storageKeys } from '@constants';
+import { getData } from '@utils/localStorage';
 import AdminDashboard from '../dashboard_new/AdminDashboard';
 
 const Dashboard = () => {
@@ -12,12 +13,18 @@ const Dashboard = () => {
         return <Navigate to="/login" />;
     }
 
-    if (profile.kind === UserTypes.EDUCATOR) {
+    const userType = getData(storageKeys.USER_TYPE);
+
+    if (userType === UserTypes.EDUCATOR) {
         return <Navigate to="/educator/dashboard" />;
     }
 
-    // fallback (e.g. admin or unknown)
-    return <AdminDashboard />;
+    if (userType === UserTypes.ADMIN) {
+        return <AdminDashboard />;
+    }
+
+    // fallback for student or unknown user type
+    return <Navigate to="/not-allowed" />;
 };
 
 export default Dashboard;

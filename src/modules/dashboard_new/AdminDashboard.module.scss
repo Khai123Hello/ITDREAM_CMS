@@ -4,7 +4,7 @@
 .dashboardContainer {
   min-height: 100vh;
   background-color: #f8fafc;
-  padding: 24px;
+  padding: 16px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   :global(.dark) & {
@@ -17,8 +17,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 12px;
+  margin-bottom: 16px;
 
   @media (min-width: 640px) {
     flex-direction: row;
@@ -86,8 +86,8 @@
 .kpiGrid {
   display: grid;
   grid-template-cols: 1fr;
-  gap: 16px;
-  margin-bottom: 32px;
+  gap: 12px;
+  margin-bottom: 20px;
 
   @media (min-width: 640px) {
     grid-template-cols: repeat(2, 1fr);
@@ -99,18 +99,19 @@
 }
 
 .kpiCard {
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
   border: 1px solid rgba(226, 232, 240, 0.8);
   background-color: #ffffff;
-  padding: 24px;
+  padding: 12px 16px;
   box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px -1px rgba(0, 0, 0, 0.08), 0 1px 3px -1px rgba(0, 0, 0, 0.04);
   }
 
   :global(.dark) & {
@@ -129,16 +130,17 @@
   }
 }
 
-.kpiHeader {
+.kpiContent {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
 }
 
 .kpiTitle {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 600;
   color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 
   :global(.dark) & {
     color: #94a3b8;
@@ -146,8 +148,12 @@
 }
 
 .kpiIcon {
-  border-radius: 8px;
-  padding: 8px;
+  border-radius: 6px;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 
   &.blue {
     background-color: #eff6ff;
@@ -187,34 +193,17 @@
 }
 
 .kpiValue {
-  font-size: 30px;
+  font-size: 20px;
   font-weight: 700;
-  margin-top: 16px;
+  margin-top: 2px;
   display: block;
-}
-
-.kpiSubtext {
-  font-size: 12px;
-  margin-top: 4px;
-  color: #64748b;
-
-  :global(.dark) & {
-    color: #94a3b8;
-  }
-
-  &.growth {
-    color: #16a34a;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
 }
 
 .chartsGrid {
   display: grid;
   grid-template-cols: 1fr;
-  gap: 24px;
-  margin-bottom: 32px;
+  gap: 16px;
+  margin-bottom: 16px;
 
   @media (min-width: 1024px) {
     grid-template-cols: repeat(3, 1fr);
@@ -277,16 +266,16 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 250px;
+  height: 180px;
 }
 
 .legendList {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px;
-  margin-top: 8px;
-  font-size: 11px;
+  gap: 8px;
+  margin-top: 4px;
+  font-size: 10px;
 }
 
 .legendItem {
@@ -296,8 +285,8 @@
 }
 
 .legendDot {
-  height: 8px;
-  width: 8px;
+  height: 6px;
+  width: 6px;
   border-radius: 50%;
   display: inline-block;
 }
@@ -305,7 +294,7 @@
 .mainWorkspace {
   display: grid;
   grid-template-cols: 1fr;
-  gap: 24px;
+  gap: 16px;
 
   @media (min-width: 1024px) {
     grid-template-cols: repeat(3, 1fr);
@@ -331,11 +320,11 @@
 
 .queueHeader {
   border-bottom: 1px solid #f1f5f9;
-  padding: 20px;
+  padding: 12px 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
 
   @media (min-width: 640px) {
     flex-direction: row;
@@ -345,6 +334,69 @@
   :global(.dark) & {
     border-color: #334155;
   }
+}
+
+/* Dashboard Main Tab Styling */
+.mainTabHeader {
+  display: flex;
+  border-bottom: 2px solid #e2e8f0;
+  gap: 20px;
+  margin-bottom: 16px;
+
+  :global(.dark) & {
+    border-color: #334155;
+  }
+}
+
+.mainTabBtn {
+  border: none;
+  background: none;
+  padding: 8px 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #1e293b;
+  }
+
+  &.active {
+    color: #2563eb;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: #2563eb;
+      border-radius: 9999px;
+    }
+  }
+
+  :global(.dark) & {
+    color: #94a3b8;
+
+    &:hover {
+      color: #f1f5f9;
+    }
+
+    &.active {
+      color: #60a5fa;
+
+      &::after {
+        background-color: #60a5fa;
+      }
+    }
+  }
+}
+
+.tabContentContainer {
+  margin-top: 8px;
 }
 
 .tabGroup {
@@ -394,7 +446,7 @@
 }
 
 .queueBody {
-  padding: 20px;
+  padding: 12px 16px;
 }
 
 .tableWrapper {
@@ -405,13 +457,13 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 14px;
+  font-size: 13px;
 
   th {
     border-bottom: 1px solid #f1f5f9;
-    padding-bottom: 12px;
-    font-size: 11px;
-    font-weight: 600;
+    padding-bottom: 8px;
+    font-size: 10px;
+    font-weight: 700;
     text-transform: uppercase;
     color: #94a3b8;
 
@@ -421,7 +473,7 @@
   }
 
   td {
-    padding: 12px 0;
+    padding: 8px 0;
     border-bottom: 1px solid #f8fafc;
     color: #475569;
 
