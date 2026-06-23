@@ -1,7 +1,8 @@
+import React from 'react';
 import PageNotFound from '@components/common/page/PageNotFound';
 import PageNotAllowed from '@components/common/page/PageNotAllowed';
 import Dashboard from '@modules/entry';
-import LandingPage from '@modules/main/LandingPage';
+import { Navigate } from 'react-router-dom';
 import ProfilePage from '@modules/profile/index';
 import GroupPermissionListPage from '@modules/groupPermission';
 import PermissionSavePage from '@modules/groupPermission/PermissionSavePage';
@@ -31,7 +32,7 @@ import permissionRoutes from '@modules/permission/routes';
 const routes = {
     landingPage: {
         path: '/',
-        component: LandingPage,
+        component: () => <Navigate to="/dashboard" replace />,
         auth: null,
         // layout: 'public',
         title: 'Landing',

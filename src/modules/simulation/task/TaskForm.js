@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Col, Row, Button, Input, Space, Modal, Divider, Tag, Alert, message, Tabs, Upload } from 'antd';
-import { DownloadOutlined, BookOutlined, AppstoreOutlined, FileOutlined, UploadOutlined } from '@ant-design/icons';
+import { BookOutlined, UploadOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 import { BaseForm } from '@components/common/form/BaseForm';
 import CropImageField from '@components/common/form/CropImageField';
 import TextField from '@components/common/form/TextField';
-import SelectField from '@components/common/form/SelectField';
 import CheckboxField from '@components/common/form/CheckboxField';
 import BlockEditor from '@components/common/editor/BlockEditor';
 
@@ -18,7 +17,7 @@ import { useTaskSymbol } from './useTaskSymbol';
 import { AppConstants, TaskTypes, UserTypes, storageKeys, UploadFileTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import apiConfig from '@constants/apiConfig';
-import { taskKindOptions, taskTypeOptions } from '@constants/masterData';
+import { taskKindOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 
 // ─────────────────────────────────────────────
@@ -52,7 +51,7 @@ const RenderPreviewBlocks = ({ content }) => {
                     elements.push(
                         <ul key={`list-${elements.length}`} className="out-ul">
                             {currentList.items.map((item, i) => (
-                                <li key={i}>{item}</li>
+                                <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
                             ))}
                         </ul>,
                     );
@@ -60,7 +59,7 @@ const RenderPreviewBlocks = ({ content }) => {
                     elements.push(
                         <ol key={`list-${elements.length}`} className="out-ol">
                             {currentList.items.map((item, i) => (
-                                <li key={i}>{item}</li>
+                                <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
                             ))}
                         </ol>,
                     );
@@ -92,30 +91,22 @@ const RenderPreviewBlocks = ({ content }) => {
             switch (b.type) {
                             case 'text':
                                 elements.push(
-                                    <div key={idx} className="out-text">
-                                        {b.content}
-                                    </div>,
+                                    <div key={idx} className="out-text" dangerouslySetInnerHTML={{ __html: b.content }} />,
                                 );
                                 break;
                             case 'h1':
                                 elements.push(
-                                    <div key={idx} className="out-h1">
-                                        {b.content}
-                                    </div>,
+                                    <div key={idx} className="out-h1" dangerouslySetInnerHTML={{ __html: b.content }} />,
                                 );
                                 break;
                             case 'h2':
                                 elements.push(
-                                    <div key={idx} className="out-h2">
-                                        {b.content}
-                                    </div>,
+                                    <div key={idx} className="out-h2" dangerouslySetInnerHTML={{ __html: b.content }} />,
                                 );
                                 break;
                             case 'h3':
                                 elements.push(
-                                    <div key={idx} className="out-h3">
-                                        {b.content}
-                                    </div>,
+                                    <div key={idx} className="out-h3" dangerouslySetInnerHTML={{ __html: b.content }} />,
                                 );
                                 break;
                             case 'divider':
@@ -125,7 +116,7 @@ const RenderPreviewBlocks = ({ content }) => {
                                 elements.push(
                                     <div key={idx} className="out-callout">
                                         <span className="out-callout-icon-preview">{b.icon}</span>
-                                        <div style={{ flex: 1 }}>{b.content}</div>
+                                        <div style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: b.content }} />
                                     </div>,
                                 );
                                 break;
@@ -282,6 +273,10 @@ const TaskForm = (props) => {
     const [content, setContent] = useState('');
     // contentRef — luôn giữ giá trị mới nhất từ BlockEditor, kể cả khi debounce chưa fire
     const contentRef = useRef('');
+    const [title, setTitle] = useState('');
+    const titleRef = useRef('');
+    const [description, setDescription] = useState('');
+    const descriptionRef = useRef('');
     const [submitError, setSubmitError] = useState(null);
 
     // Template snapshot — lưu nội dung của template người dùng đã chọn
@@ -460,8 +455,8 @@ const TaskForm = (props) => {
             const formValues = form.getFieldsValue();
             const draftPayload = {
                 name: formValues.name,
-                title: formValues.title,
-                description: formValues.description,
+                title: titleRef.current || title || formValues.title,
+                description: descriptionRef.current || description || formValues.description,
                 type: formValues.type,
                 content,
                 imagePath,
@@ -472,7 +467,7 @@ const TaskForm = (props) => {
         }, 1000);
 
         return () => clearTimeout(timer);
-    }, [isDirty, content, imagePath, videoUrl, filePath, changeTrigger, form, isEditing, dataDetail?.id, simulationId]);
+    }, [isDirty, content, imagePath, videoUrl, filePath, changeTrigger, form, isEditing, dataDetail?.id, simulationId, title, description]);
 
     const handleRestoreDraft = () => {
         if (!draftData) return;
@@ -482,6 +477,10 @@ const TaskForm = (props) => {
             description: draftData.description || '',
             type: draftData.type,
         });
+        setTitle(draftData.title || '');
+        titleRef.current = draftData.title || '';
+        setDescription(draftData.description || '');
+        descriptionRef.current = draftData.description || '';
         setContent(draftData.content || '');
         setImagePath(draftData.imagePath || null);
         setVideoUrl(draftData.videoPath || '');
@@ -632,7 +631,7 @@ const TaskForm = (props) => {
     // ── kind label ────────────────────────────
     const getCurrentKindLabel = () => {
         const currentKind = isEditing ? Number(dataDetail?.kind) : Number(taskKind);
-        return kindValues.find((k) => Number(k.value) === currentKind)?.label || 'Task';
+        return kindValues.find((k) => Number(k.value) === currentKind)?.label || 'Nhiệm vụ';
     };
 
     const tabItems = [
@@ -664,7 +663,7 @@ const TaskForm = (props) => {
                     {/* Lỗi submit */}
                     {submitError && (
                         <Alert
-                            message="Lỗi khi lưu Task"
+                            message="Lỗi khi lưu nhiệm vụ"
                             description={submitError}
                             type="error"
                             showIcon
@@ -688,7 +687,7 @@ const TaskForm = (props) => {
                                             <>
                                                 <span>•</span>
                                                 <span>
-                                                    Thuộc Task: <strong>{parentTaskInfo.title || 'N/A'}</strong>
+                                                    Thuộc nhiệm vụ: <strong>{parentTaskInfo.title || 'N/A'}</strong>
                                                 </span>
                                             </>
                                         )}
@@ -719,33 +718,6 @@ const TaskForm = (props) => {
                             />
                         </div>
 
-                        {Number(taskKind) === TaskTypes.SUBTASK ? (
-                            <Col span={24}>
-                                <div style={{ marginBottom: 24 }}>
-                                    <label style={{ fontWeight: 600, display: 'block', marginBottom: 8 }}>
-                                        Yêu cầu nộp bài của học viên
-                                    </label>
-                                    <CheckboxField
-                                        optionLabel="Học viên cần tải file bài làm lên (.zip, .pdf, .docx, v.v.)"
-                                        disabled={!isEducator}
-                                        onChange={(e) => setRequiresFileUpload(e.target.checked)}
-                                        fieldProps={{
-                                            checked: requiresFileUpload,
-                                        }}
-                                        formItemProps={{ style: { marginBottom: 8 } }}
-                                    />
-                                    <CheckboxField
-                                        optionLabel="Học viên cần nhập câu trả lời dạng văn bản (text)"
-                                        disabled={!isEducator}
-                                        onChange={(e) => setRequiresTextResponse(e.target.checked)}
-                                        fieldProps={{
-                                            checked: requiresTextResponse,
-                                        }}
-                                        formItemProps={{ style: { marginBottom: 0 } }}
-                                    />
-                                </div>
-                            </Col>
-                        ) : null}
                     </Row>
 
                     {/* BlockEditor for Title, Description & Content */}
@@ -778,19 +750,26 @@ const TaskForm = (props) => {
                                                     : 'guide'
                                         }
                                         onTemplateLoad={(snapshot) => setTemplateSnapshot(snapshot)}
-                                        // Lightweight: title/desc update form fields only — no setContent, no re-render
                                         onTitleChange={(val) => {
                                             form.setFieldsValue({ title: val });
+                                            setTitle(val);
+                                            titleRef.current = val;
                                             setIsChangedFormValues(true);
                                         }}
                                         onDescriptionChange={(val) => {
                                             form.setFieldsValue({ description: val });
+                                            setDescription(val);
+                                            descriptionRef.current = val;
                                             setIsChangedFormValues(true);
                                         }}
                                         // onChange only fires for content (blocks) — debounced in BlockEditor
                                         onChange={({ title: newTitle, description: newDesc, content: newContent }) => {
                                             // Also sync title/desc here for template load (loadTemplate calls syncWithParentImmediate directly)
                                             form.setFieldsValue({ title: newTitle, description: newDesc });
+                                            setTitle(newTitle);
+                                            titleRef.current = newTitle;
+                                            setDescription(newDesc);
+                                            descriptionRef.current = newDesc;
                                             // Update ref immediately (trước khi setState debounce)
                                             contentRef.current = newContent;
                                             setContent(newContent);
@@ -827,8 +806,8 @@ const TaskForm = (props) => {
                         </Col>
                     </Row>
 
-                    {/* ── Media & Files ────────────────────────── */}
-                    <Divider orientation="left">Media & Files</Divider>
+                    {/* ── Phương tiện & Tài liệu ────────────────────────── */}
+                    <Divider orientation="left">Phương tiện & Tài liệu</Divider>
 
                     <Row gutter={[16, 24]}>
                         <Col span={24}>
@@ -994,6 +973,32 @@ const TaskForm = (props) => {
                             {filePath && <FilePreview url={getMediaUrl(filePath)} />}
                         </Col>
                     </Row>
+
+                    {Number(taskKind) === TaskTypes.SUBTASK ? (
+                        <div style={{ marginTop: 24, marginBottom: 24 }}>
+                            <label style={{ fontWeight: 600, display: 'block', marginBottom: 8 }}>
+                                Yêu cầu nộp bài của học viên
+                            </label>
+                            <CheckboxField
+                                optionLabel="Học viên cần tải file bài làm lên (.zip, .pdf, .docx, v.v.)"
+                                disabled={!isEducator}
+                                onChange={(e) => setRequiresFileUpload(e.target.checked)}
+                                fieldProps={{
+                                    checked: requiresFileUpload,
+                                }}
+                                formItemProps={{ style: { marginBottom: 8 } }}
+                            />
+                            <CheckboxField
+                                optionLabel="Học viên cần nhập câu trả lời dạng văn bản (text)"
+                                disabled={!isEducator}
+                                onChange={(e) => setRequiresTextResponse(e.target.checked)}
+                                fieldProps={{
+                                    checked: requiresTextResponse,
+                                }}
+                                formItemProps={{ style: { marginBottom: 0 } }}
+                            />
+                        </div>
+                    ) : null}
                 </>
             ),
         },
@@ -1030,6 +1035,10 @@ const TaskForm = (props) => {
             setVideoUrl('');
             setFilePath(null);
             setContent('');
+            setTitle('');
+            titleRef.current = '';
+            setDescription('');
+            descriptionRef.current = '';
             return;
         }
 
@@ -1044,9 +1053,13 @@ const TaskForm = (props) => {
             setVideoUrl(dataDetail.videoPath || '');
             setFilePath(dataDetail.filePath || '');
             setContent(dataDetail.content || dataDetail.introduction || '');
+            setTitle(dataDetail.title || '');
+            titleRef.current = dataDetail.title || '';
+            setDescription(dataDetail.description || '');
+            descriptionRef.current = dataDetail.description || '';
         } catch (error) {
             console.error('Error loading task detail:', error);
-            message.error('Không thể tải dữ liệu Task. Vui lòng tải lại trang.');
+            message.error('Không thể tải dữ liệu nhiệm vụ. Vui lòng tải lại trang.');
         }
     }, [dataDetail]);
 
@@ -1106,7 +1119,7 @@ const TaskForm = (props) => {
         try {
             const result = await mixinFuncs.handleSubmit(submitData);
             if (result?.result === false) {
-                const msg = result.message || 'Không thể lưu Task. Vui lòng thử lại.';
+                const msg = result.message || 'Không thể lưu nhiệm vụ. Vui lòng thử lại.';
                 setSubmitError(msg);
                 message.error(msg);
                 return false;
@@ -1117,7 +1130,7 @@ const TaskForm = (props) => {
             setDraftData(null);
             return result;
         } catch (error) {
-            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu Task.';
+            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu nhiệm vụ.';
             setSubmitError(msg);
             message.error(msg);
             return false;
@@ -1130,8 +1143,8 @@ const TaskForm = (props) => {
             setSubmitError(null);
 
             const formValues = form.getFieldsValue(true);
-            const titleVal = formValues.title || values?.title || '';
-            const descVal = formValues.description || values?.description;
+            const titleVal = titleRef.current || title || formValues.title || values?.title || '';
+            const descVal = descriptionRef.current || description || formValues.description || values?.description || '';
             const nameVal = formValues.name || values?.name;
 
             const submitData = {
@@ -1162,7 +1175,7 @@ const TaskForm = (props) => {
 
             return await doSave(submitData);
         } catch (error) {
-            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu Task.';
+            const msg = error?.response?.data?.message || error?.message || 'Có lỗi xảy ra khi lưu nhiệm vụ.';
             setSubmitError(msg);
             message.error(msg);
             return false;

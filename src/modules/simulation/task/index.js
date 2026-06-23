@@ -71,8 +71,8 @@ const TaskListPage = ({ pageOptions }) => {
         image: translate.formatMessage(commonMessage.image),
         question: translate.formatMessage(commonMessage.question),
         viewDetails: translate.formatMessage(commonMessage.viewDetails),
-        createSubTask: 'Tạo Task Con',
-        createTask: 'Tạo Task',
+        createSubTask: 'Tạo nhiệm vụ phụ',
+        createTask: 'Tạo nhiệm vụ chính',
     };
 
     const kindValues = formattedKindOptions.map((item) => ({
@@ -715,9 +715,9 @@ const TaskListPage = ({ pageOptions }) => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
                             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'SubTask' : 'Task'}</Tag>
+                                <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'Nhiệm vụ phụ' : 'Nhiệm vụ chính'}</Tag>
                                 {isSubTask && task.parent?.title && (
-                                    <Tag color="default">Parent: {task.parent.title}</Tag>
+                                    <Tag color="default">Nhiệm vụ chính: {task.parent.title}</Tag>
                                 )}
                                 {isSubTask && typeof task.totalQuestion !== 'undefined' && (
                                     <Tag color="default">Câu hỏi: {task.totalQuestion || 0}</Tag>
@@ -774,7 +774,7 @@ const TaskListPage = ({ pageOptions }) => {
                                 ))}
                             </SortableContext>
                         ) : (
-                            <div className="empty-drop-zone">Chưa có SubTask</div>
+                            <div className="empty-drop-zone">Chưa có nhiệm vụ phụ</div>
                         )}
                     </div>
                 ) : null}
@@ -812,21 +812,21 @@ const TaskListPage = ({ pageOptions }) => {
                     <span style={{ color: '#9ca3af', fontSize: 14 }}>└─</span>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
                         <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>
-                            {subtask.title || 'SubTask không có tiêu đề'}
+                            {subtask.title || 'Nhiệm vụ phụ không có tiêu đề'}
                         </div>
                         {subtask.parent?.title && (
-                            <div style={{ fontSize: 12, color: '#64748b' }}>Thuộc Task: {subtask.parent.title}</div>
+                            <div style={{ fontSize: 12, color: '#64748b' }}>Thuộc nhiệm vụ: {subtask.parent.title}</div>
                         )}
                     </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <div className="subtask-right">
                     {isEducator && mixinFuncs.hasPermission([apiConfig.task.delete.permissionCode]) && (
                         <Button
                             type="text"
                             danger
                             icon={<DeleteOutlined />}
                             onClick={(e) => handleDeleteClick(e, subtask)}
-                            title="Xóa SubTask"
+                            title="Xóa nhiệm vụ phụ"
                         />
                     )}
                     <Button
@@ -892,7 +892,7 @@ const TaskListPage = ({ pageOptions }) => {
             title={
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#ff4d4f' }}>
                     <ExclamationCircleOutlined />
-                    <span>Xóa Task và toàn bộ SubTask</span>
+                    <span>Xóa nhiệm vụ chính và toàn bộ nhiệm vụ phụ</span>
                 </div>
             }
             open={deleteModal.visible}
@@ -915,21 +915,21 @@ const TaskListPage = ({ pageOptions }) => {
                     loading={deleteModal.loading}
                     onClick={handleConfirmDeleteWithSubtasks}
                 >
-                    Xóa tất cả
+                    Xóa
                 </Button>,
             ]}
             width={480}
         >
             <div style={{ padding: '8px 0' }}>
                 <p style={{ marginBottom: 12 }}>
-                    ⚠️ Bạn đang xóa Task{' '}
+                    ⚠️ Bạn đang xóa nhiệm vụ chính{' '}
                     <strong>{`"${deleteModal.task?.title || deleteModal.task?.name || ''}"`}</strong> — đây là một{' '}
-                    <strong>Task Cha</strong>.
+                    <strong>nhiệm vụ chính</strong>.
                 </p>
                 <p style={{ color: '#595959', marginBottom: 12 }}>
-                    Task này hiện có{' '}
-                    <strong style={{ color: '#ff4d4f' }}>{deleteModal.task?.children?.length || 0} SubTask</strong> bên
-                    trong. Khi xóa Task Cha, <strong>toàn bộ SubTask thuộc về nó cũng sẽ bị xóa theo</strong>.
+                    Nhiệm vụ này hiện có{' '}
+                    <strong style={{ color: '#ff4d4f' }}>{deleteModal.task?.children?.length || 0} nhiệm vụ phụ</strong> bên
+                    trong. Khi xóa nhiệm vụ chính, <strong>toàn bộ nhiệm vụ phụ thuộc về nó cũng sẽ bị xóa theo</strong>.
                 </p>
                 <p style={{ color: '#8c8c8c', fontSize: 13 }}>
                     Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?
