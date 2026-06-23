@@ -66,12 +66,12 @@ export const navMenuConfig = [
                 path: '/simulation-review',
                 permission: [apiConfig.simulation.getListForEducator.permissionCode],
             },
-            {
-                label: <FormattedMessage defaultMessage="Quản lý Bình luận" />,
-                key: 'comment',
-                path: '/comment',
-                permission: [apiConfig.comment.list.permissionCode],
-            },
+            // {
+            //     label: <FormattedMessage defaultMessage="Quản lý Bình luận" />,
+            //     key: 'comment',
+            //     path: '/comment',
+            //     permission: [apiConfig.comment.list.permissionCode],
+            // },
             {
                 label: <FormattedMessage defaultMessage="Quản lý Đánh giá" />,
                 key: 'feedback',

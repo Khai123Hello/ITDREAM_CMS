@@ -481,15 +481,14 @@ const useListBase = ({
                                 <span
                                     key={key}
                                     style={{
-                                        display: 'inline-flex',
+                                        display: isVisible ? 'inline-flex' : 'none',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         width: slotWidth,
                                         flex: `0 0 ${slotWidth}px`,
-                                        visibility: isVisible ? 'visible' : 'hidden',
                                     }}
                                 >
-                                    {isVisible ? <ActionItem {...data} {...buttonProps} /> : <span>&nbsp;</span>}
+                                    {isVisible ? <ActionItem {...data} {...buttonProps} /> : null}
                                 </span>
                             );
                         })}
