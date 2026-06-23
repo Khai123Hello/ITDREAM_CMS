@@ -1027,9 +1027,19 @@ const TaskForm = (props) => {
         }
     }, [parentTaskFromState, isEditing, dataDetail]);
 
+    const prevDataDetailRef = useRef(null);
+
     // ── load dataDetail khi edit hoặc reset khi tạo mới ──────────────
     useEffect(() => {
-        if (!dataDetail || Object.keys(dataDetail).length === 0) {
+        const isCurrentlyEmpty = !dataDetail || Object.keys(dataDetail).length === 0;
+        const wasPreviouslyEmpty = !prevDataDetailRef.current || Object.keys(prevDataDetailRef.current).length === 0;
+        
+        if (isCurrentlyEmpty && wasPreviouslyEmpty && prevDataDetailRef.current !== null) {
+            return;
+        }
+        prevDataDetailRef.current = dataDetail || {};
+
+        if (isCurrentlyEmpty) {
             form.resetFields();
             setImagePath(null);
             setVideoUrl('');
