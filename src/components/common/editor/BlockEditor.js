@@ -1,801 +1,575 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Modal, Button, Radio, Input, Card, Dropdown } from 'antd';
-import { useEditor, EditorContent, ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
+import { Modal, Button, Card, Popover, Input } from 'antd';
+import { useEditor, EditorContent, ReactNodeViewRenderer, NodeViewWrapper, NodeViewContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { DOMSerializer, Fragment } from '@tiptap/pm/model';
-import { Mark, Node, mergeAttributes } from '@tiptap/core';
+import LinkExtension from '@tiptap/extension-link';
+import UnderlineExtension from '@tiptap/extension-underline';
+import { Node, mergeAttributes } from '@tiptap/core';
 import {
     BoldOutlined,
     ItalicOutlined,
     UnderlineOutlined,
+    LinkOutlined,
     UnorderedListOutlined,
     OrderedListOutlined,
-    LinkOutlined,
     CodeOutlined,
     PlusOutlined,
-    DeleteOutlined,
-    BookOutlined,
     InfoCircleOutlined,
     QuestionCircleOutlined,
     FileTextOutlined,
+    BookOutlined,
     DownOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons';
+import { markdocToHtml, tipTapToMarkdoc } from '@utils/markdocBlockConverter';
 import './BlockEditor.scss';
 
-// EMOJI_SETS
-const EMOJI_SETS = [
-    { l: 'Học & Kiến thức', e: ['🎓', '📚', '💡', '🔬', '🧪', '🧩', '📖', '✏️', '📝'] },
-    { l: 'Thực hành', e: ['⚙️', '🛠️', '🔧', '🔨', '🚀', '✅', '🎯', '💻', '🖥️'] },
-    { l: 'Kết quả', e: ['🏆', '⭐', '🌟', '🎉', '💎', '🥇', '🔑', '🎁'] },
-    { l: 'Thông tin', e: ['📋', '📊', '📈', '📉', '🗂️', '📁', '📌', '📎'] },
-];
+// ---------------------------------------------------------------------------
+// Custom TipTap Node Definitions
+// ---------------------------------------------------------------------------
 
-// Custom Underline Mark
-const Underline = Mark.create({
-    name: 'underline',
-    parseHTML() {
-        return [{ tag: 'u' }, { style: 'text-decoration=underline' }];
-    },
-    renderHTML({ HTMLAttributes }) {
-        return ['u', mergeAttributes(HTMLAttributes), 0];
-    },
-    addCommands() {
-        return {
-            toggleUnderline: () => ({ commands }) => {
-                return commands.toggleMark(this.name);
-            },
-        };
-    },
-    addKeyboardShortcuts() {
-        return {
-            'Mod-u': () => this.editor.commands.toggleUnderline(),
-            'Mod-U': () => this.editor.commands.toggleUnderline(),
-        };
-    },
-});
+const CalloutNodeView = ({ node, updateAttributes, deleteNode }) => {
+    const icon = node.attrs.icon || '💡';
+    const [tempIcon, setTempIcon] = useState(icon);
+    const [visible, setVisible] = useState(false);
 
-// Custom Link Mark
-const Link = Mark.create({
-    name: 'link',
-    addAttributes() {
-        return {
-            href: { default: null },
-            target: { default: '_blank' },
-        };
-    },
-    parseHTML() {
-        return [{ tag: 'a[href]' }];
-    },
-    renderHTML({ HTMLAttributes }) {
-        return ['a', mergeAttributes(HTMLAttributes), 0];
-    },
-});
+    useEffect(() => {
+        setTempIcon(icon);
+    }, [icon]);
 
-// Callout Node View
-const CalloutNodeView = ({ node, updateAttributes }) => {
-    const [showEmoji, setShowEmoji] = useState(false);
+    const popularEmojis = [
+        '💡', '⚠️', '🔥', 'ℹ️', '🚀', '🌟', '🎯', '🎓',
+        '🛠️', '📝', '🔍', '💻', '🧠', '📢', '🏆', '🔑',
+    ];
+
+    const handleEmojiClick = (emoji) => {
+        setTempIcon(prev => prev + emoji);
+    };
+
+    const handleClear = () => {
+        setTempIcon('');
+    };
+
+    const handleSave = () => {
+        updateAttributes({ icon: tempIcon || '💡' });
+        setVisible(false);
+    };
+
+    const popoverContent = (
+        <div style={{ width: 200, padding: '4px 0' }} contentEditable={false}>
+            <div style={{ marginBottom: 8, display: 'flex', gap: 6 }}>
+                <Input
+                    value={tempIcon}
+                    onChange={(e) => setTempIcon(e.target.value)}
+                    placeholder="Biểu tượng..."
+                    size="small"
+                    style={{ flex: 1 }}
+                />
+                <Button size="small" onClick={handleClear} danger>Xóa</Button>
+            </div>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(4, 1fr)',
+                gap: 6,
+                marginBottom: 12,
+                maxHeight: 120,
+                overflowY: 'auto',
+                padding: '2px',
+            }}>
+                {popularEmojis.map(emoji => (
+                    <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => handleEmojiClick(emoji)}
+                        style={{
+                            border: '1px solid #e4e4e4',
+                            background: '#fff',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            fontSize: 16,
+                            padding: '4px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                        onMouseLeave={(e) => e.target.style.background = '#fff'}
+                    >
+                        {emoji}
+                    </button>
+                ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+                <Button size="small" onClick={() => setVisible(false)}>Hủy</Button>
+                <Button size="small" type="primary" onClick={handleSave}>Lưu</Button>
+            </div>
+        </div>
+    );
 
     return (
-        <NodeViewWrapper className="custom-callout-node-wrapper">
-            <div className="custom-callout-node">
-                <Dropdown
-                    open={showEmoji}
-                    onOpenChange={setShowEmoji}
-                    dropdownRender={() => (
-                        <div className="emoji-picker-dropdown">
-                            {EMOJI_SETS.map((set) => (
-                                <div key={set.l} className="emoji-section">
-                                    <div className="emoji-section-title">{set.l}</div>
-                                    <div className="emoji-grid">
-                                        {set.e.map((emoji) => (
-                                            <span
-                                                key={emoji}
-                                                className="emoji-item"
-                                                onClick={() => {
-                                                    updateAttributes({ icon: emoji });
-                                                    setShowEmoji(false);
-                                                }}
-                                            >
-                                                {emoji}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                    trigger={['click']}
-                    placement="bottomLeft"
+        <NodeViewWrapper className="tfo-block-callout tiptap-callout-node">
+            <Popover
+                content={popoverContent}
+                title="Chọn biểu tượng"
+                trigger="click"
+                open={visible}
+                onOpenChange={setVisible}
+                placement="bottomLeft"
+            >
+                <span
+                    className="tfo-block-callout-icon"
+                    contentEditable={false}
+                    style={{ cursor: 'pointer', userSelect: 'none' }}
                 >
-                    <span className="callout-icon-btn">{node.attrs.icon}</span>
-                </Dropdown>
-                <Input
-                    className="callout-text-input"
-                    value={node.attrs.content}
-                    onChange={(e) => updateAttributes({ content: e.target.value })}
-                    placeholder="Nhập nội dung lưu ý nổi bật..."
-                    bordered={false}
-                />
-            </div>
+                    {icon}
+                </span>
+            </Popover>
+            <NodeViewContent className="tfo-block-callout-text" />
+            <button
+                type="button"
+                className="tfo-block-delete-btn"
+                onClick={deleteNode}
+                contentEditable={false}
+                title="Xóa khối"
+            >
+                ×
+            </button>
         </NodeViewWrapper>
     );
 };
 
-// Callout Extension
 const CalloutExtension = Node.create({
     name: 'callout',
     group: 'block',
-    atom: true,
+    content: 'block+',
+    defining: true,
     addAttributes() {
         return {
             icon: { default: '💡' },
-            content: { default: '' },
         };
     },
     parseHTML() {
-        return [{ tag: 'div[data-type="callout"]' }];
+        return [{ tag: 'callout-block' }];
     },
     renderHTML({ HTMLAttributes }) {
-        return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'callout' })];
+        return ['callout-block', mergeAttributes(HTMLAttributes), 0];
     },
     addNodeView() {
         return ReactNodeViewRenderer(CalloutNodeView);
     },
 });
 
-// Step Node View
-const StepNodeView = ({ node, updateAttributes }) => {
+const StepNodeView = ({ node, updateAttributes, deleteNode }) => {
+    const label = node.attrs.label || 'Bước';
     return (
-        <NodeViewWrapper className="custom-step-node-wrapper">
-            <div className="custom-step-node">
-                <div className="step-inputs">
-                    <Input
-                        className="step-label-input"
-                        value={node.attrs.label}
-                        onChange={(e) => updateAttributes({ label: e.target.value })}
-                        placeholder="Ví dụ: Bước 1"
-                        style={{ width: 120, fontWeight: 600 }}
-                    />
-                    <Input.TextArea
-                        className="step-body-input"
-                        value={node.attrs.body}
-                        onChange={(e) => updateAttributes({ body: e.target.value })}
-                        placeholder="Mô tả nội dung của bước này..."
-                        autoSize={{ minRows: 1, maxRows: 3 }}
-                        bordered={false}
-                    />
-                </div>
+        <NodeViewWrapper className="tfo-block-step tiptap-step-node">
+            <div className="tfo-block-step-badge" contentEditable={false}>#</div>
+            <div className="tfo-block-step-content">
+                <input
+                    className="tfo-block-step-label-input"
+                    value={label}
+                    onChange={(e) => updateAttributes({ label: e.target.value })}
+                    placeholder="Tên bước..."
+                    style={{
+                        border: 'none',
+                        background: 'transparent',
+                        fontWeight: 'bold',
+                        color: 'var(--accent)',
+                        outline: 'none',
+                        padding: 0,
+                        width: '100%',
+                    }}
+                />
+                <NodeViewContent className="tfo-block-step-body" />
             </div>
+            <button
+                type="button"
+                className="tfo-block-delete-btn"
+                onClick={deleteNode}
+                contentEditable={false}
+                title="Xóa bước"
+            >
+                ×
+            </button>
         </NodeViewWrapper>
     );
 };
 
-// Step Extension
 const StepExtension = Node.create({
-    name: 'stepBlock',
+    name: 'step',
     group: 'block',
-    atom: true,
+    content: 'block+',
+    defining: true,
     addAttributes() {
         return {
             label: { default: 'Bước 1' },
-            body: { default: '' },
         };
     },
     parseHTML() {
-        return [{ tag: 'div[data-type="step"]' }];
+        return [{ tag: 'step-block' }];
     },
     renderHTML({ HTMLAttributes }) {
-        return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'step' })];
+        return ['step-block', mergeAttributes(HTMLAttributes), 0];
     },
     addNodeView() {
         return ReactNodeViewRenderer(StepNodeView);
     },
 });
 
-// Section Node View
-const SectionNodeView = ({ node, updateAttributes }) => {
-    const [showEmoji, setShowEmoji] = useState(false);
-    const { icon, title, bullets } = node.attrs;
+const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
+    const icon = node.attrs.icon || '🎓';
+    const title = node.attrs.title || 'Kiến thức đạt được';
+    const [tempIcon, setTempIcon] = useState(icon);
+    const [visible, setVisible] = useState(false);
 
-    const handleBulletChange = (index, value) => {
-        const newBullets = [...bullets];
-        newBullets[index] = value;
-        updateAttributes({ bullets: newBullets });
+    useEffect(() => {
+        setTempIcon(icon);
+    }, [icon]);
+
+    const popularEmojis = [
+        '🎓', '🛠️', '💡', '📝', '🚀', '🌟', '❓', '📢', 
+        '🏆', '🔑', '🔍', '🎨', '💻', '📈', '📚', '✍️', 
+        '🧠', '🎯', '🔥', '🤝',
+    ];
+
+    const handleEmojiClick = (emoji) => {
+        setTempIcon(prev => prev + emoji);
     };
 
-    const addBullet = () => {
-        updateAttributes({ bullets: [...bullets, ''] });
+    const handleClear = () => {
+        setTempIcon('');
     };
 
-    const deleteBullet = (index) => {
-        const newBullets = bullets.filter((_, i) => i !== index);
-        updateAttributes({ bullets: newBullets.length > 0 ? newBullets : [''] });
+    const handleSave = () => {
+        updateAttributes({ icon: tempIcon || '🎓' });
+        setVisible(false);
     };
+
+    const popoverContent = (
+        <div style={{ width: 220, padding: '4px 0' }} contentEditable={false}>
+            <div style={{ marginBottom: 8, display: 'flex', gap: 6 }}>
+                <Input
+                    value={tempIcon}
+                    onChange={(e) => setTempIcon(e.target.value)}
+                    placeholder="Biểu tượng..."
+                    size="small"
+                    style={{ flex: 1 }}
+                />
+                <Button size="small" onClick={handleClear} danger>Xóa</Button>
+            </div>
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(5, 1fr)',
+                gap: 6,
+                marginBottom: 12,
+                maxHeight: 120,
+                overflowY: 'auto',
+                padding: '2px',
+            }}>
+                {popularEmojis.map(emoji => (
+                    <button
+                        key={emoji}
+                        type="button"
+                        onClick={() => handleEmojiClick(emoji)}
+                        style={{
+                            border: '1px solid #e4e4e4',
+                            background: '#fff',
+                            borderRadius: 4,
+                            cursor: 'pointer',
+                            fontSize: 16,
+                            padding: '4px 0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'all 0.15s',
+                        }}
+                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                        onMouseLeave={(e) => e.target.style.background = '#fff'}
+                    >
+                        {emoji}
+                    </button>
+                ))}
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
+                <Button size="small" onClick={() => setVisible(false)}>Hủy</Button>
+                <Button size="small" type="primary" onClick={handleSave}>Lưu</Button>
+            </div>
+        </div>
+    );
 
     return (
-        <NodeViewWrapper className="custom-section-node-wrapper">
-            <Card
-                className="custom-section-node-card"
-                title={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <Dropdown
-                            open={showEmoji}
-                            onOpenChange={setShowEmoji}
-                            dropdownRender={() => (
-                                <div className="emoji-picker-dropdown">
-                                    {EMOJI_SETS.map((set) => (
-                                        <div key={set.l} className="emoji-section">
-                                            <div className="emoji-section-title">{set.l}</div>
-                                            <div className="emoji-grid">
-                                                {set.e.map((emoji) => (
-                                                    <span
-                                                        key={emoji}
-                                                        className="emoji-item"
-                                                        onClick={() => {
-                                                            updateAttributes({ icon: emoji });
-                                                            setShowEmoji(false);
-                                                        }}
-                                                    >
-                                                        {emoji}
-                                                    </span>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            trigger={['click']}
-                            placement="bottomLeft"
-                        >
-                            <span className="section-icon-btn">{icon}</span>
-                        </Dropdown>
-                        <Input
-                            placeholder="Tiêu đề mục (ví dụ: Kiến thức đạt được)"
-                            value={title}
-                            onChange={(e) => updateAttributes({ title: e.target.value })}
-                            bordered={false}
-                            style={{ fontWeight: 600, fontSize: 16 }}
-                        />
-                    </div>
-                }
-                size="small"
-            >
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {bullets.map((bullet, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <span style={{ color: 'var(--accent)' }}>•</span>
-                            <Input
-                                value={bullet}
-                                onChange={(e) => handleBulletChange(idx, e.target.value)}
-                                placeholder="Nhập nội dung gạch đầu dòng..."
-                                bordered={false}
-                                style={{ flex: 1 }}
-                            />
-                            {bullets.length > 1 && (
-                                <Button
-                                    type="text"
-                                    danger
-                                    icon={<DeleteOutlined />}
-                                    onClick={() => deleteBullet(idx)}
-                                    size="small"
-                                />
-                            )}
-                        </div>
-                    ))}
-                    <Button
-                        type="dashed"
-                        onClick={addBullet}
-                        icon={<PlusOutlined />}
-                        size="small"
-                        style={{ marginTop: 8 }}
+        <NodeViewWrapper className="tfo-block-section tiptap-section-node">
+            <div className="tfo-block-section-header" contentEditable={false}>
+                <Popover
+                    content={popoverContent}
+                    title="Chọn biểu tượng"
+                    trigger="click"
+                    open={visible}
+                    onOpenChange={setVisible}
+                    placement="bottomLeft"
+                >
+                    <span
+                        className="tfo-block-section-icon"
+                        style={{ cursor: 'pointer', userSelect: 'none' }}
                     >
-                        Thêm gạch đầu dòng
-                    </Button>
-                </div>
-            </Card>
+                        {icon}
+                    </span>
+                </Popover>
+                <input
+                    className="tfo-block-section-title-input"
+                    value={title}
+                    onChange={(e) => updateAttributes({ title: e.target.value })}
+                    placeholder="Tiêu đề mục lớn..."
+                    style={{
+                        border: 'none',
+                        background: 'transparent',
+                        fontWeight: 600,
+                        color: 'var(--text)',
+                        outline: 'none',
+                        padding: 0,
+                        flex: 1,
+                    }}
+                />
+            </div>
+            <NodeViewContent className="tfo-block-section-content" />
+            <button
+                type="button"
+                className="tfo-block-delete-btn"
+                onClick={deleteNode}
+                contentEditable={false}
+                title="Xóa mục lớn"
+            >
+                ×
+            </button>
         </NodeViewWrapper>
     );
 };
 
-// Section Extension
 const SectionExtension = Node.create({
-    name: 'sectionBlock',
+    name: 'section',
     group: 'block',
-    atom: true,
+    content: 'block+',
+    defining: true,
     addAttributes() {
         return {
             icon: { default: '🎓' },
-            title: { default: '' },
-            bullets: { default: [''] },
+            title: { default: 'Kiến thức đạt được' },
         };
     },
     parseHTML() {
-        return [{ tag: 'div[data-type="section"]' }];
+        return [{ tag: 'section-block' }];
     },
     renderHTML({ HTMLAttributes }) {
-        return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'section' })];
+        return ['section-block', mergeAttributes(HTMLAttributes), 0];
     },
     addNodeView() {
         return ReactNodeViewRenderer(SectionNodeView);
     },
 });
 
-// Quiz Node View
-const QuizNodeView = ({ node, updateAttributes }) => {
-    const { question, options } = node.attrs;
-
-    const handleOptionTextChange = (index, value) => {
-        const newOptions = [...options];
-        newOptions[index] = { ...newOptions[index], option: value };
-        updateAttributes({ options: newOptions });
-    };
-
-    const handleCorrectAnswerChange = (index, checked) => {
-        const newOptions = options.map((opt, i) => ({
-            ...opt,
-            answer: i === index ? checked : false, // Một lựa chọn (Single choice)
-        }));
-        updateAttributes({ options: newOptions });
-    };
-
-    const addOption = () => {
-        updateAttributes({
-            options: [...options, { option: '', answer: false }],
-        });
-    };
-
-    const deleteOption = (index) => {
-        const newOptions = options.filter((_, i) => i !== index);
-        updateAttributes({ options: newOptions.length > 0 ? newOptions : [{ option: '', answer: false }] });
-    };
-
+const QuizNodeView = ({ node, updateAttributes, editor, deleteNode }) => {
+    const question = node.attrs.question || 'Câu hỏi trắc nghiệm?';
     return (
-        <NodeViewWrapper className="custom-quiz-node-wrapper">
-            <Card
-                className="custom-quiz-node-card"
-                title={
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <span style={{ fontSize: 18 }}>❓</span>
-                        <span style={{ fontWeight: 600, fontSize: 15 }}>Khối Trắc Nghiệm</span>
-                    </div>
-                }
-                size="small"
+        <NodeViewWrapper className="tfo-block-quiz tiptap-quiz-node">
+            <div className="tfo-block-quiz-question">
+                <span className="tfo-block-quiz-icon" contentEditable={false}>❓</span>
+                <input
+                    className="tfo-block-quiz-question-input"
+                    value={question}
+                    onChange={(e) => updateAttributes({ question: e.target.value })}
+                    placeholder="Nhập câu hỏi trắc nghiệm..."
+                    style={{
+                        border: 'none',
+                        background: 'transparent',
+                        fontWeight: 600,
+                        color: 'var(--text)',
+                        outline: 'none',
+                        padding: 0,
+                        flex: 1,
+                    }}
+                />
+            </div>
+            <NodeViewContent className="tfo-block-quiz-options" />
+            <div className="tfo-block-quiz-actions" contentEditable={false} style={{ marginTop: 8 }}>
+                <Button
+                    size="small"
+                    type="dashed"
+                    onClick={() => {
+                        editor.commands.focus();
+                        // Appends a new option element to the current quiz node view content
+                        editor.commands.insertContent('<option-block correct="false">Lựa chọn mới</option-block>');
+                    }}
+                >
+                    + Thêm lựa chọn
+                </Button>
+            </div>
+            <button
+                type="button"
+                className="tfo-block-delete-btn"
+                onClick={deleteNode}
+                contentEditable={false}
+                title="Xóa trắc nghiệm"
             >
-                <div style={{ marginBottom: 16 }}>
-                    <label style={{ fontWeight: 500, display: 'block', marginBottom: 6 }}>Câu hỏi</label>
-                    <Input.TextArea
-                        placeholder="Nhập câu hỏi trắc nghiệm ở đây..."
-                        value={question}
-                        onChange={(e) => updateAttributes({ question: e.target.value })}
-                        autoSize={{ minRows: 2, maxRows: 4 }}
-                    />
-                </div>
-                <div>
-                    <label style={{ fontWeight: 500, display: 'block', marginBottom: 6 }}>Đáp án chọn</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {options.map((opt, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Radio
-                                    checked={opt.answer}
-                                    onChange={(e) => handleCorrectAnswerChange(idx, e.target.checked)}
-                                    title="Đặt làm đáp án đúng"
-                                />
-                                <Input
-                                    value={opt.option}
-                                    onChange={(e) => handleOptionTextChange(idx, e.target.value)}
-                                    placeholder={`Đáp án ${String.fromCharCode(65 + idx)}...`}
-                                    style={{ flex: 1 }}
-                                />
-                                {options.length > 1 && (
-                                    <Button
-                                        type="text"
-                                        danger
-                                        icon={<DeleteOutlined />}
-                                        onClick={() => deleteOption(idx)}
-                                        size="small"
-                                    />
-                                )}
-                            </div>
-                        ))}
-                        <Button
-                            type="dashed"
-                            onClick={addOption}
-                            icon={<PlusOutlined />}
-                            size="small"
-                            style={{ marginTop: 8 }}
-                        >
-                            Thêm đáp án chọn
-                        </Button>
-                    </div>
-                </div>
-            </Card>
+                ×
+            </button>
         </NodeViewWrapper>
     );
 };
 
-// Quiz Extension
 const QuizExtension = Node.create({
-    name: 'quizBlock',
+    name: 'quiz',
     group: 'block',
-    atom: true,
+    content: 'option+',
+    defining: true,
     addAttributes() {
         return {
-            question: { default: '' },
-            options: {
-                default: [
-                    { option: '', answer: false },
-                    { option: '', answer: false },
-                ],
-            },
+            question: { default: 'Câu hỏi trắc nghiệm?' },
         };
     },
     parseHTML() {
-        return [{ tag: 'div[data-type="quiz"]' }];
+        return [{ tag: 'quiz-block' }];
     },
     renderHTML({ HTMLAttributes }) {
-        return ['div', mergeAttributes(HTMLAttributes, { 'data-type': 'quiz' })];
+        return ['quiz-block', mergeAttributes(HTMLAttributes), 0];
     },
     addNodeView() {
         return ReactNodeViewRenderer(QuizNodeView);
     },
 });
 
-// Templates definitions
+const OptionNodeView = ({ node, updateAttributes, deleteNode }) => {
+    const correct = node.attrs.correct === true;
+    return (
+        <NodeViewWrapper className="tfo-quiz-option tiptap-option-node" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <input
+                type="checkbox"
+                checked={correct}
+                onChange={(e) => updateAttributes({ correct: e.target.checked })}
+                style={{ cursor: 'pointer' }}
+                title="Đánh dấu đáp án đúng"
+            />
+            <NodeViewContent className="tfo-quiz-option-text" style={{ flex: 1 }} />
+            <Button
+                size="small"
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
+                onClick={deleteNode}
+                contentEditable={false}
+                title="Xóa lựa chọn"
+            />
+        </NodeViewWrapper>
+    );
+};
+
+const OptionExtension = Node.create({
+    name: 'option',
+    content: 'inline*',
+    defining: true,
+    addAttributes() {
+        return {
+            correct: { default: false },
+        };
+    },
+    parseHTML() {
+        return [{ tag: 'option-block' }];
+    },
+    renderHTML({ HTMLAttributes }) {
+        return ['option-block', mergeAttributes(HTMLAttributes), 0];
+    },
+    addNodeView() {
+        return ReactNodeViewRenderer(OptionNodeView);
+    },
+});
+
+// ---------------------------------------------------------------------------
+// Templates config (using Markdoc tags format)
+// ---------------------------------------------------------------------------
+
 const TEMPLATES = {
     task: {
         label: 'Giới thiệu',
+        description: 'Mẫu nhiệm vụ chuẩn với các mục kiến thức và thực hành.',
         title: 'Nhập tiêu đề giới thiệu ở đây (ví dụ: Giới thiệu về lập trình React)',
-        description:
+        descriptionText:
             'Nhập mô tả ngắn gọn về bài học ở đây (ví dụ: Bài viết giúp học viên làm quen với thư viện ReactJS cơ bản)',
-        blocks: () => [
-            {
-                type: 'section',
-                icon: '🎓',
-                title: 'Kiến thức sẽ đạt được (ví dụ: Mục tiêu bài học)',
-                bullets: [
-                    'Nhập nội dung kiến thức thứ nhất (ví dụ: Cách khởi tạo component)',
-                    'Nhập nội dung kiến thức thứ hai (ví dụ: Cách truyền props và quản lý state)',
-                ],
-            },
-            {
-                type: 'section',
-                icon: '🛠️',
-                title: 'Các bước thực hành chính (ví dụ: Nhiệm vụ cần làm)',
-                bullets: [
-                    'Nhập hành động thực hành thứ nhất (ví dụ: Cài đặt môi trường Node.js)',
-                    'Nhập hành động thực hành thứ hai (ví dụ: Chạy kiểm thử ứng dụng)',
-                ],
-            },
-        ],
+        blocks: () => `{% section icon="🎓" title="Kiến thức sẽ đạt được (ví dụ: Mục tiêu bài học)" %}
+- Nhập nội dung kiến thức thứ nhất (ví dụ: Cách khởi tạo component)
+- Nhập nội dung kiến thức thứ hai (ví dụ: Cách truyền props và quản lý state)
+{% /section %}
+
+{% section icon="🛠️" title="Các bước thực hành chính (ví dụ: Nhiệm vụ cần làm)" %}
+- Nhập hành động thực hành thứ nhất (ví dụ: Cài đặt môi trường Node.js)
+- Nhập hành động thực hành thứ hai (ví dụ: Chạy kiểm thử ứng dụng)
+{% /section %}`,
     },
     guide: {
         label: 'Hướng dẫn',
+        description: 'Mẫu hướng dẫn từng bước chi tiết kèm hình ảnh/video.',
         title: 'Nhập tiêu đề hướng dẫn (ví dụ: Hướng dẫn các bước cấu hình)',
-        description:
+        descriptionText:
             'Nhập hướng dẫn tổng quan (ví dụ: Thực hiện tuần tự các bước dưới đây để hoàn thành cấu hình ứng dụng)',
-        blocks: () => [
-            {
-                type: 'step',
-                label: 'Bước 1',
-                body: 'Mô tả bước thực hiện thứ nhất ở đây (ví dụ: Tạo file mới có tên App.js trong thư mục src)',
-            },
-            {
-                type: 'step',
-                label: 'Bước 2',
-                body: 'Mô tả bước thực hiện thứ hai ở đây (ví dụ: Chạy lệnh `npm install` để tải thư viện)',
-            },
-            {
-                type: 'step',
-                label: 'Bước 3',
-                body: 'Mô tả bước thực hiện thứ ba ở đây (ví dụ: Viết code cho Component chính và xuất ra ngoài)',
-            },
-            {
-                type: 'step',
-                label: 'Bước 4',
-                body: 'Mô tả bước thực hiện thứ tư ở đây (ví dụ: Nhấp vào nút Lưu để lưu lại cấu hình)',
-            },
-            {
-                type: 'step',
-                label: 'Bước 5',
-                body: 'Mô tả bước thực hiện thứ năm ở đây (ví dụ: Mở trình duyệt và truy cập vào localhost:3000 để kiểm tra kết quả)',
-            },
-            {
-                type: 'divider',
-            },
-            {
-                type: 'text',
-                content:
-                    'Nhập tóm tắt hoặc lưu ý cuối cùng ở đây (ví dụ: Cuối cùng, hãy nhấn nút nộp bài ở bước tiếp theo!)',
-            },
-        ],
+        blocks: () => `{% step label="Bước 1" %}
+Mô tả bước thực hiện thứ nhất ở đây (ví dụ: Tạo file mới có tên App.js trong thư mục src)
+{% /step %}
+
+{% step label="Bước 2" %}
+Mô tả bước thực hiện thứ hai ở đây (ví dụ: Chạy lệnh \`npm install\` để tải thư viện)
+{% /step %}
+
+{% step label="Bước 3" %}
+Mô tả bước thực hiện thứ ba ở đây (ví dụ: Viết code cho Component chính và xuất ra ngoài)
+{% /step %}
+
+{% step label="Bước 4" %}
+Mô tả bước thực hiện thứ tư ở đây (ví dụ: Nhấp vào nút Lưu để lưu lại cấu hình)
+{% /step %}
+
+{% step label="Bước 5" %}
+Mô tả bước thực hiện thứ năm ở đây (ví dụ: Mở trình duyệt và truy cập vào localhost:3000 để kiểm tra kết quả)
+{% /step %}
+
+---
+
+Nhập tóm tắt hoặc lưu ý cuối cùng ở đây (ví dụ: Cuối cùng, hãy nhấn nút nộp bài ở bước tiếp theo!)`,
     },
     reading: {
         label: 'Ví dụ',
+        description: 'Mẫu ví dụ thực tế hoặc tài liệu tham khảo chi tiết.',
         title: 'Nhập tiêu đề tài liệu tham khảo hoặc ví dụ (ví dụ: Ví dụ về cấu trúc thư mục dự án)',
-        description:
+        descriptionText:
             'Mô tả tổng quan về ví dụ hoặc tài liệu ở đây (ví dụ: Đọc kỹ phần thông tin nền tảng này trước khi bắt đầu nhiệm vụ)',
-        blocks: () => [
-            {
-                type: 'text',
-                content:
-                    'Nhập đoạn văn bản giới thiệu/bối cảnh ở đây (ví dụ: React là một thư viện Javascript phổ biến để xây dựng giao diện người dùng đơn trang)',
-            },
-            {
-                type: 'text',
-                content: 'Nhập hướng dẫn các bước tiếp theo (ví dụ: Ví dụ này bao gồm ba phần chính cần chú ý:)',
-            },
-            {
-                type: 'numbered',
-                content: 'Nhập mục thứ nhất (ví dụ: Khởi tạo dự án bằng Vite)',
-            },
-            {
-                type: 'numbered',
-                content: 'Nhập mục thứ hai (ví dụ: Tạo component Header và Footer)',
-            },
-            {
-                type: 'numbered',
-                content: 'Nhập mục thứ ba (ví dụ: Chạy ứng dụng trên cổng 5173)',
-            },
-            {
-                type: 'callout',
-                icon: '💡',
-                content:
-                    'Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ: Hãy đảm bảo rằng bạn đã cài đặt phiên bản Node.js LTS trở lên)',
-            },
-        ],
+        blocks: () => `Nhập đoạn văn bản giới thiệu/bối cảnh ở đây (ví dụ: React là một thư viện Javascript phổ biến để xây dựng giao diện người dùng đơn trang)
+
+Nhập hướng dẫn các bước tiếp theo (ví dụ: Ví dụ này bao gồm ba phần chính cần chú ý:)
+
+1. Nhập mục thứ nhất (ví dụ: Khởi tạo dự án bằng Vite)
+2. Nhập mục thứ hai (ví dụ: Tạo component Header và Footer)
+3. Nhập mục thứ ba (ví dụ: Chạy ứng dụng trên cổng 5173)
+
+{% callout icon="💡" %}
+Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ: Hãy đảm bảo rằng bạn đã cài đặt phiên bản Node.js LTS trở lên)
+{% /callout %}`,
     },
     quiz: {
         label: 'Trắc nghiệm',
+        description: 'Mẫu câu hỏi trắc nghiệm kiểm tra kiến thức nhanh.',
         title: 'Kiểm tra kiến thức (ví dụ: Trắc nghiệm nhanh)',
-        description: 'Trả lời các câu hỏi trắc nghiệm dưới đây để hoàn thành bài học.',
-        blocks: () => [
-            { type: 'text', content: 'Hãy chọn đáp án đúng nhất cho từng câu hỏi.' },
-            {
-                type: 'quiz',
-                question: 'Thủ đô của Việt Nam là gì?',
-                options: [
-                    { option: 'Hà Nội', answer: true },
-                    { option: 'TP. Hồ Chí Minh', answer: false },
-                    { option: 'Đà Nẵng', answer: false },
-                ],
-            },
-        ],
+        descriptionText: 'Trả lời các câu hỏi trắc nghiệm dưới đây để hoàn thành bài học.',
+        blocks: () => `Hãy chọn đáp án đúng nhất cho từng câu hỏi.
+
+{% quiz question="Thủ đô của Việt Nam là gì?" %}
+  {% option correct=true %}Hà Nội{% /option %}
+  {% option correct=false %}TP. Hồ Chí Minh{% /option %}
+  {% option correct=false %}Đà Nẵng{% /option %}
+{% /quiz %}`,
     },
 };
 
-// Slash Menu Items definitions
-const SLASH_ITEMS = [
-    { key: 'callout', label: 'Hộp Lưu ý', desc: 'Chèn khung ghi chú nổi bật', icon: '💡', type: 'callout' },
-    { key: 'stepBlock', label: 'Bước Hướng dẫn', desc: 'Chèn một bước thực hành', icon: '👣', type: 'stepBlock' },
-    { key: 'sectionBlock', label: 'Mục lớn (Section)', desc: 'Chèn khung mục tiêu bài học', icon: '🎓', type: 'sectionBlock' },
-    { key: 'quizBlock', label: 'Trắc nghiệm', desc: 'Chèn câu hỏi trắc nghiệm', icon: '❓', type: 'quizBlock' },
-    { key: 'bulletList', label: 'Danh sách dấu tròn', desc: 'Chèn danh sách không thứ tự', icon: '•', type: 'bulletList' },
-    { key: 'orderedList', label: 'Danh sách số', desc: 'Chèn danh sách có thứ tự', icon: '1.', type: 'orderedList' },
-    { key: 'codeBlock', label: 'Khối Code', desc: 'Khung nhập mã nguồn đơn sắc', icon: '</>', type: 'codeBlock' },
-    { key: 'h1', label: 'Tiêu đề 1', desc: 'Tiêu đề cỡ lớn', icon: 'H1', type: 'h1' },
-    { key: 'h2', label: 'Tiêu đề 2', desc: 'Tiêu đề cỡ vừa', icon: 'H2', type: 'h2' },
-    { key: 'h3', label: 'Tiêu đề 3', desc: 'Tiêu đề mục nhỏ', icon: 'H3', type: 'h3' },
-];
-
-// Conversions
-const deserializeBlocksToTipTap = (blocks) => {
-    if (!blocks || !Array.isArray(blocks)) {
-        return {
-            type: 'doc',
-            content: [{ type: 'paragraph' }],
-        };
-    }
-
-    const content = [];
-    let i = 0;
-
-    while (i < blocks.length) {
-        const block = blocks[i];
-
-        if (block.type === 'text') {
-            content.push({
-                type: 'paragraph',
-                content: block.content ? [{ type: 'text', text: block.content }] : [],
-            });
-            i++;
-        } else if (block.type === 'h1') {
-            content.push({
-                type: 'heading',
-                attrs: { level: 1 },
-                content: block.content ? [{ type: 'text', text: block.content }] : [],
-            });
-            i++;
-        } else if (block.type === 'h2') {
-            content.push({
-                type: 'heading',
-                attrs: { level: 2 },
-                content: block.content ? [{ type: 'text', text: block.content }] : [],
-            });
-            i++;
-        } else if (block.type === 'h3') {
-            content.push({
-                type: 'heading',
-                attrs: { level: 3 },
-                content: block.content ? [{ type: 'text', text: block.content }] : [],
-            });
-            i++;
-        } else if (block.type === 'bullet') {
-            const listItems = [];
-            while (i < blocks.length && blocks[i].type === 'bullet') {
-                listItems.push({
-                    type: 'listItem',
-                    content: [
-                        {
-                            type: 'paragraph',
-                            content: blocks[i].content ? [{ type: 'text', text: blocks[i].content }] : [],
-                        },
-                    ],
-                });
-                i++;
-            }
-            content.push({
-                type: 'bulletList',
-                content: listItems,
-            });
-        } else if (block.type === 'numbered') {
-            const listItems = [];
-            while (i < blocks.length && blocks[i].type === 'numbered') {
-                listItems.push({
-                    type: 'listItem',
-                    content: [
-                        {
-                            type: 'paragraph',
-                            content: blocks[i].content ? [{ type: 'text', text: blocks[i].content }] : [],
-                        },
-                    ],
-                });
-                i++;
-            }
-            content.push({
-                type: 'orderedList',
-                content: listItems,
-            });
-        } else if (block.type === 'divider') {
-            content.push({ type: 'horizontalRule' });
-            i++;
-        } else if (block.type === 'callout') {
-            content.push({
-                type: 'callout',
-                attrs: {
-                    icon: block.icon || '💡',
-                    content: block.content || '',
-                },
-            });
-            i++;
-        } else if (block.type === 'code') {
-            content.push({
-                type: 'codeBlock',
-                content: block.content ? [{ type: 'text', text: block.content }] : [],
-            });
-            i++;
-        } else if (block.type === 'section') {
-            content.push({
-                type: 'sectionBlock',
-                attrs: {
-                    icon: block.icon || '🎓',
-                    title: block.title || '',
-                    bullets: block.bullets || [''],
-                },
-            });
-            i++;
-        } else if (block.type === 'step') {
-            content.push({
-                type: 'stepBlock',
-                attrs: {
-                    label: block.label || 'Bước 1',
-                    body: block.body || '',
-                },
-            });
-            i++;
-        } else if (block.type === 'quiz') {
-            content.push({
-                type: 'quizBlock',
-                attrs: {
-                    question: block.question || '',
-                    options: block.options || [
-                        { option: '', answer: false },
-                        { option: '', answer: false },
-                    ],
-                },
-            });
-            i++;
-        } else {
-            content.push({
-                type: 'paragraph',
-            });
-            i++;
-        }
-    }
-
-    if (content.length === 0) {
-        content.push({ type: 'paragraph' });
-    }
-
-    return {
-        type: 'doc',
-        content,
-    };
-};
-
-const serializeTipTapToBlocks = (doc, schema) => {
-    if (!doc || !doc.content || !Array.isArray(doc.content)) {
-        return [];
-    }
-
-    const blocks = [];
-    const serializer = DOMSerializer.fromSchema(schema);
-
-    const getHTMLFromNodeContent = (node) => {
-        if (!node) return '';
-        try {
-            const fragment = Fragment.fromJSON(schema, node.content);
-            const tempDiv = document.createElement('div');
-            serializer.serializeFragment(fragment, { document }, tempDiv);
-            return tempDiv.innerHTML || '';
-        } catch (e) {
-            console.error('Error serializing node content:', e);
-            return '';
-        }
-    };
-
-    doc.content.forEach((node) => {
-        const textContent = node.content?.map((c) => c.text || '').join('') || '';
-        const richHTML = getHTMLFromNodeContent(node);
-
-        if (node.type === 'paragraph') {
-            blocks.push({ type: 'text', content: richHTML });
-        } else if (node.type === 'heading') {
-            const level = node.attrs?.level || 1;
-            blocks.push({ type: `h${level}`, content: richHTML });
-        } else if (node.type === 'bulletList') {
-            node.content?.forEach((item) => {
-                const itemText = item.content?.[0] ? getHTMLFromNodeContent(item.content[0]) : '';
-                blocks.push({ type: 'bullet', content: itemText });
-            });
-        } else if (node.type === 'orderedList') {
-            node.content?.forEach((item) => {
-                const itemText = item.content?.[0] ? getHTMLFromNodeContent(item.content[0]) : '';
-                blocks.push({ type: 'numbered', content: itemText });
-            });
-        } else if (node.type === 'horizontalRule') {
-            blocks.push({ type: 'divider' });
-        } else if (node.type === 'callout') {
-            blocks.push({
-                type: 'callout',
-                icon: node.attrs?.icon || '💡',
-                content: node.attrs?.content || '',
-            });
-        } else if (node.type === 'codeBlock') {
-            blocks.push({ type: 'code', content: textContent });
-        } else if (node.type === 'sectionBlock') {
-            blocks.push({
-                type: 'section',
-                icon: node.attrs?.icon || '🎓',
-                title: node.attrs?.title || '',
-                bullets: node.attrs?.bullets || [''],
-            });
-        } else if (node.type === 'stepBlock') {
-            blocks.push({
-                type: 'step',
-                label: node.attrs?.label || 'Bước 1',
-                body: node.attrs?.body || '',
-            });
-        } else if (node.type === 'quizBlock') {
-            blocks.push({
-                type: 'quiz',
-                question: node.attrs?.question || '',
-                options: node.attrs?.options || [],
-            });
-        }
-    });
-
-    return blocks;
-};
+// ---------------------------------------------------------------------------
+// Main Component
+// ---------------------------------------------------------------------------
 
 export default function BlockEditor({
     initialTitle = '',
@@ -808,358 +582,239 @@ export default function BlockEditor({
     defaultTemplate = 'task',
     autoLoadTemplate = false,
 }) {
+    const [title, setTitle] = useState(initialTitle);
+    const [description, setDescription] = useState(initialDescription);
+    const [content, setContent] = useState('');
+    const [showTemplatePicker, setShowTemplatePicker] = useState(false);
     const [template, setTemplate] = useState(defaultTemplate);
-    const [showTemplatePicker, setShowTemplatePicker] = useState(() => {
-        if (autoLoadTemplate && !initialContent && !initialTitle) return false;
-        return !initialContent && !initialTitle;
-    });
 
-    const [title, setTitle] = useState(() => {
-        if (autoLoadTemplate && !initialTitle && !initialContent && TEMPLATES[defaultTemplate]) {
-            return TEMPLATES[defaultTemplate].title;
-        }
-        return initialTitle;
-    });
-
-    const [description, setDescription] = useState(() => {
-        if (autoLoadTemplate && !initialDescription && !initialContent && TEMPLATES[defaultTemplate]) {
-            return TEMPLATES[defaultTemplate].description;
-        }
-        return initialDescription;
-    });
-
-    const titleRef = useRef(title);
-    const descriptionRef = useRef(description);
-
-    useEffect(() => {
-        titleRef.current = title;
-    }, [title]);
-
-    useEffect(() => {
-        descriptionRef.current = description;
-    }, [description]);
-
-    const [slashMenu, setSlashMenu] = useState({
-        isOpen: false,
-        x: 0,
-        y: 0,
-        selectedIndex: 0,
-        startPos: 0,
-    });
-    const [slashQuery, setSlashQuery] = useState('');
-
-    const filteredItems = SLASH_ITEMS.filter((item) =>
-        item.label.toLowerCase().includes(slashQuery.toLowerCase()) ||
-        item.desc.toLowerCase().includes(slashQuery.toLowerCase()) ||
-        item.key.toLowerCase().includes(slashQuery.toLowerCase()),
-    );
-
-    const slashMenuRef = useRef(slashMenu);
-    useEffect(() => {
-        slashMenuRef.current = slashMenu;
-    }, [slashMenu]);
-
-    const filteredItemsRef = useRef(filteredItems);
-    useEffect(() => {
-        filteredItemsRef.current = filteredItems;
-    }, [filteredItems]);
-
-    const handleSelectSlashItemRef = useRef(null);
-    handleSelectSlashItemRef.current = (item) => {
-        if (!editor || !item) return;
-
-        const startPos = slashMenuRef.current.startPos;
-        const endPos = editor.state.selection.from;
-
-        editor.chain()
-            .focus()
-            .deleteRange({ from: startPos, to: endPos })
-            .run();
-
-        if (['callout', 'stepBlock', 'sectionBlock', 'quizBlock'].includes(item.type)) {
-            safeInsertContent(item.type);
-        } else if (item.type === 'bulletList') {
-            editor.chain().focus().toggleBulletList().run();
-        } else if (item.type === 'orderedList') {
-            editor.chain().focus().toggleOrderedList().run();
-        } else if (item.type === 'codeBlock') {
-            editor.chain().focus().toggleCodeBlock().run();
-        } else if (item.type === 'h1') {
-            editor.chain().focus().toggleHeading({ level: 1 }).run();
-        } else if (item.type === 'h2') {
-            editor.chain().focus().toggleHeading({ level: 2 }).run();
-        } else if (item.type === 'h3') {
-            editor.chain().focus().toggleHeading({ level: 3 }).run();
-        }
-
-        setSlashMenu((prev) => ({ ...prev, isOpen: false }));
-    };
-
-    // Parse initial content to TipTap JSON document
-    const initialDoc = useRef(null);
-    if (!initialDoc.current) {
-        let initialBlocks = [];
-        if (initialContent) {
-            try {
-                const parsed = JSON.parse(initialContent);
-                if (Array.isArray(parsed)) {
-                    initialBlocks = parsed;
-                } else {
-                    initialBlocks = [{ type: 'text', content: initialContent }];
-                }
-            } catch (e) {
-                initialBlocks = [{ type: 'text', content: initialContent }];
-            }
-        } else if (autoLoadTemplate && TEMPLATES[defaultTemplate]) {
-            initialBlocks = TEMPLATES[defaultTemplate].blocks();
-        }
-        initialDoc.current = deserializeBlocksToTipTap(initialBlocks);
-    }
-
-    // Keep latest onChange ref to avoid stale closures
+    const titleRef = useRef(initialTitle);
+    const descriptionRef = useRef(initialDescription);
     const onChangeRef = useRef(onChange);
+
     useEffect(() => {
         onChangeRef.current = onChange;
     }, [onChange]);
 
+    // Setup TipTap Editor
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            UnderlineExtension,
+            LinkExtension.configure({
+                openOnClick: false,
+            }),
+            CalloutExtension,
+            StepExtension,
+            SectionExtension,
+            QuizExtension,
+            OptionExtension,
+        ],
+        content: markdocToHtml(initialContent),
+        onUpdate({ editor: ed }) {
+            const markdocStr = tipTapToMarkdoc(ed.getJSON());
+            setContent(markdocStr);
+            syncWithParent(titleRef.current, descriptionRef.current, markdocStr);
+        },
+    });
 
-    const buildPayload = useCallback((newTitle, newDesc, newBlocks) => {
-        const cleanBlocks = newBlocks.map((block) => {
-            const copy = { ...block };
-            delete copy.id;
-            return copy;
-        });
-        return { title: newTitle, description: newDesc, content: JSON.stringify(cleanBlocks) };
+    const lastSentContentRef = useRef(initialContent);
+
+    // Sync lastSentContentRef with initialContent when it changes from the outside
+    useEffect(() => {
+        lastSentContentRef.current = initialContent;
+    }, [initialContent]);
+
+    // Handle initialContent load & external changes
+    useEffect(() => {
+        if (editor && initialContent !== undefined) {
+            // Only update editor if the parent content changes externally and differs from what we synced
+            if (initialContent !== lastSentContentRef.current) {
+                editor.commands.setContent(markdocToHtml(initialContent));
+                setContent(initialContent);
+                lastSentContentRef.current = initialContent;
+            }
+        }
+    }, [initialContent, editor]);
+
+    // Synchronize content to parent
+    const buildPayload = useCallback((newTitle, newDesc, newContent) => {
+        return { title: newTitle, description: newDesc, content: newContent };
     }, []);
 
-    // Sync debounce timer ref
     const syncDebounceRef = useRef(null);
 
     const syncWithParent = useCallback(
-        (newTitle, newDesc, newBlocks) => {
+        (newTitle, newDesc, newContent) => {
             if (!onChangeRef.current) return;
             if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
             syncDebounceRef.current = setTimeout(() => {
-                onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
+                lastSentContentRef.current = newContent;
+                onChangeRef.current(buildPayload(newTitle, newDesc, newContent));
             }, 300);
         },
         [buildPayload],
     );
 
     const syncWithParentImmediate = useCallback(
-        (newTitle, newDesc, newBlocks) => {
+        (newTitle, newDesc, newContent) => {
             if (syncDebounceRef.current) clearTimeout(syncDebounceRef.current);
             if (onChangeRef.current) {
-                onChangeRef.current(buildPayload(newTitle, newDesc, newBlocks));
+                lastSentContentRef.current = newContent;
+                onChangeRef.current(buildPayload(newTitle, newDesc, newContent));
             }
         },
         [buildPayload],
     );
 
-    // Build template snapshot for saving confirmation
-    const buildTemplateSnapshot = (tmplTitle, tmplDesc, tmplBlocks) => {
-        const cleanBlocks = tmplBlocks.map((block) => {
-            const copy = { ...block };
-            delete copy.id;
-            return copy;
-        });
+    const buildTemplateSnapshot = (tmplTitle, tmplDesc, tmplContent) => {
         return {
             title: tmplTitle,
             description: tmplDesc,
-            content: JSON.stringify(cleanBlocks),
+            content: tmplContent,
         };
     };
 
-    // Configure TipTap Editor
-    const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Underline,
-            Link,
-            CalloutExtension,
-            StepExtension,
-            SectionExtension,
-            QuizExtension,
-        ],
-        content: initialDoc.current,
-        editorProps: {
-            handleKeyDown(view, event) {
-                const slashState = slashMenuRef.current;
-                const items = filteredItemsRef.current;
-
-                if (event.key === '/') {
-                    const startPos = view.state.selection.from;
-                    setTimeout(() => {
-                        if (view.isDestroyed) return;
-                        const currentPos = view.state.selection.from;
-                        const coords = view.coordsAtPos(currentPos);
-                        setSlashMenu({
-                            isOpen: true,
-                            x: coords.left,
-                            y: coords.bottom + 4,
-                            selectedIndex: 0,
-                            startPos: startPos,
-                        });
-                        setSlashQuery('');
-                    }, 10);
-                    return false;
-                }
-
-                if (slashState.isOpen) {
-                    if (event.key === 'ArrowDown') {
-                        if (items.length > 0) {
-                            event.preventDefault();
-                            setSlashMenu((prev) => ({
-                                ...prev,
-                                selectedIndex: (prev.selectedIndex + 1) % items.length,
-                            }));
-                        }
-                        return true;
-                    }
-                    if (event.key === 'ArrowUp') {
-                        if (items.length > 0) {
-                            event.preventDefault();
-                            setSlashMenu((prev) => ({
-                                ...prev,
-                                selectedIndex: (prev.selectedIndex - 1 + items.length) % items.length,
-                            }));
-                        }
-                        return true;
-                    }
-                    if (event.key === 'Enter') {
-                        if (items.length > 0) {
-                            event.preventDefault();
-                            if (handleSelectSlashItemRef.current) {
-                                handleSelectSlashItemRef.current(items[slashState.selectedIndex]);
-                            }
-                        }
-                        return true;
-                    }
-                    if (event.key === 'Escape') {
-                        event.preventDefault();
-                        setSlashMenu((prev) => ({ ...prev, isOpen: false }));
-                        return true;
-                    }
-                }
-                return false;
-            },
-        },
-        onUpdate({ editor }) {
-            const doc = editor.getJSON();
-            const blocks = serializeTipTapToBlocks(doc, editor.schema);
-            syncWithParent(titleRef.current, descriptionRef.current, blocks);
-
-            // Handle query update if slash menu is open
-            const slashState = slashMenuRef.current;
-            if (slashState.isOpen) {
-                const currentPos = editor.state.selection.from;
-                if (currentPos < slashState.startPos) {
-                    setSlashMenu((prev) => ({ ...prev, isOpen: false }));
-                } else {
-                    const text = editor.state.doc.textBetween(slashState.startPos, currentPos);
-                    if (text.startsWith('/')) {
-                        setSlashQuery(text.slice(1));
-                    } else {
-                        setSlashMenu((prev) => ({ ...prev, isOpen: false }));
-                    }
-                }
-            }
-        },
-        onBlur() {
-            setTimeout(() => {
-                setSlashMenu((prev) => ({ ...prev, isOpen: false }));
-            }, 200);
-        },
-    });
-
-    const safeInsertContent = useCallback(
-        (type) => {
-            if (!editor) return;
-            const { selection } = editor.state;
-            if (selection && selection.node) {
-                editor.chain().focus().insertContentAt(selection.to, { type }).run();
-            } else {
-                editor.chain().focus().insertContent({ type }).run();
-            }
-        },
-        [editor],
-    );
-
-    // Auto-load template on initial mount
+    // Auto-load template on mount if editor is empty
     useEffect(() => {
-        if (autoLoadTemplate && !initialContent && !initialTitle && TEMPLATES[defaultTemplate]) {
+        if (autoLoadTemplate && !initialContent && !initialTitle && TEMPLATES[defaultTemplate] && editor) {
             const tmpl = TEMPLATES[defaultTemplate];
-            const tBlocks = tmpl.blocks();
-            
+            const tContent = tmpl.blocks();
+
+            // Set refs first to avoid race conditions with TipTap's onUpdate event
+            titleRef.current = tmpl.title;
+            descriptionRef.current = tmpl.descriptionText;
+
             if (onTitleChange) onTitleChange(tmpl.title);
-            if (onDescriptionChange) onDescriptionChange(tmpl.description);
-            
-            syncWithParent(tmpl.title, tmpl.description, tBlocks);
+            if (onDescriptionChange) onDescriptionChange(tmpl.descriptionText);
+
+            setTitle(tmpl.title);
+            setDescription(tmpl.descriptionText);
+            setContent(tContent);
+            editor.commands.setContent(markdocToHtml(tContent));
+
+            syncWithParentImmediate(tmpl.title, tmpl.descriptionText, tContent);
 
             if (onTemplateLoad) {
-                onTemplateLoad(buildTemplateSnapshot(tmpl.title, tmpl.description, tBlocks));
+                onTemplateLoad(buildTemplateSnapshot(tmpl.title, tmpl.descriptionText, tContent));
             }
         }
-    }, []);
+    }, [autoLoadTemplate, defaultTemplate, editor]);
 
     const handleTitleChange = (val) => {
         titleRef.current = val;
         setTitle(val);
         if (onTitleChange) onTitleChange(val);
-        const currentBlocks = editor ? serializeTipTapToBlocks(editor.getJSON(), editor.schema) : [];
-        syncWithParentImmediate(val, descriptionRef.current, currentBlocks);
+        syncWithParentImmediate(val, descriptionRef.current, content);
     };
 
     const handleDescriptionChange = (val) => {
         descriptionRef.current = val;
         setDescription(val);
         if (onDescriptionChange) onDescriptionChange(val);
-        const currentBlocks = editor ? serializeTipTapToBlocks(editor.getJSON(), editor.schema) : [];
-        syncWithParentImmediate(titleRef.current, val, currentBlocks);
+        syncWithParentImmediate(titleRef.current, val, content);
+    };
+
+    // Toolbar Command handlers
+    const executeCommand = (commandType) => {
+        if (!editor) return;
+
+        editor.commands.focus();
+
+        switch (commandType) {
+                        case 'bold':
+                            editor.chain().focus().toggleBold().run();
+                            break;
+                        case 'italic':
+                            editor.chain().focus().toggleItalic().run();
+                            break;
+                        case 'underline':
+                            editor.chain().focus().toggleUnderline().run();
+                            break;
+                        case 'link': {
+                            const previousUrl = editor.getAttributes('link').href;
+                            const url = window.prompt('Nhập đường dẫn liên kết:', previousUrl || 'https://');
+                            if (url === null) return;
+                            if (url === '') {
+                                editor.chain().focus().unsetLink().run();
+                            } else {
+                                editor.chain().focus().setLink({ href: url }).run();
+                            }
+                            break;
+                        }
+                        case 'h1':
+                            editor.chain().focus().toggleHeading({ level: 1 }).run();
+                            break;
+                        case 'h2':
+                            editor.chain().focus().toggleHeading({ level: 2 }).run();
+                            break;
+                        case 'h3':
+                            editor.chain().focus().toggleHeading({ level: 3 }).run();
+                            break;
+                        case 'bullet':
+                            editor.chain().focus().toggleBulletList().run();
+                            break;
+                        case 'ordered':
+                            editor.chain().focus().toggleOrderedList().run();
+                            break;
+                        case 'code':
+                            editor.chain().focus().toggleCodeBlock().run();
+                            break;
+                        case 'callout':
+                            editor.chain().focus().insertContent('<callout-block><p>Nhập nội dung lưu ý của bạn ở đây...</p></callout-block>').run();
+                            break;
+                        case 'step':
+                            editor.chain().focus().insertContent('<step-block label="Bước mới"><p>Nhập mô tả bước ở đây...</p></step-block>').run();
+                            break;
+                        case 'section':
+                            editor.chain().focus().insertContent('<section-block icon="🎓" title="Kiến thức đạt được"><ul><li>Kiến thức 1</li></ul></section-block>').run();
+                            break;
+                        case 'quiz':
+                            editor.chain().focus().insertContent('<quiz-block question="Nhập câu hỏi trắc nghiệm?"><option-block correct="false">Lựa chọn A (Sai)</option-block><option-block correct="true">Lựa chọn B (Đúng)</option-block></quiz-block>').run();
+                            break;
+                        default:
+                            break;
+        }
     };
 
     const handleLoadTemplate = (key) => {
-        if (!editor || !TEMPLATES[key]) return;
+        if (!TEMPLATES[key] || !editor) return;
         const tmpl = TEMPLATES[key];
+        const tContent = tmpl.blocks();
 
         titleRef.current = tmpl.title;
-        descriptionRef.current = tmpl.description;
+        descriptionRef.current = tmpl.descriptionText;
 
         setTemplate(key);
         setTitle(tmpl.title);
-        setDescription(tmpl.description);
+        setDescription(tmpl.descriptionText);
+        setContent(tContent);
+        editor.commands.setContent(markdocToHtml(tContent));
 
         if (onTitleChange) onTitleChange(tmpl.title);
-        if (onDescriptionChange) onDescriptionChange(tmpl.description);
+        if (onDescriptionChange) onDescriptionChange(tmpl.descriptionText);
 
-        const tmplBlocks = tmpl.blocks();
-        const tipTapDoc = deserializeBlocksToTipTap(tmplBlocks);
-
-        editor.commands.setContent(tipTapDoc);
         setShowTemplatePicker(false);
-
-        syncWithParentImmediate(tmpl.title, tmpl.description, tmplBlocks);
+        syncWithParentImmediate(tmpl.title, tmpl.descriptionText, tContent);
 
         if (onTemplateLoad) {
-            onTemplateLoad(buildTemplateSnapshot(tmpl.title, tmpl.description, tmplBlocks));
+            onTemplateLoad(buildTemplateSnapshot(tmpl.title, tmpl.descriptionText, tContent));
         }
     };
 
     const handleResetToBlank = () => {
-        if (!editor) return;
         titleRef.current = '';
         descriptionRef.current = '';
         setTitle('');
         setDescription('');
+        setContent('');
+        if (editor) editor.commands.clearContent();
+
         if (onTitleChange) onTitleChange('');
         if (onDescriptionChange) onDescriptionChange('');
 
-        editor.commands.setContent({
-            type: 'doc',
-            content: [{ type: 'paragraph' }],
-        });
         setShowTemplatePicker(false);
-        syncWithParentImmediate('', '', []);
+        syncWithParentImmediate('', '', '');
     };
 
     // Auto-resize title/description fields
@@ -1176,43 +831,8 @@ export default function BlockEditor({
         }
     }, [title, description]);
 
-    if (!editor) return null;
-
     return (
         <div className="block-editor-container">
-
-            {/* Slash Command Menu */}
-            {slashMenu.isOpen && filteredItems.length > 0 && (
-                <div
-                    className="slash-command-menu"
-                    style={{
-                        position: 'fixed',
-                        left: slashMenu.x,
-                        top: slashMenu.y,
-                        zIndex: 9999,
-                    }}
-                    onMouseDown={(e) => e.preventDefault()}
-                >
-                    {filteredItems.map((item, idx) => (
-                        <div
-                            key={item.key}
-                            className={`slash-menu-item ${idx === slashMenu.selectedIndex ? 'active' : ''}`}
-                            onClick={() => {
-                                if (handleSelectSlashItemRef.current) {
-                                    handleSelectSlashItemRef.current(item);
-                                }
-                            }}
-                        >
-                            <span className="slash-item-icon">{item.icon}</span>
-                            <div className="slash-item-meta">
-                                <span className="slash-item-label">{item.label}</span>
-                                <span className="slash-item-desc">{item.desc}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-
             {/* Top Toolbar */}
             <div className="editor-toolbar-new">
                 {/* Row 1: Text Formatting & Template */}
@@ -1221,41 +841,32 @@ export default function BlockEditor({
                         <div className="toolbar-group">
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('bold') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleBold().run()}
+                                className={`toolbar-btn ${editor?.isActive('bold') ? 'active' : ''}`}
+                                onClick={() => executeCommand('bold')}
                                 title="Chữ đậm"
                             >
                                 <BoldOutlined />
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('italic') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleItalic().run()}
+                                className={`toolbar-btn ${editor?.isActive('italic') ? 'active' : ''}`}
+                                onClick={() => executeCommand('italic')}
                                 title="Chữ nghiêng"
                             >
                                 <ItalicOutlined />
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('underline') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleUnderline().run()}
+                                className={`toolbar-btn ${editor?.isActive('underline') ? 'active' : ''}`}
+                                onClick={() => executeCommand('underline')}
                                 title="Chữ gạch chân"
                             >
                                 <UnderlineOutlined />
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('link') ? 'active' : ''}`}
-                                onClick={() => {
-                                    const previousUrl = editor.getAttributes('link').href;
-                                    const url = window.prompt('Nhập đường dẫn liên kết:', previousUrl);
-                                    if (url === null) return;
-                                    if (url === '') {
-                                        editor.chain().focus().unsetLink().run();
-                                    } else {
-                                        editor.chain().focus().setLink({ href: url }).run();
-                                    }
-                                }}
+                                className={`toolbar-btn ${editor?.isActive('link') ? 'active' : ''}`}
+                                onClick={() => executeCommand('link')}
                                 title="Chèn liên kết"
                             >
                                 <LinkOutlined />
@@ -1267,32 +878,24 @@ export default function BlockEditor({
                         <div className="toolbar-group">
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('paragraph') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().setParagraph().run()}
-                                title="Đoạn văn"
-                            >
-                                P
-                            </button>
-                            <button
-                                type="button"
-                                className={`toolbar-btn ${editor.isActive('heading', { level: 1 }) ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+                                className={`toolbar-btn ${editor?.isActive('heading', { level: 1 }) ? 'active' : ''}`}
+                                onClick={() => executeCommand('h1')}
                                 title="Tiêu đề 1"
                             >
                                 H1
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('heading', { level: 2 }) ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+                                className={`toolbar-btn ${editor?.isActive('heading', { level: 2 }) ? 'active' : ''}`}
+                                onClick={() => executeCommand('h2')}
                                 title="Tiêu đề 2"
                             >
                                 H2
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('heading', { level: 3 }) ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+                                className={`toolbar-btn ${editor?.isActive('heading', { level: 3 }) ? 'active' : ''}`}
+                                onClick={() => executeCommand('h3')}
                                 title="Tiêu đề 3"
                             >
                                 H3
@@ -1304,24 +907,24 @@ export default function BlockEditor({
                         <div className="toolbar-group">
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('bulletList') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleBulletList().run()}
+                                className={`toolbar-btn ${editor?.isActive('bulletList') ? 'active' : ''}`}
+                                onClick={() => executeCommand('bullet')}
                                 title="Danh sách gạch đầu dòng"
                             >
                                 <UnorderedListOutlined />
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('orderedList') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleOrderedList().run()}
+                                className={`toolbar-btn ${editor?.isActive('orderedList') ? 'active' : ''}`}
+                                onClick={() => executeCommand('ordered')}
                                 title="Danh sách đánh số"
                             >
                                 <OrderedListOutlined />
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor.isActive('codeBlock') ? 'active' : ''}`}
-                                onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                                className={`toolbar-btn ${editor?.isActive('codeBlock') ? 'active' : ''}`}
+                                onClick={() => executeCommand('code')}
                                 title="Khối Code"
                             >
                                 <CodeOutlined />
@@ -1346,7 +949,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn callout-ib"
-                                onClick={() => safeInsertContent('callout')}
+                                onClick={() => executeCommand('callout')}
                                 title="Chèn Hộp Lưu ý"
                             >
                                 <InfoCircleOutlined /> Lưu ý
@@ -1354,7 +957,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn step-ib"
-                                onClick={() => safeInsertContent('stepBlock')}
+                                onClick={() => executeCommand('step')}
                                 title="Chèn Bước Hướng dẫn"
                             >
                                 <BookOutlined /> Bước
@@ -1362,7 +965,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn section-ib"
-                                onClick={() => safeInsertContent('sectionBlock')}
+                                onClick={() => executeCommand('section')}
                                 title="Chèn Section"
                             >
                                 <PlusOutlined /> Mục lớn
@@ -1370,7 +973,7 @@ export default function BlockEditor({
                             <button
                                 type="button"
                                 className="insert-btn quiz-ib"
-                                onClick={() => safeInsertContent('quizBlock')}
+                                onClick={() => executeCommand('quiz')}
                                 title="Chèn Trắc nghiệm"
                             >
                                 <QuestionCircleOutlined /> Trắc nghiệm
@@ -1380,27 +983,30 @@ export default function BlockEditor({
                 </div>
             </div>
 
-            {/* Editor Canvas */}
-            <div className="editor-wrap">
-                <div className="editor-doc">
-                    <textarea
-                        className="doc-title"
-                        id="be-doc-title"
-                        placeholder="Tiêu đề bài học..."
-                        rows="1"
-                        value={title}
-                        onChange={(e) => handleTitleChange(e.target.value)}
-                    />
-                    <textarea
-                        className="doc-description"
-                        id="be-doc-description"
-                        placeholder="Mô tả ngắn bài học..."
-                        rows="1"
-                        value={description}
-                        onChange={(e) => handleDescriptionChange(e.target.value)}
-                    />
-
-                    <EditorContent editor={editor} className="tiptap-editor-canvas" />
+            {/* Full Width Editor Canvas */}
+            <div className="editor-wrap-full">
+                <div className="editor-pane-left">
+                    <div className="editor-doc-meta" style={{ padding: '24px 24px 0px 24px' }}>
+                        <textarea
+                            className="doc-title"
+                            id="be-doc-title"
+                            placeholder="Tiêu đề bài học..."
+                            rows="1"
+                            value={title}
+                            onChange={(e) => handleTitleChange(e.target.value)}
+                        />
+                        <textarea
+                            className="doc-description"
+                            id="be-doc-description"
+                            placeholder="Mô tả ngắn bài học..."
+                            rows="1"
+                            value={description}
+                            onChange={(e) => handleDescriptionChange(e.target.value)}
+                        />
+                    </div>
+                    <div className="tiptap-editor-wrapper" style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px' }}>
+                        <EditorContent editor={editor} />
+                    </div>
                 </div>
             </div>
 
