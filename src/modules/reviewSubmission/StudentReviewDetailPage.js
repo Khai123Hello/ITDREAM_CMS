@@ -110,6 +110,7 @@ const getAvatarColor = (name) => {
 
 
 
+
 /* ─────────────────────────── Main StudentReviewDetailPage ─────────────────────────── */
 
 const quickReviewTemplates = [
@@ -882,17 +883,53 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         return subtasks.findIndex((s) => s.id === selectedSubtaskId);
     }, [subtasks, selectedSubtaskId]);
 
+    const activeParentTaskIndex = useMemo(() => {
+        return parentTasks.findIndex((t) => t.id === selectedParentTaskId);
+    }, [parentTasks, selectedParentTaskId]);
+
+    // Helper: get sorted subtasks for a given parent task id
+    const getSubtasksForParent = (parentId) => {
+        return (
+            tasks
+                ?.filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
+                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+        );
+    };
+
     const handleBackSubtask = () => {
         if (activeSubtaskIndex > 0) {
+            // Navigate to previous subtask within current parent task
             setSelectedSubtaskId(subtasks[activeSubtaskIndex - 1].id);
+        } else if (activeParentTaskIndex > 0) {
+            // At first subtask of current task → jump to previous parent task's LAST subtask
+            const prevParent = parentTasks[activeParentTaskIndex - 1];
+            const prevSubtasks = getSubtasksForParent(prevParent.id);
+            setSelectedParentTaskId(prevParent.id);
+            if (prevSubtasks.length > 0) {
+                setSelectedSubtaskId(prevSubtasks[prevSubtasks.length - 1].id);
+            }
         }
     };
 
     const handleNextSubtask = () => {
         if (activeSubtaskIndex < subtasks.length - 1) {
+            // Navigate to next subtask within current parent task
             setSelectedSubtaskId(subtasks[activeSubtaskIndex + 1].id);
+        } else if (activeParentTaskIndex < parentTasks.length - 1) {
+            // At last subtask of current task → jump to next parent task's FIRST subtask
+            const nextParent = parentTasks[activeParentTaskIndex + 1];
+            const nextSubtasks = getSubtasksForParent(nextParent.id);
+            setSelectedParentTaskId(nextParent.id);
+            if (nextSubtasks.length > 0) {
+                setSelectedSubtaskId(nextSubtasks[0].id);
+            }
         }
     };
+
+    // True when at the very first subtask of the very first task
+    const isAtGlobalStart = activeParentTaskIndex <= 0 && activeSubtaskIndex <= 0;
+    // True when at the very last subtask of the very last task
+    const isAtGlobalEnd = activeParentTaskIndex >= parentTasks.length - 1 && activeSubtaskIndex >= subtasks.length - 1;
 
     // Build a map of studentSubmissionId -> taskId based on progressList
     const submissionToTaskMap = useMemo(() => {
@@ -946,8 +983,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     }, [enrollment]);
 
     const loadingGeneral = loadingTasks || loadingSimulation || loadingProgress;
-
-
 
     // Total review progress
     const totalSubtasks = useMemo(() => {
@@ -1166,8 +1201,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
     const renderCollaborationPanel = () => {
         if (workspaceMode === 'review') {
-            const hasSubmission = loadingProgressDetail || !!(fileSub?.id || textSub?.id || (submissions.length > 0 ? submissions[0].id : null));
-
             return (
                 <div className="tfo-review-tab-pane">
                     {!canWriteReview && (
@@ -1181,16 +1214,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview ? (
                         renderReviewDisplay()
                     ) : (
-                        !hasSubmission ? (
-                            <div className="tfo-review-empty tfo-review-fade-in" style={{ padding: '24px 16px', textAlign: 'center' }}>
-                                <ClockCircleOutlined className="tfo-review-empty__icon" style={{ color: '#fa8c16', fontSize: 32, marginBottom: 12 }} />
-                                <p className="tfo-review-empty__text" style={{ color: '#fa8c16', fontWeight: 500 }}>
-                                    Không có bài nộp của học viên để nhận xét
-                                </p>
-                            </div>
-                        ) : (
-                            canWriteReview ? renderReviewEditor() : renderReviewEmpty()
-                        )
+                        canWriteReview ? renderReviewEditor() : renderReviewEmpty()
                     )}
                 </div>
             );
@@ -1381,9 +1405,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                                 <div className="tfo-task-item-title">
                                                     {task.title || task.name}
                                                 </div>
-
-
-
                                                 {hasParentDrafts && (
                                                     <div className="tfo-task-item-draft">
                                                         Có bản nháp
@@ -1496,15 +1517,22 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
                             {/* Bottom Pagination */}
                             <div className="tfo-bottom-nav" style={{ padding: '0 24px 24px' }}>
-                                <div style={{ display: 'flex', gap: 12 }}>
-                                    <Button onClick={handleBackSubtask} disabled={activeSubtaskIndex <= 0}>
-                                        Nhiệm vụ trước
+                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                                    <Button
+                                        type="text"
+                                        onClick={handleBackSubtask}
+                                        disabled={isAtGlobalStart}
+                                        className="tfo-btn-back"
+                                    >
+                                        Quay lại
                                     </Button>
                                     <Button
+                                        type="primary"
                                         onClick={handleNextSubtask}
-                                        disabled={activeSubtaskIndex >= subtasks.length - 1}
+                                        disabled={isAtGlobalEnd}
+                                        className="tfo-btn-continue"
                                     >
-                                        Nhiệm vụ sau
+                                        Tiếp tục
                                     </Button>
                                 </div>
                             </div>

@@ -1377,6 +1377,38 @@ const apiConfig = {
             permissionCode: 'PER_D',
         },
     },
+    job: {
+        list: {
+            baseURL: `${apiUrl}v1/job/list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'JOB_L',
+        },
+        getById: {
+            baseURL: `${apiUrl}v1/job/get/:id`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'JOB_V',
+        },
+        create: {
+            baseURL: `${apiUrl}v1/job/create`,
+            method: 'POST',
+            headers: baseHeader,
+            permissionCode: 'JOB_C',
+        },
+        update: {
+            baseURL: `${apiUrl}v1/job/update`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'JOB_U',
+        },
+        delete: {
+            baseURL: `${apiUrl}v1/job/delete/:id`,
+            method: 'DELETE',
+            headers: baseHeader,
+            permissionCode: 'JOB_D',
+        },
+    },
 };
 
 export default apiConfig;

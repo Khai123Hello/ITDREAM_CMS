@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Col, Row, Button, Input, Space, Modal, Divider, Tag, Alert, message, Tabs, Upload } from 'antd';
-import { BookOutlined, UploadOutlined } from '@ant-design/icons';
+import { BookOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -8,6 +8,7 @@ import CropImageField from '@components/common/form/CropImageField';
 import TextField from '@components/common/form/TextField';
 import CheckboxField from '@components/common/form/CheckboxField';
 import BlockEditor from '@components/common/editor/BlockEditor';
+import MarkdocRenderer from '@components/common/editor/MarkdocRenderer';
 
 import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
@@ -19,6 +20,8 @@ import { getData } from '@utils/localStorage';
 import apiConfig from '@constants/apiConfig';
 import { taskKindOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
+import { isJsonBlocks, blocksToMarkdoc, extractQuizFromMarkdoc } from '@utils/markdocBlockConverter';
+import InlineQuestionEditor from '@modules/simulation/task/InlineQuestionEditor';
 
 // ─────────────────────────────────────────────
 // Shared styles
@@ -28,190 +31,6 @@ const labelStyle = {
     fontWeight: 600,
     marginBottom: 8,
     display: 'block',
-};
-
-// ─────────────────────────────────────────────
-// RenderPreviewBlocks
-// ─────────────────────────────────────────────
-
-const RenderPreviewBlocks = ({ content }) => {
-    if (!content) return null;
-    try {
-        const blocks = JSON.parse(content);
-        if (!Array.isArray(blocks)) {
-            return <div dangerouslySetInnerHTML={{ __html: content }} />;
-        }
-
-        const elements = [];
-        let currentList = null;
-
-        const pushCurrentList = () => {
-            if (currentList) {
-                if (currentList.type === 'bullet') {
-                    elements.push(
-                        <ul key={`list-${elements.length}`} className="out-ul">
-                            {currentList.items.map((item, i) => (
-                                <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
-                            ))}
-                        </ul>,
-                    );
-                } else {
-                    elements.push(
-                        <ol key={`list-${elements.length}`} className="out-ol">
-                            {currentList.items.map((item, i) => (
-                                <li key={i} dangerouslySetInnerHTML={{ __html: item }} />
-                            ))}
-                        </ol>,
-                    );
-                }
-                currentList = null;
-            }
-        };
-
-        blocks.forEach((b, idx) => {
-            if (b.type === 'bullet') {
-                if (!currentList || currentList.type !== 'bullet') {
-                    pushCurrentList();
-                    currentList = { type: 'bullet', items: [] };
-                }
-                currentList.items.push(b.content);
-                return;
-            }
-            if (b.type === 'numbered') {
-                if (!currentList || currentList.type !== 'numbered') {
-                    pushCurrentList();
-                    currentList = { type: 'numbered', items: [] };
-                }
-                currentList.items.push(b.content);
-                return;
-            }
-
-            pushCurrentList();
-
-            switch (b.type) {
-                            case 'text':
-                                elements.push(
-                                    <div key={idx} className="out-text" dangerouslySetInnerHTML={{ __html: b.content }} />,
-                                );
-                                break;
-                            case 'h1':
-                                elements.push(
-                                    <div key={idx} className="out-h1" dangerouslySetInnerHTML={{ __html: b.content }} />,
-                                );
-                                break;
-                            case 'h2':
-                                elements.push(
-                                    <div key={idx} className="out-h2" dangerouslySetInnerHTML={{ __html: b.content }} />,
-                                );
-                                break;
-                            case 'h3':
-                                elements.push(
-                                    <div key={idx} className="out-h3" dangerouslySetInnerHTML={{ __html: b.content }} />,
-                                );
-                                break;
-                            case 'divider':
-                                elements.push(<hr key={idx} className="out-divider" />);
-                                break;
-                            case 'callout':
-                                elements.push(
-                                    <div key={idx} className="out-callout">
-                                        <span className="out-callout-icon-preview">{b.icon}</span>
-                                        <div style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: b.content }} />
-                                    </div>,
-                                );
-                                break;
-                            case 'meta':
-                                elements.push(
-                                    <div key={idx} className="out-meta">
-                                        <span>{b.duration}</span>
-                                        <span className="out-meta-sep">·</span>
-                                        <span>{b.level}</span>
-                                    </div>,
-                                );
-                                break;
-                            case 'section':
-                                elements.push(
-                                    <div key={idx} className="out-section">
-                                        <div className="out-sec-hdr">
-                                            <span className="out-sec-icon">{b.icon}</span>
-                                            {b.title}
-                                        </div>
-                                        <ul className="out-sec-bullets">
-                                            {b.bullets
-                                                ?.filter((x) => x)
-                                                .map((bullet, bi) => (
-                                                    <li key={bi}>{bullet}</li>
-                                                ))}
-                                        </ul>
-                                    </div>,
-                                );
-                                break;
-                            case 'step': {
-                                const renderStepBody = (text) => {
-                                    if (!text) return '';
-                                    const parts = text.split(/(`[^`]+`)/g);
-                                    return parts.map((part, pi) => {
-                                        if (part.startsWith('`') && part.endsWith('`')) {
-                                            return <code key={pi}>{part.slice(1, -1)}</code>;
-                                        }
-                                        return part;
-                                    });
-                                };
-                                elements.push(
-                                    <div key={idx} className="out-step">
-                                        <div className="out-step-badge">{idx + 1}</div>
-                                        <div className="out-step-content">
-                                            <span className="out-step-label">{b.label}</span>
-                                            <span className="out-step-body">{renderStepBody(b.body)}</span>
-                                        </div>
-                                    </div>,
-                                );
-                                break;
-                            }
-                            case 'quiz':
-                                elements.push(
-                                    <div
-                                        key={idx}
-                                        className="out-quiz-wrap"
-                                        style={{
-                                            border: '1.5px solid #d9d9d9',
-                                            borderRadius: 10,
-                                            padding: '16px 18px',
-                                            background: '#fff',
-                                            margin: '12px 0',
-                                        }}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                                            <span style={{ fontSize: 20 }}>❓</span>
-                                            <div style={{ fontWeight: 600, fontSize: 15 }}>{b.question}</div>
-                                        </div>
-                                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, paddingLeft: 30 }}>
-                                            {b.options?.map((opt, oi) => (
-                                                <div key={oi} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <span style={{ fontWeight: 600 }}>{String.fromCharCode(65 + oi)}.</span>
-                                                    <span>{opt.option}</span>
-                                                    {opt.answer && (
-                                                        <Tag color="success" style={{ marginLeft: 8 }}>
-                                                ✓ Đáp án đúng
-                                                        </Tag>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>,
-                                );
-                                break;
-                            default:
-                                break;
-            }
-        });
-
-        pushCurrentList();
-
-        return <div className="block-editor-preview-container">{elements}</div>;
-    } catch (e) {
-        return <div dangerouslySetInnerHTML={{ __html: content }} />;
-    }
 };
 
 // ─────────────────────────────────────────────
@@ -377,6 +196,10 @@ const TaskForm = (props) => {
     // Question load states for BlockEditor remount key
     const [questionsLoaded, setQuestionsLoaded] = useState(!isEditing);
 
+    // ── Inline question creation state ────────────
+    const [createQuestions, setCreateQuestions] = useState(false);
+    const [inlineQuestions, setInlineQuestions] = useState([]);
+
     // ── Local state for questions ────────────────
     const [questions, setQuestions] = useState([]);
 
@@ -529,58 +352,15 @@ const TaskForm = (props) => {
                     const fetchedQuestions = resData.content || [];
                     setQuestions(fetchedQuestions);
 
-                    // Migration / matching logic
-                    try {
-                        const currentContent = content || dataDetail?.content || dataDetail?.introduction || '';
-                        let blocks = [];
-                        if (currentContent) {
-                            blocks = JSON.parse(currentContent);
-                        }
-                        if (Array.isArray(blocks)) {
-                            const quizBlocks = blocks.filter((b) => b.type === 'quiz');
-                            if (quizBlocks.length > 0) {
-                                let qIndex = 0;
-                                const newBlocks = blocks.map((b) => {
-                                    if (b.type === 'quiz') {
-                                        const dbQuestion = fetchedQuestions[qIndex];
-                                        qIndex++;
-                                        if (dbQuestion) {
-                                            return {
-                                                ...b,
-                                                questionDbId: dbQuestion.id,
-                                            };
-                                        }
-                                    }
-                                    return b;
-                                });
-                                setContent(JSON.stringify(newBlocks));
-                            } else if (fetchedQuestions.length > 0) {
-                                const newBlocks = [...blocks];
-                                fetchedQuestions.forEach((q) => {
-                                    let parsedOpts = [];
-                                    try {
-                                        parsedOpts =
-                                            typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
-                                    } catch (e) {
-                                        /* ignore */
-                                    }
-                                    const newOpts = parsedOpts.map((opt) => ({
-                                        option: opt.option || opt.content || opt.text || '',
-                                        answer: opt.answer === true || opt.isCorrect === true,
-                                    }));
-                                    newBlocks.push({
-                                        id: `db_${q.id}`,
-                                        questionDbId: q.id,
-                                        type: 'quiz',
-                                        question: q.question || '',
-                                        options: newOpts,
-                                    });
-                                });
-                                setContent(JSON.stringify(newBlocks));
-                            }
-                        }
-                    } catch (e) {
-                        console.error('Matching questions error:', e);
+                    // Sync questions immediately to parent
+                    const currentContent = contentRef.current || content || dataDetail?.content || dataDetail?.introduction || '';
+                    const extracted = extractQuizFromMarkdoc(currentContent);
+                    const synced = extracted.map((q, idx) => {
+                        const dbQ = fetchedQuestions[idx];
+                        return dbQ ? { ...q, id: dbQ.id } : q;
+                    });
+                    if (onQuestionsChange) {
+                        onQuestionsChange(synced);
                     }
                 }
                 setQuestionsLoaded(true);
@@ -598,34 +378,30 @@ const TaskForm = (props) => {
             });
         } else if (!isEditing) {
             setQuestions([]);
+            setInlineQuestions([]);
+            setCreateQuestions(false);
         }
     };
+
+    useEffect(() => {
+        if (questions.length > 0 && isEditing && Number(dataDetail?.kind) === TaskTypes.SUBTASK) {
+            setInlineQuestions(questions);
+            setCreateQuestions(true);
+        }
+    }, [questions, isEditing, dataDetail?.kind]);
 
     useEffect(() => {
         loadQuestions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isEditing, dataDetail?.id]);
 
-    // Helper: extract quiz questions from content JSON string
+    // Helper: extract quiz questions from content string (Markdown)
     const extractQuizQuestions = (contentStr) => {
-        if (!contentStr) return [];
-        try {
-            const blocks = JSON.parse(contentStr);
-            if (!Array.isArray(blocks)) return [];
-            const quizBlocks = blocks.filter((b) => b.type === 'quiz');
-            return quizBlocks.map((b) => ({
-                id: b.questionDbId,
-                question: b.question || '',
-                options: JSON.stringify(
-                    (b.options || []).map((o) => ({
-                        option: o.option || '',
-                        answer: o.answer || false,
-                    })),
-                ),
-            }));
-        } catch (e) {
-            return [];
-        }
+        const extracted = extractQuizFromMarkdoc(contentStr);
+        return extracted.map((q, idx) => {
+            const dbQ = questions[idx];
+            return dbQ ? { ...q, id: dbQ.id } : q;
+        });
     };
 
     // ── kind label ────────────────────────────
@@ -762,19 +538,15 @@ const TaskForm = (props) => {
                                             descriptionRef.current = val;
                                             setIsChangedFormValues(true);
                                         }}
-                                        // onChange only fires for content (blocks) — debounced in BlockEditor
                                         onChange={({ title: newTitle, description: newDesc, content: newContent }) => {
-                                            // Also sync title/desc here for template load (loadTemplate calls syncWithParentImmediate directly)
                                             form.setFieldsValue({ title: newTitle, description: newDesc });
                                             setTitle(newTitle);
                                             titleRef.current = newTitle;
                                             setDescription(newDesc);
                                             descriptionRef.current = newDesc;
-                                            // Update ref immediately (trước khi setState debounce)
                                             contentRef.current = newContent;
                                             setContent(newContent);
                                             setIsChangedFormValues(true);
-                                            // Sync quiz questions ngay lập tức (không đợi debounce)
                                             if (onQuestionsChange) {
                                                 onQuestionsChange(extractQuizQuestions(newContent));
                                             }
@@ -797,7 +569,7 @@ const TaskForm = (props) => {
                                             {dataDetail?.description || ''}
                                         </p>
                                         <Divider style={{ margin: '12px 0' }} />
-                                        <RenderPreviewBlocks
+                                        <MarkdocRenderer
                                             content={dataDetail?.content || dataDetail?.introduction || ''}
                                         />
                                     </div>
@@ -807,19 +579,21 @@ const TaskForm = (props) => {
                     </Row>
 
                     {/* ── Phương tiện & Tài liệu ────────────────────────── */}
-                    <Divider orientation="left">Phương tiện & Tài liệu</Divider>
+                    {Number(taskKind) === TaskTypes.SUBTASK && (
+                        <>
+                            <Divider orientation="left">Phương tiện & Tài liệu</Divider>
 
-                    <Row gutter={[16, 24]}>
-                        <Col span={24}>
-                            <label style={labelStyle}>Ảnh</label>
-                            <Tabs
-                                items={[
-                                    {
-                                        key: 'upload',
-                                        label: 'Tải lên',
-                                        children: (
-                                            <>
-                                                <style>{`
+                            <Row gutter={[16, 24]}>
+                                <Col span={24}>
+                                    <label style={labelStyle}>Ảnh</label>
+                                    <Tabs
+                                        items={[
+                                            {
+                                                key: 'upload',
+                                                label: 'Tải lên',
+                                                children: (
+                                                    <>
+                                                        <style>{`
                                                     .large-image-preview .ant-upload {
                                                         width: 100% !important;
                                                         height: auto !important;
@@ -834,145 +608,147 @@ const TaskForm = (props) => {
                                                         object-fit: contain !important;
                                                     }
                                                 `}</style>
-                                                <div className="large-image-preview">
-                                                    <CropImageField
-                                                        label=""
-                                                        name="imagePath"
-                                                        imageUrl={getMediaUrl(imagePath)}
-                                                        aspect={16 / 9}
-                                                        uploadFile={(file, onSuccess, onError) =>
-                                                            uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)
-                                                        }
-                                                        disabled={!isEducator}
-                                                    />
-                                                </div>
-                                            </>
-                                        ),
-                                    },
-                                    {
-                                        key: 'url',
-                                        label: 'Đường dẫn (URL)',
-                                        children: (
-                                            <div style={{ marginBottom: 16 }}>
-                                                <Input
-                                                    value={imagePath}
-                                                    onChange={(e) => {
-                                                        setImagePath(e.target.value);
-                                                        setIsChangedFormValues(true);
-                                                    }}
-                                                    placeholder="https://..."
-                                                    size="large"
-                                                    disabled={!isEducator}
-                                                />
-                                                {imagePath && (
-                                                    <div style={{ marginTop: 8 }}>
-                                                        <img
-                                                            src={getMediaUrl(imagePath)}
-                                                            alt="Preview"
-                                                            style={{
-                                                                maxWidth: '100%',
-                                                                maxHeight: 400,
-                                                                borderRadius: 8,
-                                                                border: '1px solid #d9d9d9',
-                                                                objectFit: 'contain',
+                                                        <div className="large-image-preview">
+                                                            <CropImageField
+                                                                label=""
+                                                                name="imagePath"
+                                                                imageUrl={getMediaUrl(imagePath)}
+                                                                aspect={16 / 9}
+                                                                uploadFile={(file, onSuccess, onError) =>
+                                                                    uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)
+                                                                }
+                                                                disabled={!isEducator}
+                                                            />
+                                                        </div>
+                                                    </>
+                                                ),
+                                            },
+                                            {
+                                                key: 'url',
+                                                label: 'Đường dẫn (URL)',
+                                                children: (
+                                                    <div style={{ marginBottom: 16 }}>
+                                                        <Input
+                                                            value={imagePath}
+                                                            onChange={(e) => {
+                                                                setImagePath(e.target.value);
+                                                                setIsChangedFormValues(true);
                                                             }}
+                                                            placeholder="https://..."
+                                                            size="large"
+                                                            disabled={!isEducator}
                                                         />
+                                                        {imagePath && (
+                                                            <div style={{ marginTop: 8 }}>
+                                                                <img
+                                                                    src={getMediaUrl(imagePath)}
+                                                                    alt="Preview"
+                                                                    style={{
+                                                                        maxWidth: '100%',
+                                                                        maxHeight: 400,
+                                                                        borderRadius: 8,
+                                                                        border: '1px solid #d9d9d9',
+                                                                        objectFit: 'contain',
+                                                                    }}
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                )}
-                                            </div>
-                                        ),
-                                    },
-                                ]}
-                            />
-                        </Col>
+                                                ),
+                                            },
+                                        ]}
+                                    />
+                                </Col>
 
-                        <Col span={24}>
-                            <div style={{ marginBottom: 16 }}>
-                                <label style={labelStyle}>Video URL</label>
-                                <Input
-                                    value={videoUrl}
-                                    onChange={(e) => {
-                                        setVideoUrl(e.target.value);
-                                        setIsChangedFormValues(true);
-                                    }}
-                                    placeholder="https://...mp4"
-                                    size="large"
-                                    disabled={!isEducator}
-                                />
-                                {videoUrl &&
+                                <Col span={24}>
+                                    <div style={{ marginBottom: 16 }}>
+                                        <label style={labelStyle}>Video URL</label>
+                                        <Input
+                                            value={videoUrl}
+                                            onChange={(e) => {
+                                                setVideoUrl(e.target.value);
+                                                setIsChangedFormValues(true);
+                                            }}
+                                            placeholder="https://...mp4"
+                                            size="large"
+                                            disabled={!isEducator}
+                                        />
+                                        {videoUrl &&
                                 (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
                                 videoUrl.endsWith('.mp4') ? (
-                                        <div
-                                            style={{
-                                                marginTop: 8,
-                                                borderRadius: 8,
-                                                overflow: 'hidden',
-                                                border: '1px solid #d9d9d9',
-                                            }}
-                                        >
-                                            <video
-                                                controls
-                                                style={{
-                                                    width: '100%',
-                                                    maxHeight: 400,
-                                                    objectFit: 'contain',
-                                                    background: '#000',
-                                                }}
-                                                src={videoUrl}
-                                            />
-                                        </div>
-                                    ) : videoUrl ? (
-                                        <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
+                                                <div
+                                                    style={{
+                                                        marginTop: 8,
+                                                        borderRadius: 8,
+                                                        overflow: 'hidden',
+                                                        border: '1px solid #d9d9d9',
+                                                    }}
+                                                >
+                                                    <video
+                                                        controls
+                                                        style={{
+                                                            width: '100%',
+                                                            maxHeight: 400,
+                                                            objectFit: 'contain',
+                                                            background: '#000',
+                                                        }}
+                                                        src={videoUrl}
+                                                    />
+                                                </div>
+                                            ) : videoUrl ? (
+                                                <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
                                         Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
-                                        </div>
-                                    ) : null}
-                            </div>
-                        </Col>
+                                                </div>
+                                            ) : null}
+                                    </div>
+                                </Col>
 
-                        <Col span={24}>
-                            <label style={labelStyle}>File Tài Liệu</label>
-                            <Tabs
-                                items={[
-                                    {
-                                        key: 'upload',
-                                        label: 'Tải lên',
-                                        children: (
-                                            <Upload.Dragger
-                                                accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
-                                                customRequest={({ file, onSuccess, onError }) =>
-                                                    uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)
-                                                }
-                                                showUploadList={false}
-                                                disabled={!isEducator}
-                                            >
-                                                <p className="ant-upload-drag-icon">
-                                                    <UploadOutlined />
-                                                </p>
-                                                <p className="ant-upload-text">Kéo thả hoặc click để tải lên</p>
-                                            </Upload.Dragger>
-                                        ),
-                                    },
-                                    {
-                                        key: 'url',
-                                        label: 'Đường dẫn (URL)',
-                                        children: (
-                                            <Input
-                                                value={filePath}
-                                                onChange={(e) => {
-                                                    setFilePath(e.target.value);
-                                                    setIsChangedFormValues(true);
-                                                }}
-                                                placeholder="https://..."
-                                                size="large"
-                                                disabled={!isEducator}
-                                            />
-                                        ),
-                                    },
-                                ]}
-                            />
-                            {filePath && <FilePreview url={getMediaUrl(filePath)} />}
-                        </Col>
-                    </Row>
+                                <Col span={24}>
+                                    <label style={labelStyle}>File Tài Liệu</label>
+                                    <Tabs
+                                        items={[
+                                            {
+                                                key: 'upload',
+                                                label: 'Tải lên',
+                                                children: (
+                                                    <Upload.Dragger
+                                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                                                        customRequest={({ file, onSuccess, onError }) =>
+                                                            uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)
+                                                        }
+                                                        showUploadList={false}
+                                                        disabled={!isEducator}
+                                                    >
+                                                        <p className="ant-upload-drag-icon">
+                                                            <UploadOutlined />
+                                                        </p>
+                                                        <p className="ant-upload-text">Kéo thả hoặc click để tải lên</p>
+                                                    </Upload.Dragger>
+                                                ),
+                                            },
+                                            {
+                                                key: 'url',
+                                                label: 'Đường dẫn (URL)',
+                                                children: (
+                                                    <Input
+                                                        value={filePath}
+                                                        onChange={(e) => {
+                                                            setFilePath(e.target.value);
+                                                            setIsChangedFormValues(true);
+                                                        }}
+                                                        placeholder="https://..."
+                                                        size="large"
+                                                        disabled={!isEducator}
+                                                    />
+                                                ),
+                                            },
+                                        ]}
+                                    />
+                                    {filePath && <FilePreview url={getMediaUrl(filePath)} />}
+                                </Col>
+                            </Row>
+                        </>
+                    )}
 
                     {Number(taskKind) === TaskTypes.SUBTASK ? (
                         <div style={{ marginTop: 24, marginBottom: 24 }}>
@@ -995,10 +771,42 @@ const TaskForm = (props) => {
                                 fieldProps={{
                                     checked: requiresTextResponse,
                                 }}
+                                formItemProps={{ style: { marginBottom: 8 } }}
+                            />
+                            <CheckboxField
+                                optionLabel={
+                                    <span style={{ color: '#1890ff', fontWeight: 600 }}>
+                                        <QuestionCircleOutlined style={{ marginRight: 6 }} />
+                                        Tạo câu hỏi trắc nghiệm cho nhiệm vụ phụ này
+                                    </span>
+                                }
+                                disabled={!isEducator}
+                                onChange={(e) => setCreateQuestions(e.target.checked)}
+                                fieldProps={{
+                                    checked: createQuestions,
+                                }}
                                 formItemProps={{ style: { marginBottom: 0 } }}
                             />
                         </div>
                     ) : null}
+
+                    {createQuestions && Number(taskKind) === TaskTypes.SUBTASK && (
+                        <div style={{ marginTop: 16, marginBottom: 24 }}>
+                            <Divider orientation="left" style={{ fontSize: 14, fontWeight: 600 }}>
+                                <QuestionCircleOutlined style={{ marginRight: 8 }} />
+                                Nội dung câu hỏi trắc nghiệm
+                            </Divider>
+                            <InlineQuestionEditor
+                                questions={inlineQuestions}
+                                onChange={(updated) => {
+                                    setInlineQuestions(updated);
+                                    if (onQuestionsChange) {
+                                        onQuestionsChange(updated);
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
                 </>
             ),
         },
@@ -1034,7 +842,8 @@ const TaskForm = (props) => {
         const isCurrentlyEmpty = !dataDetail || Object.keys(dataDetail).length === 0;
         const wasPreviouslyEmpty = !prevDataDetailRef.current || Object.keys(prevDataDetailRef.current).length === 0;
         
-        if (isCurrentlyEmpty && wasPreviouslyEmpty && prevDataDetailRef.current !== null) {
+        if (isCurrentlyEmpty && wasPreviouslyEmpty) {
+            prevDataDetailRef.current = dataDetail || {};
             return;
         }
         prevDataDetailRef.current = dataDetail || {};
@@ -1062,7 +871,14 @@ const TaskForm = (props) => {
             setImagePath(dataDetail.imagePath || '');
             setVideoUrl(dataDetail.videoPath || '');
             setFilePath(dataDetail.filePath || '');
-            setContent(dataDetail.content || dataDetail.introduction || '');
+            
+            const rawContent = dataDetail.content || dataDetail.introduction || '';
+            const markdownContent = isJsonBlocks(rawContent)
+                ? blocksToMarkdoc(JSON.parse(rawContent))
+                : rawContent;
+            
+            setContent(markdownContent);
+            contentRef.current = markdownContent;
             setTitle(dataDetail.title || '');
             titleRef.current = dataDetail.title || '';
             setDescription(dataDetail.description || '');
@@ -1096,22 +912,8 @@ const TaskForm = (props) => {
         });
     };
 
-    // ── so sánh nội dung với template ─────────────────────
     const normalizeContent = (contentStr) => {
-        if (!contentStr) return '';
-        try {
-            const parsed = JSON.parse(contentStr);
-            if (!Array.isArray(parsed)) return contentStr;
-            return JSON.stringify(
-                parsed.map((block) => {
-                    const copy = { ...block };
-                    delete copy.id;
-                    return copy;
-                }),
-            );
-        } catch {
-            return contentStr || '';
-        }
+        return contentStr?.trim() || '';
     };
 
     const isUnchangedFromTemplate = (submitData, snapshot) => {
@@ -1157,17 +959,25 @@ const TaskForm = (props) => {
             const descVal = descriptionRef.current || description || formValues.description || values?.description || '';
             const nameVal = formValues.name || values?.name;
 
+            console.log('DEBUG [handleSubmit] values:', values);
+            console.log('DEBUG [handleSubmit] formValues:', formValues);
+            console.log('DEBUG [handleSubmit] titleRef.current:', titleRef.current);
+            console.log('DEBUG [handleSubmit] title state:', title);
+            console.log('DEBUG [handleSubmit] titleVal:', titleVal);
+
+            const currentKind = isEditing ? dataDetail.kind : taskKind;
+            const isSubtask = Number(currentKind) === TaskTypes.SUBTASK;
             const submitData = {
                 name: symbol || nameVal?.trim() || '',
                 title: titleVal?.trim() || '',
                 description: descVal?.trim() || '',
-                kind: isEditing ? dataDetail.kind : taskKind,
+                kind: currentKind,
                 simulationId: simulationId || 0,
                 // Dùng contentRef.current để lấy nội dung mới nhất dù debounce chưa fire
                 content: contentRef.current || content,
-                imagePath: imagePath || null,
-                videoPath: videoUrl || null,
-                filePath: filePath || null,
+                imagePath: isSubtask ? (imagePath || null) : null,
+                videoPath: isSubtask ? (videoUrl || null) : null,
+                filePath: isSubtask ? (filePath || null) : null,
             };
 
             if (submitData.kind === TaskTypes.SUBTASK) {
