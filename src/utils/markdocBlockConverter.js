@@ -301,6 +301,238 @@ export function tipTapToMarkdoc(node) {
 }
 
 // ---------------------------------------------------------------------------
+// markdocToTipTapJson — Convert stored Markdoc string to TipTap JSON for editor
+// ---------------------------------------------------------------------------
+
+const tagToNodeMap = {
+    'callout-block': 'callout',
+    'step-block': 'step',
+    'section-block': 'section',
+    'quiz-block': 'quiz',
+    'option-block': 'option',
+};
+
+const tagAttrMap = {
+    'callout-block': ['icon'],
+    'step-block': ['label'],
+    'section-block': ['icon', 'title'],
+    'quiz-block': ['question'],
+    'option-block': ['correct'],
+};
+
+function parseAttrs(el) {
+    const tagName = el.tagName.toLowerCase();
+    const nodeType = tagToNodeMap[tagName];
+    if (!nodeType) return {};
+    const attrs = {};
+    (tagAttrMap[tagName] || []).forEach((attr) => {
+        const val = el.getAttribute(attr);
+        if (val !== null && val !== undefined) {
+            attrs[attr] = attr === 'correct' ? val === 'true' || val === '' : val;
+        }
+    });
+    return attrs;
+}
+
+function parseMarks(el) {
+    const marks = [];
+    const tag = el.tagName.toLowerCase();
+    if (tag === 'strong' || tag === 'b') marks.push({ type: 'bold' });
+    else if (tag === 'em' || tag === 'i') marks.push({ type: 'italic' });
+    else if (tag === 'u') marks.push({ type: 'underline' });
+    else if (tag === 's' || tag === 'strike' || tag === 'del') marks.push({ type: 'strike' });
+    else if (tag === 'code') marks.push({ type: 'code' });
+    else if (tag === 'sub') marks.push({ type: 'subscript' });
+    else if (tag === 'sup') marks.push({ type: 'superscript' });
+    else if (tag === 'mark' || tag === 'highlight') marks.push({ type: 'highlight' });
+    else if (tag === 'a') {
+        const href = el.getAttribute('href');
+        if (href) marks.push({ type: 'link', attrs: { href } });
+    }
+    return marks;
+}
+
+function htmlToTipTapJson(el) {
+    const tag = el.tagName ? el.tagName.toLowerCase() : '';
+    const nodeType = tagToNodeMap[tag];
+
+    // Text node
+    if (el.nodeType === 3) {
+        const text = el.textContent;
+        if (!text) return null;
+        return { type: 'text', text };
+    }
+
+    // Element node
+    if (el.nodeType !== 1) return null;
+
+    // Image
+    if (tag === 'img') {
+        return {
+            type: 'image',
+            attrs: {
+                src: el.getAttribute('src') || '',
+                alt: el.getAttribute('alt') || '',
+                title: el.getAttribute('title') || '',
+            },
+        };
+    }
+
+    // Horizontal rule
+    if (tag === 'hr') {
+        return { type: 'horizontalRule' };
+    }
+
+    // Hard break
+    if (tag === 'br') {
+        return { type: 'hardBreak' };
+    }
+
+    // Collect children content
+    const children = [];
+    const activeMarks = parseMarks(el);
+
+    for (let i = 0; i < el.childNodes.length; i++) {
+        const child = el.childNodes[i];
+        const childTag = child.tagName ? child.tagName.toLowerCase() : '';
+
+        // Skip empty text nodes
+        if (child.nodeType === 3 && !child.textContent.trim()) continue;
+
+        // For list items, their children should be unwrapped into paragraphs
+        if (tag === 'li' && childTag === 'p') {
+            const pChildren = htmlChildrenToContent(child, activeMarks);
+            children.push(...pChildren);
+            continue;
+        }
+
+        const parsed = htmlToTipTapJson(child);
+        if (parsed) {
+            if (parsed.type === 'text' && activeMarks.length > 0) {
+                parsed.marks = [...(parsed.marks || []), ...activeMarks];
+            }
+            children.push(parsed);
+        }
+    }
+
+    // Map HTML tag to TipTap node type
+    let type = '';
+    let attrs = {};
+
+    switch (tag) {
+                    case 'p':
+                    case 'div':
+                        type = 'paragraph';
+                        break;
+                    case 'h1': type = 'heading'; attrs = { level: 1 }; break;
+                    case 'h2': type = 'heading'; attrs = { level: 2 }; break;
+                    case 'h3': type = 'heading'; attrs = { level: 3 }; break;
+                    case 'h4': type = 'heading'; attrs = { level: 4 }; break;
+                    case 'h5': type = 'heading'; attrs = { level: 5 }; break;
+                    case 'h6': type = 'heading'; attrs = { level: 6 }; break;
+                    case 'ul':
+                        type = el.getAttribute('data-type') === 'taskList' ? 'taskList' : 'bulletList';
+                        break;
+                    case 'ol':
+                        type = 'orderedList';
+                        break;
+                    case 'li':
+                        type = 'listItem';
+                        break;
+                    case 'pre':
+                        type = 'codeBlock';
+                        break;
+                    case 'blockquote':
+                        type = 'blockquote';
+                        break;
+                    default:
+                        if (nodeType) {
+                            type = nodeType;
+                            attrs = parseAttrs(el);
+                        } else if (['strong', 'b', 'em', 'i', 'u', 's', 'strike', 'del', 'code', 'a', 'sub', 'sup', 'mark', 'highlight'].includes(tag)) {
+                            // Inline mark wrapper — return children directly
+                            return children.length === 1 ? children[0] : { type: 'paragraph', content: children };
+                        } else {
+                            return children.length > 0 ? children : null;
+                        }
+    }
+
+    if (type === 'codeBlock') {
+        const codeEl = el.querySelector('code');
+        const text = codeEl ? codeEl.textContent : el.textContent;
+        const lang = codeEl ? (codeEl.getAttribute('class') || '').replace(/^language-/, '') : '';
+        return {
+            type: 'codeBlock',
+            attrs: lang ? { language: lang } : {},
+            content: text ? [{ type: 'text', text }] : [],
+        };
+    }
+
+    // For taskList items, add checked attr
+    if (type === 'listItem' && el.parentElement && el.parentElement.getAttribute('data-type') === 'taskList') {
+        const checkbox = el.querySelector('input[type="checkbox"]');
+        attrs = { checked: checkbox ? checkbox.checked : false };
+        // Remove the checkbox from children — skip it in the loop
+        const filteredChildren = children.filter(c => !(c.type === 'text' && c.text === ''));
+        return { type: 'taskItem', attrs, content: filteredChildren.length > 0 ? filteredChildren : [{ type: 'paragraph' }] };
+    }
+
+    const result = { type };
+    if (Object.keys(attrs).length > 0) result.attrs = attrs;
+    if (children.length > 0) result.content = children;
+    return result;
+}
+
+function htmlChildrenToContent(el, parentMarks = []) {
+    const items = [];
+    for (let i = 0; i < el.childNodes.length; i++) {
+        const child = el.childNodes[i];
+        const parsed = htmlToTipTapJson(child);
+        if (parsed) {
+            if (parsed.type === 'text' && parentMarks.length > 0) {
+                parsed.marks = [...(parsed.marks || []), ...parentMarks];
+            }
+            items.push(parsed);
+        }
+    }
+    return items;
+}
+
+/**
+ * Converts stored Markdoc string to TipTap JSON document for editor.setContent().
+ * @param {string} contentStr - Markdoc Markdown string
+ * @returns {object} TipTap JSON doc node
+ */
+export function markdocToTipTapJson(contentStr) {
+    if (!contentStr) return { type: 'doc', content: [] };
+    const html = markdocToHtml(contentStr);
+    if (!html) return { type: 'doc', content: [] };
+
+    try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+        const root = doc.body.firstElementChild;
+        if (!root) return { type: 'doc', content: [] };
+
+        const content = [];
+        for (let i = 0; i < root.childNodes.length; i++) {
+            const node = htmlToTipTapJson(root.childNodes[i]);
+            if (node) {
+                if (Array.isArray(node)) {
+                    content.push(...node);
+                } else {
+                    content.push(node);
+                }
+            }
+        }
+        return { type: 'doc', content };
+    } catch (err) {
+        console.error('markdocToTipTapJson error:', err);
+        return { type: 'doc', content: [] };
+    }
+}
+
+// ---------------------------------------------------------------------------
 // extractQuizFromMarkdoc — pull quiz blocks out for TaskQuestion API sync
 // ---------------------------------------------------------------------------
 

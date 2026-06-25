@@ -889,6 +889,20 @@ const TaskForm = (props) => {
         }
     }, [dataDetail]);
 
+    const normalizeContent = (contentStr) => {
+        return contentStr?.trim() || '';
+    };
+
+    const isUnchangedFromTemplate = (submitData, snapshot) => {
+        if (!snapshot) return false;
+        const titleSame = (submitData.title?.trim() || '') === (snapshot.title?.trim() || '');
+        const contentSame = normalizeContent(submitData.content) === normalizeContent(snapshot.content);
+        const snapshotHasDesc = !!snapshot.description?.trim();
+        const descSame =
+            !snapshotHasDesc || (submitData.description?.trim() || '') === (snapshot.description?.trim() || '');
+        return titleSame && contentSame && descSame;
+    };
+
     // ── upload media ──────────────────────────
     const uploadFile = (file, onSuccess, onError, type) => {
         executeUpFile({
@@ -910,20 +924,6 @@ const TaskForm = (props) => {
             },
             onError: (err) => onError(err),
         });
-    };
-
-    const normalizeContent = (contentStr) => {
-        return contentStr?.trim() || '';
-    };
-
-    const isUnchangedFromTemplate = (submitData, snapshot) => {
-        if (!snapshot) return false;
-        const titleSame = (submitData.title?.trim() || '') === (snapshot.title?.trim() || '');
-        const contentSame = normalizeContent(submitData.content) === normalizeContent(snapshot.content);
-        const snapshotHasDesc = !!snapshot.description?.trim();
-        const descSame =
-            !snapshotHasDesc || (submitData.description?.trim() || '') === (snapshot.description?.trim() || '');
-        return titleSame && contentSame && descSame;
     };
 
     // ── thực sự gọi API lưu ───
