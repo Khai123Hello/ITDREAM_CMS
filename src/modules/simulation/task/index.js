@@ -715,7 +715,9 @@ const TaskListPage = ({ pageOptions }) => {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 6, flex: 1 }}>
                             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{taskTitle}</div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                                <Tag color={isSubTask ? 'purple' : 'blue'}>{isSubTask ? 'Nhiệm vụ phụ' : 'Nhiệm vụ chính'}</Tag>
+                                <Tag color={isSubTask ? 'purple' : 'blue'}>
+                                    {isSubTask ? 'Nhiệm vụ phụ' : 'Nhiệm vụ chính'}
+                                </Tag>
                                 {isSubTask && task.parent?.title && (
                                     <Tag color="default">Nhiệm vụ chính: {task.parent.title}</Tag>
                                 )}
@@ -928,8 +930,9 @@ const TaskListPage = ({ pageOptions }) => {
                 </p>
                 <p style={{ color: '#595959', marginBottom: 12 }}>
                     Nhiệm vụ này hiện có{' '}
-                    <strong style={{ color: '#ff4d4f' }}>{deleteModal.task?.children?.length || 0} nhiệm vụ phụ</strong> bên
-                    trong. Khi xóa nhiệm vụ chính, <strong>toàn bộ nhiệm vụ phụ thuộc về nó cũng sẽ bị xóa theo</strong>.
+                    <strong style={{ color: '#ff4d4f' }}>{deleteModal.task?.children?.length || 0} nhiệm vụ phụ</strong>{' '}
+                    bên trong. Khi xóa nhiệm vụ chính,{' '}
+                    <strong>toàn bộ nhiệm vụ phụ thuộc về nó cũng sẽ bị xóa theo</strong>.
                 </p>
                 <p style={{ color: '#8c8c8c', fontSize: 13 }}>
                     Hành động này không thể hoàn tác. Bạn có chắc chắn muốn tiếp tục không?

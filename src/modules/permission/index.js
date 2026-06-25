@@ -57,7 +57,7 @@ const PermissionListPage = ({ pageOptions = {} }) => {
 
     const processedData = React.useMemo(() => {
         if (!data) return [];
-        
+
         // Sắp xếp theo tên nhóm quyền trước để các quyền cùng nhóm đứng cạnh nhau
         const sorted = [...data].sort((a, b) => {
             const groupA = a.nameGroup || '';

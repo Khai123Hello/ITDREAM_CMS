@@ -267,7 +267,9 @@ const RegisterPage = () => {
                                                     loading={orgLoading}
                                                     suffixIcon={<BankOutlined className={styles.inputIcon} />}
                                                     filterOption={(input, option) =>
-                                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                        (option?.label ?? '')
+                                                            .toLowerCase()
+                                                            .includes(input.toLowerCase())
                                                     }
                                                 >
                                                     {orgOptions.map((org) => (
@@ -276,7 +278,9 @@ const RegisterPage = () => {
                                                             key={org.id}
                                                             label={org.shortName || org.name}
                                                         >
-                                                            {org.shortName ? `${org.shortName} - ${org.name}` : org.name}
+                                                            {org.shortName
+                                                                ? `${org.shortName} - ${org.name}`
+                                                                : org.name}
                                                         </Select.Option>
                                                     ))}
                                                 </Select>
@@ -361,7 +365,12 @@ const RegisterPage = () => {
                                             { len: 6, message: 'Mã OTP phải có 6 chữ số' },
                                         ]}
                                     >
-                                        <Input size="large" placeholder="Nhập mã 6 chữ số" maxLength={6} className={styles.otpInput} />
+                                        <Input
+                                            size="large"
+                                            placeholder="Nhập mã 6 chữ số"
+                                            maxLength={6}
+                                            className={styles.otpInput}
+                                        />
                                     </Form.Item>
 
                                     <Form.Item>

@@ -8,7 +8,6 @@ import {
     CloseCircleOutlined,
     BellOutlined,
     ClockCircleOutlined,
-    EyeOutlined,
     CommentOutlined,
     MessageOutlined,
 } from '@ant-design/icons';
@@ -464,20 +463,6 @@ const SimulationListPage = ({ pageOptions }) => {
                                 <BellOutlined />
                             </Button>
                         ) : null,
-                    // Nút Xem trước bài mẫu
-                    preview: ({ id, title }) => (
-                        <Button
-                            type="link"
-                            style={{ padding: 0 }}
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                navigate(`/simulation/${id}/preview`, { state: { title } });
-                            }}
-                            title="Xem trước"
-                        >
-                            <EyeOutlined />
-                        </Button>
-                    ),
                 };
 
                 if (isEducator) {
@@ -633,12 +618,7 @@ const SimulationListPage = ({ pageOptions }) => {
 
                 return (
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '4px 0' }}>
-                        <AvatarField
-                            size={44}
-                            shape="square"
-                            icon={<UnorderedListOutlined />}
-                            src={imageUrl}
-                        />
+                        <AvatarField size={44} shape="square" icon={<UnorderedListOutlined />} src={imageUrl} />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflow: 'hidden' }}>
                             <Button
                                 type="link"
@@ -659,19 +639,49 @@ const SimulationListPage = ({ pageOptions }) => {
                             >
                                 {text}
                             </Button>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', rowGap: '4px' }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    rowGap: '4px',
+                                }}
+                            >
                                 {specName && (
-                                    <Tag color="default" style={{ margin: 0, fontSize: '11px', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#475569', borderRadius: '4px' }}>
+                                    <Tag
+                                        color="default"
+                                        style={{
+                                            margin: 0,
+                                            fontSize: '11px',
+                                            background: '#f1f5f9',
+                                            border: '1px solid #e2e8f0',
+                                            color: '#475569',
+                                            borderRadius: '4px',
+                                        }}
+                                    >
                                         {specName}
                                     </Tag>
                                 )}
                                 {levelItem.label && (
-                                    <Tag color={levelItem.color || 'blue'} style={{ margin: 0, fontSize: '11px', borderRadius: '4px' }}>
+                                    <Tag
+                                        color={levelItem.color || 'blue'}
+                                        style={{ margin: 0, fontSize: '11px', borderRadius: '4px' }}
+                                    >
                                         {levelItem.label}
                                     </Tag>
                                 )}
                                 {duration && (
-                                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+                                    <span
+                                        style={{
+                                            fontSize: '12px',
+                                            color: '#64748b',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            marginLeft: '4px',
+                                        }}
+                                    >
                                         <ClockCircleOutlined style={{ fontSize: '11px' }} />
                                         {duration}
                                     </span>
@@ -689,12 +699,13 @@ const SimulationListPage = ({ pageOptions }) => {
                     width: '200px',
                     render: (_, record) => {
                         const name =
-                            record.educator?.profileAccountDto?.fullName ||
-                            record.educator?.fullName ||
-                            record.educator?.account?.fullName ||
-                            record.educator?.name ||
-                            '-';
-                        const orgName = record.educator?.organization?.shortName || record.educator?.organization?.name;
+                              record.educator?.profileAccountDto?.fullName ||
+                              record.educator?.fullName ||
+                              record.educator?.account?.fullName ||
+                              record.educator?.name ||
+                              '-';
+                        const orgName =
+                              record.educator?.organization?.shortName || record.educator?.organization?.name;
                         const logo = record.educator?.organization?.logoUrl;
                         const logoUrl = logo
                             ? logo.startsWith('http')
@@ -704,11 +715,7 @@ const SimulationListPage = ({ pageOptions }) => {
                         return (
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                 {logoUrl ? (
-                                    <AvatarField
-                                        size={30}
-                                        shape="circle"
-                                        src={logoUrl}
-                                    />
+                                    <AvatarField size={30} shape="circle" src={logoUrl} />
                                 ) : (
                                     <div
                                         style={{
@@ -730,10 +737,30 @@ const SimulationListPage = ({ pageOptions }) => {
                                     </div>
                                 )}
                                 <div style={{ minWidth: 0, flex: 1 }}>
-                                    <div style={{ fontWeight: '600', fontSize: '13px', color: '#334155', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={orgName || 'Khoa chuyên môn'}>
+                                    <div
+                                        style={{
+                                            fontWeight: '600',
+                                            fontSize: '13px',
+                                            color: '#334155',
+                                            textOverflow: 'ellipsis',
+                                            overflow: 'hidden',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                        title={orgName || 'Khoa chuyên môn'}
+                                    >
                                         {orgName || 'Khoa'}
                                     </div>
-                                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={name}>
+                                    <div
+                                        style={{
+                                            fontSize: '12px',
+                                            color: '#64748b',
+                                            marginTop: '2px',
+                                            textOverflow: 'ellipsis',
+                                            overflow: 'hidden',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                        title={name}
+                                    >
                                         {name}
                                     </div>
                                 </div>
@@ -748,7 +775,6 @@ const SimulationListPage = ({ pageOptions }) => {
             isEducator
                 ? {
                     task: () => mixinFuncs.hasPermission([apiConfig.task.listByEducator.permissionCode]),
-                    preview: () => true,
                     requestDelete: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE &&
                           dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
@@ -763,7 +789,6 @@ const SimulationListPage = ({ pageOptions }) => {
                 }
                 : {
                     task: () => mixinFuncs.hasPermission([apiConfig.task.getList.permissionCode]),
-                    preview: () => true,
                     approve: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     reject: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     approveDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
@@ -811,6 +836,11 @@ const SimulationListPage = ({ pageOptions }) => {
                         pagination={pagination}
                         onRow={(record, idx) => ({
                             style: { backgroundColor: idx % 2 ? '#f9f9f9' : '#ffffff' },
+                            onDoubleClick: () => {
+                                console.log('[Index] double-click record:', record.title);
+                                try { localStorage.setItem('simulationPreviewTitle', record.title || ''); } catch (e) { /* ignore */ }
+                                navigate(`/simulation/${record.id}/preview`, { state: { title: record.title } });
+                            },
                         })}
                         locale={{
                             emptyText: <Empty description={labels.noData} />,
@@ -873,7 +903,9 @@ const SimulationListPage = ({ pageOptions }) => {
                 title={
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <span style={{ fontSize: 16, fontWeight: 600 }}>Thảo luận bài mô phỏng</span>
-                        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 400 }}>{commentSimulationTitle}</span>
+                        <span style={{ fontSize: 12, color: '#64748b', fontWeight: 400 }}>
+                            {commentSimulationTitle}
+                        </span>
                     </div>
                 }
                 placement="right"
@@ -883,32 +915,40 @@ const SimulationListPage = ({ pageOptions }) => {
                 }}
                 open={isCommentDrawerVisible}
             >
-                <div style={{ display: 'flex', flexDirection: 'column', height: '100%', justifyContent: 'space-between' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%',
+                        justifyContent: 'space-between',
+                    }}
+                >
                     <div style={{ flex: 1, overflowY: 'auto', padding: '0 8px' }}>
-                        <div style={{ 
-                            padding: 16, 
-                            background: '#f8fafc', 
-                            border: '1px dashed #cbd5e1', 
-                            borderRadius: 8, 
-                            textAlign: 'center', 
-                            color: '#64748b',
-                            fontSize: 13,
-                            lineHeight: 1.6,
-                            marginTop: 20,
-                        }}>
-                            <MessageOutlined style={{ fontSize: 24, color: '#cbd5e1', marginBottom: 8, display: 'block' }} />
+                        <div
+                            style={{
+                                padding: 16,
+                                background: '#f8fafc',
+                                border: '1px dashed #cbd5e1',
+                                borderRadius: 8,
+                                textAlign: 'center',
+                                color: '#64748b',
+                                fontSize: 13,
+                                lineHeight: 1.6,
+                                marginTop: 20,
+                            }}
+                        >
+                            <MessageOutlined
+                                style={{ fontSize: 24, color: '#cbd5e1', marginBottom: 8, display: 'block' }}
+                            />
                             <strong>Kênh thảo luận cấu trúc nội bộ</strong>
                             <p style={{ margin: '8px 0 0' }}>
-                                Tính năng thảo luận chung cho cấu trúc bài mô phỏng đang được lên kế hoạch tích hợp cùng API Backend mới.
+                                Tính năng thảo luận chung cho cấu trúc bài mô phỏng đang được lên kế hoạch tích hợp cùng
+                                API Backend mới.
                             </p>
                         </div>
                     </div>
                     <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: 16, display: 'flex', gap: 8 }}>
-                        <Input.TextArea 
-                            rows={2} 
-                            placeholder="Nhập ý kiến thảo luận cấu trúc..." 
-                            disabled 
-                        />
+                        <Input.TextArea rows={2} placeholder="Nhập ý kiến thảo luận cấu trúc..." disabled />
                         <Button type="primary" disabled style={{ height: 'auto' }}>
                             Gửi
                         </Button>

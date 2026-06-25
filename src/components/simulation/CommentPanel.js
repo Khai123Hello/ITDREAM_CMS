@@ -131,10 +131,11 @@ function CommentPanel({
         const isSelf = comment.user?.username === currentUsername;
         const isEditing = editingId === comment.id;
         const isReplying = replyingToId === comment.id;
-        
-        const isStudent = studentUsername && comment.user?.username
-            ? comment.user.username.toLowerCase() === studentUsername.toLowerCase()
-            : true;
+
+        const isStudent =
+            studentUsername && comment.user?.username
+                ? comment.user.username.toLowerCase() === studentUsername.toLowerCase()
+                : true;
         const isTeacher = !isStudent;
 
         let cardClass = `tfo-comment-card`;
@@ -151,18 +152,20 @@ function CommentPanel({
                                 {comment.user?.fullName || comment.user?.username || 'Học viên'}
                             </span>
                             {isTeacher && (
-                                <span style={{
-                                    fontSize: '9px',
-                                    fontWeight: 700,
-                                    backgroundColor: '#bae6fd',
-                                    color: '#0369a1',
-                                    padding: '2px 6px',
-                                    borderRadius: '10px',
-                                    lineHeight: '1.2',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.3px',
-                                    display: 'inline-block',
-                                }}>
+                                <span
+                                    style={{
+                                        fontSize: '9px',
+                                        fontWeight: 700,
+                                        backgroundColor: '#bae6fd',
+                                        color: '#0369a1',
+                                        padding: '2px 6px',
+                                        borderRadius: '10px',
+                                        lineHeight: '1.2',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.3px',
+                                        display: 'inline-block',
+                                    }}
+                                >
                                     Giáo viên
                                 </span>
                             )}

@@ -18,7 +18,10 @@ export default {
         pageOptions: {
             objectName: commonMessage.permission,
             renderBreadcrumbs: () => {
-                return [{ breadcrumbName: 'Quyền hạn', path: '/group-permission' }, { breadcrumbName: 'Quản lý Quyền' }];
+                return [
+                    { breadcrumbName: 'Quyền hạn', path: '/group-permission' },
+                    { breadcrumbName: 'Quản lý Quyền' },
+                ];
             },
         },
     },

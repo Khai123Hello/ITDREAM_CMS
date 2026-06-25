@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Tag, Button, Modal, Spin, Avatar, Input, message, Tooltip, Badge } from 'antd';
-import StudentSubmissionViewer from '@components/simulation/StudentSubmissionViewer';
+import { Tag, Button, Modal, Spin, Avatar, Input, message, Tooltip, Badge, Table } from 'antd';
+import TaskContentLayout from '@components/simulation/TaskContentLayout';
 import CommentPanel from '@components/simulation/CommentPanel';
 import {
     ArrowLeftOutlined,
@@ -80,8 +80,6 @@ const getSubmissions = (progressDetail = {}) => {
     return [];
 };
 
-
-
 /* ─────────────────────────── CommentPanel Component ─────────────────────────── */
 
 const getInitials = (fullName) => {
@@ -107,9 +105,6 @@ const getAvatarColor = (name) => {
     }
     return colors[Math.abs(hash) % colors.length];
 };
-
-
-
 
 /* ─────────────────────────── Main StudentReviewDetailPage ─────────────────────────── */
 
@@ -167,8 +162,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const [reviewContentInput, setReviewContentInput] = useState('');
     const [isEditingReview, setIsEditingReview] = useState(false);
 
-
-
     // Simulation Enrollment ID resolution
     const [simulationEnrollmentId, setSimulationEnrollmentId] = useState(
         () => location.state?.simulationEnrollmentId || null,
@@ -219,8 +212,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             mappingData: (res) => res.data?.content || [],
         },
     );
-
-
 
     // 3. Fallback: Fetch student completes to resolve simulationEnrollmentId if missing in state
     const { execute: fetchEnrollments } = useFetch(apiConfig.simulation.studentComplete, {
@@ -282,7 +273,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         {
             immediate: false,
             mappingData: (res) => res.data?.content || [],
-        });
+        },
+    );
 
     useEffect(() => {
         if (simulationEnrollmentId) {
@@ -296,12 +288,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Filter reviews strictly belonging to the active student's enrollment
     const filteredEducatorReviews = useMemo(() => {
         if (!educatorReviews || !simulationEnrollmentId) return [];
-        return educatorReviews.filter(
-            (r) => {
-                const rEnrollId = r.simulationEnrollmentId || r.studentSubmission?.studentTaskProgress?.simulationEnrollment?.id;
-                return String(rEnrollId) === String(simulationEnrollmentId);
-            },
-        );
+        return educatorReviews.filter((r) => {
+            const rEnrollId =
+                r.simulationEnrollmentId || r.studentSubmission?.studentTaskProgress?.simulationEnrollment?.id;
+            return String(rEnrollId) === String(simulationEnrollmentId);
+        });
     }, [educatorReviews, simulationEnrollmentId]);
 
     // Map parent tasks and subtasks
@@ -388,19 +379,25 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
     const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
 
-    const fileSub = useMemo(() => {
-        if (!requiresFileUpload) return null;
-        return submissions.find(
-            (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-        );
-    }, [submissions, requiresFileUpload]);
-
-    const textSub = useMemo(() => {
-        if (!requiresTextResponse) return null;
-        return submissions.find(
-            (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-        );
-    }, [submissions, requiresTextResponse]);
+    const quizSubmissionMap = useMemo(() => {
+        const map = {};
+        submissions.forEach((submission) => {
+            let qId = null;
+            if (submission.taskQuestionId != null) {
+                qId = String(submission.taskQuestionId);
+            } else if (submission.taskQuestion?.id != null) {
+                qId = String(submission.taskQuestion.id);
+            }
+            if (qId) {
+                map[qId] = {
+                    answer: getSubmissionAnswer(submission),
+                    isCorrect: submission.isCorrect === true || submission.isCorrect === 1,
+                    createdDate: submission.createdDate,
+                };
+            }
+        });
+        return map;
+    }, [submissions]);
 
     // Fetch quiz questions for the selected subtask
     const [apiQuizQuestions, setApiQuizQuestions] = useState([]);
@@ -425,18 +422,59 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedSubtaskId]);
 
+    const questionMap = useMemo(() => {
+        const map = {};
+        if (apiQuizQuestions) {
+            apiQuizQuestions.forEach((q) => {
+                const key = (q.question || '').trim();
+                if (key && q.id != null) {
+                    map[key] = String(q.id);
+                }
+            });
+        }
+        return map;
+    }, [apiQuizQuestions]);
 
+    const quizHistory = useMemo(() => {
+        const list = apiQuizQuestions || [];
+        if (list.length > 0) {
+            return list.map((q) => {
+                const answerInfo = quizSubmissionMap[String(q.id)];
+                return {
+                    id: q.id,
+                    questionText: q.question,
+                    options: q.options,
+                    selectedAnswer: answerInfo ? answerInfo.answer : 'Chưa trả lời',
+                    isCorrect: answerInfo ? answerInfo.isCorrect : false,
+                    createdDate: answerInfo ? answerInfo.createdDate : null,
+                };
+            });
+        }
+        return [];
+    }, [apiQuizQuestions, quizSubmissionMap]);
+
+    const fileSub = useMemo(() => {
+        if (!requiresFileUpload) return null;
+        return submissions.find(
+            (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+        );
+    }, [submissions, requiresFileUpload]);
+
+    const textSub = useMemo(() => {
+        if (!requiresTextResponse) return null;
+        return submissions.find(
+            (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+        );
+    }, [submissions, requiresTextResponse]);
 
     // Find the review linked to the active subtask progress
     const subtaskReview = useMemo(() => {
         if (!filteredEducatorReviews) return null;
         if (activeSubtaskProgress?.id) {
-            const foundByProgress = filteredEducatorReviews.find(
-                (r) => {
-                    const rProgressId = r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id;
-                    return String(rProgressId) === String(activeSubtaskProgress.id);
-                },
-            );
+            const foundByProgress = filteredEducatorReviews.find((r) => {
+                const rProgressId = r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id;
+                return String(rProgressId) === String(activeSubtaskProgress.id);
+            });
             if (foundByProgress) return foundByProgress;
         }
 
@@ -477,10 +515,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             if (!activeSubmissionId && activeSubtaskProgress) {
                 const subs = getSubmissions(activeSubtaskProgress);
                 const fSub = subs.find(
-                    (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                    (s) =>
+                        !s.taskQuestion &&
+                        (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
                 );
                 const tSub = subs.find(
-                    (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                    (s) =>
+                        !s.taskQuestion &&
+                        !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
                 );
                 activeSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
             }
@@ -538,7 +580,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             const progress = progressList?.find((p) => String(p.task?.id) === String(subId));
             const dbReview = progress
                 ? filteredEducatorReviews?.find(
-                    (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(progress.id),
+                    (r) =>
+                        String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                          String(progress.id),
                 )
                 : null;
             const dbContent = dbReview?.content || '';
@@ -551,12 +595,12 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         const draft = draftReviews[selectedSubtaskId];
         if (!draft || !draft.content?.trim()) return false;
 
-        const progress = progressList?.find(
-            (p) => String(p.task?.id) === String(selectedSubtaskId),
-        );
+        const progress = progressList?.find((p) => String(p.task?.id) === String(selectedSubtaskId));
         const dbReview = progress
             ? filteredEducatorReviews?.find(
-                (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(progress.id),
+                (r) =>
+                    String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                      String(progress.id),
             )
             : null;
         const dbContent = dbReview?.content || '';
@@ -577,7 +621,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
             const progress = progressList?.find((p) => String(p.task?.id) === String(subId));
             const dbReview = filteredEducatorReviews?.find(
-                (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(progress?.id),
+                (r) =>
+                    String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                    String(progress?.id),
             );
             const dbContent = dbReview?.content || '';
 
@@ -649,10 +695,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         const progress = progressList?.find((p) => String(p.task?.id) === String(d.subtaskId));
                         const subs = getSubmissions(progress);
                         const fSub = subs.find(
-                            (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                            (s) =>
+                                !s.taskQuestion &&
+                                (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
                         );
                         const tSub = subs.find(
-                            (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                            (s) =>
+                                !s.taskQuestion &&
+                                !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
                         );
                         const fallbackSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
                         const fallbackProgressId = progress?.id || null;
@@ -664,9 +714,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         };
                     });
 
-
-
-                    const validSyncDrafts = finalUnsavedDrafts.filter(d => d.dbReviewId || d.studentSubmissionId);
+                    const validSyncDrafts = finalUnsavedDrafts.filter((d) => d.dbReviewId || d.studentSubmissionId);
 
                     try {
                         const syncPromises = validSyncDrafts.map((draft) => {
@@ -689,7 +737,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         });
 
                         const results = await Promise.all(syncPromises);
-                        const hasError = results.some(res => !res || res.result === false || (res.statusCode !== undefined && res.statusCode !== 200) || res instanceof Error || res.response);
+                        const hasError = results.some(
+                            (res) =>
+                                !res ||
+                                res.result === false ||
+                                (res.statusCode !== undefined && res.statusCode !== 200) ||
+                                res instanceof Error ||
+                                res.response,
+                        );
                         if (hasError) {
                             notify({
                                 type: 'error',
@@ -724,15 +779,15 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         if (!activeSubmissionId && activeSubtaskProgress) {
             const subs = getSubmissions(activeSubtaskProgress);
             const fSub = subs.find(
-                (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                (s) =>
+                    !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
             );
             const tSub = subs.find(
-                (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
+                (s) =>
+                    !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
             );
             activeSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
         }
-
-
 
         setDraftReviews((prev) => ({
             ...prev,
@@ -923,6 +978,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             if (nextSubtasks.length > 0) {
                 setSelectedSubtaskId(nextSubtasks[0].id);
             }
+        } else {
+            // Hoàn thành nhận xét khi ở subtask cuối cùng
+            handleCompleteReview();
         }
     };
 
@@ -967,7 +1025,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         const countMap = {};
         if (!tasks || !filteredEducatorReviews) return countMap;
         parentTasks.forEach((pt) => {
-            const subs = tasks.filter((t) => t.kind === 2 && hasAssignmentContent(t) && (t.parent?.id === pt.id || t.parentId === pt.id));
+            const subs = tasks.filter(
+                (t) => t.kind === 2 && hasAssignmentContent(t) && (t.parent?.id === pt.id || t.parentId === pt.id),
+            );
             const reviewed = subs.filter((s) => reviewedTaskIds.has(s.id));
             countMap[pt.id] = { total: subs.length, reviewed: reviewed.length };
         });
@@ -1004,7 +1064,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         const hasDbReview = !!subtaskReview;
         const draft = draftReviews[selectedSubtaskId];
         const hasDraft = draft && draft.content?.trim() !== (subtaskReview?.content || '').trim();
-        
+
         if (hasDbReview) {
             return (
                 <Tag icon={<CheckCircleFilled />} color="success" className="tfo-draft-badge">
@@ -1019,9 +1079,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             );
         }
         return (
-            <Tag 
-                icon={<ClockCircleOutlined />} 
-                color="default" 
+            <Tag
+                icon={<ClockCircleOutlined />}
+                color="default"
                 className="tfo-draft-badge"
                 style={{
                     backgroundColor: '#fff7ed',
@@ -1046,11 +1106,14 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const renderReviewDisplay = () => {
         const activeDraft = draftReviews[selectedSubtaskId];
         const hasUnsavedDraft = activeDraft && activeDraft.content.trim() !== (subtaskReview?.content || '').trim();
-        const displayReviewContent = activeDraft ? activeDraft.content : (subtaskReview?.content || '');
+        const displayReviewContent = activeDraft ? activeDraft.content : subtaskReview?.content || '';
 
         const isOwnReview = !subtaskReview || !subtaskReview.createdBy || subtaskReview.createdBy === profile?.username;
-        const reviewerName = isOwnReview ? (profile?.fullName || profile?.username || 'Giáo viên') : subtaskReview.createdBy;
-        const reviewerAvatar = isOwnReview && profile?.avatar ? `${AppConstants.contentRootUrl}${profile.avatar}` : null;
+        const reviewerName = isOwnReview
+            ? profile?.fullName || profile?.username || 'Giáo viên'
+            : subtaskReview.createdBy;
+        const reviewerAvatar =
+            isOwnReview && profile?.avatar ? `${AppConstants.contentRootUrl}${profile.avatar}` : null;
         const initials = getInitials(reviewerName);
         const avatarBg = getAvatarColor(reviewerName);
 
@@ -1060,16 +1123,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             <div className={cardClass}>
                 <div className="tfo-review-display__header">
                     {reviewerAvatar ? (
-                        <Avatar 
-                            src={reviewerAvatar} 
-                            alt={reviewerName} 
-                            className="tfo-review-display__avatar" 
-                        />
+                        <Avatar src={reviewerAvatar} alt={reviewerName} className="tfo-review-display__avatar" />
                     ) : (
-                        <Avatar 
-                            style={{ background: avatarBg }} 
-                            className="tfo-review-display__avatar"
-                        >
+                        <Avatar style={{ background: avatarBg }} className="tfo-review-display__avatar">
                             {initials}
                         </Avatar>
                     )}
@@ -1077,19 +1133,21 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         <div className="tfo-review-display__name">
                             {reviewerName}
                             {hasUnsavedDraft && (
-                                <Tag color="orange" className="tfo-draft-badge">Bản nháp</Tag>
+                                <Tag color="orange" className="tfo-draft-badge">
+                                    Bản nháp
+                                </Tag>
                             )}
                         </div>
                         <div className="tfo-review-display__role">Giáo viên hướng dẫn</div>
                     </div>
                     <span className="tfo-review-display__date">
-                        {subtaskReview?.createdDate ? dayjs(subtaskReview.createdDate).format('DD/MM/YYYY') : 'Chưa lưu'}
+                        {subtaskReview?.createdDate
+                            ? dayjs(subtaskReview.createdDate).format('DD/MM/YYYY')
+                            : 'Chưa lưu'}
                     </span>
                 </div>
 
-                <blockquote className="tfo-review-display__quote">
-                    {displayReviewContent}
-                </blockquote>
+                <blockquote className="tfo-review-display__quote">{displayReviewContent}</blockquote>
 
                 {canWriteReview && (
                     <div className="tfo-review-display__toolbar">
@@ -1139,15 +1197,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         maxLength={2000}
                         className="tfo-review-editor__textarea"
                     />
-                    <span className="tfo-review-editor__counter">
-                        {(reviewContentInput || '').length}/2000
-                    </span>
+                    <span className="tfo-review-editor__counter">{(reviewContentInput || '').length}/2000</span>
                 </div>
 
                 <div className="tfo-review-editor__templates">
                     {quickReviewTemplates.map((tpl, idx) => (
                         <Tooltip key={idx} title={tpl} mouseEnterDelay={0.5}>
-                            <button 
+                            <button
                                 type="button"
                                 className="tfo-quick-template-badge"
                                 onClick={() => handleTextareaChange(tpl)}
@@ -1169,19 +1225,12 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         Lưu bản nháp
                     </Button>
                     {draftReviews[selectedSubtaskId] && (
-                        <Button 
-                            icon={<UndoOutlined />} 
-                            onClick={handleResetDraft}
-                            className="tfo-btn-secondary"
-                        >
+                        <Button icon={<UndoOutlined />} onClick={handleResetDraft} className="tfo-btn-secondary">
                             Khôi phục gốc
                         </Button>
                     )}
                     {isEditingReview && (
-                        <Button 
-                            onClick={() => setIsEditingReview(false)}
-                            className="tfo-btn-secondary"
-                        >
+                        <Button onClick={() => setIsEditingReview(false)} className="tfo-btn-secondary">
                             Hủy
                         </Button>
                     )}
@@ -1204,18 +1253,16 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             return (
                 <div className="tfo-review-tab-pane">
                     {!canWriteReview && (
-                        <div className="tfo-review-read-only-banner">
-                            Bạn đang xem thông tin ở chế độ chỉ đọc.
-                        </div>
+                        <div className="tfo-review-read-only-banner">Bạn đang xem thông tin ở chế độ chỉ đọc.</div>
                     )}
 
                     {renderReviewHeader()}
 
-                    {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview ? (
-                        renderReviewDisplay()
-                    ) : (
-                        canWriteReview ? renderReviewEditor() : renderReviewEmpty()
-                    )}
+                    {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
+                        ? renderReviewDisplay()
+                        : canWriteReview
+                            ? renderReviewEditor()
+                            : renderReviewEmpty()}
                 </div>
             );
         } else {
@@ -1224,10 +1271,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     <div className="tfo-review-section-header">
                         <span className="tfo-review-section-title">Thảo luận & Bình luận</span>
                         {commentsData?.content?.length > 0 && (
-                            <Badge 
-                                count={commentsData.content.length} 
-                                size="small" 
-                                style={{ backgroundColor: '#1890ff', marginLeft: 6 }} 
+                            <Badge
+                                count={commentsData.content.length}
+                                size="small"
+                                style={{ backgroundColor: '#1890ff', marginLeft: 6 }}
                             />
                         )}
                     </div>
@@ -1252,10 +1299,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             routes={pageOptions.renderBreadcrumbs(commonMessage, translate, simulationId, username)}
         >
             <div className="tfo-topbar-actions">
-                <Button 
-                    type="link" 
-                    icon={<ArrowLeftOutlined />} 
-                    onClick={() => navigate('/simulation-review')} 
+                <Button
+                    type="link"
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => navigate('/simulation-review')}
                     className="tfo-back-link-btn"
                 >
                     Quay lại danh sách
@@ -1270,35 +1317,43 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                 src={studentInfo.avatar ? `${AppConstants.contentRootUrl}${studentInfo.avatar}` : null}
                             />
                             <strong>{studentInfo.fullName || username}</strong>
-                            <Tag color="blue" style={{ margin: 0 }}>{username}</Tag>
+                            <Tag color="blue" style={{ margin: 0 }}>
+                                {username}
+                            </Tag>
                             {/* Badge trạng thái nhận xét — hiển thị rõ đã nhận xét hay chưa */}
                             {isCompleted ? (
-                                <Tag color="success" icon={<CheckCircleFilled />} style={{ margin: 0, fontWeight: 600 }}>
+                                <Tag
+                                    color="success"
+                                    icon={<CheckCircleFilled />}
+                                    style={{ margin: 0, fontWeight: 600 }}
+                                >
                                     Đã nhận xét
                                 </Tag>
                             ) : (
-                                <Tag color="warning" icon={<ClockCircleOutlined />} style={{ margin: 0, fontWeight: 600 }}>
+                                <Tag
+                                    color="warning"
+                                    icon={<ClockCircleOutlined />}
+                                    style={{ margin: 0, fontWeight: 600 }}
+                                >
                                     Chưa nhận xét
                                 </Tag>
                             )}
                         </div>
                     )}
 
-
-
                     {/* Layout switcher */}
                     <div className="tfo-layout-switcher">
                         <Tooltip title="Bố cục bên cạnh">
-                            <Button 
-                                icon={<PicRightOutlined />} 
+                            <Button
+                                icon={<PicRightOutlined />}
                                 type={layoutMode === 'split' ? 'primary' : 'text'}
                                 onClick={() => handleLayoutModeChange('split')}
                                 size="small"
                             />
                         </Tooltip>
                         <Tooltip title="Bố cục bên dưới">
-                            <Button 
-                                icon={<VerticalAlignBottomOutlined />} 
+                            <Button
+                                icon={<VerticalAlignBottomOutlined />}
                                 type={layoutMode === 'bottom' ? 'primary' : 'text'}
                                 onClick={() => handleLayoutModeChange('bottom')}
                                 size="small"
@@ -1309,8 +1364,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     {/* Mode switcher (Nhận xét & Đánh giá / Thảo luận & Bình luận) */}
                     <div className="tfo-mode-switcher">
                         <Tooltip title="Chế độ Nhận xét & Đánh giá">
-                            <Button 
-                                icon={<EditOutlined />} 
+                            <Button
+                                icon={<EditOutlined />}
                                 type={workspaceMode === 'review' ? 'primary' : 'text'}
                                 onClick={() => setWorkspaceMode('review')}
                                 size="small"
@@ -1322,8 +1377,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             </Button>
                         </Tooltip>
                         <Tooltip title="Chế độ Thảo luận & Bình luận">
-                            <Button 
-                                icon={<CommentOutlined />} 
+                            <Button
+                                icon={<CommentOutlined />}
                                 type={workspaceMode === 'comments' ? 'primary' : 'text'}
                                 onClick={() => setWorkspaceMode('comments')}
                                 size="small"
@@ -1332,7 +1387,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             </Button>
                         </Tooltip>
                     </div>
-
 
                     {/* Complete Review Button */}
                     {canWriteReview && (
@@ -1360,201 +1414,118 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 </div>
             </div>
 
-            <Spin spinning={loadingGeneral}>
-                <div className="tfo-review-container">
-                    {/* Left Sidebar: Timeline of Parent Tasks */}
-                    <aside className={`tfo-sidebar${sidebarCollapsed ? ' collapsed' : ''}`}>
-                        <div className="tfo-sidebar-header">
-                            <span className="tfo-sidebar-label">Danh sách nhiệm vụ</span>
+            <TaskContentLayout
+                parentTasks={parentTasks}
+                selectedParentTaskId={selectedParentTaskId}
+                onSelectParentTask={(id) => { setSelectedParentTaskId(id); setSelectedSubtaskId(null); }}
+                subtasks={subtasks}
+                selectedSubtaskId={selectedSubtaskId}
+                onSelectSubtask={setSelectedSubtaskId}
+                pageTitle={simulationDetail?.title || 'Đang xem bài làm'}
+                taskHeading={subtaskDetail?.title || 'Đang tải...'}
+                taskDescriptionContent={subtaskDetail?.description || ''}
+                content={subtaskDetail?.content || ''}
+                mediaPath={subtaskDetail?.imagePath || subtaskDetail?.videoPath}
+                loading={loadingGeneral || loadingSubtask || loadingProgressDetail}
+                canGoBack={!isAtGlobalStart}
+                canGoNext={!isAtGlobalEnd}
+                isLastSubtask={isAtGlobalEnd}
+                onBack={handleBackSubtask}
+                onNext={handleNextSubtask}
+                quizSubmissionMap={quizSubmissionMap}
+                questionMap={questionMap}
+                customTaskCircle={(task, idx, isActive, isLast) => {
+                    const taskCount = reviewCountByParentTask[task.id];
+                    const allReviewed = taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
+                    const parentSubtasks = tasks?.filter(
+                        (t) => t.kind === 2 && (t.parent?.id === task.id || t.parentId === task.id),
+                    ) || [];
+                    const hasParentDrafts = parentSubtasks.some((st) => {
+                        const draft = draftReviews[st.id];
+                        if (!draft || !draft.content?.trim()) return false;
+                        const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
+                        const dbReview = subProgress ? filteredEducatorReviews?.find(
+                            (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
+                        ) : null;
+                        return draft.content.trim() !== (dbReview?.content || '').trim();
+                    });
+                    let cls = 'tfo-task-circle';
+                    if (isActive) cls += ' active';
+                    if (allReviewed && !hasParentDrafts) cls += ' reviewed';
+                    if (hasParentDrafts) cls += ' has-draft';
+                    return (
+                        <button className={cls} onClick={() => { setSelectedParentTaskId(task.id); setSelectedSubtaskId(null); }}>
+                            {allReviewed && !hasParentDrafts ? <CheckOutlined style={{ fontSize: 12 }} /> : idx + 1}
+                        </button>
+                    );
+                }}
+                customStepButton={(st, index, isActiveSub) => {
+                    const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
+                    const isSubReviewed = subProgress
+                        ? filteredEducatorReviews?.some(
+                            (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
+                        )
+                        : reviewedTaskIds.has(st.id);
+                    const dbReviewForSub = subProgress ? filteredEducatorReviews?.find(
+                        (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
+                    ) : null;
+                    const draftForSub = draftReviews[st.id];
+                    const hasDraftForSub = draftForSub && draftForSub.content?.trim() !== (dbReviewForSub?.content || '').trim();
+                    let btnCls = 'tfo-step-btn';
+                    if (isActiveSub) btnCls += ' active';
+                    if (isSubReviewed && !isActiveSub) btnCls += ' reviewed';
+                    return (
+                        <Tooltip key={st.id} title={`${st.title || st.name || 'Bước ' + (index + 1)}${isSubReviewed ? ' ✓ Đã nhận xét' : ''}`}>
+                            <button className={btnCls} onClick={() => setSelectedSubtaskId(st.id)} style={{ position: 'relative' }}>
+                                {hasDraftForSub && <span style={{ position: 'absolute', top: 2, right: 2, width: 6, height: 6, borderRadius: '50%', backgroundColor: '#fa8c16' }} />}
+                                {isSubReviewed && !isActiveSub ? <CheckOutlined style={{ fontSize: 11 }} /> : index + 1}
+                            </button>
+                        </Tooltip>
+                    );
+                }}
+                rightPane={workspaceMode !== 'preview' && layoutMode === 'split' ? renderCollaborationPanel() : null}
+                reviewPane={workspaceMode !== 'preview' && layoutMode === 'bottom' ? renderCollaborationPanel() : null}
+            >
+                {/* File submission section */}
+                {requiresFileUpload && fileSub && (
+                    <div className="tfo-submission-card">
+                        <div className="tfo-submission-title">File học viên nộp</div>
+                        <div className="tfo-file-download-box">
+                            <a href={getSubmissionAnswer(fileSub).startsWith('http') ? getSubmissionAnswer(fileSub) : `${AppConstants.contentRootUrl}${getSubmissionAnswer(fileSub)}`} target="_blank" rel="noopener noreferrer">
+                                Tải xuống bài làm của học viên
+                            </a>
                         </div>
-                        <div className="tfo-task-list">
-                            {parentTasks.map((task, idx) => {
-                                const isActive = selectedParentTaskId === task.id;
-                                const isLast = idx === parentTasks.length - 1;
-                                const taskCount = reviewCountByParentTask[task.id];
-                                const allReviewed =
-                                    taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
-
-                                // Check if this parent task has any subtasks with drafts
-                                const parentSubtasks = tasks?.filter((t) => t.kind === 2 && (t.parent?.id === task.id || t.parentId === task.id)) || [];
-                                const hasParentDrafts = parentSubtasks.some(st => {
-                                    const draft = draftReviews[st.id];
-                                    if (!draft || !draft.content?.trim()) return false;
-                                    const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
-                                    const dbReview = subProgress
-                                        ? filteredEducatorReviews?.find(
-                                            (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
-                                        )
-                                        : null;
-                                    return draft.content.trim() !== (dbReview?.content || '').trim();
-                                });
-
-                                return (
-                                    <div key={task.id || idx} className="tfo-task-list-row">
-                                        <button
-                                            className={`tfo-task-item${isActive ? ' active' : ''}${allReviewed ? ' reviewed' : ''}${hasParentDrafts ? ' has-draft' : ''}`}
-                                            onClick={() => {
-                                                setSelectedParentTaskId(task.id);
-                                                setSelectedSubtaskId(null);
-                                            }}
-                                        >
-                                            <div className="tfo-task-item-number">
-                                                {allReviewed && !hasParentDrafts ? <CheckOutlined /> : idx + 1}
-                                            </div>
-                                            <div className="tfo-task-item-content">
-                                                <div className="tfo-task-item-title">
-                                                    {task.title || task.name}
-                                                </div>
-                                                {hasParentDrafts && (
-                                                    <div className="tfo-task-item-draft">
-                                                        Có bản nháp
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {hasParentDrafts && (
-                                                <div className="tfo-task-item-dot" />
-                                            )}
-                                        </button>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </aside>
-
-                    {/* Split Workspace Layout */}
-                    <div className={`tfo-workspace-grid${workspaceMode === 'preview' || layoutMode === 'bottom' ? ' preview-mode' : ''}`}>
-                        
-                        {/* Middle Pane: Submission reader */}
-                        <div className="tfo-pane-middle">
-                            <div className="tfo-pane-topbar">
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <Tooltip title={sidebarCollapsed ? "Mở rộng danh sách" : "Thu gọn danh sách"}>
-                                        <Button 
-                                            icon={sidebarCollapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />} 
-                                            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-                                            type="text"
-                                            style={{ 
-                                                fontSize: 16, 
-                                                display: 'flex', 
-                                                alignItems: 'center', 
-                                                justifyContent: 'center',
-                                                background: '#f1f5f9',
-                                                borderRadius: 8,
-                                                width: 32,
-                                                height: 32,
-                                            }}
-                                        />
-                                    </Tooltip>
-                                    <div className="tfo-pane-title">
-                                        {simulationDetail?.title || 'Đang xem bài làm'}
-                                    </div>
-                                </div>
-                                {subtasks.length > 0 && (
-                                    <div className="tfo-step-pagination">
-                                        {subtasks.map((st, index) => {
-                                            const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
-                                            const isSubReviewed = subProgress
-                                                ? filteredEducatorReviews?.some(
-                                                    (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
-                                                )
-                                                : reviewedTaskIds.has(st.id);
-                                            const isActiveSub = st.id === selectedSubtaskId;
-
-                                            let btnCls = 'tfo-step-btn';
-                                            if (isActiveSub) btnCls += ' active';
-                                            if (isSubReviewed && !isActiveSub) btnCls += ' reviewed';
-
-                                            const dbReviewForSub = subProgress
-                                                ? filteredEducatorReviews?.find(
-                                                    (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
-                                                )
-                                                : null;
-                                            const draftForSub = draftReviews[st.id];
-                                            const hasDraftForSub = draftForSub && draftForSub.content?.trim() !== (dbReviewForSub?.content || '').trim();
-
-                                            return (
-                                                <Tooltip
-                                                    key={st.id}
-                                                    title={`${st.title || st.name || 'Bước ' + (index + 1)}${isSubReviewed ? ' ✓ Đã nhận xét' : ''}`}
-                                                >
-                                                    <button
-                                                        className={btnCls}
-                                                        onClick={() => setSelectedSubtaskId(st.id)}
-                                                        style={{ position: 'relative' }}
-                                                    >
-                                                        {hasDraftForSub && (
-                                                            <span style={{
-                                                                position: 'absolute',
-                                                                top: 2,
-                                                                right: 2,
-                                                                width: 6,
-                                                                height: 6,
-                                                                borderRadius: '50%',
-                                                                backgroundColor: '#fa8c16',
-                                                            }} />
-                                                        )}
-                                                        {isSubReviewed && !isActiveSub ? (
-                                                            <CheckOutlined style={{ fontSize: 11 }} />
-                                                        ) : (
-                                                            index + 1
-                                                        )}
-                                                    </button>
-                                                </Tooltip>
-                                            );
-                                        })}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="tfo-separator" />
-
-                            <StudentSubmissionViewer
-                                subtaskDetail={subtaskDetail}
-                                submissions={submissions}
-                                apiQuizQuestions={apiQuizQuestions}
-                                loading={loadingSubtask || loadingProgressDetail}
-                            />
-
-                            {/* Bottom Pagination */}
-                            <div className="tfo-bottom-nav" style={{ padding: '0 24px 24px' }}>
-                                <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                                    <Button
-                                        type="text"
-                                        onClick={handleBackSubtask}
-                                        disabled={isAtGlobalStart}
-                                        className="tfo-btn-back"
-                                    >
-                                        Quay lại
-                                    </Button>
-                                    <Button
-                                        type="primary"
-                                        onClick={handleNextSubtask}
-                                        disabled={isAtGlobalEnd}
-                                        className="tfo-btn-continue"
-                                    >
-                                        Tiếp tục
-                                    </Button>
-                                </div>
-                            </div>
-
-                            {/* Bottom Collaboration Panel */}
-                            {workspaceMode !== 'preview' && layoutMode === 'bottom' && (
-                                <div className="tfo-bottom-collaboration-container">
-                                    {renderCollaborationPanel()}
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Right Pane: Collaboration Workspace */}
-                        {workspaceMode !== 'preview' && layoutMode !== 'bottom' && (
-                            <div className="tfo-pane-right">
-                                {renderCollaborationPanel()}
-                            </div>
-                        )}
-
                     </div>
-                </div>
-            </Spin>
+                )}
+
+                {/* Text submission section */}
+                {requiresTextResponse && textSub && (
+                    <div className="tfo-submission-card">
+                        <div className="tfo-submission-title">Văn bản học viên nộp</div>
+                        <div className="tfo-text-answer-box">{getSubmissionAnswer(textSub)}</div>
+                    </div>
+                )}
+
+                {/* Quiz History Log */}
+                {quizHistory && quizHistory.length > 0 && (
+                    <div className="tfo-submission-card" style={{ marginTop: 20 }}>
+                        <div className="tfo-submission-title">Lịch sử trả lời trắc nghiệm</div>
+                        <Table
+                            dataSource={quizHistory}
+                            rowKey={(record) => record.id}
+                            pagination={{ pageSize: 5 }}
+                            size="small"
+                            columns={[
+                                { title: 'Câu hỏi', dataIndex: 'questionText', render: (text) => <span style={{ fontWeight: 500 }}>{text}</span> },
+                                { title: 'Đáp án đúng', dataIndex: 'options', render: (optsStr) => { try { const opts = JSON.parse(optsStr || '[]'); const correct = opts.find((o) => o.answer === true || o.answer === 'true'); return correct ? correct.option || correct.value || 'N/A' : 'N/A'; } catch { return 'N/A'; } } },
+                                { title: 'Đáp án chọn', dataIndex: 'selectedAnswer' },
+                                { title: 'Kết quả', dataIndex: 'isCorrect', width: 100, align: 'center', render: (isCorr) => <Tag color={isCorr ? 'green' : 'red'}>{isCorr ? 'Đúng' : 'Sai'}</Tag> },
+                                { title: 'Thời gian', dataIndex: 'createdDate', width: 150, render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-') },
+                            ]}
+                        />
+                    </div>
+                )}
+            </TaskContentLayout>
         </PageWrapper>
     );
 };

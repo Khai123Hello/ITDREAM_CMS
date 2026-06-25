@@ -48,15 +48,13 @@ const JobSavePage = () => {
         },
     });
 
-    const title = isCreating
-        ? 'Tạo cơ hội việc làm'
-        : (detail?.title || 'Chi tiết cơ hội việc làm');
+    const title = isCreating ? 'Tạo cơ hội việc làm' : detail?.title || 'Chi tiết cơ hội việc làm';
 
     return (
-        <PageWrapper loading={loading} routes={[
-            { breadcrumbName: 'Cơ hội việc làm', path: '/job' },
-            { breadcrumbName: title },
-        ]}>
+        <PageWrapper
+            loading={loading}
+            routes={[{ breadcrumbName: 'Cơ hội việc làm', path: '/job' }, { breadcrumbName: title }]}
+        >
             <JobForm
                 setIsChangedFormValues={setIsChangedFormValues}
                 dataDetail={isCreating ? {} : detail || {}}

@@ -133,7 +133,12 @@ const OptionComponent = ({ correct, index = 0, children }) => {
     const { studentAnswer, quizSubmissionMap } = context || {};
 
     const letter = String.fromCharCode(65 + index);
-    const optionText = typeof children === 'string' ? children.trim() : (children && children.toString ? children.toString().trim() : '');
+    const optionText =
+        typeof children === 'string'
+            ? children.trim()
+            : children && children.toString
+                ? children.toString().trim()
+                : '';
 
     const isSelected = studentAnswer && (studentAnswer.answer === optionText || studentAnswer.answer === children);
     const isCorrectOpt = correct === true;
@@ -150,9 +155,7 @@ const OptionComponent = ({ correct, index = 0, children }) => {
             <span className="tfo-quiz-option-letter">{letter}.</span>
             <span className="tfo-quiz-option-text">{children}</span>
 
-            {quizSubmissionMap && isCorrectOpt && (
-                <span className="tfo-quiz-option-badge correct">✓ Đúng</span>
-            )}
+            {quizSubmissionMap && isCorrectOpt && <span className="tfo-quiz-option-badge correct">✓ Đúng</span>}
             {quizSubmissionMap && isSelected && !isCorrectOpt && (
                 <span className="tfo-quiz-option-badge wrong">✗ Học viên chọn</span>
             )}
@@ -194,11 +197,7 @@ export default function MarkdocRenderer({ content, quizSubmissionMap, questionMa
                 Step: StepComponent,
                 Section: SectionComponent,
                 Quiz: (props) => (
-                    <QuizComponent
-                        {...props}
-                        quizSubmissionMap={quizSubmissionMap}
-                        questionMap={questionMap}
-                    />
+                    <QuizComponent {...props} quizSubmissionMap={quizSubmissionMap} questionMap={questionMap} />
                 ),
                 Option: OptionComponent,
             };
@@ -219,9 +218,5 @@ export default function MarkdocRenderer({ content, quizSubmissionMap, questionMa
         );
     }
 
-    return (
-        <div className="block-editor-preview-container tfo-blocks-content">
-            {renderedContent}
-        </div>
-    );
+    return <div className="block-editor-preview-container tfo-blocks-content">{renderedContent}</div>;
 }

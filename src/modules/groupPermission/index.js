@@ -86,9 +86,7 @@ const GroupPermissionListPage = () => {
                                 </Link>
                             </Col>
                         )}
-                        <Col>
-                            {mixinFuncs.renderActionBar({})}
-                        </Col>
+                        <Col>{mixinFuncs.renderActionBar({})}</Col>
                     </Row>
                 }
                 searchForm={mixinFuncs.renderSearchForm({

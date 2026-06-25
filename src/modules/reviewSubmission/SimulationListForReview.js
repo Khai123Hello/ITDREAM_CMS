@@ -1,10 +1,6 @@
 import React from 'react';
 import { Empty, Tag, Button } from 'antd';
-import {
-    UnorderedListOutlined,
-    ClockCircleOutlined,
-    SolutionOutlined,
-} from '@ant-design/icons';
+import { UnorderedListOutlined, ClockCircleOutlined, SolutionOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
@@ -116,29 +112,54 @@ const SimulationListForReview = () => {
 
                 return (
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '4px 0' }}>
-                        <AvatarField
-                            size={44}
-                            shape="square"
-                            icon={<UnorderedListOutlined />}
-                            src={imageUrl}
-                        />
+                        <AvatarField size={44} shape="square" icon={<UnorderedListOutlined />} src={imageUrl} />
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', overflow: 'hidden' }}>
                             <div style={{ fontWeight: '600', color: '#1e293b', fontSize: '14px', lineHeight: '1.4' }}>
                                 {text}
                             </div>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', rowGap: '4px' }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    flexWrap: 'wrap',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    rowGap: '4px',
+                                }}
+                            >
                                 {specName && (
-                                    <Tag color="default" style={{ margin: 0, fontSize: '11px', background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#475569', borderRadius: '4px' }}>
+                                    <Tag
+                                        color="default"
+                                        style={{
+                                            margin: 0,
+                                            fontSize: '11px',
+                                            background: '#f1f5f9',
+                                            border: '1px solid #e2e8f0',
+                                            color: '#475569',
+                                            borderRadius: '4px',
+                                        }}
+                                    >
                                         {specName}
                                     </Tag>
                                 )}
                                 {levelItem.label && (
-                                    <Tag color={levelItem.color || 'blue'} style={{ margin: 0, fontSize: '11px', borderRadius: '4px' }}>
+                                    <Tag
+                                        color={levelItem.color || 'blue'}
+                                        style={{ margin: 0, fontSize: '11px', borderRadius: '4px' }}
+                                    >
                                         {levelItem.label}
                                     </Tag>
                                 )}
                                 {duration && (
-                                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginLeft: '4px' }}>
+                                    <span
+                                        style={{
+                                            fontSize: '12px',
+                                            color: '#64748b',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            marginLeft: '4px',
+                                        }}
+                                    >
                                         <ClockCircleOutlined style={{ fontSize: '11px' }} />
                                         {duration}
                                     </span>

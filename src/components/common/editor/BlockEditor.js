@@ -50,12 +50,26 @@ const CalloutNodeView = ({ node, updateAttributes, deleteNode }) => {
     }, [icon]);
 
     const popularEmojis = [
-        '💡', '⚠️', '🔥', 'ℹ️', '🚀', '🌟', '🎯', '🎓',
-        '🛠️', '📝', '🔍', '💻', '🧠', '📢', '🏆', '🔑',
+        '💡',
+        '⚠️',
+        '🔥',
+        'ℹ️',
+        '🚀',
+        '🌟',
+        '🎯',
+        '🎓',
+        '🛠️',
+        '📝',
+        '🔍',
+        '💻',
+        '🧠',
+        '📢',
+        '🏆',
+        '🔑',
     ];
 
     const handleEmojiClick = (emoji) => {
-        setTempIcon(prev => prev + emoji);
+        setTempIcon((prev) => prev + emoji);
     };
 
     const handleClear = () => {
@@ -77,18 +91,22 @@ const CalloutNodeView = ({ node, updateAttributes, deleteNode }) => {
                     size="small"
                     style={{ flex: 1 }}
                 />
-                <Button size="small" onClick={handleClear} danger>Xóa</Button>
+                <Button size="small" onClick={handleClear} danger>
+                    Xóa
+                </Button>
             </div>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(4, 1fr)',
-                gap: 6,
-                marginBottom: 12,
-                maxHeight: 120,
-                overflowY: 'auto',
-                padding: '2px',
-            }}>
-                {popularEmojis.map(emoji => (
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(4, 1fr)',
+                    gap: 6,
+                    marginBottom: 12,
+                    maxHeight: 120,
+                    overflowY: 'auto',
+                    padding: '2px',
+                }}
+            >
+                {popularEmojis.map((emoji) => (
                     <button
                         key={emoji}
                         type="button"
@@ -105,16 +123,20 @@ const CalloutNodeView = ({ node, updateAttributes, deleteNode }) => {
                             justifyContent: 'center',
                             transition: 'all 0.15s',
                         }}
-                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
-                        onMouseLeave={(e) => e.target.style.background = '#fff'}
+                        onMouseEnter={(e) => (e.target.style.background = '#f5f5f5')}
+                        onMouseLeave={(e) => (e.target.style.background = '#fff')}
                     >
                         {emoji}
                     </button>
                 ))}
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
-                <Button size="small" onClick={() => setVisible(false)}>Hủy</Button>
-                <Button size="small" type="primary" onClick={handleSave}>Lưu</Button>
+                <Button size="small" onClick={() => setVisible(false)}>
+                    Hủy
+                </Button>
+                <Button size="small" type="primary" onClick={handleSave}>
+                    Lưu
+                </Button>
             </div>
         </div>
     );
@@ -173,15 +195,18 @@ const CalloutExtension = Node.create({
 });
 
 const StepNodeView = ({ node, updateAttributes, deleteNode }) => {
-    const label = node.attrs.label || 'Bước';
+    const label = node.attrs.label ?? '';
     return (
         <NodeViewWrapper className="tfo-block-step tiptap-step-node">
-            <div className="tfo-block-step-badge" contentEditable={false}>#</div>
+            <div className="tfo-block-step-badge" contentEditable={false}>
+                #
+            </div>
             <div className="tfo-block-step-content">
                 <input
                     className="tfo-block-step-label-input"
                     value={label}
                     onChange={(e) => updateAttributes({ label: e.target.value })}
+                    onMouseDown={(e) => e.stopPropagation()}
                     placeholder="Tên bước..."
                     style={{
                         border: 'none',
@@ -231,7 +256,7 @@ const StepExtension = Node.create({
 
 const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
     const icon = node.attrs.icon || '🎓';
-    const title = node.attrs.title || 'Kiến thức đạt được';
+    const title = node.attrs.title ?? '';
     const [tempIcon, setTempIcon] = useState(icon);
     const [visible, setVisible] = useState(false);
 
@@ -240,13 +265,30 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
     }, [icon]);
 
     const popularEmojis = [
-        '🎓', '🛠️', '💡', '📝', '🚀', '🌟', '❓', '📢', 
-        '🏆', '🔑', '🔍', '🎨', '💻', '📈', '📚', '✍️', 
-        '🧠', '🎯', '🔥', '🤝',
+        '🎓',
+        '🛠️',
+        '💡',
+        '📝',
+        '🚀',
+        '🌟',
+        '❓',
+        '📢',
+        '🏆',
+        '🔑',
+        '🔍',
+        '🎨',
+        '💻',
+        '📈',
+        '📚',
+        '✍️',
+        '🧠',
+        '🎯',
+        '🔥',
+        '🤝',
     ];
 
     const handleEmojiClick = (emoji) => {
-        setTempIcon(prev => prev + emoji);
+        setTempIcon((prev) => prev + emoji);
     };
 
     const handleClear = () => {
@@ -268,18 +310,22 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                     size="small"
                     style={{ flex: 1 }}
                 />
-                <Button size="small" onClick={handleClear} danger>Xóa</Button>
+                <Button size="small" onClick={handleClear} danger>
+                    Xóa
+                </Button>
             </div>
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(5, 1fr)',
-                gap: 6,
-                marginBottom: 12,
-                maxHeight: 120,
-                overflowY: 'auto',
-                padding: '2px',
-            }}>
-                {popularEmojis.map(emoji => (
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(5, 1fr)',
+                    gap: 6,
+                    marginBottom: 12,
+                    maxHeight: 120,
+                    overflowY: 'auto',
+                    padding: '2px',
+                }}
+            >
+                {popularEmojis.map((emoji) => (
                     <button
                         key={emoji}
                         type="button"
@@ -296,23 +342,27 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                             justifyContent: 'center',
                             transition: 'all 0.15s',
                         }}
-                        onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
-                        onMouseLeave={(e) => e.target.style.background = '#fff'}
+                        onMouseEnter={(e) => (e.target.style.background = '#f5f5f5')}
+                        onMouseLeave={(e) => (e.target.style.background = '#fff')}
                     >
                         {emoji}
                     </button>
                 ))}
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6 }}>
-                <Button size="small" onClick={() => setVisible(false)}>Hủy</Button>
-                <Button size="small" type="primary" onClick={handleSave}>Lưu</Button>
+                <Button size="small" onClick={() => setVisible(false)}>
+                    Hủy
+                </Button>
+                <Button size="small" type="primary" onClick={handleSave}>
+                    Lưu
+                </Button>
             </div>
         </div>
     );
 
     return (
         <NodeViewWrapper className="tfo-block-section tiptap-section-node">
-            <div className="tfo-block-section-header" contentEditable={false}>
+            <div className="tfo-block-section-header">
                 <Popover
                     content={popoverContent}
                     title="Chọn biểu tượng"
@@ -321,10 +371,7 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                     onOpenChange={setVisible}
                     placement="bottomLeft"
                 >
-                    <span
-                        className="tfo-block-section-icon"
-                        style={{ cursor: 'pointer', userSelect: 'none' }}
-                    >
+                    <span className="tfo-block-section-icon" style={{ cursor: 'pointer', userSelect: 'none' }}>
                         {icon}
                     </span>
                 </Popover>
@@ -332,6 +379,7 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                     className="tfo-block-section-title-input"
                     value={title}
                     onChange={(e) => updateAttributes({ title: e.target.value })}
+                    onMouseDown={(e) => e.stopPropagation()}
                     placeholder="Tiêu đề mục lớn..."
                     style={{
                         border: 'none',
@@ -381,15 +429,18 @@ const SectionExtension = Node.create({
 });
 
 const QuizNodeView = ({ node, updateAttributes, editor, deleteNode }) => {
-    const question = node.attrs.question || 'Câu hỏi trắc nghiệm?';
+    const question = node.attrs.question ?? '';
     return (
         <NodeViewWrapper className="tfo-block-quiz tiptap-quiz-node">
             <div className="tfo-block-quiz-question">
-                <span className="tfo-block-quiz-icon" contentEditable={false}>❓</span>
+                <span className="tfo-block-quiz-icon" contentEditable={false}>
+                    ❓
+                </span>
                 <input
                     className="tfo-block-quiz-question-input"
                     value={question}
                     onChange={(e) => updateAttributes({ question: e.target.value })}
+                    onMouseDown={(e) => e.stopPropagation()}
                     placeholder="Nhập câu hỏi trắc nghiệm..."
                     style={{
                         border: 'none',
@@ -437,6 +488,7 @@ const QuizExtension = Node.create({
     addAttributes() {
         return {
             question: { default: 'Câu hỏi trắc nghiệm?' },
+            dataQuestionCode: { default: '' },
         };
     },
     parseHTML() {
@@ -453,7 +505,10 @@ const QuizExtension = Node.create({
 const OptionNodeView = ({ node, updateAttributes, deleteNode }) => {
     const correct = node.attrs.correct === true;
     return (
-        <NodeViewWrapper className="tfo-quiz-option tiptap-option-node" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <NodeViewWrapper
+            className="tfo-quiz-option tiptap-option-node"
+            style={{ display: 'flex', alignItems: 'center', gap: 10 }}
+        >
             <input
                 type="checkbox"
                 checked={correct}
@@ -569,13 +624,23 @@ Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ
         description: 'Mẫu câu hỏi trắc nghiệm kiểm tra kiến thức nhanh.',
         title: 'Kiểm tra kiến thức (ví dụ: Trắc nghiệm nhanh)',
         descriptionText: 'Trả lời các câu hỏi trắc nghiệm dưới đây để hoàn thành bài học.',
-        blocks: () => `Hãy chọn đáp án đúng nhất cho từng câu hỏi.
+        blocks: () => `Hãy chọn đáp án đúng nhất cho từng câu hỏi dưới đây.
 
 {% quiz question="Thủ đô của Việt Nam là gì?" %}
   {% option correct=true %}Hà Nội{% /option %}
   {% option correct=false %}TP. Hồ Chí Minh{% /option %}
   {% option correct=false %}Đà Nẵng{% /option %}
-{% /quiz %}`,
+{% /quiz %}
+
+{% quiz question="React là thư viện của ngôn ngữ nào?" %}
+  {% option correct=false %}Python{% /option %}
+  {% option correct=true %}JavaScript{% /option %}
+  {% option correct=false %}Java{% /option %}
+{% /quiz %}
+
+{% callout icon="💡" %}
+Hãy đảm bảo bạn đã đọc kỹ câu hỏi trước khi chọn đáp án.
+{% /callout %}`,
     },
 };
 
@@ -606,6 +671,7 @@ export default function BlockEditor({
 
     const titleRef = useRef(initialTitle);
     const descriptionRef = useRef(initialDescription);
+    const contentRef = useRef('');
     const onChangeRef = useRef(onChange);
 
     useEffect(() => {
@@ -640,6 +706,7 @@ export default function BlockEditor({
         content: markdocToHtml(initialContent),
         onUpdate({ editor: ed }) {
             const markdocStr = tipTapToMarkdoc(ed.getJSON());
+            contentRef.current = markdocStr;
             setContent(markdocStr);
             syncWithParent(titleRef.current, descriptionRef.current, markdocStr);
         },
@@ -647,20 +714,13 @@ export default function BlockEditor({
 
     const lastSentContentRef = useRef(initialContent);
 
-    // Sync lastSentContentRef with initialContent when it changes from the outside
-    useEffect(() => {
-        lastSentContentRef.current = initialContent;
-    }, [initialContent]);
-
     // Handle initialContent load & external changes
     useEffect(() => {
-        if (editor && initialContent !== undefined) {
-            // Only update editor if the parent content changes externally and differs from what we synced
-            if (initialContent !== lastSentContentRef.current) {
-                editor.commands.setContent(markdocToHtml(initialContent));
-                setContent(initialContent);
-                lastSentContentRef.current = initialContent;
-            }
+        if (editor && initialContent !== undefined && initialContent !== lastSentContentRef.current) {
+            editor.commands.setContent(markdocToHtml(initialContent));
+            contentRef.current = initialContent;
+            setContent(initialContent);
+            lastSentContentRef.current = initialContent;
         }
     }, [initialContent, editor]);
 
@@ -732,14 +792,14 @@ export default function BlockEditor({
         titleRef.current = val;
         setTitle(val);
         if (onTitleChange) onTitleChange(val);
-        syncWithParentImmediate(val, descriptionRef.current, content);
+        syncWithParentImmediate(val, descriptionRef.current, contentRef.current);
     };
 
     const handleDescriptionChange = (val) => {
         descriptionRef.current = val;
         setDescription(val);
         if (onDescriptionChange) onDescriptionChange(val);
-        syncWithParentImmediate(titleRef.current, val, content);
+        syncWithParentImmediate(titleRef.current, val, contentRef.current);
     };
 
     // Toolbar Command handlers
@@ -800,17 +860,39 @@ export default function BlockEditor({
                             editor.chain().focus().toggleOrderedList().run();
                             break;
                         case 'callout':
-                            editor.chain().focus().insertContent('<callout-block><p>Nhập nội dung lưu ý của bạn ở đây...</p></callout-block>').run();
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent('<callout-block><p>Nhập nội dung lưu ý của bạn ở đây...</p></callout-block>')
+                                .run();
                             break;
                         case 'step':
-                            editor.chain().focus().insertContent('<step-block label="Bước mới"><p>Nhập mô tả bước ở đây...</p></step-block>').run();
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent('<step-block label="Bước mới"><p>Nhập mô tả bước ở đây...</p></step-block>')
+                                .run();
                             break;
                         case 'section':
-                            editor.chain().focus().insertContent('<section-block icon="🎓" title="Kiến thức đạt được"><ul><li>Kiến thức 1</li></ul></section-block>').run();
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent(
+                                    '<section-block icon="🎓" title="Kiến thức đạt được"><ul><li>Kiến thức 1</li></ul></section-block>',
+                                )
+                                .run();
                             break;
-                        case 'quiz':
-                            editor.chain().focus().insertContent('<quiz-block question="Nhập câu hỏi trắc nghiệm?"><option-block correct="false">Lựa chọn A (Sai)</option-block><option-block correct="true">Lựa chọn B (Đúng)</option-block></quiz-block>').run();
+                        case 'quiz': {
+                            const qc = `qc_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent(
+                                    `<quiz-block question="Nhập câu hỏi trắc nghiệm?" data-question-code="${qc}"><option-block correct="false">Lựa chọn A (Sai)</option-block><option-block correct="true">Lựa chọn B (Đúng)</option-block></quiz-block>`,
+                                )
+                                .run();
                             break;
+                        }
                         default:
                             break;
         }
@@ -844,6 +926,7 @@ export default function BlockEditor({
     const handleResetToBlank = () => {
         titleRef.current = '';
         descriptionRef.current = '';
+        contentRef.current = '';
         setTitle('');
         setDescription('');
         setContent('');
@@ -876,7 +959,10 @@ export default function BlockEditor({
             <div className="editor-toolbar-new">
                 {/* Row 1: Text Formatting & Template */}
                 <div className="toolbar-row formatting-row">
-                    <div className="toolbar-left-group" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                    <div
+                        className="toolbar-left-group"
+                        style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}
+                    >
                         <div className="toolbar-group">
                             <button
                                 type="button"
@@ -1032,8 +1118,13 @@ export default function BlockEditor({
                     </div>
 
                     <div className="template-picker-btn-wrap">
-                        <Button type="default" onClick={() => setShowTemplatePicker(true)} className="template-select-btn">
-                            <FileTextOutlined /> Mẫu: <strong>{TEMPLATES[template]?.label || 'Không có'}</strong> <DownOutlined style={{ fontSize: 10, marginLeft: 2 }} />
+                        <Button
+                            type="default"
+                            onClick={() => setShowTemplatePicker(true)}
+                            className="template-select-btn"
+                        >
+                            <FileTextOutlined /> Mẫu: <strong>{TEMPLATES[template]?.label || 'Không có'}</strong>{' '}
+                            <DownOutlined style={{ fontSize: 10, marginLeft: 2 }} />
                         </Button>
                     </div>
                 </div>
@@ -1069,14 +1160,7 @@ export default function BlockEditor({
                             >
                                 <PlusOutlined /> Mục lớn
                             </button>
-                            <button
-                                type="button"
-                                className="insert-btn quiz-ib"
-                                onClick={() => executeCommand('quiz')}
-                                title="Chèn Trắc nghiệm"
-                            >
-                                <QuestionCircleOutlined /> Trắc nghiệm
-                            </button>
+
                         </div>
                     </div>
                 </div>
@@ -1103,7 +1187,10 @@ export default function BlockEditor({
                             onChange={(e) => handleDescriptionChange(e.target.value)}
                         />
                     </div>
-                    <div className="tiptap-editor-wrapper" style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px' }}>
+                    <div
+                        className="tiptap-editor-wrapper"
+                        style={{ flex: 1, overflowY: 'auto', padding: '0 24px 24px 24px' }}
+                    >
                         <EditorContent editor={editor} />
                     </div>
                 </div>
@@ -1134,7 +1221,10 @@ export default function BlockEditor({
                 ]}
                 width={700}
             >
-                <div className="template-picker-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '12px 0' }}>
+                <div
+                    className="template-picker-grid"
+                    style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, padding: '12px 0' }}
+                >
                     {Object.entries(TEMPLATES).map(([key, value]) => (
                         <Card
                             key={key}

@@ -158,11 +158,7 @@ const ProfileForm = (props) => {
                                 uploadFile={uploadFile}
                             />
                         ) : (
-                            <TextField
-                                label={null}
-                                name="avatar"
-                                placeholder="Nhập đường dẫn hình ảnh (URL)..."
-                            />
+                            <TextField label={null} name="avatar" placeholder="Nhập đường dẫn hình ảnh (URL)..." />
                         )}
                     </Space>
                 </Form.Item>

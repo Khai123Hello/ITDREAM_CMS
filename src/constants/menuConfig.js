@@ -72,7 +72,6 @@ export const navMenuConfig = [
             //     path: '/comment',
             //     permission: [apiConfig.comment.list.permissionCode],
             // },
-
         ],
     },
     {
