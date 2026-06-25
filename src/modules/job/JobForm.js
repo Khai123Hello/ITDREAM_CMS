@@ -164,7 +164,9 @@ const JobForm = (props) => {
     return (
         <BaseForm id={formId} onFinish={handleSubmit} form={form} onValuesChange={onValuesChange}>
             <Card className="card-form" bordered={false}>
-                <Divider orientation="left" style={{ fontWeight: 600 }}>Thông tin cơ bản</Divider>
+                <Divider orientation="left" style={{ fontWeight: 600 }}>
+                    Thông tin cơ bản
+                </Divider>
 
                 <Row gutter={16}>
                     <Col xs={24} md={8}>
@@ -280,7 +282,9 @@ const JobForm = (props) => {
                     </Col>
                 </Row>
 
-                <Divider orientation="left" style={{ fontWeight: 600 }}>Thông tin bổ sung</Divider>
+                <Divider orientation="left" style={{ fontWeight: 600 }}>
+                    Thông tin bổ sung
+                </Divider>
 
                 <Row gutter={16}>
                     <Col xs={24} md={12}>
@@ -325,7 +329,9 @@ const JobForm = (props) => {
                     </Col>
                 </Row>
 
-                <Divider orientation="left" style={{ fontWeight: 600 }}>Thành tích đạt được</Divider>
+                <Divider orientation="left" style={{ fontWeight: 600 }}>
+                    Thành tích đạt được
+                </Divider>
 
                 <Row gutter={16}>
                     <Col span={24}>

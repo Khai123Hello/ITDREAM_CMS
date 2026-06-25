@@ -46,8 +46,6 @@ const getAvatarColor = (name) => {
     return colors[Math.abs(hash) % colors.length];
 };
 
-
-
 const getSubmissions = (progressDetail = {}) => {
     if (Array.isArray(progressDetail?.studentSubmission?.content)) {
         return progressDetail.studentSubmission.content;
@@ -149,13 +147,19 @@ const CommentListPage = () => {
         mappingData: (res) => res.data,
     });
 
-    const { execute: fetchProgressList } = useFetch(isEducator ? apiConfig.taskProgress.educatorList : apiConfig.taskProgress.list, {
-        immediate: false,
-    });
+    const { execute: fetchProgressList } = useFetch(
+        isEducator ? apiConfig.taskProgress.educatorList : apiConfig.taskProgress.list,
+        {
+            immediate: false,
+        },
+    );
 
-    const { execute: fetchProgressDetail } = useFetch(isEducator ? apiConfig.taskProgress.educatorGet : apiConfig.taskProgress.get, {
-        immediate: false,
-    });
+    const { execute: fetchProgressDetail } = useFetch(
+        isEducator ? apiConfig.taskProgress.educatorGet : apiConfig.taskProgress.get,
+        {
+            immediate: false,
+        },
+    );
 
     const { execute: fetchApiQuizQuestions } = useFetch(apiConfig.taskQuestion.educatorList, {
         immediate: false,
@@ -290,7 +294,8 @@ const CommentListPage = () => {
                     pathParams: { id },
                     onCompleted: () => {
                         const taskId = activeComment?.task?.id;
-                        const enrollmentId = activeComment?.simulationEnrollmentId || activeComment?.simulationEnrollment?.id;
+                        const enrollmentId =
+                            activeComment?.simulationEnrollmentId || activeComment?.simulationEnrollment?.id;
                         loadCommentThread(taskId, enrollmentId);
                     },
                     onError: (err) => {
@@ -360,7 +365,14 @@ const CommentListPage = () => {
                         <img
                             src={avatarUrl}
                             alt={fullName}
-                            style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid #e2e8f0', objectFit: 'cover', flexShrink: 0 }}
+                            style={{
+                                width: 36,
+                                height: 36,
+                                borderRadius: '50%',
+                                border: '1px solid #e2e8f0',
+                                objectFit: 'cover',
+                                flexShrink: 0,
+                            }}
                         />
                     ) : (
                         <div
@@ -382,7 +394,16 @@ const CommentListPage = () => {
                         </div>
                     )}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontWeight: 600, color: '#1e293b', fontSize: 13, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div
+                            style={{
+                                fontWeight: 600,
+                                color: '#1e293b',
+                                fontSize: 13,
+                                whiteSpace: 'nowrap',
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                            }}
+                        >
                             {fullName}
                         </div>
                         <div style={{ fontSize: 10, color: '#64748b' }}>{username || 'Học viên'}</div>
@@ -392,16 +413,18 @@ const CommentListPage = () => {
                     </span>
                 </div>
 
-                <div style={{
-                    fontSize: 13,
-                    color: '#334155',
-                    lineHeight: 1.6,
-                    backgroundColor: '#f8fafc',
-                    padding: 12,
-                    borderRadius: 8,
-                    marginBottom: 12,
-                    whiteSpace: 'pre-wrap',
-                }}>
+                <div
+                    style={{
+                        fontSize: 13,
+                        color: '#334155',
+                        lineHeight: 1.6,
+                        backgroundColor: '#f8fafc',
+                        padding: 12,
+                        borderRadius: 8,
+                        marginBottom: 12,
+                        whiteSpace: 'pre-wrap',
+                    }}
+                >
                     {isReply && (
                         <span style={{ color: '#1890ff', fontWeight: 600, marginRight: 6 }}>
                             @{comment.replyToUser}
@@ -410,8 +433,19 @@ const CommentListPage = () => {
                     {comment.content}
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: 8 }}>
-                    <Tag color="blue" style={{ fontSize: 11, borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderTop: '1px solid #f1f5f9',
+                        paddingTop: 8,
+                    }}
+                >
+                    <Tag
+                        color="blue"
+                        style={{ fontSize: 11, borderRadius: 4, display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    >
                         <MessageOutlined /> {taskName}
                     </Tag>
                     {mixinFuncs.hasPermission([apiConfig.comment.delete.permissionCode]) && (
@@ -445,7 +479,10 @@ const CommentListPage = () => {
                 <div className="tfo-content-area" style={{ height: 'calc(100vh - 240px)' }}>
                     <div className="tfo-workspace-grid" style={{ display: 'flex', width: '100%', height: '100%' }}>
                         {/* Left/Middle: StudentSubmissionViewer */}
-                        <div className="tfo-pane-middle" style={{ flex: 1, overflowY: 'auto', borderRight: '1px solid #e4e4e4' }}>
+                        <div
+                            className="tfo-pane-middle"
+                            style={{ flex: 1, overflowY: 'auto', borderRight: '1px solid #e4e4e4' }}
+                        >
                             <StudentSubmissionViewer
                                 subtaskDetail={subtaskDetail}
                                 submissions={submissions}
@@ -454,7 +491,10 @@ const CommentListPage = () => {
                             />
                         </div>
                         {/* Right: CommentPanel */}
-                        <div className="tfo-pane-right" style={{ width: 360, flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+                        <div
+                            className="tfo-pane-right"
+                            style={{ width: 360, flexShrink: 0, display: 'flex', flexDirection: 'column' }}
+                        >
                             <CommentPanel
                                 comments={commentsData?.content || []}
                                 loading={commentsLoading}
@@ -482,9 +522,7 @@ const CommentListPage = () => {
                     <Spin spinning={loading}>
                         {data && data.length > 0 ? (
                             <div style={{ padding: '4px 0' }}>
-                                <div className="tfo-comment-feed-list">
-                                    {data.map(renderCommentCard)}
-                                </div>
+                                <div className="tfo-comment-feed-list">{data.map(renderCommentCard)}</div>
                                 <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
                                     <Pagination
                                         current={pagination.current}

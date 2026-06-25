@@ -125,7 +125,15 @@ const InlineQuestionEditor = ({ questions = [], onChange }) => {
             </div>
 
             {items.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '24px', background: '#fafafa', borderRadius: 8, border: '1px dashed #d9d9d9' }}>
+                <div
+                    style={{
+                        textAlign: 'center',
+                        padding: '24px',
+                        background: '#fafafa',
+                        borderRadius: 8,
+                        border: '1px dashed #d9d9d9',
+                    }}
+                >
                     <Empty description="Chưa có câu hỏi nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
                 </div>
             ) : (
@@ -140,11 +148,24 @@ const InlineQuestionEditor = ({ questions = [], onChange }) => {
                             border: '1px solid #e8e8e8',
                         }}
                     >
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                        <div
+                            style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                marginBottom: 12,
+                            }}
+                        >
                             <Tag color="blue" style={{ fontSize: 13, padding: '2px 12px' }}>
-                Câu hỏi {qIdx + 1}
+                                Câu hỏi {qIdx + 1}
                             </Tag>
-                            <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeQuestion(q.id)} size="small" />
+                            <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                onClick={() => removeQuestion(q.id)}
+                                size="small"
+                            />
                         </div>
 
                         <TextArea
@@ -156,7 +177,9 @@ const InlineQuestionEditor = ({ questions = [], onChange }) => {
                         />
 
                         <div style={{ padding: 12, background: '#fafafa', borderRadius: 6 }}>
-                            <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Đáp án (chọn checkbox để đánh dấu đúng):</div>
+                            <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>
+                                Đáp án (chọn checkbox để đánh dấu đúng):
+                            </div>
                             {q.options.map((opt, optIdx) => (
                                 <div
                                     key={opt.id}
@@ -171,10 +194,7 @@ const InlineQuestionEditor = ({ questions = [], onChange }) => {
                                         border: opt.answer ? '2px solid #52c41a' : '1px solid #e8e8e8',
                                     }}
                                 >
-                                    <Checkbox
-                                        checked={opt.answer}
-                                        onChange={() => setCorrectAnswer(q.id, opt.id)}
-                                    />
+                                    <Checkbox checked={opt.answer} onChange={() => setCorrectAnswer(q.id, opt.id)} />
                                     <Tag color="default" style={{ minWidth: 24, textAlign: 'center' }}>
                                         {String.fromCharCode(65 + optIdx)}
                                     </Tag>
@@ -187,12 +207,24 @@ const InlineQuestionEditor = ({ questions = [], onChange }) => {
                                         bordered={false}
                                     />
                                     {q.options.length > 2 && (
-                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeOption(q.id, opt.id)} size="small" />
+                                        <Button
+                                            type="text"
+                                            danger
+                                            icon={<DeleteOutlined />}
+                                            onClick={() => removeOption(q.id, opt.id)}
+                                            size="small"
+                                        />
                                     )}
                                 </div>
                             ))}
-                            <Button type="dashed" size="small" icon={<PlusOutlined />} onClick={() => addOption(q.id)} block>
-                Thêm đáp án
+                            <Button
+                                type="dashed"
+                                size="small"
+                                icon={<PlusOutlined />}
+                                onClick={() => addOption(q.id)}
+                                block
+                            >
+                                Thêm đáp án
                             </Button>
                         </div>
                     </div>
@@ -200,7 +232,7 @@ const InlineQuestionEditor = ({ questions = [], onChange }) => {
             )}
 
             <Button type="dashed" icon={<PlusOutlined />} onClick={addQuestion} block>
-        Thêm câu hỏi
+                Thêm câu hỏi
             </Button>
         </div>
     );

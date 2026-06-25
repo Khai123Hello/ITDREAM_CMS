@@ -59,169 +59,26 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   }
 }
 
-.tfo-sidebar {
-  width: 300px;
-  border-right: 1px solid $border-color;
-  background-color: #ffffff;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 20px 0;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-
-  &.collapsed {
-    width: 0;
-    padding: 20px 0;
-    border-right: none;
-    overflow: hidden;
-    opacity: 0;
-    pointer-events: none;
-  }
-}
-
-.tfo-sidebar-header {
-  padding: 0 20px 16px;
-  border-bottom: 1px solid $border-light;
-  margin-bottom: 16px;
-}
-
-.tfo-sidebar-label {
-  font-size: 16px;
-  font-weight: 700;
-  color: $text-main;
-}
-
-.tfo-task-list {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 0 16px;
-  gap: 8px;
-}
-
-.tfo-task-list-row {
-  display: flex;
-  margin: 0;
-}
-
-.tfo-task-item {
-  all: unset;
-  box-sizing: border-box;
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background-color: transparent;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position: relative;
-
-  &:hover {
-    background-color: $bg-workspace;
-  }
-
-  &.active {
-    background: linear-gradient(135deg, $primary-light 0%, rgba(99, 102, 241, 0.08) 100%);
-    border: 1px solid rgba(99, 102, 241, 0.2);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
-
-    .tfo-task-item-number {
-      background: linear-gradient(135deg, $primary-color 0%, $primary-hover 100%);
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-
-    .tfo-task-item-title {
-      color: $primary-color;
-      font-weight: 700;
-    }
-  }
-
+.tfo-task-circle {
   &.reviewed {
-    .tfo-task-item-number {
-      background: linear-gradient(135deg, $success-color 0%, #059669 100%);
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-    }
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: $success-color;
+    border: none;
+    color: $bg-card;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
   }
 
   &.has-draft {
-    .tfo-task-item-number {
-      background: linear-gradient(135deg, $warning-color 0%, #d97706 100%);
-      color: white;
-      border-color: transparent;
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-    }
+    background: $warning-color;
+    border: none;
+    color: $bg-card;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
   }
 }
 
-.tfo-task-item-number {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  border: 2px solid $border-color;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-  font-weight: 700;
-  color: $text-secondary;
-  background-color: white;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  flex-shrink: 0;
-}
-
-.tfo-task-item-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.tfo-task-item-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: $text-main;
-  line-height: 1.4;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.tfo-task-item-draft {
-  font-size: 11px;
-  color: $warning-color;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tfo-task-item-reviews-count {
-  font-size: 11px;
-  color: $text-secondary;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.tfo-task-item-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: $warning-color;
-  flex-shrink: 0;
-}
-
-/* ─── 3-Column Split Workspace ─── */
+/* ─── 3-Column Split Workspace (legacy, kept for compat) ─── */
 .tfo-workspace-grid {
   display: grid;
   grid-template-columns: 1fr 340px;
@@ -241,326 +98,12 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   padding: 0 24px 24px;
 }
 
-.tfo-pane-topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 0 12px;
-}
-
-.tfo-pane-title {
-  font-weight: 600;
-  color: $text-secondary;
-  font-size: 14px;
-  letter-spacing: 0.2px;
-}
-
-.tfo-step-pagination {
-  display: inline-flex;
-  border-radius: 8px;
-  border: 1px solid $border-color;
-  overflow: hidden;
-  background-color: #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
 .tfo-step-btn {
-  display: inline-flex;
-  min-width: 36px;
-  height: 36px;
-  align-items: center;
-  justify-content: center;
-  background-color: #ffffff;
-  font-weight: 500;
-  color: $text-secondary;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  border-right: 1px solid $border-color;
-  transition: all 0.2s ease;
-
-  &:last-child {
-    border-right: none;
-  }
-
-  &:hover {
-    background-color: #f8fafc;
-    color: $primary-color;
-  }
-
-  &.active {
-    background-color: $primary-color;
-    color: #ffffff;
-    font-weight: 700;
-  }
-
   &.reviewed {
     background-color: #f0fdf4;
     color: $success-color;
     border-right-color: #b7eb8f;
   }
-}
-
-.tfo-separator {
-  width: 100%;
-  height: 1px;
-  border-top: 1px solid $border-color;
-  margin-bottom: 20px;
-}
-
-.tfo-task-content {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.tfo-task-heading-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.tfo-task-heading {
-  font-weight: 600;
-  color: $text-main;
-  font-size: 26px;
-  line-height: 1.3;
-}
-
-.tfo-task-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  max-width: 800px;
-  margin-bottom: 40px;
-}
-
-.tfo-body-text {
-  font-weight: 400;
-  color: $text-main;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-/* Blocks Styling */
-.tfo-blocks-content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.tfo-block-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: $text-secondary;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.tfo-block-section {
-  background: #f1f5f9;
-  border-radius: 8px;
-  padding: 16px;
-  border: 1px solid #e2e8f0;
-}
-
-.tfo-block-section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.tfo-block-section-title {
-  font-weight: 600;
-  font-size: 15px;
-  color: $text-main;
-}
-
-.tfo-block-section-list {
-  padding-left: 20px;
-  margin: 0;
-  li {
-    margin-bottom: 6px;
-    color: $text-secondary;
-  }
-}
-
-.tfo-block-text {
-  font-size: 14px;
-  line-height: 1.6;
-  color: $text-main;
-  margin: 0;
-}
-
-.tfo-block-h1 { font-size: 20px; font-weight: 600; color: $text-main; margin: 12px 0 6px; }
-.tfo-block-h2 { font-size: 17px; font-weight: 600; color: $text-main; margin: 10px 0 4px; }
-.tfo-block-h3 { font-size: 15px; font-weight: 600; color: $text-main; margin: 8px 0 2px; }
-
-.tfo-block-bullet-wrap {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-}
-.tfo-block-bullet-dot, .tfo-block-num-label {
-  color: $primary-color;
-  font-weight: bold;
-}
-
-.tfo-block-callout {
-  display: flex;
-  gap: 12px;
-  background-color: #eff6ff;
-  border-left: 4px solid $primary-color;
-  padding: 12px 16px;
-  border-radius: 0 8px 8px 0;
-}
-
-.tfo-block-code {
-  background: #0f172a;
-  color: #f8fafc;
-  padding: 14px;
-  border-radius: 8px;
-  overflow-x: auto;
-  pre {
-    margin: 0;
-    font-family: Consolas, monospace;
-    font-size: 13px;
-  }
-}
-
-.tfo-block-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-left: 3px solid $primary-color;
-  padding: 10px 14px;
-  border-radius: 8px;
-}
-
-.tfo-block-step-badge {
-  flex-shrink: 0;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: $primary-color;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 1px;
-}
-
-.tfo-block-step-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.tfo-block-step-label {
-  font-size: 13px;
-  font-weight: 700;
-  color: $primary-color;
-}
-
-.tfo-block-step-body {
-  font-size: 13px;
-  color: $text-main;
-  line-height: 1.6;
-}
-
-/* Quiz block */
-.tfo-block-quiz {
-  background: #ffffff;
-  border: 1px solid $border-color;
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  margin: 12px 0;
-
-  &.quiz-correct {
-    border-color: $success-color;
-    background-color: #f0fdf4;
-  }
-  &.quiz-wrong {
-    border-color: #ef4444;
-    background-color: #fef2f2;
-  }
-}
-
-.tfo-block-quiz-question {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.tfo-block-quiz-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.tfo-quiz-option {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 10px 14px;
-  border-radius: 6px;
-  border: 1px solid $border-color;
-  background-color: #ffffff;
-  text-align: left;
-  gap: 10px;
-  font-size: 13px;
-
-  &.selected {
-    border-color: $primary-color;
-    background-color: #eff6ff;
-  }
-  &.answer-correct {
-    border-color: $success-color;
-    background-color: #f0fdf4;
-    font-weight: bold;
-  }
-  &.answer-wrong {
-    border-color: #ef4444;
-    background-color: #fef2f2;
-  }
-}
-
-.tfo-quiz-option-letter {
-  font-weight: 700;
-  color: $text-secondary;
-}
-
-.tfo-quiz-option-badge {
-  margin-left: auto;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-  
-  &.correct { background: $success-color; color: white; }
-  &.wrong { background: #ef4444; color: white; }
-}
-
-.tfo-block-quiz-footer {
-  font-weight: bold;
-  font-size: 13px;
-}
-
-.tfo-quiz-result-label {
-  &.correct { color: $success-color; }
-  &.wrong { color: #ef4444; }
 }
 
 /* Submission Card */
@@ -630,102 +173,11 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
   text-align: center;
 }
 
-/* Media containers */
-.tfo-media-section {
-  margin: 12px 0;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.tfo-media-img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 8px;
-  border: 1px solid $border-color;
-}
-
-.tfo-media-video {
-  width: 100%;
-  border-radius: 8px;
-  border: 1px solid $border-color;
-}
-
-/* Bottom Nav */
-.tfo-bottom-nav {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-top: 8px;
-  padding-top: 0;
-  border-top: none;
-}
-
-.tfo-btn-back {
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: #1890ff !important;
-  border: none !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  cursor: pointer;
-  padding: 0 16px !important;
-  height: 38px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  transition: all 0.2s ease !important;
-
-  &:hover:not(:disabled) {
-    color: #40a9ff !important;
-    background: rgba(24, 144, 255, 0.05) !important;
-  }
-
-  &:disabled {
-    color: #bfbfbf !important;
-    background: transparent !important;
-    cursor: not-allowed !important;
-  }
-}
-
-.tfo-btn-continue {
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  background-color: #1890ff !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 0 24px !important;
-  height: 38px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  box-shadow: 0 2px 0 rgba(24, 144, 255, 0.1) !important;
-  cursor: pointer;
-  transition: all 0.2s ease !important;
-
-  &:hover:not(:disabled) {
-    background-color: #40a9ff !important;
-    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.2) !important;
-  }
-
-  &:disabled {
-    background-color: #f5f5f5 !important;
-    color: rgba(0, 0, 0, 0.25) !important;
-    border: 1px solid #d9d9d9 !important;
-    cursor: not-allowed !important;
-    box-shadow: none !important;
-  }
-}
-
-/* ─── Column 3: Tabbed Collaboration Drawer ─── */
+/* ─── Column 3: Tabbed Collaboration Drawer (inside tfo-pane-layout) ─── */
 .tfo-pane-right {
-  width: 340px;
-  border-left: 1px solid $border-color;
-  background-color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  flex-shrink: 0;
+  box-shadow: none;
+  border: 1px solid $border-color;
+  border-radius: 12px;
 }
 
 .tfo-bottom-collaboration-container {
@@ -748,11 +200,10 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
 .tfo-comments-pane-inner {
   padding: 16px;
   background-color: #ffffff;
-  flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden;
+  height: auto;
+  overflow-y: auto;
 }
 
 /* Premium Segmented Switch Tab Styling */
@@ -1166,9 +617,8 @@ $font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sa
 .tfo-review-tab-pane {
   padding: 16px;
   background-color: #ffffff;
-  flex: 1;
   overflow-y: auto;
-  height: 100%;
+  height: auto;
 }
 
 .tfo-review-read-only-banner {

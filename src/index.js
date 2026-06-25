@@ -23,9 +23,8 @@ import App from './App';
 import LanguageProvider from '@locales/LanguageProvider';
 
 import '@assets/scss/index.scss';
-import './styles/_variables.scss';                                        
-import './styles/_keyframe-animations.scss';        
-
+import './styles/_variables.scss';
+import './styles/_keyframe-animations.scss';
 
 render(
     <React.StrictMode>

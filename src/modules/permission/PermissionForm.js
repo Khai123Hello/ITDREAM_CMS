@@ -81,7 +81,7 @@ const PermissionForm = (props) => {
                             rules={[{ required: true, message: 'Vui lòng nhập hoặc chọn nhóm quyền' }]}
                         >
                             <AutoComplete
-                                options={existingGroups.map(group => ({ value: group }))}
+                                options={existingGroups.map((group) => ({ value: group }))}
                                 placeholder="Nhập hoặc chọn nhóm quyền"
                                 filterOption={(inputValue, option) =>
                                     option.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1

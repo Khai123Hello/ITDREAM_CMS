@@ -134,7 +134,8 @@ export function blocksToMarkdoc(blocks) {
                         case 'quiz': {
                             const question = block.question || '';
                             const options = Array.isArray(block.options) ? block.options : [];
-                            lines.push(`{% quiz question="${question}" %}`);
+                            const dataQId = block.dataQuestionCode ? ` data-question-code="${block.dataQuestionCode}"` : '';
+                            lines.push(`{% quiz question="${question}"${dataQId} %}`);
                             options.forEach((opt) => {
                                 const isCorrect = opt.answer === true;
                                 lines.push(`  {% option correct=${isCorrect} %}${opt.option || ''}{% /option %}`);
@@ -149,7 +150,10 @@ export function blocksToMarkdoc(blocks) {
         }
     });
 
-    return lines.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+    return lines
+        .join('\n')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
 }
 
 // ---------------------------------------------------------------------------
@@ -181,6 +185,7 @@ const htmlConfig = {
             render: 'quiz-block',
             attributes: {
                 question: { type: String },
+                dataQuestionCode: { type: String },
             },
         },
         option: {
@@ -289,7 +294,8 @@ export function tipTapToMarkdoc(node) {
                     }
                     case 'quiz': {
                         const question = node.attrs?.question || '';
-                        return `{% quiz question="${question}" %}\n${childrenContent.trim()}\n{% /quiz %}`;
+                        const dataQId = node.attrs?.dataQuestionCode ? ` data-question-code="${node.attrs.dataQuestionCode}"` : '';
+                        return `{% quiz question="${question}"${dataQId} %}\n${childrenContent.trim()}\n{% /quiz %}`;
                     }
                     case 'option': {
                         const correct = node.attrs?.correct === true;
@@ -316,7 +322,7 @@ const tagAttrMap = {
     'callout-block': ['icon'],
     'step-block': ['label'],
     'section-block': ['icon', 'title'],
-    'quiz-block': ['question'],
+    'quiz-block': ['question', 'data-question-code'],
     'option-block': ['correct'],
 };
 
@@ -424,12 +430,30 @@ function htmlToTipTapJson(el) {
                     case 'div':
                         type = 'paragraph';
                         break;
-                    case 'h1': type = 'heading'; attrs = { level: 1 }; break;
-                    case 'h2': type = 'heading'; attrs = { level: 2 }; break;
-                    case 'h3': type = 'heading'; attrs = { level: 3 }; break;
-                    case 'h4': type = 'heading'; attrs = { level: 4 }; break;
-                    case 'h5': type = 'heading'; attrs = { level: 5 }; break;
-                    case 'h6': type = 'heading'; attrs = { level: 6 }; break;
+                    case 'h1':
+                        type = 'heading';
+                        attrs = { level: 1 };
+                        break;
+                    case 'h2':
+                        type = 'heading';
+                        attrs = { level: 2 };
+                        break;
+                    case 'h3':
+                        type = 'heading';
+                        attrs = { level: 3 };
+                        break;
+                    case 'h4':
+                        type = 'heading';
+                        attrs = { level: 4 };
+                        break;
+                    case 'h5':
+                        type = 'heading';
+                        attrs = { level: 5 };
+                        break;
+                    case 'h6':
+                        type = 'heading';
+                        attrs = { level: 6 };
+                        break;
                     case 'ul':
                         type = el.getAttribute('data-type') === 'taskList' ? 'taskList' : 'bulletList';
                         break;
@@ -449,7 +473,24 @@ function htmlToTipTapJson(el) {
                         if (nodeType) {
                             type = nodeType;
                             attrs = parseAttrs(el);
-                        } else if (['strong', 'b', 'em', 'i', 'u', 's', 'strike', 'del', 'code', 'a', 'sub', 'sup', 'mark', 'highlight'].includes(tag)) {
+                        } else if (
+                            [
+                                'strong',
+                                'b',
+                                'em',
+                                'i',
+                                'u',
+                                's',
+                                'strike',
+                                'del',
+                                'code',
+                                'a',
+                                'sub',
+                                'sup',
+                                'mark',
+                                'highlight',
+                            ].includes(tag)
+                        ) {
                             // Inline mark wrapper — return children directly
                             return children.length === 1 ? children[0] : { type: 'paragraph', content: children };
                         } else {
@@ -473,8 +514,12 @@ function htmlToTipTapJson(el) {
         const checkbox = el.querySelector('input[type="checkbox"]');
         attrs = { checked: checkbox ? checkbox.checked : false };
         // Remove the checkbox from children — skip it in the loop
-        const filteredChildren = children.filter(c => !(c.type === 'text' && c.text === ''));
-        return { type: 'taskItem', attrs, content: filteredChildren.length > 0 ? filteredChildren : [{ type: 'paragraph' }] };
+        const filteredChildren = children.filter((c) => !(c.type === 'text' && c.text === ''));
+        return {
+            type: 'taskItem',
+            attrs,
+            content: filteredChildren.length > 0 ? filteredChildren : [{ type: 'paragraph' }],
+        };
     }
 
     const result = { type };
@@ -585,6 +630,7 @@ export function extractQuizFromMarkdoc(markdown) {
                 quizzes.push({
                     question,
                     options: JSON.stringify(options),
+                    dataQuestionCode: node.attributes['data-question-code'] || '',
                 });
             }
         }

@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import { AppConstants } from '@constants';
 
 import '../../modules/reviewSubmission/StudentReviewDetailPage.scss';
-import MarkdocRenderer from '@components/common/editor/MarkdocRenderer';
+import TipTapJsonRenderer from '@components/common/editor/TipTapJsonRenderer';
 import { isJsonBlocks, extractQuizFromMarkdoc } from '@utils/markdocBlockConverter';
 
 /* ─────────────────────────── Helper Components & Functions ─────────────────────────── */
@@ -28,12 +28,7 @@ const getSubmissionAnswer = (submission = {}) => submission.answer || submission
 
 /* ─────────────────────────── Main Reusable Component ─────────────────────────── */
 
-const StudentSubmissionViewer = ({
-    subtaskDetail,
-    submissions = [],
-    apiQuizQuestions = [],
-    loading = false,
-}) => {
+const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuestions = [], loading = false }) => {
     const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail?.name || ''), [subtaskDetail]);
     const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
     const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
@@ -141,8 +136,14 @@ const StudentSubmissionViewer = ({
 
     return (
         <Spin spinning={loading}>
-            <div className="tfo-task-content" style={{ padding: '0 24px 24px', border: 'none', background: 'transparent' }}>
-                <div className="tfo-task-heading-container" style={{ margin: '0 -24px 20px', padding: '0 24px 16px', borderBottom: '1px solid #f1f5f9' }}>
+            <div
+                className="tfo-task-content"
+                style={{ padding: '0 24px 24px', border: 'none', background: 'transparent' }}
+            >
+                <div
+                    className="tfo-task-heading-container"
+                    style={{ margin: '0 -24px 20px', padding: '0 24px 16px', borderBottom: '1px solid #f1f5f9' }}
+                >
                     <div className="tfo-task-heading">{subtaskDetail?.title || 'Nhiệm vụ'}</div>
                 </div>
 
@@ -155,7 +156,7 @@ const StudentSubmissionViewer = ({
                     )}
 
                     {subtaskDetail?.content && (
-                        <MarkdocRenderer
+                        <TipTapJsonRenderer
                             content={subtaskDetail.content}
                             quizSubmissionMap={quizSubmissionMap}
                             questionMap={questionMap}
@@ -219,9 +220,7 @@ const StudentSubmissionViewer = ({
                                     </a>
                                 </div>
                             ) : (
-                                <div className="tfo-empty-submission">
-                                    Học viên chưa nộp file
-                                </div>
+                                <div className="tfo-empty-submission">Học viên chưa nộp file</div>
                             )}
                         </div>
                     )}
@@ -233,13 +232,9 @@ const StudentSubmissionViewer = ({
                                 Văn bản học viên nộp
                             </div>
                             {textSub ? (
-                                <div className="tfo-text-answer-box">
-                                    {getSubmissionAnswer(textSub)}
-                                </div>
+                                <div className="tfo-text-answer-box">{getSubmissionAnswer(textSub)}</div>
                             ) : (
-                                <div className="tfo-empty-submission">
-                                    Học viên chưa nộp câu trả lời
-                                </div>
+                                <div className="tfo-empty-submission">Học viên chưa nộp câu trả lời</div>
                             )}
                         </div>
                     )}
@@ -247,9 +242,7 @@ const StudentSubmissionViewer = ({
                     {/* Quiz History Log */}
                     {quizHistory && quizHistory.length > 0 && (
                         <div className="tfo-submission-card" style={{ marginTop: '20px' }}>
-                            <div className="tfo-submission-title">
-                                Lịch sử trả lời trắc nghiệm
-                            </div>
+                            <div className="tfo-submission-title">Lịch sử trả lời trắc nghiệm</div>
                             <Table
                                 dataSource={quizHistory}
                                 rowKey={(record) => record.id}
@@ -259,9 +252,7 @@ const StudentSubmissionViewer = ({
                                     {
                                         title: 'Câu hỏi',
                                         dataIndex: 'questionText',
-                                        render: (text) => (
-                                            <span style={{ fontWeight: '500' }}>{text}</span>
-                                        ),
+                                        render: (text) => <span style={{ fontWeight: '500' }}>{text}</span>,
                                     },
                                     {
                                         title: 'Đáp án đúng',
@@ -272,9 +263,7 @@ const StudentSubmissionViewer = ({
                                                 const correct = opts.find(
                                                     (o) => o.answer === true || o.answer === 'true',
                                                 );
-                                                return correct
-                                                    ? correct.option || correct.value || 'N/A'
-                                                    : 'N/A';
+                                                return correct ? correct.option || correct.value || 'N/A' : 'N/A';
                                             } catch {
                                                 return 'N/A';
                                             }
@@ -290,19 +279,14 @@ const StudentSubmissionViewer = ({
                                         width: '100px',
                                         align: 'center',
                                         render: (isCorr) => (
-                                            <Tag color={isCorr ? 'green' : 'red'}>
-                                                {isCorr ? 'Đúng' : 'Sai'}
-                                            </Tag>
+                                            <Tag color={isCorr ? 'green' : 'red'}>{isCorr ? 'Đúng' : 'Sai'}</Tag>
                                         ),
                                     },
                                     {
                                         title: 'Thời gian',
                                         dataIndex: 'createdDate',
                                         width: '150px',
-                                        render: (date) =>
-                                            date
-                                                ? dayjs(date).format('DD/MM/YYYY HH:mm:ss')
-                                                : '-',
+                                        render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-'),
                                     },
                                 ]}
                             />

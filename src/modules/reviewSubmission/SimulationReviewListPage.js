@@ -1,13 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Empty, Tag, Button, Card, Row, Col, Spin, Input, Radio, Progress, Statistic, Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { 
-    UserOutlined, 
-    SearchOutlined,
-    RightOutlined,
-    CheckCircleOutlined,
-    ArrowLeftOutlined,
-} from '@ant-design/icons';
+import { UserOutlined, SearchOutlined, RightOutlined, CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 
 import useTranslate from '@hooks/useTranslate';
 import useFetch from '@hooks/useFetch';
@@ -49,10 +43,10 @@ const SimulationReviewListPage = ({ pageOptions }) => {
     const translate = useTranslate();
     const navigate = useNavigate();
     const { params: queryParams, setQueryParams } = useQueryParams();
-    
+
     const [simulations, setSimulations] = useState([]);
     const [selectedSimulationId, setSelectedSimulationId] = useState(queryParams.get('simulationId') || null);
-    
+
     const [searchQuery, setSearchQuery] = useState('');
     const [filterStatus, setFilterStatus] = useState('ALL'); // ALL, PENDING, GRADED
 
@@ -103,7 +97,8 @@ const SimulationReviewListPage = ({ pageOptions }) => {
         }));
     }, [students]);
     const stats = useMemo(() => {
-        if (!studentsWithReviewStatus || studentsWithReviewStatus.length === 0) return { total: 0, graded: 0, percent: 0 };
+        if (!studentsWithReviewStatus || studentsWithReviewStatus.length === 0)
+            return { total: 0, graded: 0, percent: 0 };
         const total = studentsWithReviewStatus.length;
         const graded = studentsWithReviewStatus.filter((s) => s.isReviewed).length;
         const percent = Math.round((graded / total) * 100);
@@ -157,41 +152,46 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                         ? avatar
                         : `${AppConstants.contentRootUrl}${avatar}`
                     : null;
-                
+
                 const initials = getInitials(fullName);
                 const avatarBg = getAvatarColor(fullName);
 
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         {avatarUrl ? (
-                            <img 
-                                src={avatarUrl} 
-                                alt={fullName} 
-                                style={{ width: 40, height: 40, borderRadius: '50%', border: '1px solid #e2e8f0', objectFit: 'cover', flexShrink: 0 }} 
+                            <img
+                                src={avatarUrl}
+                                alt={fullName}
+                                style={{
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: '50%',
+                                    border: '1px solid #e2e8f0',
+                                    objectFit: 'cover',
+                                    flexShrink: 0,
+                                }}
                             />
                         ) : (
-                            <div 
-                                style={{ 
-                                    background: avatarBg, 
-                                    width: 40, 
-                                    height: 40, 
-                                    borderRadius: '50%', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center', 
-                                    color: '#ffffff', 
-                                    fontWeight: 600, 
-                                    fontSize: 14, 
-                                    flexShrink: 0, 
+                            <div
+                                style={{
+                                    background: avatarBg,
+                                    width: 40,
+                                    height: 40,
+                                    borderRadius: '50%',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#ffffff',
+                                    fontWeight: 600,
+                                    fontSize: 14,
+                                    flexShrink: 0,
                                 }}
                             >
                                 {initials}
                             </div>
                         )}
                         <div>
-                            <div style={{ fontWeight: 600, color: '#1e293b', fontSize: 14 }}>
-                                {fullName}
-                            </div>
+                            <div style={{ fontWeight: 600, color: '#1e293b', fontSize: 14 }}>{fullName}</div>
                             <div style={{ fontSize: 12, color: '#64748b' }}>{username || 'Học viên'}</div>
                         </div>
                     </div>
@@ -206,8 +206,14 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                 const profileAccountDto = item.student?.profileAccountDto || {};
                 return (
                     <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.6 }}>
-                        <div><span style={{ color: '#94a3b8', marginRight: 4 }}>Email:</span> <strong>{profileAccountDto.email || '-'}</strong></div>
-                        <div><span style={{ color: '#94a3b8', marginRight: 4 }}>SĐT:</span> <strong>{profileAccountDto.phone || '-'}</strong></div>
+                        <div>
+                            <span style={{ color: '#94a3b8', marginRight: 4 }}>Email:</span>{' '}
+                            <strong>{profileAccountDto.email || '-'}</strong>
+                        </div>
+                        <div>
+                            <span style={{ color: '#94a3b8', marginRight: 4 }}>SĐT:</span>{' '}
+                            <strong>{profileAccountDto.phone || '-'}</strong>
+                        </div>
                     </div>
                 );
             },
@@ -229,15 +235,14 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             render: (_, item) => {
                 const profileAccountDto = item.student?.profileAccountDto || {};
                 return (
-                    <Button 
-                        type="primary" 
-                        icon={<RightOutlined />} 
+                    <Button
+                        type="primary"
+                        icon={<RightOutlined />}
                         style={{ borderRadius: 6, fontWeight: 600 }}
                         onClick={() => {
-                            navigate(
-                                `/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`,
-                                { state: { simulationEnrollmentId: item.id } },
-                            );
+                            navigate(`/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`, {
+                                state: { simulationEnrollmentId: item.id },
+                            });
                         }}
                     >
                         Chấm điểm
@@ -251,8 +256,8 @@ const SimulationReviewListPage = ({ pageOptions }) => {
         <PageWrapper routes={breadcrumbs}>
             {/* Back Button and Title */}
             <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
-                <Button 
-                    icon={<ArrowLeftOutlined />} 
+                <Button
+                    icon={<ArrowLeftOutlined />}
                     onClick={() => {
                         setQueryParams({ simulationId: null });
                         navigate('/simulation-review');
@@ -269,19 +274,35 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             {/* Dashboard Stats Row */}
             <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
                 <Col xs={24} md={8}>
-                    <Card style={{ height: '100%', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }} bodyStyle={{ padding: '24px' }}>
+                    <Card
+                        style={{ height: '100%', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                        bodyStyle={{ padding: '24px' }}
+                    >
                         <Statistic
                             title="Số lượng học viên hoàn thành"
                             value={stats.total}
                             valueStyle={{ color: '#1e293b', fontSize: '32px', fontWeight: 'bold' }}
                         />
-                        <div style={{ marginTop: '16px', color: '#10b981', fontWeight: '600', fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div
+                            style={{
+                                marginTop: '16px',
+                                color: '#10b981',
+                                fontWeight: '600',
+                                fontSize: 13,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                            }}
+                        >
                             <CheckCircleOutlined /> Đã hoàn thành mô phỏng
                         </div>
                     </Card>
                 </Col>
                 <Col xs={24} md={8}>
-                    <Card style={{ height: '100%', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }} bodyStyle={{ padding: '24px' }}>
+                    <Card
+                        style={{ height: '100%', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                        bodyStyle={{ padding: '24px' }}
+                    >
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Statistic
@@ -301,12 +322,15 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                     </Card>
                 </Col>
                 <Col xs={24} md={8}>
-                    <Card style={{ height: '100%', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }} bodyStyle={{ padding: '24px' }}>
+                    <Card
+                        style={{ height: '100%', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}
+                        bodyStyle={{ padding: '24px' }}
+                    >
                         <h4 style={{ margin: '0 0 12px 0', color: '#64748b', fontSize: '14px', fontWeight: '600' }}>
                             Tiến độ chấm điểm
                         </h4>
-                        <Progress 
-                            percent={stats.percent} 
+                        <Progress
+                            percent={stats.percent}
                             strokeColor={{ '0%': '#108ee9', '100%': '#87d068' }}
                             status="active"
                             size="default"
@@ -316,16 +340,25 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             </Row>
 
             {/* Main Content Area */}
-            <div style={{ background: '#ffffff', padding: '24px', borderRadius: 12, boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+            <div
+                style={{
+                    background: '#ffffff',
+                    padding: '24px',
+                    borderRadius: 12,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                }}
+            >
                 {/* Search & Filter */}
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    gap: 16,
-                    marginBottom: 24,
-                    flexWrap: 'wrap',
-                }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        gap: 16,
+                        marginBottom: 24,
+                        flexWrap: 'wrap',
+                    }}
+                >
                     <Input
                         placeholder="Tìm học viên bằng tên, username, email..."
                         prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
@@ -335,8 +368,8 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                         style={{ maxWidth: 360, borderRadius: 6 }}
                     />
 
-                    <Radio.Group 
-                        value={filterStatus} 
+                    <Radio.Group
+                        value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
                         buttonStyle="solid"
                     >
@@ -347,7 +380,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                 </div>
 
                 {/* Table List */}
-                <Table 
+                <Table
                     columns={columns}
                     dataSource={filteredStudents}
                     rowKey={(item) => item.id || item.student?.profileAccountDto?.username || Math.random()}
@@ -357,7 +390,6 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                     style={{ marginTop: 8 }}
                 />
             </div>
-            
         </PageWrapper>
     );
 };

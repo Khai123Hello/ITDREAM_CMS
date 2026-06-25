@@ -126,11 +126,7 @@ const JobListPage = () => {
             dataIndex: 'isRecommended',
             width: '90px',
             align: 'center',
-            render: (val) => (
-                <Tag color={val === 1 ? 'gold' : 'default'}>
-                    {val === 1 ? '★ Nổi bật' : 'Thường'}
-                </Tag>
-            ),
+            render: (val) => <Tag color={val === 1 ? 'gold' : 'default'}>{val === 1 ? '★ Nổi bật' : 'Thường'}</Tag>,
         },
         mixinFuncs.renderActionColumn(
             {

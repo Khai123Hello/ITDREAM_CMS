@@ -152,5 +152,5 @@ export const questionTypeOptions = [
 
 export const reviewStatusOptions = [
     { value: ReviewStatus.NOT_REVIEWED, label: 'Chưa nhận xét', color: 'warning' },
-    { value: ReviewStatus.REVIEWED,     label: 'Đã nhận xét',   color: 'success' },
+    { value: ReviewStatus.REVIEWED, label: 'Đã nhận xét', color: 'success' },
 ];

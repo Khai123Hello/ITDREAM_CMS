@@ -1,53 +1,52 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Button, Spin } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { useParams } from 'react-router-dom';
 import useFetch from '@hooks/useFetch';
 import useNotification from '@hooks/useNotification';
 import apiConfig from '@constants/apiConfig';
 import { UserTypes, storageKeys } from '@constants';
 import { getData } from '@utils/localStorage';
 import PageWrapper from '@components/common/layout/PageWrapper';
-import StudentSubmissionViewer from '@components/simulation/StudentSubmissionViewer';
+import TaskContentLayout from '@components/simulation/TaskContentLayout';
 
 import './SimulationPreviewPage.scss';
 
 const SimulationPreviewPage = ({ pageOptions }) => {
     const { id } = useParams();
-    const navigate = useNavigate();
-    const location = useLocation();
     const notificationApi = useNotification();
-    
-    // Title truyền từ trang danh sách (nếu có)
-    const simulationTitle = location.state?.title || 'Xem trước Mô phỏng';
 
-    // Xác định quyền User Type
     const userType = getData(storageKeys.USER_TYPE);
     const isEducator = userType === UserTypes.EDUCATOR;
-
-    // Các state liên quan đến Viewer
     const [previewTasks, setPreviewTasks] = useState([]);
     const [selectedPreviewParentTaskId, setSelectedPreviewParentTaskId] = useState(null);
     const [selectedPreviewSubtaskId, setSelectedPreviewSubtaskId] = useState(null);
     const [previewQuizQuestions, setPreviewQuizQuestions] = useState([]);
 
-    // API fetching
+    // Giống StudentReviewDetailPage: dùng immediate fetch để lấy simulation detail
+    const { data: simulationDetail, loading: loadingSimulation } = useFetch(
+        isEducator ? apiConfig.simulation.getSimulationForEducator : apiConfig.simulation.getById,
+        {
+            immediate: true,
+            pathParams: { id },
+            mappingData: (res) => res.data,
+        },
+    );
+
     const { execute: fetchPreviewTasks, loading: loadingPreviewTasks } = useFetch(
         isEducator ? apiConfig.task.listByEducator : apiConfig.task.getList,
         { immediate: false },
     );
 
-    const { data: previewSubtaskDetail, loading: loadingPreviewSubtask, execute: fetchPreviewSubtaskDetail } = useFetch(
-        isEducator ? apiConfig.task.getByEducator : apiConfig.task.getById,
-        { immediate: false, mappingData: (res) => res.data },
-    );
+    const {
+        data: previewSubtaskDetail,
+        loading: loadingPreviewSubtask,
+        execute: fetchPreviewSubtaskDetail,
+    } = useFetch(isEducator ? apiConfig.task.getByEducator : apiConfig.task.getById, {
+        immediate: false,
+        mappingData: (res) => res.data,
+    });
 
-    const { execute: fetchPreviewQuizQuestions } = useFetch(
-        apiConfig.taskQuestion.educatorList,
-        { immediate: false },
-    );
+    const { execute: fetchPreviewQuizQuestions } = useFetch(apiConfig.taskQuestion.educatorList, { immediate: false });
 
-    // Initial Fetch (Tải danh sách task dựa trên simulation id)
     useEffect(() => {
         if (id) {
             fetchPreviewTasks({
@@ -55,16 +54,18 @@ const SimulationPreviewPage = ({ pageOptions }) => {
                 onCompleted: (res) => {
                     const tasksList = res.data?.content || [];
                     setPreviewTasks(tasksList);
-                    
+
                     const parents = tasksList.filter((t) => t.kind === 1);
                     if (parents.length > 0) {
                         const firstParentId = parents[0].id;
                         setSelectedPreviewParentTaskId(firstParentId);
-                        
+
                         const subList = tasksList
-                            .filter((t) => t.kind === 2 && (t.parent?.id === firstParentId || t.parentId === firstParentId))
+                            .filter(
+                                (t) => t.kind === 2 && (t.parent?.id === firstParentId || t.parentId === firstParentId),
+                            )
                             .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0));
-                        
+
                         if (subList.length > 0) {
                             setSelectedPreviewSubtaskId(subList[0].id);
                         }
@@ -80,7 +81,6 @@ const SimulationPreviewPage = ({ pageOptions }) => {
         }
     }, [id]);
 
-    // Data Processing
     const previewParentTasks = useMemo(() => previewTasks?.filter((t) => t.kind === 1) || [], [previewTasks]);
 
     const previewSubtasks = useMemo(() => {
@@ -96,7 +96,6 @@ const SimulationPreviewPage = ({ pageOptions }) => {
         );
     }, [previewTasks, selectedPreviewParentTaskId]);
 
-    // Fetch Details when Subtask changes
     useEffect(() => {
         if (selectedPreviewSubtaskId) {
             fetchPreviewSubtaskDetail({
@@ -114,13 +113,12 @@ const SimulationPreviewPage = ({ pageOptions }) => {
         }
     }, [selectedPreviewSubtaskId]);
 
-    // Handlers
     const handleSelectPreviewParent = (parentId) => {
         setSelectedPreviewParentTaskId(parentId);
         const subList = previewTasks
             .filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
             .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0));
-        
+
         if (subList.length > 0) {
             setSelectedPreviewSubtaskId(subList[0].id);
         } else {
@@ -129,10 +127,8 @@ const SimulationPreviewPage = ({ pageOptions }) => {
     };
 
     const activePreviewSubtaskIndex = previewSubtasks.findIndex((st) => st.id === selectedPreviewSubtaskId);
-
     const activePreviewParentTaskIndex = previewParentTasks.findIndex((t) => t.id === selectedPreviewParentTaskId);
 
-    // Helper: get sorted subtasks for a given preview parent task id
     const getPreviewSubtasksForParent = (parentId) => {
         return (
             previewTasks
@@ -143,10 +139,8 @@ const SimulationPreviewPage = ({ pageOptions }) => {
 
     const handleBackPreviewSubtask = () => {
         if (activePreviewSubtaskIndex > 0) {
-            // Navigate to previous subtask within current parent task
             setSelectedPreviewSubtaskId(previewSubtasks[activePreviewSubtaskIndex - 1].id);
         } else if (activePreviewParentTaskIndex > 0) {
-            // At first subtask of current task → jump to previous parent task's LAST subtask
             const prevParent = previewParentTasks[activePreviewParentTaskIndex - 1];
             const prevSubs = getPreviewSubtasksForParent(prevParent.id);
             setSelectedPreviewParentTaskId(prevParent.id);
@@ -158,10 +152,8 @@ const SimulationPreviewPage = ({ pageOptions }) => {
 
     const handleNextPreviewSubtask = () => {
         if (activePreviewSubtaskIndex >= 0 && activePreviewSubtaskIndex < previewSubtasks.length - 1) {
-            // Navigate to next subtask within current parent task
             setSelectedPreviewSubtaskId(previewSubtasks[activePreviewSubtaskIndex + 1].id);
         } else if (activePreviewParentTaskIndex < previewParentTasks.length - 1) {
-            // At last subtask of current task → jump to next parent task's FIRST subtask
             const nextParent = previewParentTasks[activePreviewParentTaskIndex + 1];
             const nextSubs = getPreviewSubtasksForParent(nextParent.id);
             setSelectedPreviewParentTaskId(nextParent.id);
@@ -171,140 +163,60 @@ const SimulationPreviewPage = ({ pageOptions }) => {
         }
     };
 
-    // True when at the very first subtask of the very first task
     const isPreviewAtGlobalStart = activePreviewParentTaskIndex <= 0 && activePreviewSubtaskIndex <= 0;
-    // True when at the very last subtask of the very last task
-    const isPreviewAtGlobalEnd = activePreviewParentTaskIndex >= previewParentTasks.length - 1 && activePreviewSubtaskIndex >= previewSubtasks.length - 1;
+    const isPreviewAtGlobalEnd =
+        activePreviewParentTaskIndex >= previewParentTasks.length - 1 &&
+        activePreviewSubtaskIndex >= previewSubtasks.length - 1;
+
+    if (!selectedPreviewSubtaskId && !loadingPreviewTasks) {
+        return (
+            <PageWrapper
+                routes={pageOptions?.renderBreadcrumbs?.(
+                    null,
+                    { formatMessage: (msg) => msg.defaultMessage },
+                    simulationDetail?.title,
+                    { simulationId: id },
+                )}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 400, color: '#94a3b8', fontStyle: 'italic' }}>
+                    Không có nhiệm vụ nào trong bài mô phỏng này
+                </div>
+            </PageWrapper>
+        );
+    }
 
     return (
         <PageWrapper
-            routes={pageOptions?.renderBreadcrumbs?.(null, { formatMessage: (msg) => msg.defaultMessage }, simulationTitle, { simulationId: id })}
+            routes={pageOptions?.renderBreadcrumbs?.(
+                null,
+                { formatMessage: (msg) => msg.defaultMessage },
+                simulationDetail?.title,
+                { simulationId: id },
+            )}
         >
-            <div className="simulation-preview-page">
-                <div className="preview-header">
-                    <Button 
-                        icon={<ArrowLeftOutlined />} 
-                        onClick={() => navigate('/simulation')}
-                    >
-                        Quay lại
-                    </Button>
-                    <h2>Xem trước: {simulationTitle}</h2>
-                </div>
-
-                <div className="srd-workspace-area" style={{ minHeight: 'calc(100vh - 200px)' }}>
-                    <div className="srd-workspace-content" style={{ padding: 0, minHeight: '100%' }}>
-                        {loadingPreviewTasks ? (
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 'calc(100vh - 200px)' }}>
-                                <Spin size="large" />
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', minHeight: '100%' }}>
-                                {/* Left Sidebar: Timeline of Parent Tasks */}
-                                <aside className="tfo-sidebar" style={{ borderRight: '1px solid #f1f5f9' }}>
-                                    <div className="tfo-sidebar-header">
-                                        <span className="tfo-sidebar-label">Danh sách nhiệm vụ</span>
-                                    </div>
-                                    <div className="tfo-task-list">
-                                        {previewParentTasks.map((task, idx) => {
-                                            const isActive = selectedPreviewParentTaskId === task.id;
-                                            const isLast = idx === previewParentTasks.length - 1;
-
-                                            return (
-                                                <div key={task.id || idx} className="tfo-task-list-row">
-                                                    <div className="tfo-task-timeline">
-                                                        <button
-                                                            className={`tfo-task-circle${isActive ? ' active' : ''}`}
-                                                            onClick={() => handleSelectPreviewParent(task.id)}
-                                                        >
-                                                            {idx + 1}
-                                                        </button>
-                                                        {!isLast && <div className="tfo-task-connector" />}
-                                                    </div>
-
-                                                    <button
-                                                        className="tfo-task-content-btn"
-                                                        onClick={() => handleSelectPreviewParent(task.id)}
-                                                    >
-                                                        <div className={`tfo-task-title${isActive ? ' active' : ''}`}>
-                                                            {task.title || task.name}
-                                                        </div>
-                                                    </button>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </aside>
-
-                                {/* Middle Pane: Submission reader */}
-                                <div className="tfo-pane-middle" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                                    <div className="tfo-pane-topbar">
-                                        <div className="tfo-pane-title">
-                                            {simulationTitle}
-                                        </div>
-                                        {previewSubtasks.length > 0 && (
-                                            <div className="tfo-step-pagination">
-                                                {previewSubtasks.map((st, index) => {
-                                                    const isActiveSub = st.id === selectedPreviewSubtaskId;
-                                                    let btnCls = 'tfo-step-btn';
-                                                    if (isActiveSub) btnCls += ' active';
-
-                                                    return (
-                                                        <button
-                                                            key={st.id}
-                                                            className={btnCls}
-                                                            onClick={() => setSelectedPreviewSubtaskId(st.id)}
-                                                        >
-                                                            {index + 1}
-                                                        </button>
-                                                    );
-                                                })}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    <div className="tfo-separator" />
-
-                                    {selectedPreviewSubtaskId ? (
-                                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
-                                            <StudentSubmissionViewer
-                                                subtaskDetail={previewSubtaskDetail}
-                                                submissions={[]}
-                                                apiQuizQuestions={previewQuizQuestions}
-                                                loading={loadingPreviewSubtask || loadingPreviewTasks}
-                                            />
-                                            {previewSubtasks.length > 0 && (
-                                                <div className="tfo-bottom-nav" style={{ marginTop: 'auto' }}>
-                                                    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-                                                        <Button
-                                                            type="text"
-                                                            onClick={handleBackPreviewSubtask}
-                                                            disabled={isPreviewAtGlobalStart}
-                                                            className="tfo-btn-back"
-                                                        >
-                                                            Quay lại
-                                                        </Button>
-                                                        <Button
-                                                            type="primary"
-                                                            onClick={handleNextPreviewSubtask}
-                                                            disabled={isPreviewAtGlobalEnd}
-                                                            className="tfo-btn-continue"
-                                                        >
-                                                            Tiếp tục
-                                                        </Button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: '#94a3b8', fontStyle: 'italic', padding: 20 }}>
-                                            Không có nhiệm vụ nào trong bài mô phỏng này
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                </div>
+            <div className="simulation-preview-root">
+                <TaskContentLayout
+                    parentTasks={previewParentTasks}
+                    selectedParentTaskId={selectedPreviewParentTaskId}
+                    onSelectParentTask={handleSelectPreviewParent}
+                    subtasks={previewSubtasks}
+                    selectedSubtaskId={selectedPreviewSubtaskId}
+                    onSelectSubtask={setSelectedPreviewSubtaskId}
+                    pageTitle={simulationDetail?.title || 'Đang xem trước'}
+                    taskHeading={previewSubtaskDetail?.title || 'Đang tải...'}
+                    taskDescriptionContent={previewSubtaskDetail?.description || ''}
+                    content={previewSubtaskDetail?.content || ''}
+                    mediaPath={previewSubtaskDetail?.imagePath || previewSubtaskDetail?.videoPath}
+                    urlBase={''}
+                    loading={loadingPreviewTasks || loadingPreviewSubtask || loadingSimulation}
+                    canGoBack={!isPreviewAtGlobalStart}
+                    canGoNext={!isPreviewAtGlobalEnd}
+                    isLastSubtask={isPreviewAtGlobalEnd}
+                    onBack={handleBackPreviewSubtask}
+                    onNext={handleNextPreviewSubtask}
+                    quizSubmissionMap={{}}
+                    questionMap={{}}
+                />
             </div>
         </PageWrapper>
     );

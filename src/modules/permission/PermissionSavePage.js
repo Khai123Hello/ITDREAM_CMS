@@ -27,9 +27,7 @@ const PermissionSavePage = ({ pageOptions = {} }) => {
             params: {},
             onCompleted: (res) => {
                 if (res?.data) {
-                    const groups = Array.from(
-                        new Set(res.data.map((item) => item.nameGroup).filter(Boolean)),
-                    );
+                    const groups = Array.from(new Set(res.data.map((item) => item.nameGroup).filter(Boolean)));
                     setExistingGroups(groups);
                 }
             },

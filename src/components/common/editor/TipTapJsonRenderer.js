@@ -7,8 +7,16 @@ const MARKS = {
     underline: (ch) => <u key="u">{ch}</u>,
     strike: (ch) => <s key="s">{ch}</s>,
     code: (ch) => <code key="c">{ch}</code>,
-    link: (ch, attrs) => <a key="l" href={attrs?.href} target="_blank" rel="noreferrer">{ch}</a>,
-    highlight: (ch, attrs) => <mark key="h" style={{ background: attrs?.color || '#feffb3' }}>{ch}</mark>,
+    link: (ch, attrs) => (
+        <a key="l" href={attrs?.href} target="_blank" rel="noreferrer">
+            {ch}
+        </a>
+    ),
+    highlight: (ch, attrs) => (
+        <mark key="h" style={{ background: attrs?.color || '#feffb3' }}>
+            {ch}
+        </mark>
+    ),
     subscript: (ch) => <sub key="sub">{ch}</sub>,
     superscript: (ch) => <sup key="sup">{ch}</sup>,
 };
@@ -16,7 +24,6 @@ const MARKS = {
 function renderTextNode(node) {
     const text = node.text || '';
     if (node.marks && node.marks.length > 0) {
-        // Apply marks from outermost to innermost
         let content = text;
         for (const mark of node.marks) {
             const fn = MARKS[mark.type];
@@ -27,18 +34,22 @@ function renderTextNode(node) {
     return text;
 }
 
-function renderNode(node, index) {
+function renderNode(node, index, quizCtx) {
     if (!node) return null;
 
     if (node.type === 'text') {
         return <React.Fragment key={index}>{renderTextNode(node)}</React.Fragment>;
     }
 
-    const children = (node.content || []).map((child, i) => renderNode(child, i));
+    const children = (node.content || []).map((child, i) => renderNode(child, i, quizCtx));
 
     switch (node.type) {
                     case 'doc':
-                        return <div key={index} className="tfo-blocks-content">{children}</div>;
+                        return (
+                            <div key={index} className="tfo-blocks-content">
+                                {children}
+                            </div>
+                        );
 
                     case 'paragraph':
                         return <p key={index}>{children.length > 0 ? children : <br />}</p>;
@@ -59,7 +70,11 @@ function renderNode(node, index) {
                         return <li key={index}>{children}</li>;
 
                     case 'taskList':
-                        return <ul key={index} data-type="taskList" className="tfo-task-list">{children}</ul>;
+                        return (
+                            <ul key={index} data-type="taskList" className="tfo-task-list">
+                                {children}
+                            </ul>
+                        );
 
                     case 'taskItem':
                         return (
@@ -98,7 +113,6 @@ function renderNode(node, index) {
                     case 'hardBreak':
                         return <br key={index} />;
 
-                        // Custom blocks
                     case 'callout':
                         return (
                             <div key={index} className="tfo-block-callout">
@@ -131,26 +145,70 @@ function renderNode(node, index) {
 
                     case 'quiz': {
                         const options = (node.content || []).filter((c) => c.type === 'option');
+                        const questionKey = (node.attrs?.question || '').trim();
+                        const dataQId = node.attrs?.dataQuestionCode || '';
+                        const questionId = dataQId
+                            ? quizCtx?.questionMap?.[dataQId]
+                            : quizCtx?.questionMap?.[questionKey];
+                        const studentAnswer = quizCtx?.quizSubmissionMap?.[questionId];
+                        const hasAnswerInfo = !!studentAnswer;
+                        const isCorrect = studentAnswer?.isCorrect === true;
+
+                        let quizClass = 'tfo-block-quiz';
+                        if (quizCtx?.quizSubmissionMap) {
+                            quizClass += hasAnswerInfo ? (isCorrect ? ' quiz-correct' : ' quiz-wrong') : '';
+                        }
+
                         const optionElements = options.map((opt, i) => {
                             const correct = opt.attrs?.correct === true;
                             const letter = String.fromCharCode(65 + i);
                             const text = opt.content?.[0]?.text || '';
+                            const isSelected = studentAnswer && (studentAnswer.answer === text);
+                            let optClass = 'tfo-quiz-option';
+                            if (quizCtx?.quizSubmissionMap) {
+                                if (isSelected) optClass += ' selected';
+                                if (correct) optClass += ' answer-correct';
+                                if (isSelected && !correct) optClass += ' answer-wrong';
+                            } else if (correct) {
+                                optClass += ' answer-correct';
+                            }
                             return (
-                                <div key={i} className={`tfo-quiz-option ${correct ? 'answer-correct' : ''}`}>
+                                <div key={i} className={optClass}>
                                     <span className="tfo-quiz-option-letter">{letter}.</span>
                                     <span className="tfo-quiz-option-text">{text}</span>
-                                    {correct && <span className="tfo-quiz-option-badge correct">✓ Đáp án đúng</span>}
+                                    {quizCtx?.quizSubmissionMap && correct && (
+                                        <span className="tfo-quiz-option-badge correct">✓ Đúng</span>
+                                    )}
+                                    {quizCtx?.quizSubmissionMap && isSelected && !correct && (
+                                        <span className="tfo-quiz-option-badge wrong">✗ Học viên chọn</span>
+                                    )}
+                                    {!quizCtx?.quizSubmissionMap && correct && (
+                                        <span className="tfo-quiz-option-badge correct">✓ Đáp án đúng</span>
+                                    )}
                                 </div>
                             );
                         });
 
                         return (
-                            <div key={index} className="tfo-block-quiz">
+                            <div key={index} className={quizClass}>
                                 <div className="tfo-block-quiz-question">
                                     <span className="tfo-block-quiz-icon">❓</span>
                                     <span className="tfo-block-quiz-text">{node.attrs?.question}</span>
                                 </div>
                                 <div className="tfo-block-quiz-options">{optionElements}</div>
+                                {quizCtx?.quizSubmissionMap && (
+                                    <div className="tfo-block-quiz-footer">
+                                        {hasAnswerInfo ? (
+                                            <span className={`tfo-quiz-result-label ${isCorrect ? 'correct' : 'wrong'}`}>
+                                                {isCorrect ? '🎉 Học viên trả lời chính xác!' : '😅 Học viên trả lời chưa đúng!'}
+                                            </span>
+                                        ) : (
+                                            <span className="tfo-quiz-result-label" style={{ color: '#8c8c8c' }}>
+                                    Học viên chưa làm câu này.
+                                            </span>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         );
                     }
@@ -160,7 +218,7 @@ function renderNode(node, index) {
     }
 }
 
-export default function TipTapJsonRenderer({ content }) {
+export default function TipTapJsonRenderer({ content, quizSubmissionMap, questionMap }) {
     const json = useMemo(() => {
         if (!content) return { type: 'doc', content: [] };
         if (typeof content === 'string') {
@@ -174,9 +232,14 @@ export default function TipTapJsonRenderer({ content }) {
         return { type: 'doc', content: [] };
     }, [content]);
 
+    const quizCtx = useMemo(() => {
+        if (!quizSubmissionMap && !questionMap) return null;
+        return { quizSubmissionMap: quizSubmissionMap || {}, questionMap: questionMap || {} };
+    }, [quizSubmissionMap, questionMap]);
+
     const rendered = useMemo(() => {
-        return (json.content || []).map((node, i) => renderNode(node, i));
-    }, [json]);
+        return (json.content || []).map((node, i) => renderNode(node, i, quizCtx));
+    }, [json, quizCtx]);
 
     if (!content) {
         return (
@@ -186,9 +249,5 @@ export default function TipTapJsonRenderer({ content }) {
         );
     }
 
-    return (
-        <div className="block-editor-preview-container tfo-blocks-content">
-            {rendered}
-        </div>
-    );
+    return <div className="block-editor-preview-container tfo-blocks-content">{rendered}</div>;
 }
