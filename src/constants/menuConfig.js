@@ -76,6 +76,19 @@ export const navMenuConfig = [
         ],
     },
     {
+        label: <FormattedMessage defaultMessage="Quản lý Job" />,
+        key: 'quan-ly-job',
+        icon: <IconSettings size={16} />,
+        children: [
+            {
+                label: <FormattedMessage defaultMessage="Cơ hội việc làm" />,
+                key: 'job',
+                path: '/job',
+                permission: [apiConfig.job.list.permissionCode],
+            },
+        ],
+    },
+    {
         label: <FormattedMessage defaultMessage="Quản lý Danh mục" />,
         key: 'quan-ly-chuyen-mon',
         icon: <IconSettings size={16} />,

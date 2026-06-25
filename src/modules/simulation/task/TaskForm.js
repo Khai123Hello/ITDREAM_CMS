@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Col, Row, Button, Input, Space, Modal, Divider, Tag, Alert, message, Tabs, Upload } from 'antd';
-import { BookOutlined, UploadOutlined } from '@ant-design/icons';
+import { BookOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -21,6 +21,7 @@ import apiConfig from '@constants/apiConfig';
 import { taskKindOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
 import { isJsonBlocks, blocksToMarkdoc, extractQuizFromMarkdoc } from '@utils/markdocBlockConverter';
+import InlineQuestionEditor from '@modules/simulation/task/InlineQuestionEditor';
 
 // ─────────────────────────────────────────────
 // Shared styles
@@ -194,6 +195,10 @@ const TaskForm = (props) => {
 
     // Question load states for BlockEditor remount key
     const [questionsLoaded, setQuestionsLoaded] = useState(!isEditing);
+
+    // ── Inline question creation state ────────────
+    const [createQuestions, setCreateQuestions] = useState(false);
+    const [inlineQuestions, setInlineQuestions] = useState([]);
 
     // ── Local state for questions ────────────────
     const [questions, setQuestions] = useState([]);
@@ -373,8 +378,17 @@ const TaskForm = (props) => {
             });
         } else if (!isEditing) {
             setQuestions([]);
+            setInlineQuestions([]);
+            setCreateQuestions(false);
         }
     };
+
+    useEffect(() => {
+        if (questions.length > 0 && isEditing && Number(dataDetail?.kind) === TaskTypes.SUBTASK) {
+            setInlineQuestions(questions);
+            setCreateQuestions(true);
+        }
+    }, [questions, isEditing, dataDetail?.kind]);
 
     useEffect(() => {
         loadQuestions();
@@ -757,10 +771,42 @@ const TaskForm = (props) => {
                                 fieldProps={{
                                     checked: requiresTextResponse,
                                 }}
+                                formItemProps={{ style: { marginBottom: 8 } }}
+                            />
+                            <CheckboxField
+                                optionLabel={
+                                    <span style={{ color: '#1890ff', fontWeight: 600 }}>
+                                        <QuestionCircleOutlined style={{ marginRight: 6 }} />
+                                        Tạo câu hỏi trắc nghiệm cho nhiệm vụ phụ này
+                                    </span>
+                                }
+                                disabled={!isEducator}
+                                onChange={(e) => setCreateQuestions(e.target.checked)}
+                                fieldProps={{
+                                    checked: createQuestions,
+                                }}
                                 formItemProps={{ style: { marginBottom: 0 } }}
                             />
                         </div>
                     ) : null}
+
+                    {createQuestions && Number(taskKind) === TaskTypes.SUBTASK && (
+                        <div style={{ marginTop: 16, marginBottom: 24 }}>
+                            <Divider orientation="left" style={{ fontSize: 14, fontWeight: 600 }}>
+                                <QuestionCircleOutlined style={{ marginRight: 8 }} />
+                                Nội dung câu hỏi trắc nghiệm
+                            </Divider>
+                            <InlineQuestionEditor
+                                questions={inlineQuestions}
+                                onChange={(updated) => {
+                                    setInlineQuestions(updated);
+                                    if (onQuestionsChange) {
+                                        onQuestionsChange(updated);
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
                 </>
             ),
         },

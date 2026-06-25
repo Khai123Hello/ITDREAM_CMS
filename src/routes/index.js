@@ -20,6 +20,7 @@ import reviewSubmissionRoutes from '@modules/reviewSubmission/routes';
 import blogRoutes from '@modules/blog/routes';
 import organizationRoutes from '@modules/organization/routes';
 import commentRoutes from '@modules/comment/routes';
+import jobRoutes from '@modules/job/routes';
 
 import permissionRoutes from '@modules/permission/routes';
 
@@ -97,6 +98,7 @@ const routes = {
     ...blogRoutes,
     ...organizationRoutes,
     ...commentRoutes,
+    ...jobRoutes,
 
     ...permissionRoutes,
     // keep this at last
