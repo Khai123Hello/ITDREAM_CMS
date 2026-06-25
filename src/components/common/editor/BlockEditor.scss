@@ -321,6 +321,16 @@
           caret-color: var(--accent) !important;
           padding: 8px 32px 80px 32px !important;
 
+          a {
+            color: var(--accent) !important;
+            text-decoration: underline !important;
+            font-weight: 600 !important;
+            cursor: pointer !important;
+            &:hover {
+              color: #004cb3 !important;
+            }
+          }
+
           p {
             margin: 0 0 8px 0 !important;
             color: var(--text) !important;
@@ -359,6 +369,11 @@
               margin-bottom: 6px !important;
               color: var(--text2) !important;
             }
+          }
+
+          ul[data-type="taskList"] {
+            list-style-type: none !important;
+            padding-left: 0 !important;
           }
 
           ol {

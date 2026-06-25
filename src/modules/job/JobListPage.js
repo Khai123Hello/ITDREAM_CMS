@@ -22,7 +22,7 @@ const roleTypeMap = {
     2: { label: 'Chính thức', color: 'purple' },
 };
 
-const JobListPage = ({ pageOptions = {} }) => {
+const JobListPage = () => {
     const translate = useTranslate();
 
     const labels = {

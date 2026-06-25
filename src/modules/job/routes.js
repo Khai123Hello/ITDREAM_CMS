@@ -16,9 +16,7 @@ export default {
         permissions: [apiConfig.job.list.permissionCode],
         pageOptions: {
             objectName: 'cơ hội việc làm',
-            renderBreadcrumbs: (messages, t, title, options = {}) => {
-                return [{ breadcrumbName: 'Cơ hội việc làm' }];
-            },
+            renderBreadcrumbs: () => [{ breadcrumbName: 'Cơ hội việc làm' }],
         },
     },
     jobSavePage: {
@@ -30,12 +28,10 @@ export default {
         pageOptions: {
             objectName: 'cơ hội việc làm',
             listPageUrl: paths.jobListPage,
-            renderBreadcrumbs: (messages, t, title, options = {}) => {
-                return [
-                    { breadcrumbName: 'Cơ hội việc làm', path: paths.jobListPage },
-                    { breadcrumbName: title },
-                ];
-            },
+            renderBreadcrumbs: (messages, t, title) => [
+                { breadcrumbName: 'Cơ hội việc làm', path: paths.jobListPage },
+                { breadcrumbName: title },
+            ],
         },
     },
 };

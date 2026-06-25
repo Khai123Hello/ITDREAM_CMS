@@ -4,15 +4,23 @@ import { useEditor, EditorContent, ReactNodeViewRenderer, NodeViewWrapper, NodeV
 import StarterKit from '@tiptap/starter-kit';
 import LinkExtension from '@tiptap/extension-link';
 import UnderlineExtension from '@tiptap/extension-underline';
+import ImageExtension from '@tiptap/extension-image';
+import { Typography } from '@tiptap/extension-typography';
+import { Highlight } from '@tiptap/extension-highlight';
+import { Subscript } from '@tiptap/extension-subscript';
+import { Superscript } from '@tiptap/extension-superscript';
+import { TaskItem, TaskList } from '@tiptap/extension-list';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import { Selection } from '@tiptap/extensions';
 import { Node, mergeAttributes } from '@tiptap/core';
 import {
     BoldOutlined,
     ItalicOutlined,
     UnderlineOutlined,
+    StrikethroughOutlined,
     LinkOutlined,
     UnorderedListOutlined,
     OrderedListOutlined,
-    CodeOutlined,
     PlusOutlined,
     InfoCircleOutlined,
     QuestionCircleOutlined,
@@ -20,6 +28,10 @@ import {
     BookOutlined,
     DownOutlined,
     DeleteOutlined,
+    HighlightOutlined,
+    CheckSquareOutlined,
+    MinusOutlined,
+    PictureOutlined,
 } from '@ant-design/icons';
 import { markdocToHtml, tipTapToMarkdoc } from '@utils/markdocBlockConverter';
 import './BlockEditor.scss';
@@ -587,6 +599,10 @@ export default function BlockEditor({
     const [content, setContent] = useState('');
     const [showTemplatePicker, setShowTemplatePicker] = useState(false);
     const [template, setTemplate] = useState(defaultTemplate);
+    const [linkModalVisible, setLinkModalVisible] = useState(false);
+    const [linkUrl, setLinkUrl] = useState('');
+    const [imageModalVisible, setImageModalVisible] = useState(false);
+    const [imageUrl, setImageUrl] = useState('');
 
     const titleRef = useRef(initialTitle);
     const descriptionRef = useRef(initialDescription);
@@ -599,11 +615,22 @@ export default function BlockEditor({
     // Setup TipTap Editor
     const editor = useEditor({
         extensions: [
-            StarterKit,
+            StarterKit.configure({
+                horizontalRule: false,
+            }),
             UnderlineExtension,
             LinkExtension.configure({
                 openOnClick: false,
             }),
+            Typography,
+            Highlight.configure({ multicolor: true }),
+            Subscript,
+            Superscript,
+            TaskList,
+            TaskItem.configure({ nested: true }),
+            HorizontalRule,
+            ImageExtension,
+            Selection,
             CalloutExtension,
             StepExtension,
             SectionExtension,
@@ -731,17 +758,32 @@ export default function BlockEditor({
                         case 'underline':
                             editor.chain().focus().toggleUnderline().run();
                             break;
-                        case 'link': {
-                            const previousUrl = editor.getAttributes('link').href;
-                            const url = window.prompt('Nhập đường dẫn liên kết:', previousUrl || 'https://');
-                            if (url === null) return;
-                            if (url === '') {
-                                editor.chain().focus().unsetLink().run();
-                            } else {
-                                editor.chain().focus().setLink({ href: url }).run();
-                            }
+                        case 'strike':
+                            editor.chain().focus().toggleStrike().run();
                             break;
-                        }
+                        case 'highlight':
+                            editor.chain().focus().toggleHighlight().run();
+                            break;
+                        case 'subscript':
+                            editor.chain().focus().toggleSubscript().run();
+                            break;
+                        case 'superscript':
+                            editor.chain().focus().toggleSuperscript().run();
+                            break;
+                        case 'taskList':
+                            editor.chain().focus().toggleTaskList().run();
+                            break;
+                        case 'horizontalRule':
+                            editor.chain().focus().setHorizontalRule().run();
+                            break;
+                        case 'link':
+                            setLinkUrl(editor.getAttributes('link').href || '');
+                            setLinkModalVisible(true);
+                            break;
+                        case 'image':
+                            setImageUrl('');
+                            setImageModalVisible(true);
+                            break;
                         case 'h1':
                             editor.chain().focus().toggleHeading({ level: 1 }).run();
                             break;
@@ -756,9 +798,6 @@ export default function BlockEditor({
                             break;
                         case 'ordered':
                             editor.chain().focus().toggleOrderedList().run();
-                            break;
-                        case 'code':
-                            editor.chain().focus().toggleCodeBlock().run();
                             break;
                         case 'callout':
                             editor.chain().focus().insertContent('<callout-block><p>Nhập nội dung lưu ý của bạn ở đây...</p></callout-block>').run();
@@ -871,6 +910,14 @@ export default function BlockEditor({
                             >
                                 <LinkOutlined />
                             </button>
+                            <button
+                                type="button"
+                                className="toolbar-btn"
+                                onClick={() => executeCommand('image')}
+                                title="Chèn hình ảnh"
+                            >
+                                <PictureOutlined />
+                            </button>
                         </div>
 
                         <span className="toolbar-divider" />
@@ -923,11 +970,63 @@ export default function BlockEditor({
                             </button>
                             <button
                                 type="button"
-                                className={`toolbar-btn ${editor?.isActive('codeBlock') ? 'active' : ''}`}
-                                onClick={() => executeCommand('code')}
-                                title="Khối Code"
+                                className={`toolbar-btn ${editor?.isActive('taskList') ? 'active' : ''}`}
+                                onClick={() => executeCommand('taskList')}
+                                title="Danh sách nhiệm vụ (checkbox)"
                             >
-                                <CodeOutlined />
+                                <CheckSquareOutlined />
+                            </button>
+                        </div>
+
+                        <span className="toolbar-divider" />
+
+                        <div className="toolbar-group">
+                            <button
+                                type="button"
+                                className={`toolbar-btn ${editor?.isActive('strike') ? 'active' : ''}`}
+                                onClick={() => executeCommand('strike')}
+                                title="Gạch ngang"
+                            >
+                                <StrikethroughOutlined />
+                            </button>
+                            <button
+                                type="button"
+                                className={`toolbar-btn ${editor?.isActive('highlight') ? 'active' : ''}`}
+                                onClick={() => executeCommand('highlight')}
+                                title="Tô màu"
+                            >
+                                <HighlightOutlined />
+                            </button>
+                            <button
+                                type="button"
+                                className={`toolbar-btn ${editor?.isActive('subscript') ? 'active' : ''}`}
+                                onClick={() => executeCommand('subscript')}
+                                title="Chỉ số dưới"
+                                style={{ fontFamily: 'serif', fontSize: 14, fontStyle: 'italic' }}
+                            >
+                                x₂
+                            </button>
+                            <button
+                                type="button"
+                                className={`toolbar-btn ${editor?.isActive('superscript') ? 'active' : ''}`}
+                                onClick={() => executeCommand('superscript')}
+                                title="Chỉ số trên"
+                                style={{ fontFamily: 'serif', fontSize: 14, fontStyle: 'italic' }}
+                            >
+                                x²
+                            </button>
+                        </div>
+
+                        <span className="toolbar-divider" />
+
+                        <div className="toolbar-group">
+                            <button
+                                type="button"
+                                className="toolbar-btn"
+                                onClick={() => executeCommand('horizontalRule')}
+                                title="Đường kẻ ngang"
+                            >
+                                <MinusOutlined />
                             </button>
                         </div>
                     </div>
@@ -1050,6 +1149,56 @@ export default function BlockEditor({
                         </Card>
                     ))}
                 </div>
+            </Modal>
+
+            {/* Link Modal */}
+            <Modal
+                title="Chèn liên kết"
+                open={linkModalVisible}
+                onCancel={() => setLinkModalVisible(false)}
+                onOk={() => {
+                    if (!linkUrl) {
+                        editor.chain().focus().unsetLink().run();
+                    } else {
+                        editor.chain().focus().setLink({ href: linkUrl }).run();
+                    }
+                    setLinkModalVisible(false);
+                }}
+                okText="Áp dụng"
+                cancelText="Hủy"
+                destroyOnClose
+            >
+                <Input
+                    value={linkUrl}
+                    onChange={(e) => setLinkUrl(e.target.value)}
+                    placeholder="https://..."
+                    size="large"
+                    autoFocus
+                />
+            </Modal>
+
+            {/* Image Modal */}
+            <Modal
+                title="Chèn hình ảnh"
+                open={imageModalVisible}
+                onCancel={() => setImageModalVisible(false)}
+                onOk={() => {
+                    if (imageUrl) {
+                        editor.chain().focus().setImage({ src: imageUrl }).run();
+                    }
+                    setImageModalVisible(false);
+                }}
+                okText="Chèn"
+                cancelText="Hủy"
+                destroyOnClose
+            >
+                <Input
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    placeholder="https://example.com/image.jpg"
+                    size="large"
+                    autoFocus
+                />
             </Modal>
         </div>
     );
