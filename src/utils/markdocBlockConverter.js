@@ -595,3 +595,59 @@ export function extractQuizFromMarkdoc(markdown) {
         return [];
     }
 }
+
+export function parseTaskQuestionOptions(options) {
+    if (!options) return [];
+    if (typeof options === 'string') {
+        try {
+            const parsed = JSON.parse(options);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+    return Array.isArray(options) ? options : [];
+}
+
+export function normalizeTaskQuestionText(text) {
+    return String(text || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+export function normalizeTaskQuestionOptions(options) {
+    return parseTaskQuestionOptions(options).map((opt) => ({
+        option: String(opt.option || opt.text || '').trim().replace(/\s+/g, ' ').toLowerCase(),
+        answer: Boolean(opt.answer),
+    }));
+}
+
+export function buildTaskQuestionKey(question) {
+    return `${normalizeTaskQuestionText(question.question)}||${JSON.stringify(
+        normalizeTaskQuestionOptions(question.options),
+    )}`;
+}
+
+export function dedupeTaskQuestions(questions) {
+    const questionMap = new Map();
+
+    for (const rawQuestion of questions || []) {
+        const key = buildTaskQuestionKey(rawQuestion);
+        const normalizedOptions = typeof rawQuestion.options === 'string'
+            ? rawQuestion.options
+            : JSON.stringify(parseTaskQuestionOptions(rawQuestion.options));
+
+        if (!questionMap.has(key)) {
+            questionMap.set(key, {
+                ...rawQuestion,
+                options: normalizedOptions,
+            });
+            continue;
+        }
+
+        const existing = questionMap.get(key);
+        if (!existing.id && rawQuestion.id) {
+            questionMap.set(key, { ...existing, id: rawQuestion.id });
+        }
+    }
+
+    return Array.from(questionMap.values());
+}
