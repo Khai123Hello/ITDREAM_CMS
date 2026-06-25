@@ -4,12 +4,9 @@ import { useParams } from 'react-router-dom';
 import PageWrapper from '@components/common/layout/PageWrapper';
 import apiConfig from '@constants/apiConfig';
 import useSaveBase from '@hooks/useSaveBase';
-import useTranslate from '@hooks/useTranslate';
-import { commonMessage } from '@locales/intl';
 import JobForm from '@modules/job/JobForm';
 
-const JobSavePage = ({ pageOptions = {} }) => {
-    const translate = useTranslate();
+const JobSavePage = () => {
     const { id } = useParams();
     const isCreating = id === 'create';
 

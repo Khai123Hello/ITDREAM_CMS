@@ -10,10 +10,7 @@ import CheckboxField from '@components/common/form/CheckboxField';
 
 import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
-import useTranslate from '@hooks/useTranslate';
-
 import apiConfig from '@constants/apiConfig';
-import { commonMessage } from '@locales/intl';
 import { AppConstants, UploadFileTypes } from '@constants';
 
 const { TextArea } = Input;
@@ -31,7 +28,6 @@ const roleTypeOptions = [
 const labelStyle = { fontWeight: 600, marginBottom: 8, display: 'block' };
 
 const JobForm = (props) => {
-    const translate = useTranslate();
     const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues } = props;
 
     const { execute: executeUpFile } = useFetch(apiConfig.file.upload);
@@ -56,7 +52,7 @@ const JobForm = (props) => {
                     sims.map((s) => ({
                         value: s.id,
                         label: s.title,
-                    }))
+                    })),
                 );
             },
         });
@@ -148,7 +144,7 @@ const JobForm = (props) => {
                 setPreviewUrl(
                     dataDetail.logoUrl.startsWith('http')
                         ? dataDetail.logoUrl
-                        : `${AppConstants.contentRootUrl}${dataDetail.logoUrl}`
+                        : `${AppConstants.contentRootUrl}${dataDetail.logoUrl}`,
                 );
             }
 
