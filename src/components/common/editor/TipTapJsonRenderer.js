@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { markdocToTipTapJson } from '@utils/markdocBlockConverter';
+import { markdocToTipTapJson, blocksToMarkdoc } from '@utils/markdocBlockConverter';
 
 const MARKS = {
     bold: (ch) => <strong key="b">{ch}</strong>,
@@ -221,14 +221,30 @@ function renderNode(node, index, quizCtx) {
 export default function TipTapJsonRenderer({ content, quizSubmissionMap, questionMap }) {
     const json = useMemo(() => {
         if (!content) return { type: 'doc', content: [] };
+        
+        let parsed = content;
         if (typeof content === 'string') {
-            try {
-                return JSON.parse(content);
-            } catch {
+            const trimmed = content.trim();
+            if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                try {
+                    parsed = JSON.parse(trimmed);
+                } catch {
+                    return markdocToTipTapJson(content);
+                }
+            } else {
                 return markdocToTipTapJson(content);
             }
         }
-        if (content.type === 'doc') return content;
+        
+        if (parsed && parsed.type === 'doc') {
+            return parsed;
+        }
+        
+        if (Array.isArray(parsed)) {
+            const markdocStr = blocksToMarkdoc(parsed);
+            return markdocToTipTapJson(markdocStr);
+        }
+        
         return { type: 'doc', content: [] };
     }, [content]);
 
