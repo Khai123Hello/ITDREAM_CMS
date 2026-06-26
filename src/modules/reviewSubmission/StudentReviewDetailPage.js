@@ -41,42 +41,22 @@ dayjs.extend(relativeTime);
 
 /* ─────────────────────────── Helper Components & Functions ─────────────────────────── */
 
-const parseSubtaskName = (subtask) => {
-    const name = subtask?.name || '';
-    if (name) {
-        const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-        if (match) {
-            const suffix = match[3] || '';
-            return {
-                parentOrder: parseInt(match[1], 10),
-                subtaskOrder: parseInt(match[2], 10),
-                suffix,
-                requiresFileUpload: suffix === '_FILE' || suffix === '_FILE_TEXT',
-                requiresTextResponse: suffix === '_TEXT' || suffix === '_FILE_TEXT',
-            };
-        }
-    }
+/**
+ * Determines file/text submission requirements from the subtask's submissionType field.
+ * submissionType: 0 = none, 1 = file only, 2 = text only, 3 = file + text.
+ */
+const getSubmissionRequirements = (subtask) => {
+    const st = Number(subtask?.submissionType) || 0;
     return {
-        parentOrder: subtask?.parent?.orderInParent || 1,
-        subtaskOrder: subtask?.orderInParent || 1,
-        suffix: '',
-        requiresFileUpload: true,
-        requiresTextResponse: true,
+        requiresFileUpload: st === 1 || st === 3,
+        requiresTextResponse: st === 2 || st === 3,
     };
 };
 
-const hasAssignmentContent = (task) => {
-    const name = task?.name || '';
-    if (name) {
-        const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-        if (match) {
-            const suffix = match[3] || '';
-            return suffix === '_FILE' || suffix === '_TEXT' || suffix === '_FILE_TEXT';
-        }
-    }
-    // For new tasks/subtasks, default to true if it is a subtask without quiz questions
-    return task?.kind === 2 && (!task?.totalQuestion || task?.totalQuestion === 0);
-};
+/**
+ * Returns true if the subtask requires any form of submission (file or text).
+ */
+const hasSubmissionRequirement = (task) => Number(task?.submissionType) > 0;
 
 const getSubmissionAnswer = (submission = {}) => submission.answer || submission.answear || '';
 
@@ -387,9 +367,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Build submissions data
     const submissions = useMemo(() => getSubmissions(progressDetail), [progressDetail]);
 
-    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail), [subtaskDetail]);
-    const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
-    const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
+    const { requiresFileUpload, requiresTextResponse } = useMemo(
+        () => getSubmissionRequirements(subtaskDetail),
+        [subtaskDetail],
+    );
 
     const quizSubmissionMap = useMemo(() => {
         const map = {};
@@ -959,7 +940,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         if (!tasks || !filteredEducatorReviews) return countMap;
         parentTasks.forEach((pt) => {
             const subs = tasks.filter(
-                (t) => t.kind === 2 && hasAssignmentContent(t) && (t.parent?.id === pt.id || t.parentId === pt.id),
+                (t) => t.kind === 2 && hasSubmissionRequirement(t) && (t.parent?.id === pt.id || t.parentId === pt.id),
             );
             const reviewed = subs.filter((s) => reviewedTaskIds.has(s.id));
             countMap[pt.id] = { total: subs.length, reviewed: reviewed.length };
@@ -979,13 +960,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
     // Total review progress
     const totalSubtasks = useMemo(() => {
-        return tasks?.filter((t) => t.kind === 2 && hasAssignmentContent(t))?.length || 0;
+        return tasks?.filter((t) => t.kind === 2 && hasSubmissionRequirement(t))?.length || 0;
     }, [tasks]);
     const totalReviewed = useMemo(() => {
         let count = 0;
         reviewedTaskIds.forEach((id) => {
             const task = tasks?.find((t) => t.id === id);
-            if (task && hasAssignmentContent(task)) {
+            if (task && hasSubmissionRequirement(task)) {
                 count++;
             }
         });
@@ -1182,6 +1163,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     const renderCollaborationPanel = () => {
+        const isReviewRequired = requiresFileUpload || requiresTextResponse;
+
         return (
             <div className="tfo-review-tab-pane">
                 {!canWriteReview && (
@@ -1190,7 +1173,12 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
                 {renderReviewHeader()}
 
-                {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
+                {!isReviewRequired ? (
+                    <div className="tfo-review-empty tfo-review-fade-in">
+                        <CheckCircleFilled className="tfo-review-empty__icon" style={{ color: '#8c8c8c' }} />
+                        <p className="tfo-review-empty__text">Không yêu cầu nhận xét cho bước này</p>
+                    </div>
+                ) : (subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
                     ? renderReviewDisplay()
                     : canWriteReview
                         ? renderReviewEditor()
@@ -1315,6 +1303,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 onNext={handleNextSubtask}
                 quizSubmissionMap={quizSubmissionMap}
                 questionMap={questionMap}
+                requiresFileUpload={requiresFileUpload}
+                requiresTextResponse={requiresTextResponse}
+                previousFile={fileSub ? getSubmissionAnswer(fileSub) : null}
+                previousText={textSub ? getSubmissionAnswer(textSub) : ''}
+                hasCompleted={true}
                 customTaskCircle={(task, idx, isActive, isLast) => {
                     const taskCount = reviewCountByParentTask[task.id];
                     const allReviewed = taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
@@ -1367,26 +1360,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 rightPane={layoutMode === 'split' ? renderCollaborationPanel() : null}
                 reviewPane={layoutMode === 'bottom' ? renderCollaborationPanel() : null}
             >
-                {/* File submission section */}
-                {requiresFileUpload && fileSub && (
-                    <div className="tfo-submission-card">
-                        <div className="tfo-submission-title">File học viên nộp</div>
-                        <div className="tfo-file-download-box">
-                            <a href={getSubmissionAnswer(fileSub).startsWith('http') ? getSubmissionAnswer(fileSub) : `${AppConstants.contentRootUrl}${getSubmissionAnswer(fileSub)}`} target="_blank" rel="noopener noreferrer">
-                                Tải xuống bài làm của học viên
-                            </a>
-                        </div>
-                    </div>
-                )}
-
-                {/* Text submission section */}
-                {requiresTextResponse && textSub && (
-                    <div className="tfo-submission-card">
-                        <div className="tfo-submission-title">Văn bản học viên nộp</div>
-                        <div className="tfo-text-answer-box">{getSubmissionAnswer(textSub)}</div>
-                    </div>
-                )}
-
                 {/* Quiz History Log */}
                 {quizHistory && quizHistory.length > 0 && (
                     <div className="tfo-submission-card" style={{ marginTop: 20 }}>

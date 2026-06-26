@@ -35,27 +35,15 @@ dayjs.extend(relativeTime);
 
 /* ─────────────────────────── Helper Components & Functions ─────────────────────────── */
 
-const parseSubtaskName = (subtask) => {
-    const name = subtask?.name || '';
-    if (name) {
-        const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-        if (match) {
-            const suffix = match[3] || '';
-            return {
-                parentOrder: parseInt(match[1], 10),
-                subtaskOrder: parseInt(match[2], 10),
-                suffix,
-                requiresFileUpload: suffix === '_FILE' || suffix === '_FILE_TEXT',
-                requiresTextResponse: suffix === '_TEXT' || suffix === '_FILE_TEXT',
-            };
-        }
-    }
+/**
+ * Determines file/text submission requirements from the subtask's submissionType field.
+ * submissionType: 0 = none, 1 = file only, 2 = text only, 3 = file + text.
+ */
+const getSubmissionRequirements = (subtask) => {
+    const st = Number(subtask?.submissionType) || 0;
     return {
-        parentOrder: subtask?.parent?.orderInParent || 1,
-        subtaskOrder: subtask?.orderInParent || 1,
-        suffix: '',
-        requiresFileUpload: true,
-        requiresTextResponse: true,
+        requiresFileUpload: st === 1 || st === 3,
+        requiresTextResponse: st === 2 || st === 3,
     };
 };
 
@@ -274,9 +262,10 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
     // Build submissions data
     const submissions = useMemo(() => getSubmissions(progressDetail), [progressDetail]);
 
-    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail), [subtaskDetail]);
-    const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
-    const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
+    const { requiresFileUpload, requiresTextResponse } = useMemo(
+        () => getSubmissionRequirements(subtaskDetail),
+        [subtaskDetail],
+    );
 
     const quizSubmissionMap = useMemo(() => {
         const map = {};
@@ -617,6 +606,11 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                 onNext={handleNextSubtask}
                 quizSubmissionMap={quizSubmissionMap}
                 questionMap={questionMap}
+                requiresFileUpload={requiresFileUpload}
+                requiresTextResponse={requiresTextResponse}
+                previousFile={fileSub ? getSubmissionAnswer(fileSub) : null}
+                previousText={textSub ? getSubmissionAnswer(textSub) : ''}
+                hasCompleted={true}
                 customTaskCircle={(task, idx, isActive) => {
                     let cls = 'tfo-task-circle';
                     if (isActive) cls += ' active';
@@ -640,26 +634,6 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                 rightPane={layoutMode === 'split' ? renderCommentPane() : null}
                 reviewPane={layoutMode === 'bottom' ? renderCommentPane() : null}
             >
-                {/* File submission section */}
-                {requiresFileUpload && fileSub && (
-                    <div className="tfo-submission-card">
-                        <div className="tfo-submission-title">File học viên nộp</div>
-                        <div className="tfo-file-download-box">
-                            <a href={getSubmissionAnswer(fileSub).startsWith('http') ? getSubmissionAnswer(fileSub) : `${AppConstants.contentRootUrl}${getSubmissionAnswer(fileSub)}`} target="_blank" rel="noopener noreferrer">
-                                Tải xuống bài làm của học viên
-                            </a>
-                        </div>
-                    </div>
-                )}
-
-                {/* Text submission section */}
-                {requiresTextResponse && textSub && (
-                    <div className="tfo-submission-card">
-                        <div className="tfo-submission-title">Văn bản học viên nộp</div>
-                        <div className="tfo-text-answer-box">{getSubmissionAnswer(textSub)}</div>
-                    </div>
-                )}
-
                 {/* Quiz History Log */}
                 {quizHistory && quizHistory.length > 0 && (
                     <div className="tfo-submission-card" style={{ marginTop: 20 }}>

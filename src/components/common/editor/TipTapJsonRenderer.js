@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { markdocToTipTapJson, blocksToMarkdoc } from '@utils/markdocBlockConverter';
 
 const MARKS = {
@@ -218,7 +218,7 @@ function renderNode(node, index, quizCtx) {
     }
 }
 
-export default function TipTapJsonRenderer({ content, quizSubmissionMap, questionMap }) {
+export default function TipTapJsonRenderer({ content, quizSubmissionMap, questionMap, onQuestionRendered }) {
     const json = useMemo(() => {
         if (!content) return { type: 'doc', content: [] };
         
@@ -249,9 +249,37 @@ export default function TipTapJsonRenderer({ content, quizSubmissionMap, questio
     }, [content]);
 
     const quizCtx = useMemo(() => {
-        if (!quizSubmissionMap && !questionMap) return null;
         return { quizSubmissionMap: quizSubmissionMap || {}, questionMap: questionMap || {} };
     }, [quizSubmissionMap, questionMap]);
+
+    // Extract inline question IDs inside useMemo to avoid state setting during rendering
+    const inlineQuestionIds = useMemo(() => {
+        const ids = new Set();
+        const walk = (nodes) => {
+            (nodes || []).forEach((n) => {
+                if (n.type === 'quiz') {
+                    const questionKey = (n.attrs?.question || '').trim();
+                    const dataQId = n.attrs?.dataQuestionCode || '';
+                    const questionId = dataQId
+                        ? quizCtx?.questionMap?.[dataQId]
+                        : quizCtx?.questionMap?.[questionKey];
+                    if (questionId) {
+                        ids.add(String(questionId));
+                    }
+                }
+                if (n.content) walk(n.content);
+            });
+        };
+        walk(json.content);
+        return Array.from(ids);
+    }, [ json, quizCtx ]);
+
+    // Notify parent component about rendered questions in useEffect
+    useEffect(() => {
+        if (onQuestionRendered) {
+            onQuestionRendered(inlineQuestionIds);
+        }
+    }, [ inlineQuestionIds, onQuestionRendered ]);
 
     const rendered = useMemo(() => {
         return (json.content || []).map((node, i) => renderNode(node, i, quizCtx));
