@@ -398,7 +398,9 @@ const TaskForm = (props) => {
     const syncQuestions = (newBlockQuestions = blockQuestions) => {
         const merged = dedupeTaskQuestions([...(newBlockQuestions || [])]);
         setMergedQuestions(merged);
+        console.debug('[TaskForm] syncQuestions merged:', merged);
         if (onQuestionsChange) {
+            console.debug('[TaskForm] calling onQuestionsChange with merged questions');
             onQuestionsChange(merged);
         }
     };

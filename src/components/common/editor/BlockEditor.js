@@ -184,7 +184,14 @@ const CalloutExtension = Node.create({
         };
     },
     parseHTML() {
-        return [{ tag: 'callout-block' }];
+        return [
+            {
+                tag: 'callout-block',
+                getAttrs: (el) => ({
+                    icon: el.getAttribute('icon') || '💡',
+                }),
+            },
+        ];
     },
     renderHTML({ HTMLAttributes }) {
         return ['callout-block', mergeAttributes(HTMLAttributes), 0];
@@ -206,7 +213,6 @@ const StepNodeView = ({ node, updateAttributes, deleteNode }) => {
                     className="tfo-block-step-label-input"
                     value={label}
                     onChange={(e) => updateAttributes({ label: e.target.value })}
-                    onMouseDown={(e) => e.stopPropagation()}
                     placeholder="Tên bước..."
                     style={{
                         border: 'none',
@@ -244,7 +250,14 @@ const StepExtension = Node.create({
         };
     },
     parseHTML() {
-        return [{ tag: 'step-block' }];
+        return [
+            {
+                tag: 'step-block',
+                getAttrs: (el) => ({
+                    label: el.getAttribute('label') || 'Bước 1',
+                }),
+            },
+        ];
     },
     renderHTML({ HTMLAttributes }) {
         return ['step-block', mergeAttributes(HTMLAttributes), 0];
@@ -379,7 +392,6 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                     className="tfo-block-section-title-input"
                     value={title}
                     onChange={(e) => updateAttributes({ title: e.target.value })}
-                    onMouseDown={(e) => e.stopPropagation()}
                     placeholder="Tiêu đề mục lớn..."
                     style={{
                         border: 'none',
@@ -418,7 +430,15 @@ const SectionExtension = Node.create({
         };
     },
     parseHTML() {
-        return [{ tag: 'section-block' }];
+        return [
+            {
+                tag: 'section-block',
+                getAttrs: (el) => ({
+                    icon: el.getAttribute('icon') || '🎓',
+                    title: el.getAttribute('title') || 'Kiến thức đạt được',
+                }),
+            },
+        ];
     },
     renderHTML({ HTMLAttributes }) {
         return ['section-block', mergeAttributes(HTMLAttributes), 0];
@@ -432,7 +452,7 @@ const QuizNodeView = ({ node, updateAttributes, editor, deleteNode }) => {
     const question = node.attrs.question ?? '';
     return (
         <NodeViewWrapper className="tfo-block-quiz tiptap-quiz-node">
-            <div className="tfo-block-quiz-question">
+            <div className="tfo-block-quiz-question" style={{ minWidth: 0 }}>
                 <span className="tfo-block-quiz-icon" contentEditable={false}>
                     ❓
                 </span>
@@ -440,7 +460,6 @@ const QuizNodeView = ({ node, updateAttributes, editor, deleteNode }) => {
                     className="tfo-block-quiz-question-input"
                     value={question}
                     onChange={(e) => updateAttributes({ question: e.target.value })}
-                    onMouseDown={(e) => e.stopPropagation()}
                     placeholder="Nhập câu hỏi trắc nghiệm..."
                     style={{
                         border: 'none',
@@ -450,10 +469,15 @@ const QuizNodeView = ({ node, updateAttributes, editor, deleteNode }) => {
                         outline: 'none',
                         padding: 0,
                         flex: 1,
+                        width: '100%',
+                        fontSize: '16px',
+                        lineHeight: '1.5',
                     }}
                 />
             </div>
-            <NodeViewContent className="tfo-block-quiz-options" />
+            <div className="tfo-block-quiz-options">
+                <NodeViewContent />
+            </div>
             <div className="tfo-block-quiz-actions" contentEditable={false} style={{ marginTop: 8 }}>
                 <Button
                     size="small"
@@ -492,7 +516,15 @@ const QuizExtension = Node.create({
         };
     },
     parseHTML() {
-        return [{ tag: 'quiz-block' }];
+        return [
+            {
+                tag: 'quiz-block',
+                getAttrs: (el) => ({
+                    question: el.getAttribute('question') || 'Câu hỏi trắc nghiệm?',
+                    dataQuestionCode: el.getAttribute('data-question-code') || '',
+                }),
+            },
+        ];
     },
     renderHTML({ HTMLAttributes }) {
         return ['quiz-block', mergeAttributes(HTMLAttributes), 0];
@@ -504,6 +536,7 @@ const QuizExtension = Node.create({
 
 const OptionNodeView = ({ node, updateAttributes, deleteNode }) => {
     const correct = node.attrs.correct === true;
+    console.log('OptionNodeView node:', node);
     return (
         <NodeViewWrapper
             className="tfo-quiz-option tiptap-option-node"
@@ -513,10 +546,16 @@ const OptionNodeView = ({ node, updateAttributes, deleteNode }) => {
                 type="checkbox"
                 checked={correct}
                 onChange={(e) => updateAttributes({ correct: e.target.checked })}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: 'pointer', flexShrink: 0 }}
                 title="Đánh dấu đáp án đúng"
             />
-            <NodeViewContent className="tfo-quiz-option-text" style={{ flex: 1 }} />
+            <div className="tfo-quiz-option-text" style={{ flex: 1, minWidth: 0 }}>
+                {node.content && node.content.length > 0 ? (
+                    <NodeViewContent contentEditable={true} suppressContentEditableWarning />
+                ) : (
+                    <span style={{ color: '#999', fontStyle: 'italic' }}>Chưa có nội dung</span>
+                )}
+            </div>
             <Button
                 size="small"
                 type="text"
@@ -525,6 +564,7 @@ const OptionNodeView = ({ node, updateAttributes, deleteNode }) => {
                 onClick={deleteNode}
                 contentEditable={false}
                 title="Xóa lựa chọn"
+                style={{ flexShrink: 0 }}
             />
         </NodeViewWrapper>
     );
@@ -540,7 +580,17 @@ const OptionExtension = Node.create({
         };
     },
     parseHTML() {
-        return [{ tag: 'option-block' }];
+        return [
+            {
+                tag: 'option-block',
+                priority: 100,
+                getAttrs: (el) => {
+                    const correctStr = el.getAttribute('correct');
+                    const correct = correctStr === 'true' || correctStr === '';
+                    return { correct };
+                },
+            },
+        ];
     },
     renderHTML({ HTMLAttributes }) {
         return ['option-block', mergeAttributes(HTMLAttributes), 0];
@@ -623,24 +673,33 @@ Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ
         label: 'Trắc nghiệm',
         description: 'Mẫu câu hỏi trắc nghiệm kiểm tra kiến thức nhanh.',
         title: 'Kiểm tra kiến thức (ví dụ: Trắc nghiệm nhanh)',
-        descriptionText: 'Trả lời các câu hỏi trắc nghiệm dưới đây để hoàn thành bài học.',
-        blocks: () => `Hãy chọn đáp án đúng nhất cho từng câu hỏi dưới đây.
+        descriptionText: 'Trả lời các câu hỏi trắc nghiệm dưới đây để kiểm tra hiểu biết của bạn.',
+        blocks: () => `# Bài kiểm tra ngắn
 
+Hãy đọc kỹ mỗi câu hỏi và chọn phương án đúng nhất. Mỗi câu có một đáp án đúng.
+
+---
+
+## Câu 1
 {% quiz question="Thủ đô của Việt Nam là gì?" %}
-  {% option correct=true %}Hà Nội{% /option %}
-  {% option correct=false %}TP. Hồ Chí Minh{% /option %}
-  {% option correct=false %}Đà Nẵng{% /option %}
+{% option correct="true" %}Hà Nội{% /option %}
+{% option correct="false" %}TP. Hồ Chí Minh{% /option %}
+{% option correct="false" %}Đà Nẵng{% /option %}
 {% /quiz %}
 
+## Câu 2
 {% quiz question="React là thư viện của ngôn ngữ nào?" %}
-  {% option correct=false %}Python{% /option %}
-  {% option correct=true %}JavaScript{% /option %}
-  {% option correct=false %}Java{% /option %}
+{% option correct="false" %}Python{% /option %}
+{% option correct="true" %}JavaScript{% /option %}
+{% option correct="false" %}Java{% /option %}
 {% /quiz %}
+
+---
 
 {% callout icon="💡" %}
-Hãy đảm bảo bạn đã đọc kỹ câu hỏi trước khi chọn đáp án.
-{% /callout %}`,
+Tip: Bạn có thể chỉnh sửa câu hỏi hoặc đáp án trực tiếp trong khối.
+{% /callout %}
+`,
     },
 };
 
@@ -1159,6 +1218,22 @@ export default function BlockEditor({
                                 title="Chèn Section"
                             >
                                 <PlusOutlined /> Mục lớn
+                            </button>
+                            <button
+                                type="button"
+                                className="insert-btn quiz-template-ib"
+                                onClick={() => {
+                                    if (!editor) return;
+                                    const quizHtml = `<quiz-block question="Nhập câu hỏi trắc nghiệm?"><option-block correct="false">Lựa chọn A (Sai)</option-block><option-block correct="true">Lựa chọn B (Đúng)</option-block></quiz-block>`;
+                                    try {
+                                        editor.chain().focus().insertContent(quizHtml).run();
+                                    } catch (e) {
+                                        console.error('Failed to insert quiz block:', e);
+                                    }
+                                }}
+                                title="Chèn Trắc nghiệm"
+                            >
+                                <QuestionCircleOutlined /> Trắc nghiệm
                             </button>
                             
 

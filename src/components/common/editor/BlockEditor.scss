@@ -242,6 +242,19 @@
         }
       }
 
+      &.quiz-template-ib {
+        background: rgba(239, 68, 68, 0.12) !important;
+        color: #b91c1c !important;
+        border: 1px solid rgba(239, 68, 68, 0.28) !important;
+        box-shadow: 0 6px 14px -6px rgba(239,68,68,0.35) !important;
+        &:hover {
+          background: rgba(239, 68, 68, 0.18) !important;
+          border-color: rgba(220, 38, 38, 0.48) !important;
+          color: #7f1d1d !important;
+          transform: translateY(-2px) !important;
+        }
+      }
+
       &.quiz-ib {
         background: rgba(239, 68, 68, 0.06) !important;
         color: #dc2626 !important;
@@ -724,9 +737,18 @@
 
         .tfo-quiz-option-text {
           flex: 1;
+          min-width: 0;
+          display: block;
+          font-size: 14.5px;
+          color: inherit;
+          line-height: 1.4;
+          word-break: break-word;
+          white-space: normal;
           p {
             margin: 0 !important;
             display: inline !important;
+            font-size: inherit !important;
+            color: inherit !important;
           }
         }
 
@@ -983,6 +1005,14 @@
         outline: none !important;
         padding: 0 !important;
         flex: 1 !important;
+        width: 100% !important;
+        min-height: 24px !important;
+        line-height: 1.5 !important;
+
+        &::placeholder {
+          color: var(--text3) !important;
+          opacity: 1 !important;
+        }
       }
     }
   }
