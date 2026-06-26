@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Card, Col, Row, Button, Input, Space, Modal, Divider, Tag, Alert, message, Tabs, Upload, Checkbox } from 'antd';
-import { BookOutlined, UploadOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { BookOutlined, UploadOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
 import { BaseForm } from '@components/common/form/BaseForm';

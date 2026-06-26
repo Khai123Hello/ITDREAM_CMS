@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
-import { Card, Button, Input, Space, Checkbox, Tag, Divider, Empty, Tooltip, Popconfirm } from 'antd';
+import React from 'react';
+import { Button, Input, Checkbox, Tag, Empty, Tooltip, Popconfirm } from 'antd';
 import {
     PlusOutlined,
     DeleteOutlined,
-    QuestionCircleOutlined,
     CheckCircleOutlined,
     DragOutlined,
 } from '@ant-design/icons';
@@ -23,13 +22,15 @@ import {
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import useFetch from '@hooks/useFetch';
+import apiConfig from '@constants/apiConfig';
 
 const { TextArea } = Input;
 
 // -------------------------------------------------------------
 // Sortable Question Item Component
 // -------------------------------------------------------------
-const SortableQuestionItem = ({
+const SortableQuestionItem = React.memo(function SortableQuestionItem({
     question,
     index,
     updateQuestion,
@@ -39,7 +40,7 @@ const SortableQuestionItem = ({
     removeOption,
     handleCorrectChange,
     disabled,
-}) => {
+}) {
     const {
         attributes,
         listeners,
@@ -196,7 +197,7 @@ const SortableQuestionItem = ({
             </div>
         </div>
     );
-};
+});
 
 
 // -------------------------------------------------------------
@@ -224,13 +225,20 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
 
     const questions = normalizeQuestions(value);
 
-    const triggerChange = (newQuestions) => {
-        if (onChange) {
-            onChange(newQuestions);
-        }
-    };
+    // ---- OPTIMIZATION: Use refs for latest state so callbacks are stable ----
+    const latestQuestions = React.useRef(questions);
+    latestQuestions.current = questions;
+    
+    const latestOnChange = React.useRef(onChange);
+    latestOnChange.current = onChange;
 
-    const addQuestion = () => {
+    const triggerChange = React.useCallback((newQuestions) => {
+        if (latestOnChange.current) {
+            latestOnChange.current(newQuestions);
+        }
+    }, []);
+
+    const addQuestion = React.useCallback(() => {
         const newQuestion = {
             id: generateId(),
             question: '',
@@ -239,21 +247,21 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
                 { id: generateId(), option: '', answer: false },
             ],
         };
-        triggerChange([...questions, newQuestion]);
-    };
+        triggerChange([...latestQuestions.current, newQuestion]);
+    }, [triggerChange]);
 
-    const updateQuestion = (qId, field, val) => {
-        const newQs = questions.map(q => q.id === qId ? { ...q, [field]: val } : q);
+    const updateQuestion = React.useCallback((qId, field, val) => {
+        const newQs = latestQuestions.current.map(q => q.id === qId ? { ...q, [field]: val } : q);
         triggerChange(newQs);
-    };
+    }, [triggerChange]);
 
-    const removeQuestion = (qId) => {
-        const newQs = questions.filter(q => q.id !== qId);
+    const removeQuestion = React.useCallback((qId) => {
+        const newQs = latestQuestions.current.filter(q => q.id !== qId);
         triggerChange(newQs);
-    };
+    }, [triggerChange]);
 
-    const addOption = (qId) => {
-        const newQs = questions.map(q => {
+    const addOption = React.useCallback((qId) => {
+        const newQs = latestQuestions.current.map(q => {
             if (q.id === qId) {
                 return {
                     ...q,
@@ -263,10 +271,10 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
             return q;
         });
         triggerChange(newQs);
-    };
+    }, [triggerChange]);
 
-    const updateOption = (qId, optId, field, val) => {
-        const newQs = questions.map(q => {
+    const updateOption = React.useCallback((qId, optId, field, val) => {
+        const newQs = latestQuestions.current.map(q => {
             if (q.id === qId) {
                 return {
                     ...q,
@@ -276,10 +284,10 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
             return q;
         });
         triggerChange(newQs);
-    };
+    }, [triggerChange]);
 
-    const removeOption = (qId, optId) => {
-        const newQs = questions.map(q => {
+    const removeOption = React.useCallback((qId, optId) => {
+        const newQs = latestQuestions.current.map(q => {
             if (q.id === qId && q.options.length > 2) {
                 return {
                     ...q,
@@ -289,11 +297,11 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
             return q;
         });
         triggerChange(newQs);
-    };
+    }, [triggerChange]);
 
-    const handleCorrectChange = (qId, optId, checked) => {
+    const handleCorrectChange = React.useCallback((qId, optId, checked) => {
         // Enforce single correct answer per question
-        const newQs = questions.map(q => {
+        const newQs = latestQuestions.current.map(q => {
             if (q.id === qId) {
                 return {
                     ...q,
@@ -306,16 +314,17 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
             return q;
         });
         triggerChange(newQs);
-    };
+    }, [triggerChange]);
 
-    const handleDragEnd = (event) => {
+    const handleDragEnd = React.useCallback((event) => {
         const { active, over } = event;
         if (active.id !== over?.id) {
-            const oldIndex = questions.findIndex(q => q.id === active.id);
-            const newIndex = questions.findIndex(q => q.id === over.id);
-            triggerChange(arrayMove(questions, oldIndex, newIndex));
+            const currentQs = latestQuestions.current;
+            const oldIndex = currentQs.findIndex(q => q.id === active.id);
+            const newIndex = currentQs.findIndex(q => q.id === over.id);
+            triggerChange(arrayMove(currentQs, oldIndex, newIndex));
         }
-    };
+    }, [triggerChange]);
 
     return (
         <div style={{ marginTop: 8 }}>

@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Spin } from 'antd';
 import TipTapJsonRenderer from '@components/common/editor/TipTapJsonRenderer';
+import useFetch from '@hooks/useFetch';
+import { getData } from '@utils/localStorage';
+import { storageKeys, UserTypes } from '@constants';
+import apiConfig from '@constants/apiConfig';
 
 import './TaskContentLayout.scss';
 
@@ -38,6 +42,47 @@ export default function TaskContentLayout({
 
     children,
 }) {
+    // State for subtask questions
+    const [subtaskQuestions, setSubtaskQuestions] = useState([]);
+    const [questionsLoaded, setQuestionsLoaded] = useState(false);
+
+    const isEducator = getData(storageKeys.USER_TYPE) === UserTypes.EDUCATOR;
+    const { execute: fetchQuestions } = useFetch(
+        isEducator ? apiConfig.taskQuestion.educatorList : apiConfig.taskQuestion.getList,
+        {
+            immediate: false,
+            onCompleted: (response) => {
+                const resData = response?.data || (response?.result === undefined ? response : null);
+                if (resData) {
+                    const fetched = (resData.content || []).map(q => {
+                        let parsed = [];
+                        try { parsed = typeof q.options === 'string' ? JSON.parse(q.options) : (q.options || []); } catch (_) { /* ignore */ }
+                        return { ...q, options: parsed };
+                    });
+                    setSubtaskQuestions(fetched);
+                }
+                setQuestionsLoaded(true);
+            },
+            onError: () => setQuestionsLoaded(true),
+        },
+    );
+
+    // Load questions whenever a subtask is selected
+    useEffect(() => {
+        if (selectedSubtaskId) {
+            setQuestionsLoaded(false);
+            fetchQuestions({ params: { taskId: selectedSubtaskId, page: 0, size: 100 } });
+        } else {
+            setSubtaskQuestions([]);
+            setQuestionsLoaded(true);
+        }
+    }, [selectedSubtaskId]);
+
+    const currentQuestionMap = useMemo(() => subtaskQuestions.reduce((acc, q) => {
+        acc[q.id] = q;
+        return acc;
+    }, {}), [subtaskQuestions]);
+
     const renderMedia = () => {
         if (!mediaPath) return null;
         const fullMediaPath = mediaPath.startsWith('http') ? mediaPath : `${urlBase}${mediaPath}`;
@@ -66,7 +111,7 @@ export default function TaskContentLayout({
         return null;
     };
 
-    if (loading) {
+    if (loading || !questionsLoaded) {
         return (
             <div className="tfo-content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
                 <Spin size="large" />
@@ -160,7 +205,7 @@ export default function TaskContentLayout({
                                         <TipTapJsonRenderer
                                             content={content}
                                             quizSubmissionMap={quizSubmissionMap}
-                                            questionMap={questionMap}
+                                            questionMap={currentQuestionMap}
                                         />
                                     )}
 

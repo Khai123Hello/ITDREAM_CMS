@@ -87,7 +87,21 @@ const TaskSavePage = ({ pageOptions }) => {
                 );
                 const isNewQuestion = !q.id || (typeof q.id === 'string' && q.id.startsWith('id_'));
                 if (!isNewQuestion && existingIds.includes(q.id)) {
-                    await updateQuestion({ data: { id: q.id, question: q.question, options: payloadOptions, taskId } });
+                    const existingQ = existingQuestions.find(eq => eq.id === q.id);
+                    // Compare before updating
+                    let existingOptions = [];
+                    try {
+                        existingOptions = typeof existingQ.options === 'string' ? JSON.parse(existingQ.options) : (existingQ.options || []);
+                    } catch (e) {}
+                    const existingOptionsString = JSON.stringify(
+                        existingOptions.map(({ option, answer }) => ({ option, answer }))
+                    );
+                    
+                    const isChanged = existingQ.question !== q.question || existingOptionsString !== payloadOptions;
+                    
+                    if (isChanged) {
+                        await updateQuestion({ data: { id: q.id, question: q.question, options: payloadOptions, taskId } });
+                    }
                 } else {
                     await createQuestion({ data: { question: q.question, options: payloadOptions, taskId } });
                 }
