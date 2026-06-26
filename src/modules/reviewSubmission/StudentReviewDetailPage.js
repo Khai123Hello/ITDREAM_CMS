@@ -872,7 +872,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         data: commentsData,
         execute: executeFetchComments,
         loading: commentsLoading,
-    } = useFetch(apiConfig.comment.list, {
+    } = useFetch(isEducator ? apiConfig.comment.list : apiConfig.comment.userList, {
         immediate: false,
         mappingData: (res) => res.data || {},
     });
@@ -902,7 +902,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         executeCreateComment({
             data: {
                 content,
-                parentId,
+                parentId: parentId === 0 ? null : parentId,
                 taskId: selectedSubtaskId,
                 simulationEnrollmentId,
             },
