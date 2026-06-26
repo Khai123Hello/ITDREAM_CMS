@@ -13,13 +13,11 @@ import MarkdocRenderer from '@components/common/editor/MarkdocRenderer';
 import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
 import useTranslate from '@hooks/useTranslate';
-import { useTaskSymbol } from './useTaskSymbol';
 
 import { AppConstants, TaskTypes, UserTypes, storageKeys, UploadFileTypes } from '@constants';
 import { getData } from '@utils/localStorage';
 import apiConfig from '@constants/apiConfig';
 import { taskKindOptions } from '@constants/masterData';
-import { commonMessage } from '@locales/intl';
 import {
     isJsonBlocks,
     blocksToMarkdoc,
@@ -205,47 +203,30 @@ const TaskForm = (props) => {
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({ onSubmit, setIsChangedFormValues });
 
-    const parentOrderFromState = location.state?.parentOrder;
-    const taskOrderFromState = location.state?.taskOrder;
-
-    let parentOrder = parentOrderFromState || 1;
-    let taskOrder = taskOrderFromState || 1;
-
-    if (!parentOrderFromState || !taskOrderFromState) {
-        if (dataDetail?.name) {
-            const currentKind = isEditing ? Number(dataDetail.kind) : Number(taskKind);
-            if (currentKind === TaskTypes.TASK) {
-                const match = dataDetail.name.match(/^TASK_T(\d+)$/);
-                if (match) {
-                    taskOrder = parseInt(match[1]);
-                }
-            } else {
-                const match = dataDetail.name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-                if (match) {
-                    parentOrder = parseInt(match[1]);
-                    taskOrder = parseInt(match[2]);
-                }
-            }
-        }
-    }
-
-    const { symbol, requiresFileUpload, setRequiresFileUpload, requiresTextResponse, setRequiresTextResponse } =
-        useTaskSymbol({
-            taskKind: isEditing ? Number(dataDetail?.kind) : Number(taskKind),
-            parentOrder,
-            taskOrder,
-            initialValue: dataDetail?.name || '',
-        });
+    const [requiresFileUpload, setRequiresFileUpload] = useState(false);
+    const [requiresTextResponse, setRequiresTextResponse] = useState(false);
 
     useEffect(() => {
-        if (symbol) {
-            const currentName = form.getFieldValue('name');
-            if (currentName !== symbol) {
-                form.setFieldsValue({ name: symbol });
-                setIsChangedFormValues(true);
+        if (dataDetail?.name) {
+            const match = dataDetail.name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
+            if (match) {
+                const suffix = match[3] || '';
+                if (suffix === '_FILE_TEXT') {
+                    setRequiresFileUpload(true);
+                    setRequiresTextResponse(true);
+                } else if (suffix === '_FILE') {
+                    setRequiresFileUpload(true);
+                    setRequiresTextResponse(false);
+                } else if (suffix === '_TEXT') {
+                    setRequiresFileUpload(false);
+                    setRequiresTextResponse(true);
+                } else {
+                    setRequiresFileUpload(false);
+                    setRequiresTextResponse(false);
+                }
             }
         }
-    }, [symbol, form, setIsChangedFormValues]);
+    }, [dataDetail]);
 
     const handleValuesChange = (changedValues, allValues) => {
         onValuesChange(changedValues, allValues);
@@ -277,7 +258,6 @@ const TaskForm = (props) => {
             const draftKey = `task_draft_${simulationId}_${isEditing && dataDetail?.id ? dataDetail.id : 'new'}`;
             const formValues = form.getFieldsValue();
             const draftPayload = {
-                name: formValues.name,
                 title: titleRef.current || title || formValues.title,
                 description: descriptionRef.current || description || formValues.description,
                 type: formValues.type,
@@ -285,17 +265,18 @@ const TaskForm = (props) => {
                 imagePath,
                 videoPath: videoUrl,
                 filePath,
+                requiresFileUpload,
+                requiresTextResponse,
             };
             localStorage.setItem(draftKey, JSON.stringify(draftPayload));
         }, 1000);
 
         return () => clearTimeout(timer);
-    }, [isDirty, content, imagePath, videoUrl, filePath, changeTrigger, form, isEditing, dataDetail?.id, simulationId, title, description]);
+    }, [isDirty, content, imagePath, videoUrl, filePath, changeTrigger, form, isEditing, dataDetail?.id, simulationId, title, description, requiresFileUpload, requiresTextResponse]);
 
     const handleRestoreDraft = () => {
         if (!draftData) return;
         form.setFieldsValue({
-            name: draftData.name || '',
             title: draftData.title || '',
             description: draftData.description || '',
             type: draftData.type,
@@ -309,25 +290,8 @@ const TaskForm = (props) => {
         setVideoUrl(draftData.videoPath || '');
         setFilePath(draftData.filePath || null);
 
-        if (draftData.name) {
-            const match = draftData.name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-            if (match) {
-                const suffix = match[3] || '';
-                if (suffix === '_FILE_TEXT') {
-                    setRequiresFileUpload(true);
-                    setRequiresTextResponse(true);
-                } else if (suffix === '_FILE') {
-                    setRequiresFileUpload(true);
-                    setRequiresTextResponse(false);
-                } else if (suffix === '_TEXT') {
-                    setRequiresFileUpload(false);
-                    setRequiresTextResponse(true);
-                } else {
-                    setRequiresFileUpload(false);
-                    setRequiresTextResponse(false);
-                }
-            }
-        }
+        setRequiresFileUpload(draftData.requiresFileUpload || false);
+        setRequiresTextResponse(draftData.requiresTextResponse || false);
 
         setIsChangedFormValues(true);
         setDraftData(null);
@@ -476,19 +440,7 @@ const TaskForm = (props) => {
                         <TextField name="description" />
                     </div>
 
-                    {/* Name & Thể loại nội dung */}
-                    <Row gutter={16}>
-                        {/* Hidden TextField for name so Form still registers it and validation works */}
-                        <div style={{ display: 'none' }}>
-                            <TextField
-                                label={translate.formatMessage(commonMessage.name)}
-                                name="name"
-                                placeholder="Nhập tên nhiệm vụ"
-                                disabled={!isEducator}
-                            />
-                        </div>
 
-                    </Row>
 
                     {/* BlockEditor for Title, Description & Content */}
                     <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -818,7 +770,6 @@ const TaskForm = (props) => {
             if (parentTaskFromState) {
                 setTaskKind(TaskTypes.SUBTASK);
                 setParentTaskInfo(parentTaskFromState);
-                setTimeout(() => form.setFieldsValue({ name: parentTaskFromState.name }), 100);
             } else {
                 setTaskKind(TaskTypes.TASK);
                 setParentTaskInfo(null);
@@ -863,7 +814,6 @@ const TaskForm = (props) => {
 
         try {
             form.setFieldsValue({
-                name: dataDetail.name || '',
                 title: dataDetail.title || '',
                 description: dataDetail.description || '',
             });
@@ -957,18 +907,9 @@ const TaskForm = (props) => {
             const formValues = form.getFieldsValue(true);
             const titleVal = titleRef.current || title || formValues.title || values?.title || '';
             const descVal = descriptionRef.current || description || formValues.description || values?.description || '';
-            const nameVal = formValues.name || values?.name;
-
-            console.log('DEBUG [handleSubmit] values:', values);
-            console.log('DEBUG [handleSubmit] formValues:', formValues);
-            console.log('DEBUG [handleSubmit] titleRef.current:', titleRef.current);
-            console.log('DEBUG [handleSubmit] title state:', title);
-            console.log('DEBUG [handleSubmit] titleVal:', titleVal);
-
             const currentKind = isEditing ? dataDetail.kind : taskKind;
             const isSubtask = Number(currentKind) === TaskTypes.SUBTASK;
             const submitData = {
-                name: symbol || nameVal?.trim() || '',
                 title: titleVal?.trim() || '',
                 description: descVal?.trim() || '',
                 kind: currentKind,

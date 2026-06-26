@@ -10,17 +10,27 @@ import { isJsonBlocks, extractQuizFromMarkdoc } from '@utils/markdocBlockConvert
 
 /* ─────────────────────────── Helper Components & Functions ─────────────────────────── */
 
-const parseSubtaskName = (name = '') => {
-    const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-    if (!match) return null;
-
-    const suffix = match[3] || '';
+const parseSubtaskName = (subtask) => {
+    const name = subtask?.name || '';
+    if (name) {
+        const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
+        if (match) {
+            const suffix = match[3] || '';
+            return {
+                parentOrder: parseInt(match[1], 10),
+                subtaskOrder: parseInt(match[2], 10),
+                suffix,
+                requiresFileUpload: suffix === '_FILE' || suffix === '_FILE_TEXT',
+                requiresTextResponse: suffix === '_TEXT' || suffix === '_FILE_TEXT',
+            };
+        }
+    }
     return {
-        parentOrder: parseInt(match[1], 10),
-        subtaskOrder: parseInt(match[2], 10),
-        suffix,
-        requiresFileUpload: suffix === '_FILE' || suffix === '_FILE_TEXT',
-        requiresTextResponse: suffix === '_TEXT' || suffix === '_FILE_TEXT',
+        parentOrder: subtask?.parent?.orderInParent || 1,
+        subtaskOrder: subtask?.orderInParent || 1,
+        suffix: '',
+        requiresFileUpload: true,
+        requiresTextResponse: true,
     };
 };
 
@@ -29,7 +39,7 @@ const getSubmissionAnswer = (submission = {}) => submission.answer || submission
 /* ─────────────────────────── Main Reusable Component ─────────────────────────── */
 
 const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuestions = [], loading = false }) => {
-    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail?.name || ''), [subtaskDetail]);
+    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail), [subtaskDetail]);
     const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
     const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
 
