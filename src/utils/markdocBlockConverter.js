@@ -185,7 +185,7 @@ const htmlConfig = {
             render: 'quiz-block',
             attributes: {
                 question: { type: String },
-                dataQuestionCode: { type: String },
+                'data-question-code': { type: String },
             },
         },
         option: {
@@ -326,6 +326,11 @@ const tagAttrMap = {
     'option-block': ['correct'],
 };
 
+const attrNameMap = {
+    'data-question-code': 'dataQuestionCode',
+    'correct': 'correct',
+};
+
 function parseAttrs(el) {
     const tagName = el.tagName.toLowerCase();
     const nodeType = tagToNodeMap[tagName];
@@ -334,7 +339,13 @@ function parseAttrs(el) {
     (tagAttrMap[tagName] || []).forEach((attr) => {
         const val = el.getAttribute(attr);
         if (val !== null && val !== undefined) {
-            attrs[attr] = attr === 'correct' ? val === 'true' || val === '' : val;
+            const mappedAttr = attrNameMap[attr] || attr;
+            if (attr === 'correct') {
+                // Handle boolean: 'true' -> true, 'false' -> false, '' -> true
+                attrs[mappedAttr] = val === 'true' || val === '';
+            } else {
+                attrs[mappedAttr] = val;
+            }
         }
     });
     return attrs;
@@ -591,14 +602,33 @@ export function markdocToTipTapJson(contentStr) {
 export function extractQuizFromMarkdoc(markdown) {
     if (!markdown) return [];
 
-    let parsedMarkdown = markdown;
+    // If content is stored as legacy JSON blocks, extract quizzes directly
+    // from the JSON to preserve the original option content (verbatim).
     if (isJsonBlocks(markdown)) {
         try {
-            parsedMarkdown = blocksToMarkdoc(JSON.parse(markdown));
-        } catch {
+            const blocks = JSON.parse(markdown);
+            const quizzesFromJson = [];
+            (blocks || []).forEach((blk) => {
+                if (blk && blk.type === 'quiz') {
+                    const question = blk.question || '';
+                    const options = (Array.isArray(blk.options) ? blk.options : []).map((opt) => ({
+                        option: opt && (opt.option || opt.text || opt.content || '') || '',
+                        answer: Boolean(opt && opt.answer),
+                    }));
+                    quizzesFromJson.push({
+                        question,
+                        options: JSON.stringify(options),
+                        dataQuestionCode: blk.dataQuestionCode || blk.dataQuestionCode || '',
+                    });
+                }
+            });
+            return quizzesFromJson;
+        } catch (e) {
             return [];
         }
     }
+
+    let parsedMarkdown = markdown;
 
     try {
         const ast = Markdoc.parse(parsedMarkdown);
@@ -609,19 +639,42 @@ export function extractQuizFromMarkdoc(markdown) {
                 const question = node.attributes.question || '';
                 const options = [];
 
+                console.debug('[extractQuizFromMarkdoc] found quiz node', {
+                    tag: node.tag,
+                    attributes: node.attributes,
+                    childrenCount: Array.isArray(node.children) ? node.children.length : 0,
+                });
+
                 // Look for option tags inside this quiz
                 if (Array.isArray(node.children)) {
                     node.children.forEach((child) => {
                         if (child.tag === 'option') {
                             const correct = child.attributes.correct === true;
                             // Extract inline text content of option
+                            // Robust text extraction: check for string nodes, Markdoc text nodes
+                            // and recursively gather from children. Try common properties
+                            // like `content`, `value`, and `attributes.content`.
+                            const getTextFromNode = (n) => {
+                                if (n === null || n === undefined) return '';
+                                if (typeof n === 'string') return n;
+                                if (Array.isArray(n)) return n.map(getTextFromNode).join('');
+                                // Common Markdoc text node shapes
+                                if (n.type === 'text' || n.type === 'inline') {
+                                    return String(n.content ?? n.value ?? n.attributes?.content ?? '');
+                                }
+                                if (Array.isArray(n.children) && n.children.length > 0) {
+                                    return n.children.map(getTextFromNode).join('');
+                                }
+                                return String(n.content ?? n.value ?? n.attributes?.content ?? '');
+                            };
+
                             let optionText = '';
-                            if (Array.isArray(child.children)) {
-                                optionText = child.children
-                                    .map((c) => (c.type === 'text' ? c.attributes.content : ''))
-                                    .join('')
-                                    .trim();
+                            if (Array.isArray(child.children) && child.children.length > 0) {
+                                optionText = child.children.map(getTextFromNode).join('').trim();
+                            } else {
+                                optionText = String(child.content ?? child.value ?? child.attributes?.content ?? '').trim();
                             }
+                            console.debug('[extractQuizFromMarkdoc] option extracted', { optionText, correct });
                             options.push({ option: optionText, answer: correct });
                         }
                     });
@@ -640,4 +693,60 @@ export function extractQuizFromMarkdoc(markdown) {
         console.error('Failed to extract quiz questions from Markdoc AST:', err);
         return [];
     }
+}
+
+export function parseTaskQuestionOptions(options) {
+    if (!options) return [];
+    if (typeof options === 'string') {
+        try {
+            const parsed = JSON.parse(options);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch {
+            return [];
+        }
+    }
+    return Array.isArray(options) ? options : [];
+}
+
+export function normalizeTaskQuestionText(text) {
+    return String(text || '').trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+export function normalizeTaskQuestionOptions(options) {
+    return parseTaskQuestionOptions(options).map((opt) => ({
+        option: String(opt.option || opt.text || '').trim().replace(/\s+/g, ' ').toLowerCase(),
+        answer: Boolean(opt.answer),
+    }));
+}
+
+export function buildTaskQuestionKey(question) {
+    return `${normalizeTaskQuestionText(question.question)}||${JSON.stringify(
+        normalizeTaskQuestionOptions(question.options),
+    )}`;
+}
+
+export function dedupeTaskQuestions(questions) {
+    const questionMap = new Map();
+
+    for (const rawQuestion of questions || []) {
+        const key = buildTaskQuestionKey(rawQuestion);
+        const normalizedOptions = typeof rawQuestion.options === 'string'
+            ? rawQuestion.options
+            : JSON.stringify(parseTaskQuestionOptions(rawQuestion.options));
+
+        if (!questionMap.has(key)) {
+            questionMap.set(key, {
+                ...rawQuestion,
+                options: normalizedOptions,
+            });
+            continue;
+        }
+
+        const existing = questionMap.get(key);
+        if (!existing.id && rawQuestion.id) {
+            questionMap.set(key, { ...existing, id: rawQuestion.id });
+        }
+    }
+
+    return Array.from(questionMap.values());
 }

@@ -20,8 +20,14 @@ import { getData } from '@utils/localStorage';
 import apiConfig from '@constants/apiConfig';
 import { taskKindOptions } from '@constants/masterData';
 import { commonMessage } from '@locales/intl';
-import { isJsonBlocks, blocksToMarkdoc, extractQuizFromMarkdoc } from '@utils/markdocBlockConverter';
-import InlineQuestionEditor from '@modules/simulation/task/InlineQuestionEditor';
+import {
+    isJsonBlocks,
+    blocksToMarkdoc,
+    extractQuizFromMarkdoc,
+    dedupeTaskQuestions,
+    buildTaskQuestionKey,
+    parseTaskQuestionOptions,
+} from '@utils/markdocBlockConverter';
 
 // ─────────────────────────────────────────────
 // Shared styles
@@ -196,12 +202,10 @@ const TaskForm = (props) => {
     // Question load states for BlockEditor remount key
     const [questionsLoaded, setQuestionsLoaded] = useState(!isEditing);
 
-    // ── Inline question creation state ────────────
-    const [createQuestions, setCreateQuestions] = useState(false);
-    const [inlineQuestions, setInlineQuestions] = useState([]);
-
     // ── Local state for questions ────────────────
     const [questions, setQuestions] = useState([]);
+    const [blockQuestions, setBlockQuestions] = useState([]);
+    const [mergedQuestions, setMergedQuestions] = useState([]);
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({ onSubmit, setIsChangedFormValues });
 
@@ -352,15 +356,35 @@ const TaskForm = (props) => {
                     const fetchedQuestions = resData.content || [];
                     setQuestions(fetchedQuestions);
 
-                    // Sync questions immediately to parent
                     const currentContent = contentRef.current || content || dataDetail?.content || dataDetail?.introduction || '';
-                    const extracted = extractQuizFromMarkdoc(currentContent);
-                    const synced = extracted.map((q, idx) => {
-                        const dbQ = fetchedQuestions[idx];
-                        return dbQ ? { ...q, id: dbQ.id } : q;
-                    });
-                    if (onQuestionsChange) {
-                        onQuestionsChange(synced);
+                    const extracted = extractQuizQuestions(currentContent, fetchedQuestions);
+                    setBlockQuestions(extracted);
+
+                    // If editor already contains quiz blocks, do not inject API questions into content
+                    if ((extracted || []).length > 0) {
+                        syncQuestions(extracted);
+                    } else if ((fetchedQuestions || []).length > 0) {
+                        // No quiz blocks in content -> append fetched questions (as markdoc) so editor shows them
+                        try {
+                            const blocks = (fetchedQuestions || []).map((q) => ({
+                                type: 'quiz',
+                                question: q.question || '',
+                                dataQuestionCode: q.id || q.dataQuestionCode || '',
+                                options: parseTaskQuestionOptions(q.options || q.options),
+                            }));
+                            const appended = blocksToMarkdoc(blocks);
+                            const newContent = `${currentContent}\n\n${appended}`.trim();
+                            setContent(newContent);
+                            contentRef.current = newContent;
+                            const reExtracted = extractQuizQuestions(newContent, fetchedQuestions);
+                            setBlockQuestions(reExtracted);
+                            syncQuestions(reExtracted);
+                        } catch (e) {
+                            console.error('Failed to append fetched questions into content:', e);
+                            syncQuestions(extracted);
+                        }
+                    } else {
+                        syncQuestions(extracted);
                     }
                 }
                 setQuestionsLoaded(true);
@@ -371,6 +395,16 @@ const TaskForm = (props) => {
         },
     );
 
+    const syncQuestions = (newBlockQuestions = blockQuestions) => {
+        const merged = dedupeTaskQuestions([...(newBlockQuestions || [])]);
+        setMergedQuestions(merged);
+        console.debug('[TaskForm] syncQuestions merged:', merged);
+        if (onQuestionsChange) {
+            console.debug('[TaskForm] calling onQuestionsChange with merged questions');
+            onQuestionsChange(merged);
+        }
+    };
+
     const loadQuestions = () => {
         if (isEditing && dataDetail?.id) {
             fetchQuestions({
@@ -378,15 +412,17 @@ const TaskForm = (props) => {
             });
         } else if (!isEditing) {
             setQuestions([]);
-            setInlineQuestions([]);
-            setCreateQuestions(false);
+            setBlockQuestions([]);
+            setMergedQuestions([]);
         }
     };
 
     useEffect(() => {
         if (questions.length > 0 && isEditing && Number(dataDetail?.kind) === TaskTypes.SUBTASK) {
-            setInlineQuestions(questions);
-            setCreateQuestions(true);
+            const currentContent = contentRef.current || content || dataDetail?.content || dataDetail?.introduction || '';
+            const extracted = extractQuizQuestions(currentContent, questions);
+            setBlockQuestions(extracted);
+            syncQuestions(extracted);
         }
     }, [questions, isEditing, dataDetail?.kind]);
 
@@ -395,12 +431,24 @@ const TaskForm = (props) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isEditing, dataDetail?.id]);
 
+    useEffect(() => {
+        if (!content) return;
+        const extracted = extractQuizQuestions(content, questions);
+        setBlockQuestions(extracted);
+        syncQuestions(extracted);
+    }, [content, questions]);
+
     // Helper: extract quiz questions from content string (Markdown)
-    const extractQuizQuestions = (contentStr) => {
+    const extractQuizQuestions = (contentStr, existingQuestions = []) => {
         const extracted = extractQuizFromMarkdoc(contentStr);
-        return extracted.map((q, idx) => {
-            const dbQ = questions[idx];
-            return dbQ ? { ...q, id: dbQ.id } : q;
+        const existingByKey = new Map(
+            (existingQuestions || []).map((q) => [buildTaskQuestionKey(q), q]),
+        );
+
+        return extracted.map((q) => {
+            const key = buildTaskQuestionKey(q);
+            const matched = existingByKey.get(key);
+            return matched ? { ...q, id: matched.id } : q;
         });
     };
 
@@ -547,9 +595,10 @@ const TaskForm = (props) => {
                                             contentRef.current = newContent;
                                             setContent(newContent);
                                             setIsChangedFormValues(true);
-                                            if (onQuestionsChange) {
-                                                onQuestionsChange(extractQuizQuestions(newContent));
-                                            }
+
+                                            const extracted = extractQuizQuestions(newContent, questions);
+                                            setBlockQuestions(extracted);
+                                            syncQuestions(extracted);
                                         }}
                                     />
                                 ) : (
@@ -750,7 +799,7 @@ const TaskForm = (props) => {
                         </>
                     )}
 
-                    {Number(taskKind) === TaskTypes.SUBTASK ? (
+                    {Number(taskKind) === TaskTypes.SUBTASK && (
                         <div style={{ marginTop: 24, marginBottom: 24 }}>
                             <label style={{ fontWeight: 600, display: 'block', marginBottom: 8 }}>
                                 Yêu cầu nộp bài của học viên
@@ -771,39 +820,7 @@ const TaskForm = (props) => {
                                 fieldProps={{
                                     checked: requiresTextResponse,
                                 }}
-                                formItemProps={{ style: { marginBottom: 8 } }}
-                            />
-                            <CheckboxField
-                                optionLabel={
-                                    <span style={{ color: '#1890ff', fontWeight: 600 }}>
-                                        <QuestionCircleOutlined style={{ marginRight: 6 }} />
-                                        Tạo câu hỏi trắc nghiệm cho nhiệm vụ phụ này
-                                    </span>
-                                }
-                                disabled={!isEducator}
-                                onChange={(e) => setCreateQuestions(e.target.checked)}
-                                fieldProps={{
-                                    checked: createQuestions,
-                                }}
                                 formItemProps={{ style: { marginBottom: 0 } }}
-                            />
-                        </div>
-                    ) : null}
-
-                    {createQuestions && Number(taskKind) === TaskTypes.SUBTASK && (
-                        <div style={{ marginTop: 16, marginBottom: 24 }}>
-                            <Divider orientation="left" style={{ fontSize: 14, fontWeight: 600 }}>
-                                <QuestionCircleOutlined style={{ marginRight: 8 }} />
-                                Nội dung câu hỏi trắc nghiệm
-                            </Divider>
-                            <InlineQuestionEditor
-                                questions={inlineQuestions}
-                                onChange={(updated) => {
-                                    setInlineQuestions(updated);
-                                    if (onQuestionsChange) {
-                                        onQuestionsChange(updated);
-                                    }
-                                }}
                             />
                         </div>
                     )}
