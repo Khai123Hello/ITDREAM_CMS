@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tag, Button, Modal, Spin, Avatar, Input, message, Tooltip, Badge, Table } from 'antd';
 import TaskContentLayout from '@components/simulation/TaskContentLayout';
-import CommentPanel from '@components/simulation/CommentPanel';
 import {
     ArrowLeftOutlined,
     EditOutlined,
@@ -12,7 +11,6 @@ import {
     CheckCircleFilled,
     SendOutlined,
     CheckOutlined,
-    CommentOutlined,
     UndoOutlined,
     ClockCircleOutlined,
     PicRightOutlined,
@@ -139,13 +137,12 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const { profile } = useAuth();
 
     const userType = getData(storageKeys.USER_TYPE);
-    const isEducator = userType === UserTypes.EDUCATOR;
+    const isEducator = userType === UserTypes.EDUCATOR || userType === UserTypes.ADMIN;
 
     // Active Sidebar / Tab states
     const [selectedParentTaskId, setSelectedParentTaskId] = useState(null);
     const [selectedSubtaskId, setSelectedSubtaskId] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
-    const [workspaceMode, setWorkspaceMode] = useState('review'); // preview, review, comments
 
     const [layoutMode, setLayoutMode] = useState(() => {
         try {
@@ -867,86 +864,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         });
     };
 
-    // 8. Fetch Comments API
-    const {
-        data: commentsData,
-        execute: executeFetchComments,
-        loading: commentsLoading,
-    } = useFetch(isEducator ? apiConfig.comment.list : apiConfig.comment.userList, {
-        immediate: false,
-        mappingData: (res) => res.data || {},
-    });
 
-    const loadComments = () => {
-        if (selectedSubtaskId && simulationEnrollmentId) {
-            executeFetchComments({
-                params: { taskId: selectedSubtaskId, simulationEnrollmentId, size: 1000 },
-            });
-        }
-    };
-
-    useEffect(() => {
-        if (selectedSubtaskId && simulationEnrollmentId) {
-            loadComments();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSubtaskId, simulationEnrollmentId]);
-
-    const { execute: executeCreateComment } = useFetch(apiConfig.comment.create, { immediate: false });
-    const { execute: executeUpdateComment } = useFetch(apiConfig.comment.update, { immediate: false });
-    const { execute: executeDeleteComment } = useFetch(apiConfig.comment.delete, { immediate: false });
-
-    const handleSendComment = (content, parentId = 0) => {
-        if (!selectedSubtaskId || !simulationEnrollmentId) return;
-
-        executeCreateComment({
-            data: {
-                content,
-                parentId: parentId === 0 ? null : parentId,
-                taskId: selectedSubtaskId,
-                simulationEnrollmentId,
-            },
-            onCompleted: () => {
-                loadComments();
-            },
-            onError: (err) => {
-                notify({ type: 'error', message: err?.message || 'Không thể gửi bình luận!' });
-            },
-        });
-    };
-
-    const handleUpdateComment = (id, content) => {
-        executeUpdateComment({
-            data: { id, content },
-            onCompleted: () => {
-                loadComments();
-            },
-            onError: (err) => {
-                notify({ type: 'error', message: err?.message || 'Không thể cập nhật bình luận!' });
-            },
-        });
-    };
-
-    const handleDeleteComment = (id) => {
-        Modal.confirm({
-            title: 'Xác nhận xóa',
-            content: 'Bạn có chắc chắn muốn xóa bình luận này không?',
-            okText: 'Xóa',
-            cancelText: 'Hủy',
-            okButtonProps: { danger: true },
-            onOk: () => {
-                executeDeleteComment({
-                    pathParams: { id },
-                    onCompleted: () => {
-                        loadComments();
-                    },
-                    onError: (err) => {
-                        notify({ type: 'error', message: err?.message || 'Không thể xóa bình luận!' });
-                    },
-                });
-            },
-        });
-    };
 
     // Navigation subtask indices
     const activeSubtaskIndex = useMemo(() => {
@@ -1264,48 +1182,21 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     const renderCollaborationPanel = () => {
-        if (workspaceMode === 'review') {
-            return (
-                <div className="tfo-review-tab-pane">
-                    {!canWriteReview && (
-                        <div className="tfo-review-read-only-banner">Bạn đang xem thông tin ở chế độ chỉ đọc.</div>
-                    )}
+        return (
+            <div className="tfo-review-tab-pane">
+                {!canWriteReview && (
+                    <div className="tfo-review-read-only-banner">Bạn đang xem thông tin ở chế độ chỉ đọc.</div>
+                )}
 
-                    {renderReviewHeader()}
+                {renderReviewHeader()}
 
-                    {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
-                        ? renderReviewDisplay()
-                        : canWriteReview
-                            ? renderReviewEditor()
-                            : renderReviewEmpty()}
-                </div>
-            );
-        } else {
-            return (
-                <div className="tfo-comments-pane-inner">
-                    <div className="tfo-review-section-header">
-                        <span className="tfo-review-section-title">Thảo luận & Bình luận</span>
-                        {commentsData?.content?.length > 0 && (
-                            <Badge
-                                count={commentsData.content.length}
-                                size="small"
-                                style={{ backgroundColor: '#1890ff', marginLeft: 6 }}
-                            />
-                        )}
-                    </div>
-                    <CommentPanel
-                        comments={commentsData?.content || []}
-                        loading={commentsLoading}
-                        profile={profile}
-                        readOnly={!canWriteComment}
-                        onSendComment={handleSendComment}
-                        onUpdateComment={handleUpdateComment}
-                        onDeleteComment={handleDeleteComment}
-                        studentUsername={username}
-                    />
-                </div>
-            );
-        }
+                {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
+                    ? renderReviewDisplay()
+                    : canWriteReview
+                        ? renderReviewEditor()
+                        : renderReviewEmpty()}
+            </div>
+        );
     };
 
     return (
@@ -1376,32 +1267,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         </Tooltip>
                     </div>
 
-                    {/* Mode switcher (Nhận xét & Đánh giá / Thảo luận & Bình luận) */}
-                    <div className="tfo-mode-switcher">
-                        <Tooltip title="Chế độ Nhận xét & Đánh giá">
-                            <Button
-                                icon={<EditOutlined />}
-                                type={workspaceMode === 'review' ? 'primary' : 'text'}
-                                onClick={() => setWorkspaceMode('review')}
-                                size="small"
-                            >
-                                <span>Nhận xét & Đánh giá</span>
-                                {hasUnsavedDraftForActiveSubtask && (
-                                    <Badge status="warning" style={{ marginLeft: 2 }} />
-                                )}
-                            </Button>
-                        </Tooltip>
-                        <Tooltip title="Chế độ Thảo luận & Bình luận">
-                            <Button
-                                icon={<CommentOutlined />}
-                                type={workspaceMode === 'comments' ? 'primary' : 'text'}
-                                onClick={() => setWorkspaceMode('comments')}
-                                size="small"
-                            >
-                                Thảo luận & Bình luận
-                            </Button>
-                        </Tooltip>
-                    </div>
+
 
                     {/* Complete Review Button */}
                     {canWriteReview && (
@@ -1498,8 +1364,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         </Tooltip>
                     );
                 }}
-                rightPane={workspaceMode !== 'preview' && layoutMode === 'split' ? renderCollaborationPanel() : null}
-                reviewPane={workspaceMode !== 'preview' && layoutMode === 'bottom' ? renderCollaborationPanel() : null}
+                rightPane={layoutMode === 'split' ? renderCollaborationPanel() : null}
+                reviewPane={layoutMode === 'bottom' ? renderCollaborationPanel() : null}
             >
                 {/* File submission section */}
                 {requiresFileUpload && fileSub && (
@@ -1541,6 +1407,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     </div>
                 )}
             </TaskContentLayout>
+
+
         </PageWrapper>
     );
 };

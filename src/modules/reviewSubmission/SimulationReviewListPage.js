@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Empty, Tag, Button, Card, Row, Col, Spin, Input, Radio, Progress, Statistic, Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined, SearchOutlined, RightOutlined, CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { UserOutlined, SearchOutlined, RightOutlined, CheckCircleOutlined, ArrowLeftOutlined, SolutionOutlined, CommentOutlined } from '@ant-design/icons';
 
 import useTranslate from '@hooks/useTranslate';
 import useFetch from '@hooks/useFetch';
@@ -231,22 +231,42 @@ const SimulationReviewListPage = ({ pageOptions }) => {
         {
             title: 'Thao tác',
             key: 'action',
-            align: 'right',
+            align: 'center',
+            width: 250,
             render: (_, item) => {
                 const profileAccountDto = item.student?.profileAccountDto || {};
                 return (
-                    <Button
-                        type="primary"
-                        icon={<RightOutlined />}
-                        style={{ borderRadius: 6, fontWeight: 600 }}
-                        onClick={() => {
-                            navigate(`/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`, {
-                                state: { simulationEnrollmentId: item.id },
-                            });
-                        }}
-                    >
-                        Chấm điểm
-                    </Button>
+                    <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                        <Button
+                            type="primary"
+                            icon={<SolutionOutlined />}
+                            style={{ borderRadius: 6, fontWeight: 600 }}
+                            onClick={() => {
+                                navigate(`/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`, {
+                                    state: { simulationEnrollmentId: item.id },
+                                });
+                            }}
+                        >
+                            Nhận xét
+                        </Button>
+                        <Button
+                            icon={<CommentOutlined />}
+                            style={{
+                                borderRadius: 6,
+                                fontWeight: 600,
+                                borderColor: '#1890ff',
+                                color: '#1890ff',
+                                background: '#f0f5ff',
+                            }}
+                            onClick={() => {
+                                navigate(`/student-discussion-detail/${selectedSimulationId}/${profileAccountDto.username}`, {
+                                    state: { simulationEnrollmentId: item.id },
+                                });
+                            }}
+                        >
+                            Thảo luận
+                        </Button>
+                    </div>
                 );
             },
         },
