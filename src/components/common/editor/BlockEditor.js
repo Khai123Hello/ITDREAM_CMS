@@ -1160,6 +1160,7 @@ export default function BlockEditor({
                             >
                                 <PlusOutlined /> Mục lớn
                             </button>
+                            
 
                         </div>
                     </div>
@@ -1293,3 +1294,5 @@ export default function BlockEditor({
         </div>
     );
 }
+
+

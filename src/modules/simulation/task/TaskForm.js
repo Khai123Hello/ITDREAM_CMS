@@ -359,7 +359,33 @@ const TaskForm = (props) => {
                     const currentContent = contentRef.current || content || dataDetail?.content || dataDetail?.introduction || '';
                     const extracted = extractQuizQuestions(currentContent, fetchedQuestions);
                     setBlockQuestions(extracted);
-                    syncQuestions(extracted);
+
+                    // If editor already contains quiz blocks, do not inject API questions into content
+                    if ((extracted || []).length > 0) {
+                        syncQuestions(extracted);
+                    } else if ((fetchedQuestions || []).length > 0) {
+                        // No quiz blocks in content -> append fetched questions (as markdoc) so editor shows them
+                        try {
+                            const blocks = (fetchedQuestions || []).map((q) => ({
+                                type: 'quiz',
+                                question: q.question || '',
+                                dataQuestionCode: q.id || q.dataQuestionCode || '',
+                                options: parseTaskQuestionOptions(q.options || q.options),
+                            }));
+                            const appended = blocksToMarkdoc(blocks);
+                            const newContent = `${currentContent}\n\n${appended}`.trim();
+                            setContent(newContent);
+                            contentRef.current = newContent;
+                            const reExtracted = extractQuizQuestions(newContent, fetchedQuestions);
+                            setBlockQuestions(reExtracted);
+                            syncQuestions(reExtracted);
+                        } catch (e) {
+                            console.error('Failed to append fetched questions into content:', e);
+                            syncQuestions(extracted);
+                        }
+                    } else {
+                        syncQuestions(extracted);
+                    }
                 }
                 setQuestionsLoaded(true);
             },
@@ -402,6 +428,13 @@ const TaskForm = (props) => {
         loadQuestions();
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isEditing, dataDetail?.id]);
+
+    useEffect(() => {
+        if (!content) return;
+        const extracted = extractQuizQuestions(content, questions);
+        setBlockQuestions(extracted);
+        syncQuestions(extracted);
+    }, [content, questions]);
 
     // Helper: extract quiz questions from content string (Markdown)
     const extractQuizQuestions = (contentStr, existingQuestions = []) => {

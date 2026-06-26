@@ -24,6 +24,11 @@ const TaskSavePage = ({ pageOptions }) => {
     // useRef để tránh stale closure trong saveQuestionsForTask
     // (override callback chỉ chạy 1 lần, nên closure phải đọc ref thay vì state)
     const localQuestionsRef = useRef([]);
+    const handleQuestionsChange = (questions) => {
+        console.debug('[TaskSavePage] handleQuestionsChange called with', questions);
+        setLocalQuestions(questions);
+        localQuestionsRef.current = questions;
+    };
     useEffect(() => {
         localQuestionsRef.current = localQuestions;
     }, [localQuestions]);
@@ -106,6 +111,7 @@ const TaskSavePage = ({ pageOptions }) => {
                 try {
                     // Đọc từ ref để luôn lấy giá trị mới nhất (tránh stale closure)
                     const currentQuestions = localQuestionsRef.current;
+                    console.debug('[TaskSavePage] saveQuestionsForTask reading currentQuestions', currentQuestions);
 
                     // 1. Fetch existing questions
                     const response = await getExistingQuestions({
@@ -128,6 +134,12 @@ const TaskSavePage = ({ pageOptions }) => {
 
                     // 3. Save questions in order (Create or Update)
                     for (const q of currentQuestions) {
+                        console.debug('[TaskSavePage] saving question payload', {
+                            id: q.id,
+                            question: q.question,
+                            options: q.options,
+                            taskId: taskId,
+                        });
                         if (q.id && existingIds.includes(q.id)) {
                             // Update existing question
                             await updateQuestion({
@@ -216,7 +228,7 @@ const TaskSavePage = ({ pageOptions }) => {
                     actions={mixinFuncs.renderActions()}
                     onSubmit={onSave}
                     simulationId={simulationId}
-                    onQuestionsChange={setLocalQuestions}
+                    onQuestionsChange={handleQuestionsChange}
                 />
             ) : !loading ? (
                 <div style={{ padding: '24px', textAlign: 'center' }}>

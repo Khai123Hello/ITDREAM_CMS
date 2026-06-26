@@ -615,12 +615,19 @@ export function extractQuizFromMarkdoc(markdown) {
                         if (child.tag === 'option') {
                             const correct = child.attributes.correct === true;
                             // Extract inline text content of option
+                            // Robust text extraction: recurse into child nodes to gather all text content
+                            const getTextFromNode = (n) => {
+                                if (!n) return '';
+                                if (n.type === 'text') return String(n.attributes?.content || '') || '';
+                                if (Array.isArray(n.children)) return n.children.map(getTextFromNode).join('');
+                                return String(n.attributes?.content || '') || '';
+                            };
+
                             let optionText = '';
-                            if (Array.isArray(child.children)) {
-                                optionText = child.children
-                                    .map((c) => (c.type === 'text' ? c.attributes.content : ''))
-                                    .join('')
-                                    .trim();
+                            if (Array.isArray(child.children) && child.children.length > 0) {
+                                optionText = child.children.map(getTextFromNode).join('').trim();
+                            } else {
+                                optionText = String(child.attributes?.content || '').trim();
                             }
                             options.push({ option: optionText, answer: correct });
                         }
