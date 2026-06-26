@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams, useNavigate } from 'react-router-dom';
 import { Empty, Tag, Button, message, Modal } from 'antd';
 import {
@@ -92,6 +92,8 @@ const TaskListPage = ({ pageOptions }) => {
         };
 
     const [taskItems, setTaskItems] = useState([]);
+    // Ref luôn giữ giá trị mới nhất của taskItems để closure trong getCreateLink đọc được
+    const taskItemsRef = useRef([]);
 
     const getTaskOrderInfo = (record) => {
         if (record.kind === TaskTypes.SUBTASK) {
@@ -287,10 +289,13 @@ const TaskListPage = ({ pageOptions }) => {
             };
 
             funcs.getCreateLink = () => {
+                // Dùng ref thay vì taskItems để luôn đọc được giá trị mới nhất
+                // (tránh closure cũ bắt taskItems = [] lúc mount)
+                const currentTaskCount = taskItemsRef.current.length;
                 return {
                     pathname: `/simulation/${simulationId}/task/create`,
                     state: {
-                        taskOrder: taskItems.length + 1,
+                        taskOrder: currentTaskCount + 1,
                     },
                 };
             };
@@ -307,6 +312,8 @@ const TaskListPage = ({ pageOptions }) => {
     const { execute: executeUpdateOrder } = useFetch(apiConfig.task.updateOrder, {
         immediate: false,
     });
+
+
 
     const { execute: executeDeleteTask } = useFetch(apiConfig.task.delete, {
         immediate: false,
@@ -453,11 +460,22 @@ const TaskListPage = ({ pageOptions }) => {
             }
         });
 
-        return Array.from(tasksMap.values());
+        const sortedTasks = Array.from(tasksMap.values()).sort(
+            (a, b) => (a.orderInParent || 0) - (b.orderInParent || 0),
+        );
+
+        sortedTasks.forEach((parentTask) => {
+            if (parentTask.children) {
+                parentTask.children.sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0));
+            }
+        });
+
+        return sortedTasks;
     }, [data]);
 
     useEffect(() => {
         setTaskItems(hierarchicalData);
+        taskItemsRef.current = hierarchicalData;
     }, [hierarchicalData]);
 
     const findContainer = (id) => {
@@ -559,7 +577,19 @@ const TaskListPage = ({ pageOptions }) => {
                 const newIndex = prev.findIndex((item) => item.id === overId);
                 if (oldIndex === -1 || newIndex === -1 || oldIndex === newIndex) return prev;
                 const next = arrayMove(prev, oldIndex, newIndex);
-                updateOrderOnServer({ id: activeId, newOrder: newIndex, newParentId: null });
+
+                // Build updatedItems: tất cả task + toàn bộ subtask con (vì parentOrder thay đổi)
+                const updatedItems = [];
+                next.forEach((task, idx) => {
+                    const taskOrder = idx + 1;
+                    updatedItems.push({ task, taskOrder, parentOrder: null });
+                    // Subtask con: parentOrder = vị trí mới của task cha
+                    (task.children || []).forEach((sub, subIdx) => {
+                        updatedItems.push({ task: sub, taskOrder: subIdx + 1, parentOrder: taskOrder });
+                    });
+                });
+
+                updateOrderOnServer({ id: activeId, newOrder: newIndex + 1, newParentId: null, updatedItems });
                 return next;
             });
             return;
@@ -585,16 +615,40 @@ const TaskListPage = ({ pageOptions }) => {
 
         if (activeContainer === overContainer && activeIndex === overIndex) return;
 
+        // Build updatedItems for subtask reorder
+        const buildSubtaskUpdatedItems = (newTaskItems) => {
+            const items = [];
+            newTaskItems.forEach((parentTask, parentIdx) => {
+                (parentTask.children || []).forEach((sub, subIdx) => {
+                    items.push({
+                        task: sub,
+                        taskOrder: subIdx + 1,
+                        parentOrder: parentIdx + 1,
+                    });
+                });
+            });
+            return items;
+        };
+
         if (activeContainer === overContainer) {
+            let nextTaskItems;
             setTaskItems((prevTasks) => {
-                return prevTasks.map((task) => {
+                nextTaskItems = prevTasks.map((task) => {
                     if (task.id !== activeContainer) return task;
                     const nextChildren = arrayMove(task.children, activeIndex, overIndex);
-                    return {
-                        ...task,
-                        children: nextChildren,
-                    };
+                    return { ...task, children: nextChildren };
                 });
+                return nextTaskItems;
+            });
+            updateOrderOnServer({
+                id: activeId,
+                newOrder: overIndex + 1,
+                newParentId: overContainer,
+                updatedItems: buildSubtaskUpdatedItems(taskItems.map((t) =>
+                    t.id === activeContainer
+                        ? { ...t, children: arrayMove(t.children, activeIndex, overIndex) }
+                        : t,
+                )),
             });
         } else {
             setTaskItems((prevTasks) => {
@@ -602,10 +656,7 @@ const TaskListPage = ({ pageOptions }) => {
                 const nextTasks = prevTasks.map((task) => {
                     if (task.id === activeContainer) {
                         const updatedChildren = task.children.filter((item) => {
-                            if (item.id === activeId) {
-                                movingItem = item;
-                                return false;
-                            }
+                            if (item.id === activeId) { movingItem = item; return false; }
                             return true;
                         });
                         return { ...task, children: updatedChildren };
@@ -613,7 +664,7 @@ const TaskListPage = ({ pageOptions }) => {
                     return task;
                 });
 
-                return nextTasks.map((task) => {
+                const finalTasks = nextTasks.map((task) => {
                     if (task.id === overContainer && movingItem) {
                         const updatedChildren = [...task.children];
                         updatedChildren.splice(overIndex, 0, movingItem);
@@ -621,14 +672,17 @@ const TaskListPage = ({ pageOptions }) => {
                     }
                     return task;
                 });
+
+                updateOrderOnServer({
+                    id: activeId,
+                    newOrder: overIndex + 1,
+                    newParentId: overContainer,
+                    updatedItems: buildSubtaskUpdatedItems(finalTasks),
+                });
+
+                return finalTasks;
             });
         }
-
-        updateOrderOnServer({
-            id: activeId,
-            newOrder: overIndex,
-            newParentId: overContainer,
-        });
     };
 
     const getParentTaskState = (record) => {
