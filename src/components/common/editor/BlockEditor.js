@@ -448,158 +448,6 @@ const SectionExtension = Node.create({
     },
 });
 
-const QuizNodeView = ({ node, updateAttributes, editor, deleteNode }) => {
-    const question = node.attrs.question ?? '';
-    return (
-        <NodeViewWrapper className="tfo-block-quiz tiptap-quiz-node">
-            <div className="tfo-block-quiz-question" style={{ minWidth: 0 }}>
-                <span className="tfo-block-quiz-icon" contentEditable={false}>
-                    ❓
-                </span>
-                <input
-                    className="tfo-block-quiz-question-input"
-                    value={question}
-                    onChange={(e) => updateAttributes({ question: e.target.value })}
-                    placeholder="Nhập câu hỏi trắc nghiệm..."
-                    style={{
-                        border: 'none',
-                        background: 'transparent',
-                        fontWeight: 600,
-                        color: 'var(--text)',
-                        outline: 'none',
-                        padding: 0,
-                        flex: 1,
-                        width: '100%',
-                        fontSize: '16px',
-                        lineHeight: '1.5',
-                    }}
-                />
-            </div>
-            <div className="tfo-block-quiz-options">
-                <NodeViewContent />
-            </div>
-            <div className="tfo-block-quiz-actions" contentEditable={false} style={{ marginTop: 8 }}>
-                <Button
-                    size="small"
-                    type="dashed"
-                    onClick={() => {
-                        editor.commands.focus();
-                        // Appends a new option element to the current quiz node view content
-                        editor.commands.insertContent('<option-block correct="false">Lựa chọn mới</option-block>');
-                    }}
-                >
-                    + Thêm lựa chọn
-                </Button>
-            </div>
-            <button
-                type="button"
-                className="tfo-block-delete-btn"
-                onClick={deleteNode}
-                contentEditable={false}
-                title="Xóa trắc nghiệm"
-            >
-                ×
-            </button>
-        </NodeViewWrapper>
-    );
-};
-
-const QuizExtension = Node.create({
-    name: 'quiz',
-    group: 'block',
-    content: 'option+',
-    defining: true,
-    addAttributes() {
-        return {
-            question: { default: 'Câu hỏi trắc nghiệm?' },
-            dataQuestionCode: { default: '' },
-        };
-    },
-    parseHTML() {
-        return [
-            {
-                tag: 'quiz-block',
-                getAttrs: (el) => ({
-                    question: el.getAttribute('question') || 'Câu hỏi trắc nghiệm?',
-                    dataQuestionCode: el.getAttribute('data-question-code') || '',
-                }),
-            },
-        ];
-    },
-    renderHTML({ HTMLAttributes }) {
-        return ['quiz-block', mergeAttributes(HTMLAttributes), 0];
-    },
-    addNodeView() {
-        return ReactNodeViewRenderer(QuizNodeView);
-    },
-});
-
-const OptionNodeView = ({ node, updateAttributes, deleteNode }) => {
-    const correct = node.attrs.correct === true;
-    console.log('OptionNodeView node:', node);
-    return (
-        <NodeViewWrapper
-            className="tfo-quiz-option tiptap-option-node"
-            style={{ display: 'flex', alignItems: 'center', gap: 10 }}
-        >
-            <input
-                type="checkbox"
-                checked={correct}
-                onChange={(e) => updateAttributes({ correct: e.target.checked })}
-                style={{ cursor: 'pointer', flexShrink: 0 }}
-                title="Đánh dấu đáp án đúng"
-            />
-            <div className="tfo-quiz-option-text" style={{ flex: 1, minWidth: 0 }}>
-                {node.content && node.content.length > 0 ? (
-                    <NodeViewContent contentEditable={true} suppressContentEditableWarning />
-                ) : (
-                    <span style={{ color: '#999', fontStyle: 'italic' }}>Chưa có nội dung</span>
-                )}
-            </div>
-            <Button
-                size="small"
-                type="text"
-                danger
-                icon={<DeleteOutlined />}
-                onClick={deleteNode}
-                contentEditable={false}
-                title="Xóa lựa chọn"
-                style={{ flexShrink: 0 }}
-            />
-        </NodeViewWrapper>
-    );
-};
-
-const OptionExtension = Node.create({
-    name: 'option',
-    content: 'inline*',
-    defining: true,
-    addAttributes() {
-        return {
-            correct: { default: false },
-        };
-    },
-    parseHTML() {
-        return [
-            {
-                tag: 'option-block',
-                priority: 100,
-                getAttrs: (el) => {
-                    const correctStr = el.getAttribute('correct');
-                    const correct = correctStr === 'true' || correctStr === '';
-                    return { correct };
-                },
-            },
-        ];
-    },
-    renderHTML({ HTMLAttributes }) {
-        return ['option-block', mergeAttributes(HTMLAttributes), 0];
-    },
-    addNodeView() {
-        return ReactNodeViewRenderer(OptionNodeView);
-    },
-});
-
 // ---------------------------------------------------------------------------
 // Templates config (using Markdoc tags format)
 // ---------------------------------------------------------------------------
@@ -669,38 +517,7 @@ Nhập hướng dẫn các bước tiếp theo (ví dụ: Ví dụ này bao gồ
 Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ: Hãy đảm bảo rằng bạn đã cài đặt phiên bản Node.js LTS trở lên)
 {% /callout %}`,
     },
-    quiz: {
-        label: 'Trắc nghiệm',
-        description: 'Mẫu câu hỏi trắc nghiệm kiểm tra kiến thức nhanh.',
-        title: 'Kiểm tra kiến thức (ví dụ: Trắc nghiệm nhanh)',
-        descriptionText: 'Trả lời các câu hỏi trắc nghiệm dưới đây để kiểm tra hiểu biết của bạn.',
-        blocks: () => `# Bài kiểm tra ngắn
 
-Hãy đọc kỹ mỗi câu hỏi và chọn phương án đúng nhất. Mỗi câu có một đáp án đúng.
-
----
-
-## Câu 1
-{% quiz question="Thủ đô của Việt Nam là gì?" %}
-{% option correct="true" %}Hà Nội{% /option %}
-{% option correct="false" %}TP. Hồ Chí Minh{% /option %}
-{% option correct="false" %}Đà Nẵng{% /option %}
-{% /quiz %}
-
-## Câu 2
-{% quiz question="React là thư viện của ngôn ngữ nào?" %}
-{% option correct="false" %}Python{% /option %}
-{% option correct="true" %}JavaScript{% /option %}
-{% option correct="false" %}Java{% /option %}
-{% /quiz %}
-
----
-
-{% callout icon="💡" %}
-Tip: Bạn có thể chỉnh sửa câu hỏi hoặc đáp án trực tiếp trong khối.
-{% /callout %}
-`,
-    },
 };
 
 // ---------------------------------------------------------------------------
@@ -759,8 +576,6 @@ export default function BlockEditor({
             CalloutExtension,
             StepExtension,
             SectionExtension,
-            QuizExtension,
-            OptionExtension,
         ],
         content: markdocToHtml(initialContent),
         onUpdate({ editor: ed }) {
@@ -941,17 +756,7 @@ export default function BlockEditor({
                                 )
                                 .run();
                             break;
-                        case 'quiz': {
-                            const qc = `qc_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`;
-                            editor
-                                .chain()
-                                .focus()
-                                .insertContent(
-                                    `<quiz-block question="Nhập câu hỏi trắc nghiệm?" data-question-code="${qc}"><option-block correct="false">Lựa chọn A (Sai)</option-block><option-block correct="true">Lựa chọn B (Đúng)</option-block></quiz-block>`,
-                                )
-                                .run();
-                            break;
-                        }
+
                         default:
                             break;
         }
@@ -1219,23 +1024,7 @@ export default function BlockEditor({
                             >
                                 <PlusOutlined /> Mục lớn
                             </button>
-                            <button
-                                type="button"
-                                className="insert-btn quiz-template-ib"
-                                onClick={() => {
-                                    if (!editor) return;
-                                    const quizHtml = `<quiz-block question="Nhập câu hỏi trắc nghiệm?"><option-block correct="false">Lựa chọn A (Sai)</option-block><option-block correct="true">Lựa chọn B (Đúng)</option-block></quiz-block>`;
-                                    try {
-                                        editor.chain().focus().insertContent(quizHtml).run();
-                                    } catch (e) {
-                                        console.error('Failed to insert quiz block:', e);
-                                    }
-                                }}
-                                title="Chèn Trắc nghiệm"
-                            >
-                                <QuestionCircleOutlined /> Trắc nghiệm
-                            </button>
-                            
+
 
                         </div>
                     </div>
