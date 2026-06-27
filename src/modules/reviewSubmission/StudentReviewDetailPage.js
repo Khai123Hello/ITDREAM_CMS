@@ -2,7 +2,6 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tag, Button, Modal, Spin, Avatar, Input, message, Tooltip, Badge, Table } from 'antd';
 import TaskContentLayout from '@components/simulation/TaskContentLayout';
-import CommentPanel from '@components/simulation/CommentPanel';
 import {
     ArrowLeftOutlined,
     EditOutlined,
@@ -12,7 +11,6 @@ import {
     CheckCircleFilled,
     SendOutlined,
     CheckOutlined,
-    CommentOutlined,
     UndoOutlined,
     ClockCircleOutlined,
     PicRightOutlined,
@@ -43,42 +41,22 @@ dayjs.extend(relativeTime);
 
 /* ─────────────────────────── Helper Components & Functions ─────────────────────────── */
 
-const parseSubtaskName = (subtask) => {
-    const name = subtask?.name || '';
-    if (name) {
-        const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-        if (match) {
-            const suffix = match[3] || '';
-            return {
-                parentOrder: parseInt(match[1], 10),
-                subtaskOrder: parseInt(match[2], 10),
-                suffix,
-                requiresFileUpload: suffix === '_FILE' || suffix === '_FILE_TEXT',
-                requiresTextResponse: suffix === '_TEXT' || suffix === '_FILE_TEXT',
-            };
-        }
-    }
+/**
+ * Determines file/text submission requirements from the subtask's submissionType field.
+ * submissionType: 0 = none, 1 = file only, 2 = text only, 3 = file + text.
+ */
+const getSubmissionRequirements = (subtask) => {
+    const st = Number(subtask?.submissionType) || 0;
     return {
-        parentOrder: subtask?.parent?.orderInParent || 1,
-        subtaskOrder: subtask?.orderInParent || 1,
-        suffix: '',
-        requiresFileUpload: true,
-        requiresTextResponse: true,
+        requiresFileUpload: st === 1 || st === 3,
+        requiresTextResponse: st === 2 || st === 3,
     };
 };
 
-const hasAssignmentContent = (task) => {
-    const name = task?.name || '';
-    if (name) {
-        const match = name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-        if (match) {
-            const suffix = match[3] || '';
-            return suffix === '_FILE' || suffix === '_TEXT' || suffix === '_FILE_TEXT';
-        }
-    }
-    // For new tasks/subtasks, default to true if it is a subtask without quiz questions
-    return task?.kind === 2 && (!task?.totalQuestion || task?.totalQuestion === 0);
-};
+/**
+ * Returns true if the subtask requires any form of submission (file or text).
+ */
+const hasSubmissionRequirement = (task) => Number(task?.submissionType) > 0;
 
 const getSubmissionAnswer = (submission = {}) => submission.answer || submission.answear || '';
 
@@ -139,13 +117,12 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     const { profile } = useAuth();
 
     const userType = getData(storageKeys.USER_TYPE);
-    const isEducator = userType === UserTypes.EDUCATOR;
+    const isEducator = userType === UserTypes.EDUCATOR || userType === UserTypes.ADMIN;
 
     // Active Sidebar / Tab states
     const [selectedParentTaskId, setSelectedParentTaskId] = useState(null);
     const [selectedSubtaskId, setSelectedSubtaskId] = useState(null);
     const [isCompleted, setIsCompleted] = useState(false);
-    const [workspaceMode, setWorkspaceMode] = useState('review'); // preview, review, comments
 
     const [layoutMode, setLayoutMode] = useState(() => {
         try {
@@ -390,9 +367,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     // Build submissions data
     const submissions = useMemo(() => getSubmissions(progressDetail), [progressDetail]);
 
-    const parsedSubtaskName = useMemo(() => parseSubtaskName(subtaskDetail), [subtaskDetail]);
-    const requiresFileUpload = parsedSubtaskName?.requiresFileUpload || false;
-    const requiresTextResponse = parsedSubtaskName?.requiresTextResponse || false;
+    const { requiresFileUpload, requiresTextResponse } = useMemo(
+        () => getSubmissionRequirements(subtaskDetail),
+        [subtaskDetail],
+    );
 
     const quizSubmissionMap = useMemo(() => {
         const map = {};
@@ -867,86 +845,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         });
     };
 
-    // 8. Fetch Comments API
-    const {
-        data: commentsData,
-        execute: executeFetchComments,
-        loading: commentsLoading,
-    } = useFetch(apiConfig.comment.list, {
-        immediate: false,
-        mappingData: (res) => res.data || {},
-    });
 
-    const loadComments = () => {
-        if (selectedSubtaskId && simulationEnrollmentId) {
-            executeFetchComments({
-                params: { taskId: selectedSubtaskId, simulationEnrollmentId, size: 1000 },
-            });
-        }
-    };
-
-    useEffect(() => {
-        if (selectedSubtaskId && simulationEnrollmentId) {
-            loadComments();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedSubtaskId, simulationEnrollmentId]);
-
-    const { execute: executeCreateComment } = useFetch(apiConfig.comment.create, { immediate: false });
-    const { execute: executeUpdateComment } = useFetch(apiConfig.comment.update, { immediate: false });
-    const { execute: executeDeleteComment } = useFetch(apiConfig.comment.delete, { immediate: false });
-
-    const handleSendComment = (content, parentId = 0) => {
-        if (!selectedSubtaskId || !simulationEnrollmentId) return;
-
-        executeCreateComment({
-            data: {
-                content,
-                parentId,
-                taskId: selectedSubtaskId,
-                simulationEnrollmentId,
-            },
-            onCompleted: () => {
-                loadComments();
-            },
-            onError: (err) => {
-                notify({ type: 'error', message: err?.message || 'Không thể gửi bình luận!' });
-            },
-        });
-    };
-
-    const handleUpdateComment = (id, content) => {
-        executeUpdateComment({
-            data: { id, content },
-            onCompleted: () => {
-                loadComments();
-            },
-            onError: (err) => {
-                notify({ type: 'error', message: err?.message || 'Không thể cập nhật bình luận!' });
-            },
-        });
-    };
-
-    const handleDeleteComment = (id) => {
-        Modal.confirm({
-            title: 'Xác nhận xóa',
-            content: 'Bạn có chắc chắn muốn xóa bình luận này không?',
-            okText: 'Xóa',
-            cancelText: 'Hủy',
-            okButtonProps: { danger: true },
-            onOk: () => {
-                executeDeleteComment({
-                    pathParams: { id },
-                    onCompleted: () => {
-                        loadComments();
-                    },
-                    onError: (err) => {
-                        notify({ type: 'error', message: err?.message || 'Không thể xóa bình luận!' });
-                    },
-                });
-            },
-        });
-    };
 
     // Navigation subtask indices
     const activeSubtaskIndex = useMemo(() => {
@@ -1041,7 +940,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         if (!tasks || !filteredEducatorReviews) return countMap;
         parentTasks.forEach((pt) => {
             const subs = tasks.filter(
-                (t) => t.kind === 2 && hasAssignmentContent(t) && (t.parent?.id === pt.id || t.parentId === pt.id),
+                (t) => t.kind === 2 && hasSubmissionRequirement(t) && (t.parent?.id === pt.id || t.parentId === pt.id),
             );
             const reviewed = subs.filter((s) => reviewedTaskIds.has(s.id));
             countMap[pt.id] = { total: subs.length, reviewed: reviewed.length };
@@ -1061,13 +960,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
     // Total review progress
     const totalSubtasks = useMemo(() => {
-        return tasks?.filter((t) => t.kind === 2 && hasAssignmentContent(t))?.length || 0;
+        return tasks?.filter((t) => t.kind === 2 && hasSubmissionRequirement(t))?.length || 0;
     }, [tasks]);
     const totalReviewed = useMemo(() => {
         let count = 0;
         reviewedTaskIds.forEach((id) => {
             const task = tasks?.find((t) => t.id === id);
-            if (task && hasAssignmentContent(task)) {
+            if (task && hasSubmissionRequirement(task)) {
                 count++;
             }
         });
@@ -1264,48 +1163,28 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     const renderCollaborationPanel = () => {
-        if (workspaceMode === 'review') {
-            return (
-                <div className="tfo-review-tab-pane">
-                    {!canWriteReview && (
-                        <div className="tfo-review-read-only-banner">Bạn đang xem thông tin ở chế độ chỉ đọc.</div>
-                    )}
+        const isReviewRequired = requiresFileUpload || requiresTextResponse;
 
-                    {renderReviewHeader()}
+        return (
+            <div className="tfo-review-tab-pane">
+                {!canWriteReview && (
+                    <div className="tfo-review-read-only-banner">Bạn đang xem thông tin ở chế độ chỉ đọc.</div>
+                )}
 
-                    {(subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
-                        ? renderReviewDisplay()
-                        : canWriteReview
-                            ? renderReviewEditor()
-                            : renderReviewEmpty()}
-                </div>
-            );
-        } else {
-            return (
-                <div className="tfo-comments-pane-inner">
-                    <div className="tfo-review-section-header">
-                        <span className="tfo-review-section-title">Thảo luận & Bình luận</span>
-                        {commentsData?.content?.length > 0 && (
-                            <Badge
-                                count={commentsData.content.length}
-                                size="small"
-                                style={{ backgroundColor: '#1890ff', marginLeft: 6 }}
-                            />
-                        )}
+                {renderReviewHeader()}
+
+                {!isReviewRequired ? (
+                    <div className="tfo-review-empty tfo-review-fade-in">
+                        <CheckCircleFilled className="tfo-review-empty__icon" style={{ color: '#8c8c8c' }} />
+                        <p className="tfo-review-empty__text">Không yêu cầu nhận xét cho bước này</p>
                     </div>
-                    <CommentPanel
-                        comments={commentsData?.content || []}
-                        loading={commentsLoading}
-                        profile={profile}
-                        readOnly={!canWriteComment}
-                        onSendComment={handleSendComment}
-                        onUpdateComment={handleUpdateComment}
-                        onDeleteComment={handleDeleteComment}
-                        studentUsername={username}
-                    />
-                </div>
-            );
-        }
+                ) : (subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
+                    ? renderReviewDisplay()
+                    : canWriteReview
+                        ? renderReviewEditor()
+                        : renderReviewEmpty()}
+            </div>
+        );
     };
 
     return (
@@ -1376,32 +1255,7 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         </Tooltip>
                     </div>
 
-                    {/* Mode switcher (Nhận xét & Đánh giá / Thảo luận & Bình luận) */}
-                    <div className="tfo-mode-switcher">
-                        <Tooltip title="Chế độ Nhận xét & Đánh giá">
-                            <Button
-                                icon={<EditOutlined />}
-                                type={workspaceMode === 'review' ? 'primary' : 'text'}
-                                onClick={() => setWorkspaceMode('review')}
-                                size="small"
-                            >
-                                <span>Nhận xét & Đánh giá</span>
-                                {hasUnsavedDraftForActiveSubtask && (
-                                    <Badge status="warning" style={{ marginLeft: 2 }} />
-                                )}
-                            </Button>
-                        </Tooltip>
-                        <Tooltip title="Chế độ Thảo luận & Bình luận">
-                            <Button
-                                icon={<CommentOutlined />}
-                                type={workspaceMode === 'comments' ? 'primary' : 'text'}
-                                onClick={() => setWorkspaceMode('comments')}
-                                size="small"
-                            >
-                                Thảo luận & Bình luận
-                            </Button>
-                        </Tooltip>
-                    </div>
+
 
                     {/* Complete Review Button */}
                     {canWriteReview && (
@@ -1449,6 +1303,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 onNext={handleNextSubtask}
                 quizSubmissionMap={quizSubmissionMap}
                 questionMap={questionMap}
+                requiresFileUpload={requiresFileUpload}
+                requiresTextResponse={requiresTextResponse}
+                previousFile={fileSub ? getSubmissionAnswer(fileSub) : null}
+                previousText={textSub ? getSubmissionAnswer(textSub) : ''}
+                hasCompleted={true}
                 customTaskCircle={(task, idx, isActive, isLast) => {
                     const taskCount = reviewCountByParentTask[task.id];
                     const allReviewed = taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
@@ -1498,29 +1357,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         </Tooltip>
                     );
                 }}
-                rightPane={workspaceMode !== 'preview' && layoutMode === 'split' ? renderCollaborationPanel() : null}
-                reviewPane={workspaceMode !== 'preview' && layoutMode === 'bottom' ? renderCollaborationPanel() : null}
+                rightPane={layoutMode === 'split' ? renderCollaborationPanel() : null}
+                reviewPane={layoutMode === 'bottom' ? renderCollaborationPanel() : null}
             >
-                {/* File submission section */}
-                {requiresFileUpload && fileSub && (
-                    <div className="tfo-submission-card">
-                        <div className="tfo-submission-title">File học viên nộp</div>
-                        <div className="tfo-file-download-box">
-                            <a href={getSubmissionAnswer(fileSub).startsWith('http') ? getSubmissionAnswer(fileSub) : `${AppConstants.contentRootUrl}${getSubmissionAnswer(fileSub)}`} target="_blank" rel="noopener noreferrer">
-                                Tải xuống bài làm của học viên
-                            </a>
-                        </div>
-                    </div>
-                )}
-
-                {/* Text submission section */}
-                {requiresTextResponse && textSub && (
-                    <div className="tfo-submission-card">
-                        <div className="tfo-submission-title">Văn bản học viên nộp</div>
-                        <div className="tfo-text-answer-box">{getSubmissionAnswer(textSub)}</div>
-                    </div>
-                )}
-
                 {/* Quiz History Log */}
                 {quizHistory && quizHistory.length > 0 && (
                     <div className="tfo-submission-card" style={{ marginTop: 20 }}>
@@ -1541,6 +1380,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     </div>
                 )}
             </TaskContentLayout>
+
+
         </PageWrapper>
     );
 };

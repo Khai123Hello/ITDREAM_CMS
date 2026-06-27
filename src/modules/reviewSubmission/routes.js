@@ -2,10 +2,12 @@ import apiConfig from '@constants/apiConfig';
 import { commonMessage } from '@locales/intl';
 import SimulationReviewListPage from '@modules/reviewSubmission/SimulationReviewListPage';
 import StudentReviewDetailPage from '@modules/reviewSubmission/StudentReviewDetailPage';
+import StudentDiscussionDetailPage from '@modules/reviewSubmission/StudentDiscussionDetailPage';
 
 const paths = {
     simulationReviewList: '/simulation-review',
     studentReviewDetail: '/student-review-detail/:simulationId/:username',
+    studentDiscussionDetail: '/student-discussion-detail/:simulationId/:username',
 };
 
 export default {
@@ -35,6 +37,24 @@ export default {
                 return [
                     { breadcrumbName: 'Chấm điểm học viên', path: paths.simulationReviewList },
                     { breadcrumbName: `Chi tiết: ${username}` },
+                ];
+            },
+        },
+    },
+    studentDiscussionDetail: {
+        path: paths.studentDiscussionDetail,
+        auth: true,
+        component: StudentDiscussionDetailPage,
+        permissions: [
+            apiConfig.taskQuestionProgress.answerList.permissionCode,
+            apiConfig.comment.list.permissionCode,
+        ],
+        pageOptions: {
+            objectName: commonMessage.student,
+            renderBreadcrumbs: (messages, t, simulationId, username) => {
+                return [
+                    { breadcrumbName: 'Chấm điểm học viên', path: paths.simulationReviewList },
+                    { breadcrumbName: `Thảo luận: ${username}` },
                 ];
             },
         },

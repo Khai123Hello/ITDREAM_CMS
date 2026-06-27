@@ -851,6 +851,12 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'CM_L',
         },
+        userList: {
+            baseURL: `${apiUrl}v1/comment/user_list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'CM_US_L',
+        },
         create: {
             baseURL: `${apiUrl}v1/comment/create`,
             method: 'POST',

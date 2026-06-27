@@ -206,26 +206,12 @@ const TaskForm = (props) => {
     const [requiresFileUpload, setRequiresFileUpload] = useState(false);
     const [requiresTextResponse, setRequiresTextResponse] = useState(false);
 
+    // Đọc submissionType từ server (0=none, 1=file, 2=text, 3=file+text)
     useEffect(() => {
-        if (dataDetail?.name) {
-            const match = dataDetail.name.match(/^SUB_T(\d+)_S(\d+)(_.*)?$/);
-            if (match) {
-                const suffix = match[3] || '';
-                if (suffix === '_FILE_TEXT') {
-                    setRequiresFileUpload(true);
-                    setRequiresTextResponse(true);
-                } else if (suffix === '_FILE') {
-                    setRequiresFileUpload(true);
-                    setRequiresTextResponse(false);
-                } else if (suffix === '_TEXT') {
-                    setRequiresFileUpload(false);
-                    setRequiresTextResponse(true);
-                } else {
-                    setRequiresFileUpload(false);
-                    setRequiresTextResponse(false);
-                }
-            }
-        }
+        if (!dataDetail) return;
+        const st = Number(dataDetail.submissionType) || 0;
+        setRequiresFileUpload(st === 1 || st === 3);
+        setRequiresTextResponse(st === 2 || st === 3);
     }, [dataDetail]);
 
     const handleValuesChange = (changedValues, allValues) => {
@@ -742,7 +728,11 @@ const TaskForm = (props) => {
                             <CheckboxField
                                 optionLabel="Học viên cần tải file bài làm lên (.zip, .pdf, .docx, v.v.)"
                                 disabled={!isEducator}
-                                onChange={(e) => setRequiresFileUpload(e.target.checked)}
+                                onChange={(e) => {
+                                    setRequiresFileUpload(e.target.checked);
+                                    setIsChangedFormValues(true);
+                                    setIsDirty(true);
+                                }}
                                 fieldProps={{
                                     checked: requiresFileUpload,
                                 }}
@@ -751,7 +741,11 @@ const TaskForm = (props) => {
                             <CheckboxField
                                 optionLabel="Học viên cần nhập câu trả lời dạng văn bản (text)"
                                 disabled={!isEducator}
-                                onChange={(e) => setRequiresTextResponse(e.target.checked)}
+                                onChange={(e) => {
+                                    setRequiresTextResponse(e.target.checked);
+                                    setIsChangedFormValues(true);
+                                    setIsDirty(true);
+                                }}
                                 fieldProps={{
                                     checked: requiresTextResponse,
                                 }}
@@ -919,6 +913,13 @@ const TaskForm = (props) => {
                 imagePath: isSubtask ? (imagePath || null) : null,
                 videoPath: isSubtask ? (videoUrl || null) : null,
                 filePath: isSubtask ? (filePath || null) : null,
+                // Tính submissionType từ 2 checkbox: 0=none, 1=file, 2=text, 3=file+text
+                submissionType: isSubtask
+                    ? (requiresFileUpload && requiresTextResponse ? 3
+                        : requiresFileUpload ? 1
+                            : requiresTextResponse ? 2
+                                : 0)
+                    : 0,
             };
 
             if (submitData.kind === TaskTypes.SUBTASK) {

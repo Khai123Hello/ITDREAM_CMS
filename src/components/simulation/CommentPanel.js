@@ -16,6 +16,18 @@ const getInitials = (fullName) => {
     return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
 };
 
+const parseDate = (dateStr) => {
+    if (!dateStr) return new Date();
+    if (typeof dateStr === 'string' && dateStr.includes('/')) {
+        const parts = dateStr.split(' ');
+        const datePart = parts[0];
+        const timePart = parts[1] || '00:00:00';
+        const [day, month, year] = datePart.split('/');
+        return new Date(`${year}-${month}-${day}T${timePart}`);
+    }
+    return new Date(dateStr);
+};
+
 const getAvatarColor = (name) => {
     const colors = [
         'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
@@ -74,7 +86,7 @@ function CommentPanel({
         });
 
         Object.keys(map).forEach((rootId) => {
-            map[rootId].sort((a, b) => new Date(a.createdDate) - new Date(b.createdDate));
+            map[rootId].sort((a, b) => parseDate(a.createdDate) - parseDate(b.createdDate));
         });
 
         return map;
@@ -170,7 +182,7 @@ function CommentPanel({
                                 </span>
                             )}
                         </div>
-                        <span className="tfo-comment-time">{dayjs(comment.createdDate).fromNow()}</span>
+                        <span className="tfo-comment-time">{dayjs(parseDate(comment.createdDate)).fromNow()}</span>
                     </div>
                     {isSelf && !isEditing && !readOnly && (
                         <div className="tfo-comment-actions">
@@ -203,6 +215,11 @@ function CommentPanel({
                                 className="tfo-comment-input-textarea"
                                 value={editText}
                                 onChange={(e) => setEditText(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.ctrlKey && e.key === 'Enter') {
+                                        handleEditSubmit(e, comment.id);
+                                    }
+                                }}
                                 rows={2}
                                 autoFocus
                             />
@@ -248,9 +265,14 @@ function CommentPanel({
                     <form onSubmit={(e) => handleReplySubmit(e, comment.id)} className="tfo-comment-reply-form">
                         <textarea
                             className="tfo-comment-input-textarea"
-                            placeholder={`Trả lời...`}
+                            placeholder={`Trả lời... (Ctrl + Enter để gửi)`}
                             value={replyText}
                             onChange={(e) => setReplyText(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.ctrlKey && e.key === 'Enter') {
+                                    handleReplySubmit(e, comment.id);
+                                }
+                            }}
                             rows={2}
                             autoFocus
                         />
@@ -333,9 +355,14 @@ function CommentPanel({
                 <form onSubmit={handleMainSubmit} className="tfo-comments-panel-footer">
                     <textarea
                         className="tfo-comments-main-textarea"
-                        placeholder="Viết bình luận..."
+                        placeholder="Viết bình luận... (Ctrl + Enter để gửi)"
                         value={mainText}
                         onChange={(e) => setMainText(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.ctrlKey && e.key === 'Enter') {
+                                handleMainSubmit(e);
+                            }
+                        }}
                         rows={2}
                     />
                     <button
