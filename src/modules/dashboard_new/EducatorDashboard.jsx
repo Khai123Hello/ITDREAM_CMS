@@ -265,7 +265,7 @@ export default function EducatorDashboard() {
                         <IconClipboardList size={20} />
                     </div>
                     <div className={styles.kpiContent}>
-                        <span className={styles.kpiTitle}>Bài Chờ Chấm Điểm</span>
+                        <span className={styles.kpiTitle}>Bài Chờ Nhận Xét</span>
                         <span className={styles.kpiValue}>{kpis.pendingGrading}</span>
                     </div>
                 </div>
@@ -277,7 +277,7 @@ export default function EducatorDashboard() {
                     onClick={() => setMainTab('operations')}
                     className={`${styles.mainTabBtn} ${mainTab === 'operations' ? styles.active : ''}`}
                 >
-                    Hàng đợi chấm bài ({gradingQueue.length})
+                    Hàng đợi nhận xét ({gradingQueue.length})
                 </button>
                 <button
                     onClick={() => setMainTab('analytics')}
@@ -354,7 +354,7 @@ export default function EducatorDashboard() {
                         <div className={styles.queueCard}>
                             <div className={styles.queueHeader}>
                                 <div>
-                                    <h2 className={styles.cardTitle}>Hàng Đợi Chấm Bài</h2>
+                                    <h2 className={styles.cardTitle}>Hàng Đợi Nhận Xét</h2>
                                     <p className={styles.cardSubtitle} style={{ marginBottom: 0 }}>Danh sách học viên đã hoàn tất, cần giảng viên nhận xét năng lực.</p>
                                 </div>
                                 <div className={styles.headerBadge}>
@@ -401,7 +401,7 @@ export default function EducatorDashboard() {
                                                                     onClick={() => handleOpenReview(item)}
                                                                     className={styles.gradeBtn}
                                                                 >
-                                                                    <span>Chấm điểm</span>
+                                                                    <span>Nhận xét</span>
                                                                     <IconChevronRight size={14} />
                                                                 </button>
                                                             </div>

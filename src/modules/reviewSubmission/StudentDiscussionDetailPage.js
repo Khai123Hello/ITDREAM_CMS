@@ -200,7 +200,7 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                     (t) =>
                         t.kind === 2 && (t.parent?.id === selectedParentTaskId || t.parentId === selectedParentTaskId),
                 )
-                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+                .sort((a, b) => (a.orderInParent || null) - (b.orderInParent || null)) || []
         );
     }, [tasks, selectedParentTaskId]);
 
@@ -387,13 +387,13 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
     const { execute: executeUpdateComment } = useFetch(apiConfig.comment.update, { immediate: false });
     const { execute: executeDeleteComment } = useFetch(apiConfig.comment.delete, { immediate: false });
 
-    const handleSendComment = (content, parentId = 0) => {
+    const handleSendComment = (content, parentId = null) => {
         if (!selectedSubtaskId || !simulationEnrollmentId) return;
 
         executeCreateComment({
             data: {
                 content,
-                parentId: parentId === 0 ? null : parentId,
+                parentId,
                 taskId: selectedSubtaskId,
                 simulationEnrollmentId,
             },
@@ -444,7 +444,7 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
         return (
             tasks
                 ?.filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
-                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+                .sort((a, b) => (a.orderInParent || null) - (b.orderInParent || null)) || []
         );
     };
 

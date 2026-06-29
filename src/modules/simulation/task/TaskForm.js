@@ -893,6 +893,25 @@ const TaskForm = (props) => {
         }
     };
 
+    // Hàm tiện ích tạo Random Hash (VD: a7f2b)
+    const generateShortHash = () => {
+        return Math.random().toString(36).substring(2, 7); 
+    };
+
+    // Hàm tiện ích tạo slug từ tiếng Việt + Hash
+    const generateUniqueSlug = (str) => {
+        if (!str) return '';
+        const baseSlug = str.toString().toLowerCase()
+            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
+            .replace(/[đĐ]/g, 'd')
+            .replace(/([^0-9a-z-\s])/g, '') 
+            .replace(/(\s+)/g, '-')
+            .replace(/-+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        
+        return `${baseSlug}-${generateShortHash()}`;
+    };
+
     // ── submit ────────────────────────────────
     const handleSubmit = async (values) => {
         try {
@@ -903,7 +922,25 @@ const TaskForm = (props) => {
             const descVal = descriptionRef.current || description || formValues.description || values?.description || '';
             const currentKind = isEditing ? dataDetail.kind : taskKind;
             const isSubtask = Number(currentKind) === TaskTypes.SUBTASK;
+            let submissionTypeVal = 0;
+            if (isSubtask) {
+                if (requiresFileUpload && requiresTextResponse) {
+                    submissionTypeVal = 3;
+                } else if (requiresFileUpload) {
+                    submissionTypeVal = 1;
+                } else if (requiresTextResponse) {
+                    submissionTypeVal = 2;
+                }
+            }
+
+            const oldTitle = dataDetail?.title?.trim() || '';
+            const newTitle = titleVal?.trim() || '';
+            const currentName = (isEditing && dataDetail?.name && oldTitle === newTitle) 
+                ? dataDetail.name 
+                : generateUniqueSlug(newTitle);
+
             const submitData = {
+                name: currentName,
                 title: titleVal?.trim() || '',
                 description: descVal?.trim() || '',
                 kind: currentKind,
@@ -914,12 +951,7 @@ const TaskForm = (props) => {
                 videoPath: isSubtask ? (videoUrl || null) : null,
                 filePath: isSubtask ? (filePath || null) : null,
                 // Tính submissionType từ 2 checkbox: 0=none, 1=file, 2=text, 3=file+text
-                submissionType: isSubtask
-                    ? (requiresFileUpload && requiresTextResponse ? 3
-                        : requiresFileUpload ? 1
-                            : requiresTextResponse ? 2
-                                : 0)
-                    : 0,
+                submissionType: submissionTypeVal,
             };
 
             if (submitData.kind === TaskTypes.SUBTASK) {

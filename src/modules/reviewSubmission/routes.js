@@ -3,11 +3,15 @@ import { commonMessage } from '@locales/intl';
 import SimulationReviewListPage from '@modules/reviewSubmission/SimulationReviewListPage';
 import StudentReviewDetailPage from '@modules/reviewSubmission/StudentReviewDetailPage';
 import StudentDiscussionDetailPage from '@modules/reviewSubmission/StudentDiscussionDetailPage';
+import SimulationDiscussionListPage from '@modules/reviewSubmission/SimulationDiscussionListPage';
+import SimulationDiscussionDetailPage from '@modules/reviewSubmission/SimulationDiscussionDetailPage';
 
 const paths = {
     simulationReviewList: '/simulation-review',
     studentReviewDetail: '/student-review-detail/:simulationId/:username',
     studentDiscussionDetail: '/student-discussion-detail/:simulationId/:username',
+    simulationDiscussionList: '/simulation-discussion',
+    simulationDiscussionDetail: '/simulation-discussion-detail/:simulationId',
 };
 
 export default {
@@ -19,7 +23,7 @@ export default {
         pageOptions: {
             objectName: commonMessage.simulation,
             renderBreadcrumbs: (messages, t) => {
-                return [{ breadcrumbName: 'Chấm điểm học viên' }];
+                return [{ breadcrumbName: 'Nhận xét học viên' }];
             },
         },
     },
@@ -35,7 +39,7 @@ export default {
             objectName: commonMessage.student,
             renderBreadcrumbs: (messages, t, simulationId, username) => {
                 return [
-                    { breadcrumbName: 'Chấm điểm học viên', path: paths.simulationReviewList },
+                    { breadcrumbName: 'Nhận xét học viên', path: paths.simulationReviewList },
                     { breadcrumbName: `Chi tiết: ${username}` },
                 ];
             },
@@ -53,8 +57,35 @@ export default {
             objectName: commonMessage.student,
             renderBreadcrumbs: (messages, t, simulationId, username) => {
                 return [
-                    { breadcrumbName: 'Chấm điểm học viên', path: paths.simulationReviewList },
+                    { breadcrumbName: 'Nhận xét học viên', path: paths.simulationReviewList },
                     { breadcrumbName: `Thảo luận: ${username}` },
+                ];
+            },
+        },
+    },
+    simulationDiscussionList: {
+        path: paths.simulationDiscussionList,
+        auth: true,
+        component: SimulationDiscussionListPage,
+        permissions: [apiConfig.simulation.getListForEducator.permissionCode],
+        pageOptions: {
+            objectName: commonMessage.simulation,
+            renderBreadcrumbs: (messages, t) => {
+                return [{ breadcrumbName: 'Thảo luận bài mô phỏng' }];
+            },
+        },
+    },
+    simulationDiscussionDetail: {
+        path: paths.simulationDiscussionDetail,
+        auth: true,
+        component: SimulationDiscussionDetailPage,
+        permissions: [apiConfig.comment.list.permissionCode],
+        pageOptions: {
+            objectName: commonMessage.simulation,
+            renderBreadcrumbs: (messages, t, simulationId) => {
+                return [
+                    { breadcrumbName: 'Thảo luận bài mô phỏng', path: paths.simulationDiscussionList },
+                    { breadcrumbName: 'Chi tiết thảo luận' },
                 ];
             },
         },

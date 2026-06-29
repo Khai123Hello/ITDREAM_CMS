@@ -33,6 +33,26 @@ const getAvatarColor = (name) => {
     return colors[Math.abs(hash) % colors.length];
 };
 
+const parseDate = (date) => {
+    if (!date) return null;
+    if (Array.isArray(date)) {
+        return dayjs(new Date(date[0], date[1] - 1, date[2], date[3] || 0, date[4] || 0, date[5] || 0));
+    }
+    if (typeof date === 'string') {
+        const match = date.trim().match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}):(\d{2}))?$/);
+        if (match) {
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10) - 1;
+            const year = parseInt(match[3], 10);
+            const hour = match[4] ? parseInt(match[4], 10) : 0;
+            const minute = match[5] ? parseInt(match[5], 10) : 0;
+            const second = match[6] ? parseInt(match[6], 10) : 0;
+            return dayjs(new Date(year, month, day, hour, minute, second));
+        }
+    }
+    return dayjs(date);
+};
+
 const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 0 }) => {
     const [feedbacks, setFeedbacks] = useState([]);
     const [page, setPage] = useState(1);
@@ -62,7 +82,7 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
             },
             onError: () => {
                 setLoading(false);
-            }
+            },
         });
     };
 
@@ -89,7 +109,7 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
 
     const handleDelete = (id) => {
         Modal.confirm({
-            title: 'Bạn có chắc chắn muốn xóa đánh giá này không?',
+            title: 'Bạn có chắc chắn muốn xóa chia sẻ cảm nhận này không?',
             okText: 'Có',
             cancelText: 'Không',
             okType: 'danger',
@@ -97,7 +117,7 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
                 executeDeleteFeedback({
                     pathParams: { id },
                     onCompleted: () => {
-                        message.success('Xóa đánh giá thành công');
+                        message.success('Xóa chia sẻ cảm nhận thành công');
                         if (feedbacks.length === 1 && page > 1) {
                             setPage(page - 1);
                         } else {
@@ -105,17 +125,17 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
                         }
                     },
                     onError: () => {
-                        message.error('Không thể xóa đánh giá. Vui lòng thử lại!');
-                    }
+                        message.error('Không thể xóa chia sẻ cảm nhận. Vui lòng thử lại!');
+                    },
                 });
-            }
+            },
         });
     };
 
     if (!simulationId || simulationId === 'create') {
         return (
             <div style={{ padding: '32px', textAlign: 'center', background: '#fff', borderRadius: '12px', border: '1px solid #e8e4dc', color: '#8a877f' }}>
-                Vui lòng lưu thông tin bài mô phỏng trước để hiển thị đánh giá của học viên.
+                Vui lòng lưu thông tin bài mô phỏng trước để hiển thị chia sẻ cảm nhận của học viên.
             </div>
         );
     }
@@ -132,14 +152,14 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
                     </div>
                     <div className={styles.avgCount}>
                         <StarFilled style={{ color: '#d97706', marginRight: 4 }} />
-                        {total || 0} học viên đã tham gia đánh giá
+                        {total || 0} học viên đã tham gia chia sẻ cảm nhận
                     </div>
                 </div>
 
                 {/* Rating distribution breakdown */}
                 <div className={styles.distributionCard}>
                     <div style={{ margin: '0 0 12px 0', color: '#1a1814', fontSize: '13px', fontWeight: '600' }}>
-                        Phân bổ đánh giá (Trang này)
+                        Phân bổ chia sẻ cảm nhận (Trang này)
                     </div>
                     {[5, 4, 3, 2, 1].map((star) => {
                         const count = ratingDistribution[star - 1] || 0;
@@ -160,15 +180,15 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
             {/* List of reviews cards */}
             {loading ? (
                 <div style={{ padding: '60px 0', textAlign: 'center' }}>
-                    <Spin tip="Đang tải danh sách đánh giá..." />
+                    <Spin tip="Đang tải danh sách chia sẻ cảm nhận..." />
                 </div>
             ) : feedbacks.length > 0 ? (
                 <>
                     <div className={styles.reviewsGrid}>
                         {feedbacks.map((record) => {
                             const studentProfile = record.student || {};
-                            const account = studentProfile.profileAccountDto || {};
-                            const fullName = account.fullName || '-';
+                            const account = studentProfile.account || studentProfile.profileAccountDto || {};
+                            const fullName = account.fullName || studentProfile.fullName || '-';
                             const username = account.username ? `@${account.username}` : '';
                             const avatar = account.avatar;
                             const avatarUrl = avatar
@@ -204,7 +224,7 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
                                             <div className={styles.cardRatingArea}>
                                                 <Rate disabled value={record.star} className={styles.cardRating} style={{ fontSize: 10, color: '#f59e0b' }} />
                                                 <span className={styles.cardDate}>
-                                                    {record.createdDate ? dayjs(record.createdDate).format('DD/MM/YYYY') : ''}
+                                                    {record.createdDate ? parseDate(record.createdDate).format('DD/MM/YYYY') : ''}
                                                 </span>
                                             </div>
                                         </div>
@@ -214,17 +234,7 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
                                         </div>
                                     </div>
 
-                                    {canDeleteFeedback && (
-                                        <Button 
-                                            type="text" 
-                                            danger 
-                                            icon={<DeleteOutlined />} 
-                                            onClick={() => handleDelete(record.id)}
-                                            className={styles.deleteBtn}
-                                        >
-                                            Xóa đánh giá
-                                        </Button>
-                                    )}
+                                    {/* Bỏ nút Xóa đánh giá */}
                                 </div>
                             );
                         })}
@@ -245,7 +255,7 @@ const StudentReviewDashboard = ({ simulationId, avgStar = 0, totalParticipant = 
                 </>
             ) : (
                 <div style={{ padding: '40px', background: '#fff', borderRadius: '12px', border: '1px solid #e8e4dc', textAlign: 'center' }}>
-                    <Empty description="Bài mô phỏng này chưa có đánh giá nào." />
+                    <Empty description="Bài mô phỏng này chưa có chia sẻ cảm nhận nào." />
                 </div>
             )}
         </div>

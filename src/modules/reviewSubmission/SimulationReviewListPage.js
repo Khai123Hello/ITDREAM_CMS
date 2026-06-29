@@ -224,7 +224,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
             key: 'status',
             render: (isReviewed) => (
                 <Tag color={isReviewed ? 'success' : 'warning'} style={{ borderRadius: 4, fontWeight: 600 }}>
-                    {isReviewed ? 'Đã chấm' : 'Chưa chấm'}
+                    {isReviewed ? 'Đã nhận xét' : 'Chưa nhận xét'}
                 </Tag>
             ),
         },
@@ -248,23 +248,6 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                             }}
                         >
                             Nhận xét
-                        </Button>
-                        <Button
-                            icon={<CommentOutlined />}
-                            style={{
-                                borderRadius: 6,
-                                fontWeight: 600,
-                                borderColor: '#1890ff',
-                                color: '#1890ff',
-                                background: '#f0f5ff',
-                            }}
-                            onClick={() => {
-                                navigate(`/student-discussion-detail/${selectedSimulationId}/${profileAccountDto.username}`, {
-                                    state: { simulationEnrollmentId: item.id },
-                                });
-                            }}
-                        >
-                            Thảo luận
                         </Button>
                     </div>
                 );
@@ -326,14 +309,14 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                         <Row gutter={16}>
                             <Col span={12}>
                                 <Statistic
-                                    title="Đã chấm"
+                                    title="Đã nhận xét"
                                     value={stats.graded}
                                     valueStyle={{ fontSize: '32px', fontWeight: 'bold', color: '#52c41a' }}
                                 />
                             </Col>
                             <Col span={12}>
                                 <Statistic
-                                    title="Chưa chấm"
+                                    title="Chưa nhận xét"
                                     value={stats.total - stats.graded}
                                     valueStyle={{ fontSize: '32px', fontWeight: 'bold', color: '#fa8c16' }}
                                 />
@@ -347,7 +330,7 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                         bodyStyle={{ padding: '24px' }}
                     >
                         <h4 style={{ margin: '0 0 12px 0', color: '#64748b', fontSize: '14px', fontWeight: '600' }}>
-                            Tiến độ chấm điểm
+                            Tiến độ nhận xét
                         </h4>
                         <Progress
                             percent={stats.percent}
@@ -394,8 +377,8 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                         buttonStyle="solid"
                     >
                         <Radio.Button value="ALL">Tất cả ({stats.total})</Radio.Button>
-                        <Radio.Button value="PENDING">Chưa chấm ({stats.total - stats.graded})</Radio.Button>
-                        <Radio.Button value="GRADED">Đã chấm ({stats.graded})</Radio.Button>
+                        <Radio.Button value="PENDING">Chưa nhận xét ({stats.total - stats.graded})</Radio.Button>
+                        <Radio.Button value="GRADED">Đã nhận xét ({stats.graded})</Radio.Button>
                     </Radio.Group>
                 </div>
 
