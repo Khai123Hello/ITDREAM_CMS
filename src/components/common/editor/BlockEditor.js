@@ -150,6 +150,7 @@ const CalloutNodeView = ({ node, updateAttributes, deleteNode }) => {
                 open={visible}
                 onOpenChange={setVisible}
                 placement="bottomLeft"
+                getPopupContainer={(triggerNode) => triggerNode.parentNode}
             >
                 <span
                     className="tfo-block-callout-icon"
@@ -383,6 +384,7 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                     open={visible}
                     onOpenChange={setVisible}
                     placement="bottomLeft"
+                    getPopupContainer={(triggerNode) => triggerNode.parentNode}
                 >
                     <span className="tfo-block-section-icon" style={{ cursor: 'pointer', userSelect: 'none' }}>
                         {icon}

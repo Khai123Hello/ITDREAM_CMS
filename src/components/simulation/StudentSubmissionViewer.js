@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { useMemo } from 'react';
 import { Spin, Table, Tag } from 'antd';
 import { DownloadOutlined, FileTextOutlined } from '@ant-design/icons';
@@ -24,6 +25,20 @@ const getSubmissionRequirements = (subtask) => {
 
 const getSubmissionAnswer = (submission = {}) => submission.answer || submission.answear || '';
 
+const getTimestampFromSnowflake = (id) => {
+    if (!id) return null;
+    try {
+        const idStr = String(id);
+        if (!/^\d+$/.test(idStr)) return null;
+        const idBig = BigInt(idStr);
+        const twepoch = 1489111610226n;
+        const timestamp = (idBig >> 15n) + twepoch;
+        return Number(timestamp);
+    } catch {
+        return null;
+    }
+};
+
 /* ─────────────────────────── Main Reusable Component ─────────────────────────── */
 
 const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuestions = [], loading = false }) => {
@@ -43,10 +58,11 @@ const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuest
             }
 
             if (qId) {
+                const submissionTime = submission.createdDate || getTimestampFromSnowflake(submission.id);
                 map[qId] = {
                     answer: getSubmissionAnswer(submission),
                     isCorrect: submission.isCorrect === true || submission.isCorrect === 1,
-                    createdDate: submission.createdDate,
+                    createdDate: submissionTime,
                 };
             }
         });
@@ -103,12 +119,28 @@ const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuest
         if (list.length > 0) {
             return list.map((q) => {
                 const answerInfo = quizSubmissionMap[String(q.id)];
+                let isCorrect = answerInfo ? answerInfo.isCorrect : false;
+                const selectedAnswer = answerInfo ? answerInfo.answer : 'Chưa trả lời';
+
+                if (answerInfo && !isCorrect) {
+                    try {
+                        const opts = JSON.parse(q.options || '[]');
+                        const correctOpt = opts.find((o) => o.answer === true || o.answer === 'true');
+                        const correctText = correctOpt ? correctOpt.option || correctOpt.value : null;
+                        if (correctText && selectedAnswer) {
+                            isCorrect = correctText.trim().toLowerCase() === selectedAnswer.trim().toLowerCase();
+                        }
+                    } catch (e) {
+                        console.error('Error evaluating isCorrect fallback:', e);
+                    }
+                }
+
                 return {
                     id: q.id,
                     questionText: q.question,
                     options: q.options,
-                    selectedAnswer: answerInfo ? answerInfo.answer : 'Chưa trả lời',
-                    isCorrect: answerInfo ? answerInfo.isCorrect : false,
+                    selectedAnswer,
+                    isCorrect,
                     createdDate: answerInfo ? answerInfo.createdDate : null,
                 };
             });
@@ -122,13 +154,30 @@ const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuest
                 return qText === blockText;
             });
 
+            let isCorrect = matchedSub ? matchedSub.isCorrect === true || matchedSub.isCorrect === 1 : false;
+            const selectedAnswer = matchedSub ? getSubmissionAnswer(matchedSub) : 'Chưa trả lời';
+
+            if (matchedSub && !isCorrect) {
+                try {
+                    const correctOpt = (block.options || []).find((o) => o.answer === true || o.answer === 'true');
+                    const correctText = correctOpt ? correctOpt.option || correctOpt.value : null;
+                    if (correctText && selectedAnswer) {
+                        isCorrect = correctText.trim().toLowerCase() === selectedAnswer.trim().toLowerCase();
+                    }
+                } catch (e) {
+                    // Ignore
+                }
+            }
+
+            const createdDate = matchedSub ? (matchedSub.createdDate || getTimestampFromSnowflake(matchedSub.id)) : null;
+
             return {
                 id: matchedSub?.id || `mock-${index}`,
                 questionText: block.question,
                 options: JSON.stringify(block.options || []),
-                selectedAnswer: matchedSub ? getSubmissionAnswer(matchedSub) : 'Chưa trả lời',
-                isCorrect: matchedSub ? matchedSub.isCorrect === true || matchedSub.isCorrect === 1 : false,
-                createdDate: matchedSub ? matchedSub.createdDate : null,
+                selectedAnswer,
+                isCorrect,
+                createdDate,
             };
         });
     }, [apiQuizQuestions, quizSubmissionMap, subtaskDetail, submissions]);

@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tag, Button, Modal, Spin, Avatar, Input, message, Tooltip, Badge, Table } from 'antd';
@@ -55,10 +56,30 @@ const getSubmissionRequirements = (subtask) => {
 
 /**
  * Returns true if the subtask requires any form of submission (file or text).
+ * Returns false if it is a quiz task.
  */
-const hasSubmissionRequirement = (task) => Number(task?.submissionType) > 0;
+const hasSubmissionRequirement = (task) => {
+    if (task && Number(task.totalQuestion) > 0) {
+        return false;
+    }
+    return true;
+};
 
 const getSubmissionAnswer = (submission = {}) => submission.answer || submission.answear || '';
+
+const getTimestampFromSnowflake = (id) => {
+    if (!id) return null;
+    try {
+        const idStr = String(id);
+        if (!/^\d+$/.test(idStr)) return null;
+        const idBig = BigInt(idStr);
+        const twepoch = 1489111610226n;
+        const timestamp = (idBig >> 15n) + twepoch;
+        return Number(timestamp);
+    } catch {
+        return null;
+    }
+};
 
 const getSubmissions = (progressDetail = {}) => {
     if (Array.isArray(progressDetail?.studentSubmission?.content)) {
@@ -382,10 +403,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 qId = String(submission.taskQuestion.id);
             }
             if (qId) {
+                const submissionTime = submission.createdDate || getTimestampFromSnowflake(submission.id);
                 map[qId] = {
                     answer: getSubmissionAnswer(submission),
                     isCorrect: submission.isCorrect === true || submission.isCorrect === 1,
-                    createdDate: submission.createdDate,
+                    createdDate: submissionTime,
                 };
             }
         });
@@ -433,12 +455,28 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         if (list.length > 0) {
             return list.map((q) => {
                 const answerInfo = quizSubmissionMap[String(q.id)];
+                let isCorrect = answerInfo ? answerInfo.isCorrect : false;
+                const selectedAnswer = answerInfo ? answerInfo.answer : 'Chưa trả lời';
+
+                if (answerInfo && !isCorrect) {
+                    try {
+                        const opts = JSON.parse(q.options || '[]');
+                        const correctOpt = opts.find((o) => o.answer === true || o.answer === 'true');
+                        const correctText = correctOpt ? correctOpt.option || correctOpt.value : null;
+                        if (correctText && selectedAnswer) {
+                            isCorrect = correctText.trim().toLowerCase() === selectedAnswer.trim().toLowerCase();
+                        }
+                    } catch (e) {
+                        console.error('Error evaluating isCorrect fallback:', e);
+                    }
+                }
+
                 return {
                     id: q.id,
                     questionText: q.question,
                     options: q.options,
-                    selectedAnswer: answerInfo ? answerInfo.answer : 'Chưa trả lời',
-                    isCorrect: answerInfo ? answerInfo.isCorrect : false,
+                    selectedAnswer,
+                    isCorrect,
                     createdDate: answerInfo ? answerInfo.createdDate : null,
                 };
             });
@@ -1163,7 +1201,9 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     const renderCollaborationPanel = () => {
-        const isReviewRequired = requiresFileUpload || requiresTextResponse;
+        const hasQuiz = (subtaskDetail && Number(subtaskDetail.totalQuestion) > 0) || (quizHistory && quizHistory.length > 0);
+        const isReviewRequired = !hasQuiz;
+        const hasSubmitted = submissions && submissions.length > 0;
 
         return (
             <div className="tfo-review-tab-pane">
@@ -1177,6 +1217,11 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     <div className="tfo-review-empty tfo-review-fade-in">
                         <CheckCircleFilled className="tfo-review-empty__icon" style={{ color: '#8c8c8c' }} />
                         <p className="tfo-review-empty__text">Không yêu cầu nhận xét cho bước này</p>
+                    </div>
+                ) : !hasSubmitted ? (
+                    <div className="tfo-review-empty tfo-review-fade-in">
+                        <ClockCircleOutlined className="tfo-review-empty__icon" style={{ color: '#fa8c16' }} />
+                        <p className="tfo-review-empty__text">Học viên chưa nộp bài làm để nhận xét</p>
                     </div>
                 ) : (subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
                     ? renderReviewDisplay()
@@ -1345,13 +1390,29 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     ) : null;
                     const draftForSub = draftReviews[st.id];
                     const hasDraftForSub = draftForSub && draftForSub.content?.trim() !== (dbReviewForSub?.content || '').trim();
+
+                    // Check if there is an unreviewed submission waiting for review
+                    const { requiresFileUpload: reqFile, requiresTextResponse: reqText } = getSubmissionRequirements(st);
+                    const isSubReq = reqFile || reqText;
+                    const subs = getSubmissions(subProgress);
+                    const hasSub = subs.some((s) => !s.taskQuestion && getSubmissionAnswer(s));
+                    const hasSubmissionToReview = isSubReq && hasSub && !isSubReviewed && !hasDraftForSub;
+
                     let btnCls = 'tfo-step-btn';
                     if (isActiveSub) btnCls += ' active';
                     if (isSubReviewed && !isActiveSub) btnCls += ' reviewed';
+
+                    const tooltipTitle = `${st.title || st.name || 'Bước ' + (index + 1)}${isSubReviewed ? ' ✓ Đã nhận xét' : hasSubmissionToReview ? ' ⚠ Có bài cần nhận xét' : ''}`;
+
                     return (
-                        <Tooltip key={st.id} title={`${st.title || st.name || 'Bước ' + (index + 1)}${isSubReviewed ? ' ✓ Đã nhận xét' : ''}`}>
+                        <Tooltip key={st.id} title={tooltipTitle}>
                             <button className={btnCls} onClick={() => setSelectedSubtaskId(st.id)} style={{ position: 'relative' }}>
-                                {hasDraftForSub && <span style={{ position: 'absolute', top: 2, right: 2, width: 6, height: 6, borderRadius: '50%', backgroundColor: '#fa8c16' }} />}
+                                {hasDraftForSub && (
+                                    <span style={{ position: 'absolute', top: 2, right: 2, width: 6, height: 6, borderRadius: '50%', backgroundColor: '#fa8c16' }} />
+                                )}
+                                {hasSubmissionToReview && (
+                                    <span style={{ position: 'absolute', top: 2, right: 2, width: 6, height: 6, borderRadius: '50%', backgroundColor: '#f5222d' }} />
+                                )}
                                 {isSubReviewed && !isActiveSub ? <CheckOutlined style={{ fontSize: 11 }} /> : index + 1}
                             </button>
                         </Tooltip>
