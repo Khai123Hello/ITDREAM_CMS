@@ -60,6 +60,11 @@
       color: var(--text3);
       font-style: italic;
     }
+    /* Fix: transparent background makes browser selection invisible */
+    &::selection {
+      background-color: rgba(0, 98, 227, 0.18);
+      color: inherit;
+    }
   }
 
   /* PREMIUM TWO-ROW TOOLBAR */
@@ -454,6 +459,21 @@
     flex-direction: column;
     gap: 8px;
     padding-bottom: 40px;
+
+    /* Ensure images don't overflow */
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    /* Horizontal Rule */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+      width: 100%;
+    }
 
     /* Callout block */
     .tfo-block-callout {
@@ -977,6 +997,11 @@
         outline: none !important;
         padding: 0 !important;
         width: 100% !important;
+        /* Fix: hiển thị rõ vùng bôi đen */
+        &::selection {
+          background-color: rgba(0, 98, 227, 0.22) !important;
+          color: var(--accent) !important;
+        }
       }
     }
 
@@ -991,6 +1016,11 @@
         outline: none !important;
         padding: 0 !important;
         flex: 1 !important;
+        /* Fix: hiển thị rõ vùng bôi đen */
+        &::selection {
+          background-color: rgba(0, 98, 227, 0.18) !important;
+          color: var(--text) !important;
+        }
       }
     }
 
@@ -1012,6 +1042,11 @@
         &::placeholder {
           color: var(--text3) !important;
           opacity: 1 !important;
+        }
+        /* Fix: hiển thị rõ vùng bôi đen */
+        &::selection {
+          background-color: rgba(0, 98, 227, 0.18) !important;
+          color: var(--text) !important;
         }
       }
     }

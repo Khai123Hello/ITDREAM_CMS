@@ -150,6 +150,7 @@ const CalloutNodeView = ({ node, updateAttributes, deleteNode }) => {
                 open={visible}
                 onOpenChange={setVisible}
                 placement="bottomLeft"
+                getPopupContainer={(triggerNode) => triggerNode.parentNode}
             >
                 <span
                     className="tfo-block-callout-icon"
@@ -383,6 +384,7 @@ const SectionNodeView = ({ node, updateAttributes, deleteNode }) => {
                     open={visible}
                     onOpenChange={setVisible}
                     placement="bottomLeft"
+                    getPopupContainer={(triggerNode) => triggerNode.parentNode}
                 >
                     <span className="tfo-block-section-icon" style={{ cursor: 'pointer', userSelect: 'none' }}>
                         {icon}
@@ -426,7 +428,7 @@ const SectionExtension = Node.create({
     addAttributes() {
         return {
             icon: { default: '🎓' },
-            title: { default: 'Kiến thức đạt được' },
+            title: { default: 'Những điều bạn sẽ học' },
         };
     },
     parseHTML() {
@@ -435,7 +437,7 @@ const SectionExtension = Node.create({
                 tag: 'section-block',
                 getAttrs: (el) => ({
                     icon: el.getAttribute('icon') || '🎓',
-                    title: el.getAttribute('title') || 'Kiến thức đạt được',
+                    title: el.getAttribute('title') || 'Những điều bạn sẽ học',
                 }),
             },
         ];
@@ -459,12 +461,12 @@ const TEMPLATES = {
         title: 'Nhập tiêu đề giới thiệu ở đây (ví dụ: Giới thiệu về lập trình React)',
         descriptionText:
             'Nhập mô tả ngắn gọn về bài học ở đây (ví dụ: Bài viết giúp học viên làm quen với thư viện ReactJS cơ bản)',
-        blocks: () => `{% section icon="🎓" title="Kiến thức sẽ đạt được (ví dụ: Mục tiêu bài học)" %}
+        blocks: () => `{% section icon="🎓" title="Những điều bạn sẽ học" %}
 - Nhập nội dung kiến thức thứ nhất (ví dụ: Cách khởi tạo component)
 - Nhập nội dung kiến thức thứ hai (ví dụ: Cách truyền props và quản lý state)
 {% /section %}
 
-{% section icon="🛠️" title="Các bước thực hành chính (ví dụ: Nhiệm vụ cần làm)" %}
+{% section icon="🛠️" title="Những điều bạn sẽ làm" %}
 - Nhập hành động thực hành thứ nhất (ví dụ: Cài đặt môi trường Node.js)
 - Nhập hành động thực hành thứ hai (ví dụ: Chạy kiểm thử ứng dụng)
 {% /section %}`,

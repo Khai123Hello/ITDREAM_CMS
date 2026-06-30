@@ -69,18 +69,18 @@ function SimulationDetailPreview({
 
     // ── Map previewData → simulation ─────────────────────────────────────────
     const simulation = useMemo(() => ({
-        title:            previewData.title             || '',
-        notice:           previewData.description       || '', // Mapped to description
-        thumbnail:        previewData.imagePath         || null,
-        level:            previewData.level?.value      ?? previewData.level ?? 1,
-        duration:         previewData.totalEstimatedTime || '',
-        description:      previewData.descriptionContent || '',
-        overview:         previewData.overviewData      || null,
-        avgStar:          previewData.avgStar           ?? undefined,
-        totalParticipant: previewData.totalParticipant  ?? 0,
-        educator:         previewData.educator          || null,
-        categoryId:       previewData.categoryId        || null,
-        category:         previewData.category          || null,
+        title: previewData.title || '',
+        notice: previewData.description || '', // Mapped to description
+        thumbnail: previewData.imagePath || null,
+        level: previewData.level?.value ?? previewData.level ?? 1,
+        duration: previewData.totalEstimatedTime || '',
+        description: previewData.descriptionContent || '',
+        overview: previewData.overviewData || null,
+        avgStar: previewData.avgStar ?? undefined,
+        totalParticipant: previewData.totalParticipant ?? 0,
+        educator: previewData.educator || null,
+        categoryId: previewData.categoryId || null,
+        category: previewData.category || null,
     }), [previewData]);
 
     const getLevelLabel = (level) =>
@@ -117,8 +117,8 @@ function SimulationDetailPreview({
 
     const TABS = [
         { key: 'overview', label: 'Tổng quan' },
-        { key: 'tasks',    label: `Nhiệm vụ${tasks.length ? ` (${tasks.length})` : ''}` },
-        { key: 'reviews',  label: 'Đánh giá' },
+        { key: 'tasks', label: `Nhiệm vụ${tasks.length ? ` (${tasks.length})` : ''}` },
+        { key: 'reviews', label: 'Chia sẻ cảm nhận' },
     ];
 
     return (
@@ -209,8 +209,8 @@ function SimulationDetailPreview({
                                 <EZ fieldPath="totalEstimatedTime" value={simulation.duration} type="text" label="Thời gian">
                                     <span className={styles.heroMetaItem}>
                                         <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                            <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.4"/>
-                                            <path d="M7 4.5V7l1.5 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
+                                            <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="1.4" />
+                                            <path d="M7 4.5V7l1.5 1.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
                                         </svg>
                                         {simulation.duration || 'Tự hoàn thành'}
                                     </span>
@@ -218,15 +218,15 @@ function SimulationDetailPreview({
                                 <span className={styles.heroMetaDot} />
                                 <span className={styles.heroMetaItem}>
                                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                        <path d="M7 1.5l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9.5l-3 1.5.5-3.5L2 5l3.5-.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
+                                        <path d="M7 1.5l1.5 3 3.5.5-2.5 2.5.5 3.5L7 9.5l-3 1.5.5-3.5L2 5l3.5-.5z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
                                     </svg>
                                     Miễn phí
                                 </span>
                                 <span className={styles.heroMetaDot} />
                                 <span className={styles.heroMetaItem}>
                                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                                        <path d="M2 11c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/>
-                                        <circle cx="7" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4"/>
+                                        <path d="M2 11c0-2.2 2.2-4 5-4s5 1.8 5 4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                                        <circle cx="7" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.4" />
                                     </svg>
                                     {simulation.totalParticipant?.toLocaleString() || 0} học viên
                                 </span>
@@ -253,8 +253,8 @@ function SimulationDetailPreview({
                                 <li><span className={styles.checkIcon}>✓</span> Nhận chứng chỉ bổ sung vào hồ sơ & LinkedIn.</li>
                                 <li><span className={styles.checkIcon}>✓</span> Không tính điểm, không áp lực.</li>
                             </ul>
-                            <button 
-                                className={styles.ctaBtn} 
+                            <button
+                                className={styles.ctaBtn}
                                 onClick={handleJoinFree}
                                 style={{ cursor: 'pointer' }}
                             >
@@ -462,8 +462,8 @@ function SimulationDetailPreview({
 
                     {/* ── REVIEWS TAB ── */}
                     {activeTab === 'reviews' && (
-                        <StudentReviewDashboard 
-                            simulationId={simulationId} 
+                        <StudentReviewDashboard
+                            simulationId={simulationId}
                             avgStar={simulation.avgStar}
                             totalParticipant={simulation.totalParticipant}
                         />
@@ -695,15 +695,15 @@ function VideoUploadModal({ open, onClose, onSave, executeUpFile }) {
 }
 
 const badgeBase = {
-    position:      'sticky',
-    top:           0,
-    zIndex:        100,
-    textAlign:     'center',
-    fontSize:      12,
-    fontWeight:    600,
-    padding:       '5px 0',
+    position: 'sticky',
+    top: 0,
+    zIndex: 100,
+    textAlign: 'center',
+    fontSize: 12,
+    fontWeight: 600,
+    padding: '5px 0',
     letterSpacing: 0.5,
-    color:         '#fff',
+    color: '#fff',
 };
 
 

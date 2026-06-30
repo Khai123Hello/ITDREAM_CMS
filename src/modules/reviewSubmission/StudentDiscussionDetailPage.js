@@ -1,3 +1,4 @@
+/* global BigInt */
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tag, Button, Avatar, Tooltip, Badge, Table } from 'antd';
@@ -48,6 +49,20 @@ const getSubmissionRequirements = (subtask) => {
 };
 
 const getSubmissionAnswer = (submission = {}) => submission.answer || submission.answear || '';
+
+const getTimestampFromSnowflake = (id) => {
+    if (!id) return null;
+    try {
+        const idStr = String(id);
+        if (!/^\d+$/.test(idStr)) return null;
+        const idBig = BigInt(idStr);
+        const twepoch = 1489111610226n;
+        const timestamp = (idBig >> 15n) + twepoch;
+        return Number(timestamp);
+    } catch {
+        return null;
+    }
+};
 
 const getSubmissions = (progressDetail = {}) => {
     if (Array.isArray(progressDetail?.studentSubmission?.content)) {
@@ -200,7 +215,7 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                     (t) =>
                         t.kind === 2 && (t.parent?.id === selectedParentTaskId || t.parentId === selectedParentTaskId),
                 )
-                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+                .sort((a, b) => (a.orderInParent || null) - (b.orderInParent || null)) || []
         );
     }, [tasks, selectedParentTaskId]);
 
@@ -277,10 +292,11 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                 qId = String(submission.taskQuestion.id);
             }
             if (qId) {
+                const submissionTime = submission.createdDate || getTimestampFromSnowflake(submission.id);
                 map[qId] = {
                     answer: getSubmissionAnswer(submission),
                     isCorrect: submission.isCorrect === true || submission.isCorrect === 1,
-                    createdDate: submission.createdDate,
+                    createdDate: submissionTime,
                 };
             }
         });
@@ -331,12 +347,28 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
         if (list.length > 0) {
             return list.map((q) => {
                 const answerInfo = quizSubmissionMap[String(q.id)];
+                let isCorrect = answerInfo ? answerInfo.isCorrect : false;
+                const selectedAnswer = answerInfo ? answerInfo.answer : 'Chưa trả lời';
+
+                if (answerInfo && !isCorrect) {
+                    try {
+                        const opts = JSON.parse(q.options || '[]');
+                        const correctOpt = opts.find((o) => o.answer === true || o.answer === 'true');
+                        const correctText = correctOpt ? correctOpt.option || correctOpt.value : null;
+                        if (correctText && selectedAnswer) {
+                            isCorrect = correctText.trim().toLowerCase() === selectedAnswer.trim().toLowerCase();
+                        }
+                    } catch (e) {
+                        console.error('Error evaluating isCorrect fallback:', e);
+                    }
+                }
+
                 return {
                     id: q.id,
                     questionText: q.question,
                     options: q.options,
-                    selectedAnswer: answerInfo ? answerInfo.answer : 'Chưa trả lời',
-                    isCorrect: answerInfo ? answerInfo.isCorrect : false,
+                    selectedAnswer,
+                    isCorrect,
                     createdDate: answerInfo ? answerInfo.createdDate : null,
                 };
             });
@@ -387,13 +419,13 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
     const { execute: executeUpdateComment } = useFetch(apiConfig.comment.update, { immediate: false });
     const { execute: executeDeleteComment } = useFetch(apiConfig.comment.delete, { immediate: false });
 
-    const handleSendComment = (content, parentId = 0) => {
+    const handleSendComment = (content, parentId = null) => {
         if (!selectedSubtaskId || !simulationEnrollmentId) return;
 
         executeCreateComment({
             data: {
                 content,
-                parentId: parentId === 0 ? null : parentId,
+                parentId,
                 taskId: selectedSubtaskId,
                 simulationEnrollmentId,
             },
@@ -444,7 +476,7 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
         return (
             tasks
                 ?.filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
-                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+                .sort((a, b) => (a.orderInParent || null) - (b.orderInParent || null)) || []
         );
     };
 

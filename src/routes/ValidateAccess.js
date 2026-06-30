@@ -3,7 +3,6 @@ import React from 'react';
 import { accessRouteTypeEnum } from '@constants';
 import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 
-import routes from '.';
 import PublicLayout from '@modules/main/PublicLayout';
 import MainLayout from '@modules/main/MainLayout';
 import { getLayout } from '@modules/main/layoutRegistry';
@@ -47,6 +46,8 @@ const ValidateAccess = ({
         });
     }
     const getRedirect = (authRequire) => {
+        const routes = require('.').default;
+        
         if (authRequire === accessRouteTypeEnum.NOT_LOGIN && isAuthenticated) {
             const initRoutes = getInitRoute(navMenuConfig);
             if (initRoutes?.length > 0) {

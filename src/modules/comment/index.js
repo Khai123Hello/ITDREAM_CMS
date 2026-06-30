@@ -247,7 +247,7 @@ const CommentListPage = () => {
     const { execute: executeUpdateComment } = useFetch(apiConfig.comment.update, { immediate: false });
     const { execute: executeDeleteComment } = useFetch(apiConfig.comment.delete, { immediate: false });
 
-    const handleSendComment = (content, parentId = 0) => {
+    const handleSendComment = (content, parentId = null) => {
         const taskId = activeComment?.task?.id;
         const enrollmentId = activeComment?.simulationEnrollmentId || activeComment?.simulationEnrollment?.id;
         if (!taskId || !enrollmentId) return;

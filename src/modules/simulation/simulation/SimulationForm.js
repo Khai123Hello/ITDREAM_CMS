@@ -357,14 +357,11 @@ const SimulationForm = (props) => {
 
 const styles = {
     root: {
-        height: 'calc(100vh - 64px)',
-        overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
     },
     panel: {
         flex: 1,
-        overflowY: 'auto',
         background: '#f5f5f5',
         display: 'flex',
         flexDirection: 'column',

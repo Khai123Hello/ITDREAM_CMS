@@ -56,8 +56,17 @@ function renderNode(node, index, quizCtx) {
 
                     case 'heading': {
                         const level = node.attrs?.level || 1;
+                        const text = node.content?.map((c) => c.text || '').join('') || '';
+                        const id = text
+                            .toLowerCase()
+                            .trim()
+                            .replace(/[^a-z0-9\u00C0-\u017F]+/g, '-');
                         const Tag = `h${level}`;
-                        return <Tag key={index}>{children}</Tag>;
+                        return (
+                            <Tag key={index} id={id}>
+                                {children}
+                            </Tag>
+                        );
                     }
 
                     case 'bulletList':

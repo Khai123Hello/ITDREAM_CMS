@@ -277,6 +277,12 @@ export function tipTapToMarkdoc(node) {
                         return `- ${childrenContent}`;
                     case 'codeBlock':
                         return `\`\`\`\n${childrenContent}\n\`\`\``;
+                    case 'image': {
+                        const alt = node.attrs?.alt || '';
+                        const src = node.attrs?.src || '';
+                        const title = node.attrs?.title ? ` "${node.attrs.title}"` : '';
+                        return `![${alt}](${src}${title})`;
+                    }
                     case 'horizontalRule':
                         return '---';
                     case 'callout': {

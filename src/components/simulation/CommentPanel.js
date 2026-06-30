@@ -95,7 +95,7 @@ function CommentPanel({
     const handleMainSubmit = (e) => {
         e.preventDefault();
         if (!mainText.trim()) return;
-        onSendComment(mainText.trim(), 0);
+        onSendComment(mainText.trim(), null);
         setMainText('');
     };
 
