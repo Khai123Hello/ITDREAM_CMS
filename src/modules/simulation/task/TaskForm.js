@@ -875,7 +875,7 @@ const TaskForm = (props) => {
         try {
             const result = await mixinFuncs.handleSubmit(submitData);
             if (result?.result === false) {
-                const msg = result.message || 'Không thể lưu nhiệm vụ. Vui lòng thử lại.';
+                const msg = result?.response?.data?.message || result?.data?.message || result?.message || 'Không thể lưu nhiệm vụ. Vui lòng thử lại.';
                 setSubmitError(msg);
                 message.error(msg);
                 return false;

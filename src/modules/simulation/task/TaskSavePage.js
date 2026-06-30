@@ -157,7 +157,7 @@ const TaskSavePage = ({ pageOptions }) => {
 
             // Kiểm tra kết quả create
             if (!response || response.result !== true) {
-                const errMsg = response?.message || 'Tạo nhiệm vụ thất bại.';
+                const errMsg = response?.response?.data?.message || response?.data?.message || response?.message || 'Tạo nhiệm vụ thất bại.';
                 message.error(errMsg);
                 if (callback) callback(response);
                 return;
