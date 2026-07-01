@@ -702,13 +702,6 @@ export default function BlogEditor({
                                     onChange={(e) => handleTitleChangeLocal(e.target.value)}
                                     placeholder="Nhập tiêu đề bài viết Blog..."
                                 />
-                                <textarea
-                                    className="canvas-desc-textarea"
-                                    value={description}
-                                    onChange={(e) => handleDescChangeLocal(e.target.value)}
-                                    placeholder="Nhập mô tả ngắn hoặc tóm tắt chủ đề của Blog bài viết này..."
-                                    rows={2}
-                                />
                             </div>
 
                             <div className="canvas-body-editor-wrap">
@@ -819,6 +812,19 @@ export default function BlogEditor({
                         </div>
                         
                         <div className="public-blog-template-wrapper">
+                            {/* Breadcrumb */}
+                            <div className="preview-breadcrumb">
+                                <span className="preview-breadcrumb-link">Trang chủ</span>
+                                <span className="preview-breadcrumb-sep">/</span>
+                                <span className="preview-breadcrumb-link">Blog</span>
+                                {description && (
+                                    <>
+                                        <span className="preview-breadcrumb-sep">/</span>
+                                        <span className="preview-breadcrumb-current">{description.slice(0, 40)}{description.length > 40 ? '...' : ''}</span>
+                                    </>
+                                )}
+                            </div>
+
                             <div className="public-blog-layout">
                                 <div className="blog-sidebar-left">
                                     <TableOfContents content={content} />
@@ -826,21 +832,31 @@ export default function BlogEditor({
 
                                 <article className="blog-main-article-card">
                                     <header className="article-preview-header">
+                                        {/* Subject pill badge */}
+                                        {description && (
+                                            <span className="article-subject-pill">
+                                                {description}
+                                            </span>
+                                        )}
+
                                         <div className="article-meta-badge-row">
-                                            <span className="category-meta-badge">Blog Thế giới lập trình</span>
                                             <span className="reading-time-badge">⏱️ {readingTime} phút đọc</span>
                                         </div>
                                         <h1 className="article-preview-title">
                                             {title || 'Tiêu đề bài viết Blog'}
                                         </h1>
-                                        <p className="article-preview-summary">
-                                            {description || 'Chủ đề và mô tả tóm tắt ngắn gọn bài viết.'}
-                                        </p>
                                         <div className="article-preview-author-meta">
                                             <div className="author-avatar-simple">A</div>
                                             <div className="author-text-info">
                                                 <span className="author-fullname">Tác giả biên soạn</span>
-                                                <span className="publish-date-simple">Ngày đăng: 01/07/2026</span>
+                                                <span className="publish-date-simple">
+                                                    Ngày đăng:{' '}
+                                                    {new Date().toLocaleDateString('vi-VN', {
+                                                        day: 'numeric',
+                                                        month: 'numeric',
+                                                        year: 'numeric',
+                                                    })}
+                                                </span>
                                             </div>
                                         </div>
                                     </header>

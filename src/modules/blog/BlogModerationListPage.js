@@ -202,7 +202,7 @@ const BlogModerationListPage = () => {
         {
             title: 'Người viết',
             width: '180px',
-            render: (_, record) => record.educator?.profileAccountDto?.fullName || record.author || '-',
+            render: (_, record) => record.educator?.account?.fullName || record.educator?.profileAccountDto?.fullName || record.author || '-',
         },
         {
             title: 'Ngày tạo',
@@ -309,7 +309,7 @@ const BlogModerationListPage = () => {
                             <span>
                                 Tác giả:{' '}
                                 <strong>
-                                    {previewRecord.educator?.profileAccountDto?.fullName || previewRecord.author || '-'}
+                                    {previewRecord.educator?.account?.fullName || previewRecord.educator?.profileAccountDto?.fullName || previewRecord.author || '-'}
                                 </strong>
                             </span>
                             <Divider type="vertical" />

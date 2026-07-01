@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Tabs } from 'antd';
+import { Card, Col, Input, Row, Tabs, Typography } from 'antd';
 
 import { BaseForm } from '@components/common/form/BaseForm';
 import TextField from '@components/common/form/TextField';
@@ -16,10 +16,24 @@ import apiConfig from '@constants/apiConfig';
 import { AppConstants, UploadFileTypes } from '@constants';
 import { markdocToTipTapJson } from '@utils/markdocBlockConverter';
 
+// Kiểm tra xem chuỗi có phải là URL ngoài (http/https) hay không
+function isExternalUrl(url) {
+    if (!url) return false;
+    return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:');
+}
+
+// Lấy URL hiển thị ảnh đúng cả 2 loại: upload path & external link
+function getDisplayImageUrl(imageValue) {
+    if (!imageValue) return null;
+    if (isExternalUrl(imageValue)) return imageValue;
+    return `${AppConstants.contentRootUrl}${imageValue}`;
+}
+
 const BlogForm = (props) => {
     const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, categories } = props;
 
     const [imageUrl, setImageUrl] = useState(null);
+    const [imageUrlInput, setImageUrlInput] = useState('');
     const [activeTab, setActiveTab] = useState('edit');
     const [previewData, setPreviewData] = useState(null);
 
@@ -58,7 +72,7 @@ const BlogForm = (props) => {
             const categoryObj = categories.find((c) => c.value === currentValues.categoryId);
             setPreviewData({
                 name: currentValues.name || 'Tiêu đề bài viết',
-                subject: currentValues.subject || 'Chủ đề bài viết',
+                subject: null,
                 categoryName: categoryObj ? categoryObj.label : '',
                 image: currentValues.image || imageUrl,
                 content: currentValues.content || '',
@@ -68,10 +82,24 @@ const BlogForm = (props) => {
     };
 
     const handleSubmit = (values) => {
+        // Ưu tiên URL ngoài nếu được nhập, sau đó dùng imageUrl từ upload
+        const finalImage = imageUrlInput.trim() ? imageUrlInput.trim() : imageUrl;
         return mixinFuncs.handleSubmit({
             ...values,
-            image: imageUrl,
+            subject: null,
+            image: finalImage,
         });
+    };
+
+    // Khi nhập URL ngoài: cập nhật state và sync vào form field
+    const handleImageUrlInputChange = (e) => {
+        const val = e.target.value.trim();
+        setImageUrlInput(val);
+        if (val) {
+            setImageUrl(val);
+            form.setFieldsValue({ image: val });
+            setIsChangedFormValues(true);
+        }
     };
 
     useEffect(() => {
@@ -80,7 +108,12 @@ const BlogForm = (props) => {
                 ...dataDetail,
                 categoryId: dataDetail.category?.id || dataDetail.categoryId,
             });
-            setImageUrl(dataDetail.image);
+            const img = dataDetail.image || '';
+            setImageUrl(img);
+            // Nếu ảnh đang lưu là URL ngoài thì điền sẵn vào ô nhập
+            if (isExternalUrl(img)) {
+                setImageUrlInput(img);
+            }
         }
     }, [dataDetail, form]);
 
@@ -105,27 +138,61 @@ const BlogForm = (props) => {
                         </Col>
                     </Row>
 
-                    <Row gutter={16}>
-                        <Col span={24}>
-                            <TextField
-                                label="Chủ đề (Mô tả ngắn)"
-                                name="subject"
-                                required
-                                placeholder="Nhập chủ đề hoặc mô tả ngắn"
-                            />
-                        </Col>
-                    </Row>
+
 
                     <Row gutter={16}>
                         <Col span={24}>
                             <CropImageField
                                 label="Ảnh bìa"
                                 name="image"
-                                imageUrl={imageUrl ? `${AppConstants.contentRootUrl}${imageUrl}` : null}
+                                imageUrl={imageUrl ? getDisplayImageUrl(imageUrl) : null}
                                 uploadFile={uploadFile}
                                 aspect={16 / 9}
-                                required
+                                required={!imageUrlInput.trim()}
                             />
+                            {/* Nhập URL ảnh ngoài */}
+                            <div style={{ marginTop: 8 }}>
+                                <Typography.Text
+                                    type="secondary"
+                                    style={{ fontSize: 12, display: 'block', marginBottom: 4 }}
+                                >
+                                    Hoặc dán đường link ảnh bìa (URL ngoài)
+                                </Typography.Text>
+                                <Input
+                                    value={imageUrlInput}
+                                    onChange={handleImageUrlInputChange}
+                                    placeholder="https://example.com/image.jpg"
+                                    allowClear
+                                    onClear={() => {
+                                        setImageUrlInput('');
+                                        if (!isExternalUrl(imageUrl)) return;
+                                        setImageUrl(null);
+                                        form.setFieldsValue({ image: null });
+                                    }}
+                                    style={{ borderRadius: 6 }}
+                                />
+                                {imageUrlInput && (
+                                    <div
+                                        style={{
+                                            marginTop: 8,
+                                            borderRadius: 8,
+                                            overflow: 'hidden',
+                                            border: '1px solid #e2e8f0',
+                                            aspectRatio: '16/9',
+                                            background: '#f8fafc',
+                                        }}
+                                    >
+                                        <img
+                                            src={imageUrlInput}
+                                            alt="preview"
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                            onError={(e) => {
+                                                e.target.style.display = 'none';
+                                            }}
+                                        />
+                                    </div>
+                                )}
+                            </div>
                         </Col>
                     </Row>
 
@@ -182,6 +249,32 @@ const BlogForm = (props) => {
                                             minHeight: '500px',
                                         }}
                                     >
+                                        {/* Breadcrumb bar */}
+                                        <div
+                                            style={{
+                                                maxWidth: '1200px',
+                                                margin: '0 auto 16px',
+                                                padding: '0 24px',
+                                                fontSize: '12px',
+                                                color: '#94a3b8',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '6px',
+                                            }}
+                                        >
+                                            <span style={{ color: '#168E85', cursor: 'pointer' }}>Trang chủ</span>
+                                            <span>/</span>
+                                            <span style={{ color: '#168E85', cursor: 'pointer' }}>Blog</span>
+                                            {previewData.categoryName && (
+                                                <>
+                                                    <span>/</span>
+                                                    <span style={{ color: '#5c6f84', fontWeight: 500 }}>
+                                                        {previewData.categoryName}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </div>
+
                                         <div
                                             style={{
                                                 display: 'grid',
@@ -195,7 +288,27 @@ const BlogForm = (props) => {
                                         >
                                             {/* Cột trái: Mục lục */}
                                             <div style={{ position: 'sticky', top: '24px' }}>
-                                                <TableOfContents content={previewData.content} />
+                                                <div
+                                                    style={{
+                                                        border: '1px solid #e3dcc9',
+                                                        background: '#f9f5ea',
+                                                        borderRadius: '12px',
+                                                        padding: '16px 18px',
+                                                    }}
+                                                >
+                                                    <p
+                                                        style={{
+                                                            fontWeight: 700,
+                                                            fontSize: '13px',
+                                                            margin: '0 0 10px',
+                                                            color: '#1e2a22',
+                                                            fontFamily: 'Georgia, serif',
+                                                        }}
+                                                    >
+                                                        Mục lục
+                                                    </p>
+                                                    <TableOfContents content={previewData.content} />
+                                                </div>
                                             </div>
 
                                             {/* Cột giữa: Nội dung chi tiết */}
@@ -203,105 +316,199 @@ const BlogForm = (props) => {
                                                 style={{
                                                     background: '#ffffff',
                                                     borderRadius: '16px',
-                                                    padding: '32px',
+                                                    padding: '40px 40px 48px',
                                                     boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)',
                                                     border: '1px solid #e2e8f0',
                                                 }}
                                             >
-                                                <header style={{ marginBottom: '24px' }}>
-                                                    {previewData.categoryName && (
+                                                <header style={{ marginBottom: '28px' }}>
+                                                    {/* Subject pill badge */}
+                                                    {previewData.subject && (
                                                         <span
                                                             style={{
                                                                 display: 'inline-block',
-                                                                background: '#e8f4f3',
-                                                                color: '#168E85',
+                                                                background: '#eaf2ed',
+                                                                color: '#204e37',
                                                                 fontSize: '12px',
                                                                 fontWeight: 700,
-                                                                padding: '4px 12px',
-                                                                borderRadius: '6px',
-                                                                marginBottom: '12px',
+                                                                padding: '5px 14px',
+                                                                borderRadius: '999px',
+                                                                marginBottom: '16px',
+                                                                letterSpacing: '0.02em',
                                                             }}
                                                         >
-                                                            {previewData.categoryName}
+                                                            {previewData.subject}
                                                         </span>
                                                     )}
+
+                                                    {/* Title — editorial serif font */}
                                                     <h1
                                                         style={{
-                                                            fontSize: '32px',
-                                                            fontWeight: 800,
-                                                            color: '#0d2b5e',
-                                                            margin: '0 0 12px',
-                                                            lineHeight: 1.3,
+                                                            fontFamily: 'Georgia, "Times New Roman", serif',
+                                                            fontSize: '34px',
+                                                            fontWeight: 700,
+                                                            color: '#1e2a22',
+                                                            margin: '0 0 16px',
+                                                            lineHeight: 1.25,
+                                                            letterSpacing: '-0.01em',
                                                         }}
                                                     >
-                                                        {previewData.name}
+                                                        {previewData.name || 'Tên bài viết của bạn sẽ hiện ở đây'}
                                                     </h1>
-                                                    <p style={{ fontSize: '16px', color: '#5c6f84', margin: 0, lineHeight: 1.5 }}>
-                                                        {previewData.subject}
-                                                    </p>
+
+                                                    {/* Author + date meta */}
+                                                    <div
+                                                        style={{
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            gap: '8px',
+                                                            fontSize: '13px',
+                                                            color: '#6e6659',
+                                                            marginBottom: '24px',
+                                                            flexWrap: 'wrap',
+                                                        }}
+                                                    >
+                                                        <span>
+                                                            Được viết bởi{' '}
+                                                            <strong style={{ color: '#1e2a22' }}>
+                                                                {dataDetail?.educator?.account?.fullName || dataDetail?.educator?.profileAccountDto?.fullName || 'Ban biên tập'}
+                                                            </strong>
+                                                        </span>
+                                                        <span
+                                                            style={{
+                                                                width: '3px',
+                                                                height: '3px',
+                                                                borderRadius: '50%',
+                                                                background: '#6e6659',
+                                                                display: 'inline-block',
+                                                            }}
+                                                        />
+                                                        <span>
+                                                            Cập nhật ngày{' '}
+                                                            <strong style={{ color: '#1e2a22' }}>
+                                                                {new Date().toLocaleDateString('vi-VN', {
+                                                                    day: 'numeric',
+                                                                    month: 'numeric',
+                                                                    year: 'numeric',
+                                                                })}
+                                                            </strong>
+                                                        </span>
+                                                    </div>
                                                 </header>
 
                                                 {previewData.image && (
-                                                    <div style={{ borderRadius: '12px', overflow: 'hidden', marginBottom: '24px' }}>
+                                                    <div
+                                                        style={{
+                                                            borderRadius: '12px',
+                                                            overflow: 'hidden',
+                                                            marginBottom: '32px',
+                                                            background: '#f2ede2',
+                                                            aspectRatio: '16/8',
+                                                        }}
+                                                    >
                                                         <img
-                                                            src={`${AppConstants.contentRootUrl}${previewData.image}`}
+                                                            src={getDisplayImageUrl(previewData.image)}
                                                             alt="Preview Cover"
                                                             style={{
                                                                 width: '100%',
-                                                                height: 'auto',
+                                                                height: '100%',
                                                                 display: 'block',
-                                                                aspectRatio: '16/9',
                                                                 objectFit: 'cover',
                                                             }}
                                                         />
                                                     </div>
                                                 )}
 
-                                                <section className="article-body-editor">
+                                                <section
+                                                    className="article-body-editor"
+                                                    style={{
+                                                        fontSize: '16px',
+                                                        lineHeight: '1.8',
+                                                        color: '#2a362d',
+                                                    }}
+                                                >
                                                     <TipTapJsonRenderer content={previewData.content} />
                                                 </section>
                                             </article>
 
                                             {/* Cột phải: Sidebar Tác giả */}
-                                            <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                            <aside style={{ display: 'flex', flexDirection: 'column', gap: '20px', position: 'sticky', top: '24px' }}>
                                                 <div
                                                     style={{
                                                         background: '#ffffff',
                                                         borderRadius: '16px',
-                                                        padding: '24px',
+                                                        padding: '20px',
                                                         border: '1px solid #e2e8f0',
                                                     }}
                                                 >
-                                                    <h4 style={{ margin: '0 0 12px', fontSize: '14px', fontWeight: 700, color: '#5c6f84' }}>
-                                                        TÁC GIẢ BÀI VIẾT
-                                                    </h4>
+                                                    <p
+                                                        style={{
+                                                            margin: '0 0 12px',
+                                                            fontSize: '11px',
+                                                            fontWeight: 700,
+                                                            color: '#94a3b8',
+                                                            letterSpacing: '0.08em',
+                                                            textTransform: 'uppercase',
+                                                        }}
+                                                    >
+                                                        Tác giả bài viết
+                                                    </p>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                                         <div
                                                             style={{
                                                                 width: '48px',
                                                                 height: '48px',
                                                                 borderRadius: '50%',
-                                                                background: '#168E85',
+                                                                background: 'linear-gradient(135deg, #168E85, #0d2b5e)',
                                                                 color: '#ffffff',
                                                                 display: 'flex',
                                                                 alignItems: 'center',
                                                                 justifyContent: 'center',
                                                                 fontWeight: 'bold',
                                                                 fontSize: '18px',
+                                                                flexShrink: 0,
                                                             }}
                                                         >
-                                                            {dataDetail?.educator?.profileAccountDto?.fullName?.charAt(0) || 'A'}
+                                                            {(dataDetail?.educator?.account?.fullName || dataDetail?.educator?.profileAccountDto?.fullName || 'A').charAt(0)}
                                                         </div>
                                                         <div>
-                                                            <h5 style={{ margin: '0 0 4px', fontWeight: 'bold' }}>
-                                                                {dataDetail?.educator?.profileAccountDto?.fullName || 'Tác giả'}
-                                                            </h5>
+                                                            <p style={{ margin: '0 0 2px', fontWeight: 700, fontSize: '14px', color: '#1e2a22' }}>
+                                                                {dataDetail?.educator?.account?.fullName || dataDetail?.educator?.profileAccountDto?.fullName || 'Tác giả'}
+                                                            </p>
                                                             <span style={{ fontSize: '12px', color: '#94a3b8' }}>
                                                                 Giảng viên chuyên môn
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </div>
+
+                                                {/* Category info */}
+                                                {previewData.categoryName && (
+                                                    <div
+                                                        style={{
+                                                            background: '#eaf2ed',
+                                                            borderRadius: '12px',
+                                                            padding: '16px',
+                                                            border: '1px solid #c8dfd3',
+                                                        }}
+                                                    >
+                                                        <p
+                                                            style={{
+                                                                margin: '0 0 6px',
+                                                                fontSize: '11px',
+                                                                fontWeight: 700,
+                                                                color: '#2f6f4e',
+                                                                textTransform: 'uppercase',
+                                                                letterSpacing: '0.06em',
+                                                            }}
+                                                        >
+                                                            Danh mục
+                                                        </p>
+                                                        <p style={{ margin: 0, fontWeight: 600, fontSize: '14px', color: '#204e37' }}>
+                                                            {previewData.categoryName}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </aside>
                                         </div>
                                     </div>
