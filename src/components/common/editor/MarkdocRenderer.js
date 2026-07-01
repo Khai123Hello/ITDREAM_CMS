@@ -211,11 +211,7 @@ export default function MarkdocRenderer({ content, quizSubmissionMap, questionMa
     }, [content, quizSubmissionMap, questionMap]);
 
     if (!content) {
-        return (
-            <p className="tfo-empty-content" style={{ fontStyle: 'italic', color: '#94a3b8' }}>
-                Không có nội dung.
-            </p>
-        );
+        return null;
     }
 
     return <div className="block-editor-preview-container tfo-blocks-content">{renderedContent}</div>;

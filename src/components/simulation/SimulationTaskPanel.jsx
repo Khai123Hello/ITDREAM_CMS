@@ -6,6 +6,7 @@ import apiConfig from '@constants/apiConfig';
 import { getData } from '@utils/localStorage';
 import styles from './SimulationTaskPanel.module.scss';
 import MarkdocRenderer from '@components/common/editor/MarkdocRenderer';
+import { FileTextOutlined } from '@ant-design/icons';
 
 // ─────────────────────────────────────────
 // Main component
@@ -142,6 +143,11 @@ const SimulationTaskPanel = ({ simulationId }) => {
                         <div className={styles.detailContent}>
                             <h1 className={styles.detailTitle}>{parent.title || parent.name}</h1>
                             {parent.description && <p className={styles.detailDescription}>{parent.description}</p>}
+                            {!parent.description && !parent.content && (
+                                <div className={styles.emptyBodyPlaceholder}>
+                                    <FileTextOutlined className={styles.emptyBodyIcon} />
+                                </div>
+                            )}
                             <MarkdocRenderer content={parent.content} />
                         </div>
                     ) : (

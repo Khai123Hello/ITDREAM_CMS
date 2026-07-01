@@ -926,3 +926,21 @@ $radius-lg:   16px;
         }
     }
 }
+
+// ═══════════════════════════════════════════
+// EMPTY BODY PLACEHOLDER
+// ═══════════════════════════════════════════
+.emptyBodyPlaceholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 80px 0;
+    width: 100%;
+    user-select: none;
+    pointer-events: none;
+}
+
+.emptyBodyIcon {
+    font-size: 100px;
+    color: #e2e8f0;
+}

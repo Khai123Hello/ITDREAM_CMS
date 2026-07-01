@@ -52,7 +52,7 @@ const BlogSavePage = ({ pageOptions = {} }) => {
                 return {
                     ...data,
                     id: parseInt(id),
-                    parentId: 0, // Default parentId as 0
+                    parentId: null,
                 };
             };
 
@@ -60,7 +60,7 @@ const BlogSavePage = ({ pageOptions = {} }) => {
             funcs.prepareCreateData = (data) => {
                 return {
                     ...data,
-                    parentId: 0, // Default parentId as 0
+                    parentId: null,
                 };
             };
 

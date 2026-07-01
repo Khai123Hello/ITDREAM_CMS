@@ -314,15 +314,14 @@ export default function AdminDashboard() {
     const blogColumns = [
         {
             title: 'Tiêu đề bài viết',
-            dataIndex: 'title',
-            key: 'title',
+            dataIndex: 'name',
+            key: 'name',
             render: (text) => <Text strong style={{ fontSize: 13 }}>{text}</Text>,
         },
         {
             title: 'Tác giả',
-            dataIndex: 'authorName',
             key: 'authorName',
-            render: (text) => text || '—',
+            render: (_, r) => r.educator?.account?.fullName || r.educator?.profileAccountDto?.fullName || r.author || '—',
         },
         {
             title: '',
