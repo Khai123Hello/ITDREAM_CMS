@@ -13,7 +13,7 @@ function QuizBlock({
     block,
     submittedAnswer = null,
     questionId = null,
-    onQuizAnswerSubmit = () => {},
+    onQuizAnswerSubmit = () => { },
     hasCompleted = false,
 }) {
     const [selected, setSelected] = useState(null);
@@ -135,7 +135,7 @@ const isExternalUrl = (str) => {
     return /^(https?:\/\/|www\.)/i.test(str.trim());
 };
 
-function FileDropzone({ onFileChange = () => {}, previousFile = null, urlBase = '', disabled = false }) {
+function FileDropzone({ onFileChange = () => { }, previousFile = null, urlBase = '', disabled = false }) {
     const defaultMode = previousFile && isExternalUrl(previousFile) ? 'link' : 'file';
     const [mode, setMode] = useState(defaultMode);
     const [dragging, setDragging] = useState(false);
@@ -399,8 +399,8 @@ export default function TaskContentLayout({
     canGoBack = false,
     canGoNext = false,
     isLastSubtask = false,
-    onBack = () => {},
-    onNext = () => {},
+    onBack = () => { },
+    onNext = () => { },
 
     quizSubmissionMap,
     requiresFileUpload: requiresFileUploadProp,
@@ -533,7 +533,7 @@ export default function TaskContentLayout({
         const fullMediaPath = mediaPath.startsWith('http') ? mediaPath : `${urlBase}${mediaPath}`;
         const ext = mediaPath.split('.').pop().toLowerCase();
 
-        if ([ 'jpg', 'jpeg', 'png', 'gif', 'webp' ].includes(ext)) {
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) {
             return (
                 <div className="tfo-media-section">
                     <div className="tfo-media-container">
@@ -542,7 +542,7 @@ export default function TaskContentLayout({
                 </div>
             );
         }
-        if ([ 'mp4', 'webm', 'ogg' ].includes(ext)) {
+        if (['mp4', 'webm', 'ogg'].includes(ext)) {
             return (
                 <div className="tfo-media-section">
                     <div className="tfo-media-container">
@@ -716,7 +716,7 @@ export default function TaskContentLayout({
                                     {finalRequiresTextResponse && (
                                         <div className="tfo-text-response-section">
                                             <div className="tfo-text-response-label">
-                                                Câu trả lời của bạn
+                                                Câu trả lời của học viên
                                             </div>
                                             <textarea
                                                 className="tfo-text-response-textarea"

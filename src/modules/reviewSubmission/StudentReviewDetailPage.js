@@ -486,17 +486,27 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
     const fileSub = useMemo(() => {
         if (!requiresFileUpload) return null;
-        return submissions.find(
-            (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-        );
-    }, [submissions, requiresFileUpload]);
+        return submissions.find((s) => {
+            if (s.taskQuestion) return false;
+            const ans = getSubmissionAnswer(s);
+            if (requiresFileUpload && requiresTextResponse) {
+                return !ans.includes('\n') && !ans.includes(' ') && (ans.includes('/') || ans.includes('.'));
+            }
+            return true;
+        });
+    }, [submissions, requiresFileUpload, requiresTextResponse]);
 
     const textSub = useMemo(() => {
         if (!requiresTextResponse) return null;
-        return submissions.find(
-            (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-        );
-    }, [submissions, requiresTextResponse]);
+        return submissions.find((s) => {
+            if (s.taskQuestion) return false;
+            const ans = getSubmissionAnswer(s);
+            if (requiresFileUpload && requiresTextResponse) {
+                return ans.includes('\n') || ans.includes(' ') || !(ans.includes('/') || ans.includes('.'));
+            }
+            return true;
+        });
+    }, [submissions, requiresTextResponse, requiresFileUpload]);
 
     // Find the review linked to the active subtask progress
     const subtaskReview = useMemo(() => {
@@ -538,35 +548,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
     const handleTextareaChange = (val) => {
         setReviewContentInput(val);
-        if (selectedSubtaskId) {
-            const activeSubtaskProgressId = activeSubtaskProgress?.id || null;
-            let activeSubmissionId = fileSub?.id || textSub?.id || (submissions.length > 0 ? submissions[0].id : null);
-
-            // Fallback: If activeSubmissionId is null but activeSubtaskProgress is available, try to resolve it from there
-            if (!activeSubmissionId && activeSubtaskProgress) {
-                const subs = getSubmissions(activeSubtaskProgress);
-                const fSub = subs.find(
-                    (s) =>
-                        !s.taskQuestion &&
-                        (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-                );
-                const tSub = subs.find(
-                    (s) =>
-                        !s.taskQuestion &&
-                        !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-                );
-                activeSubmissionId = fSub?.id || tSub?.id || (subs.length > 0 ? subs[0].id : null);
-            }
-
-            setDraftReviews((prev) => ({
-                ...prev,
-                [selectedSubtaskId]: {
-                    content: val,
-                    studentSubmissionId: activeSubmissionId,
-                    studentTaskProgressId: activeSubtaskProgressId,
-                },
-            }));
-        }
     };
 
     const handleResetDraft = () => {
