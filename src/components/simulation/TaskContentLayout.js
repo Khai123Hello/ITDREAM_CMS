@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { Spin, message } from 'antd';
+import { FileTextOutlined } from '@ant-design/icons';
 import TipTapJsonRenderer from '@components/common/editor/TipTapJsonRenderer';
 import useFetch from '@hooks/useFetch';
 import { getData } from '@utils/localStorage';
@@ -667,6 +668,12 @@ export default function TaskContentLayout({
                                             questionMap={currentQuestionMap}
                                             onQuestionRendered={setInlineQuestionIds}
                                         />
+                                    )}
+
+                                    {!taskDescriptionContent && !content && (
+                                        <div className="tfo-empty-body-placeholder">
+                                            <FileTextOutlined className="tfo-empty-body-icon" />
+                                        </div>
                                     )}
 
                                     {/* Render questions fetched from API that are not inline */}

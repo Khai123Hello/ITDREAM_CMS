@@ -5,6 +5,7 @@ import useNotification from '@hooks/useNotification';
 import apiConfig from '@constants/apiConfig';
 import { UserTypes, storageKeys } from '@constants';
 import { getData } from '@utils/localStorage';
+import { FileTextOutlined } from '@ant-design/icons';
 import PageWrapper from '@components/common/layout/PageWrapper';
 import TaskContentLayout from '@components/simulation/TaskContentLayout';
 
@@ -178,8 +179,8 @@ const SimulationPreviewPage = ({ pageOptions }) => {
                     { simulationId: id },
                 )}
             >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 400, color: '#94a3b8', fontStyle: 'italic' }}>
-                    Không có nhiệm vụ nào trong bài mô phỏng này
+                <div className="empty-body-placeholder">
+                    <FileTextOutlined className="empty-body-icon" />
                 </div>
             </PageWrapper>
         );

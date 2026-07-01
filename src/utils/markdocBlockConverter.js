@@ -194,6 +194,12 @@ const htmlConfig = {
                 correct: { type: Boolean },
             },
         },
+        youtube: {
+            render: 'youtube-block',
+            attributes: {
+                id: { type: String },
+            },
+        },
     },
 };
 
@@ -307,6 +313,10 @@ export function tipTapToMarkdoc(node) {
                         const correct = node.attrs?.correct === true;
                         return `{% option correct=${correct} %}${childrenContent.trim()}{% /option %}`;
                     }
+                    case 'youtube': {
+                        const id = node.attrs?.id || '';
+                        return `{% youtube id="${id}" %}`;
+                    }
                     default:
                         return childrenContent;
     }
@@ -322,6 +332,7 @@ const tagToNodeMap = {
     'section-block': 'section',
     'quiz-block': 'quiz',
     'option-block': 'option',
+    'youtube-block': 'youtube',
 };
 
 const tagAttrMap = {
@@ -330,6 +341,7 @@ const tagAttrMap = {
     'section-block': ['icon', 'title'],
     'quiz-block': ['question', 'data-question-code'],
     'option-block': ['correct'],
+    'youtube-block': ['id'],
 };
 
 const attrNameMap = {

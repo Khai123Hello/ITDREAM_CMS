@@ -119,6 +119,33 @@ function renderNode(node, index, quizCtx) {
                             />
                         );
 
+                    case 'youtube': {
+                        const videoId = node.attrs?.id || '';
+                        return (
+                            <div
+                                key={index}
+                                className="blog-youtube-wrapper"
+                                style={{
+                                    margin: '24px 0',
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                    aspectRatio: '16/9',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                    background: '#000',
+                                }}
+                            >
+                                <iframe
+                                    src={`https://www.youtube.com/embed/${videoId}`}
+                                    title="YouTube video player"
+                                    frameBorder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                    style={{ width: '100%', height: '100%', display: 'block' }}
+                                ></iframe>
+                            </div>
+                        );
+                    }
+
                     case 'hardBreak':
                         return <br key={index} />;
 
@@ -295,11 +322,7 @@ export default function TipTapJsonRenderer({ content, quizSubmissionMap, questio
     }, [json, quizCtx]);
 
     if (!content) {
-        return (
-            <p className="tfo-empty-content" style={{ fontStyle: 'italic', color: '#94a3b8' }}>
-                Không có nội dung.
-            </p>
-        );
+        return null;
     }
 
     return <div className="block-editor-preview-container tfo-blocks-content">{rendered}</div>;
