@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Empty, Tag, Button, Drawer, Modal, Input, Space, Divider } from 'antd';
+import { Empty, Button, Drawer, Modal, Input, Space, Divider } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
@@ -15,6 +15,9 @@ import { commonMessage } from '@locales/intl';
 import BaseTable from '@components/common/table/BaseTable';
 import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
+import TipTapJsonRenderer from '@components/common/editor/TipTapJsonRenderer';
+
+import '@components/common/editor/BlogEditor.scss';
 
 const { TextArea } = Input;
 
@@ -150,7 +153,7 @@ const BlogModerationListPage = () => {
         {
             title: 'Hình ảnh',
             dataIndex: 'image',
-            width: '100px',
+            width: '90px',
             align: 'center',
             render: (image) => {
                 const imageUrl = image
@@ -186,29 +189,27 @@ const BlogModerationListPage = () => {
         {
             title: 'Tiêu đề',
             dataIndex: 'name',
-            width: '300px',
+            width: '280px',
+            ellipsis: true,
         },
         {
             title: 'Chủ đề',
             dataIndex: 'subject',
-            width: '250px',
+            width: '220px',
+            ellipsis: true,
         },
         {
             title: 'Danh mục',
             dataIndex: ['category', 'name'],
-            width: '150px',
+            width: '130px',
+            ellipsis: true,
             render: (_, record) => record.category?.name || '-',
         },
         {
             title: 'Người viết',
-            width: '180px',
-            render: (_, record) => record.educator?.account?.fullName || record.educator?.profileAccountDto?.fullName || record.author || '-',
-        },
-        {
-            title: 'Ngày tạo',
-            dataIndex: 'createdDate',
             width: '150px',
-            render: (date) => (date ? dayjs(date).format('DD/MM/YYYY') : '-'),
+            ellipsis: true,
+            render: (_, record) => record.educator?.account?.fullName || record.educator?.profileAccountDto?.fullName || record.author || '-',
         },
         {
             title: labels.action,
@@ -355,10 +356,27 @@ const BlogModerationListPage = () => {
                         <Divider />
 
                         <div
-                            className="blog-content-preview"
-                            style={{ fontSize: '15px', lineHeight: '1.6', color: '#262626' }}
-                            dangerouslySetInnerHTML={{ __html: previewRecord.content }}
-                        />
+                            className="blog-content-preview blog-editor-wrapper"
+                            style={{
+                                fontSize: '15px',
+                                lineHeight: '1.6',
+                                color: '#262626',
+                                border: 'none',
+                                boxShadow: 'none',
+                                background: 'transparent',
+                                height: 'auto',
+                                minHeight: 'auto',
+                                marginTop: 0,
+                            }}
+                        >
+                            <div className="blog-editor-preview-panel" style={{ background: 'transparent', height: 'auto', overflow: 'visible' }}>
+                                <div className="blog-main-article-card" style={{ padding: 0, border: 'none', boxShadow: 'none', minHeight: 'auto', background: 'transparent' }}>
+                                    <div className="article-body-editor" style={{ fontSize: '15px', lineHeight: '1.6', color: '#262626' }}>
+                                        <TipTapJsonRenderer content={previewRecord.content} />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
             </Drawer>
