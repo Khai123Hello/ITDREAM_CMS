@@ -257,7 +257,7 @@ const BlogListPage = ({ pageOptions = {} }) => {
         mixinFuncs.renderActionColumn(
             {
                 edit: () => mixinFuncs.hasPermission([apiConfig.blog.update.permissionCode]),
-                reject: true,
+                reject: false,
                 viewNotice: true,
                 delete: () => mixinFuncs.hasPermission([apiConfig.blog.delete.permissionCode]),
             },
