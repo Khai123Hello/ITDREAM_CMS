@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Divider, Input, Select, Form } from 'antd';
+import { Card, Col, Row, Divider, Input, Select, Form, Checkbox } from 'antd';
 import dayjs from 'dayjs';
 
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -7,6 +7,7 @@ import TextField from '@components/common/form/TextField';
 import SelectField from '@components/common/form/SelectField';
 import CropImageField from '@components/common/form/CropImageField';
 import DatePickerField from '@components/common/form/DatePickerField';
+import TipTapEditor from '@components/common/editor/TipTapEditor';
 
 import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
@@ -53,6 +54,7 @@ const JobForm = (props) => {
     const [wardOptions, setWardOptions] = useState([]);
     const [selectedProvinceId, setSelectedProvinceId] = useState(null);
     const [currentType, setCurrentType] = useState(null);
+    const [isOnline, setIsOnline] = useState(false);
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({
         onSubmit,
@@ -123,6 +125,9 @@ const JobForm = (props) => {
         const payload = {
             ...values,
             image: finalImage,
+            address: isOnline ? 'online' : values.address,
+            provinceId: isOnline ? null : values.provinceId,
+            wardId: isOnline ? null : values.wardId,
         };
 
         return mixinFuncs.handleSubmit(payload);
@@ -151,6 +156,9 @@ const JobForm = (props) => {
 
     useEffect(() => {
         if (dataDetail && Object.keys(dataDetail).length > 0) {
+            const isJobOnline = dataDetail.address?.toLowerCase() === 'online';
+            setIsOnline(isJobOnline);
+
             form.setFieldsValue({
                 title: dataDetail.title || '',
                 content: dataDetail.content || '',
@@ -165,6 +173,7 @@ const JobForm = (props) => {
                 simulationIds: dataDetail.simulationIds || [],
                 status: dataDetail.status ?? 1,
                 notice: dataDetail.notice || '',
+                isOnline: isJobOnline,
             });
 
             setCurrentType(dataDetail.type || null);
@@ -351,9 +360,8 @@ const JobForm = (props) => {
                             label={<span style={{ fontWeight: 600 }}>Nội dung chi tiết</span>}
                             rules={isEducator ? [{ required: true, message: 'Vui lòng nhập nội dung chi tiết' }] : []}
                         >
-                            <TextArea
+                            <TipTapEditor
                                 disabled={!isEducator}
-                                rows={8}
                                 placeholder="Nhập nội dung chi tiết tin tuyển dụng..."
                             />
                         </Form.Item>
@@ -361,46 +369,77 @@ const JobForm = (props) => {
                 </Row>
 
                 <Divider orientation="left" style={{ fontWeight: 600 }}>
-                    Địa điểm làm việc
+                    Địa điểm
                 </Divider>
 
-                <Row gutter={16}>
-                    <Col span={12}>
-                        <SelectField
-                            disabled={!isEducator}
-                            label="Tỉnh / Thành phố"
-                            name="provinceId"
-                            placeholder="Chọn Tỉnh / Thành phố"
-                            options={provinceOptions}
-                            onChange={(value) => {
-                                setSelectedProvinceId(value);
-                                form.setFieldsValue({ wardId: null });
-                            }}
-                            allowClear
-                        />
-                    </Col>
-                    <Col span={12}>
-                        <SelectField
-                            disabled={!isEducator || !selectedProvinceId}
-                            label="Quận / Huyện / Xã / Phường"
-                            name="wardId"
-                            placeholder="Chọn địa chỉ phụ thuộc"
-                            options={wardOptions}
-                            allowClear
-                        />
+                <Row gutter={16} style={{ marginBottom: 16 }}>
+                    <Col span={24}>
+                        <Form.Item name="isOnline" valuePropName="checked" style={{ marginBottom: 0 }}>
+                            <Checkbox
+                                disabled={!isEducator}
+                                onChange={(e) => {
+                                    setIsOnline(e.target.checked);
+                                    if (e.target.checked) {
+                                        form.setFieldsValue({
+                                            provinceId: null,
+                                            wardId: null,
+                                            address: 'online',
+                                        });
+                                    } else {
+                                        form.setFieldsValue({
+                                            address: '',
+                                        });
+                                    }
+                                    setIsChangedFormValues(true);
+                                }}
+                            >
+                                <span style={{ fontWeight: 600 }}>Làm việc Online</span>
+                            </Checkbox>
+                        </Form.Item>
                     </Col>
                 </Row>
 
-                <Row gutter={16} style={{ marginTop: 16 }}>
-                    <Col span={24}>
-                        <TextField
-                            disabled={!isEducator}
-                            label="Địa chỉ chi tiết"
-                            name="address"
-                            placeholder="VD: Số 123, Đường Nguyễn Huệ"
-                        />
-                    </Col>
-                </Row>
+                {!isOnline && (
+                    <>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <SelectField
+                                    disabled={!isEducator}
+                                    label="Tỉnh / Thành phố"
+                                    name="provinceId"
+                                    placeholder="Chọn Tỉnh / Thành phố"
+                                    options={provinceOptions}
+                                    onChange={(value) => {
+                                        setSelectedProvinceId(value);
+                                        form.setFieldsValue({ wardId: null });
+                                    }}
+                                    allowClear
+                                />
+                            </Col>
+                            <Col span={12}>
+                                <SelectField
+                                    disabled={!isEducator || !selectedProvinceId}
+                                    label="Quận / Huyện / Xã / Phường"
+                                    name="wardId"
+                                    placeholder="Chọn địa chỉ phụ thuộc"
+                                    options={wardOptions}
+                                    allowClear
+                                />
+                            </Col>
+                        </Row>
+
+                        <Row gutter={16} style={{ marginTop: 16 }}>
+                            <Col span={24}>
+                                <TextField
+                                    disabled={!isEducator}
+                                    label="Địa chỉ chi tiết"
+                                    name="address"
+                                    placeholder="VD: Số 123, Đường Nguyễn Huệ"
+                                />
+                            </Col>
+                        </Row>
+                    </>
+                )}
 
                 <div className="footer-card-form" style={{ marginTop: 24 }}>
                     {actions}

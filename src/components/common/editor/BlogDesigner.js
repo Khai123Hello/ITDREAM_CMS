@@ -804,60 +804,60 @@ export default function BlogDesigner({
             editor.commands.deleteRange({ from: from - 1, to: from });
 
             switch (type) {
-                case 'h2':
-                    editor.commands.setNode('heading', { level: 2 });
-                    break;
-                case 'h3':
-                    editor.commands.setNode('heading', { level: 3 });
-                    break;
-                case 'paragraph':
-                    editor.commands.setNode('paragraph');
-                    break;
-                case 'bulletList':
-                    editor.commands.toggleBulletList();
-                    break;
-                case 'orderedList':
-                    editor.commands.toggleOrderedList();
-                    break;
-                case 'blockquote':
-                    editor.commands.toggleBlockquote();
-                    break;
-                case 'codeBlock':
-                    editor.commands.toggleCodeBlock();
-                    break;
-                case 'hr':
-                    editor.commands.insertContent({ type: 'horizontalRule' });
-                    break;
-                case 'callout':
-                    editor.commands.insertContent({
-                        type: 'callout',
-                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nhập nội dung lưu ý...' }] }],
-                    });
-                    break;
-                case 'step': {
-                    const stepNum = editor.state.doc.content.content.filter((n) => n.type.name === 'step').length + 1;
-                    editor.commands.insertContent({
-                        type: 'step',
-                        attrs: { number: stepNum },
-                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Mô tả bước thực hiện...' }] }],
-                    });
-                    break;
-                }
-                case 'section':
-                    editor.commands.insertContent({
-                        type: 'section',
-                        attrs: { icon: '📌', title: 'Tên mục...' },
-                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nội dung mục...' }] }],
-                    });
-                    break;
-                case 'image':
-                    setImageModalOpen(true);
-                    break;
-                case 'youtube':
-                    editor.commands.insertContent({ type: 'youtube', attrs: { id: '' } });
-                    break;
-                default:
-                    break;
+                            case 'h2':
+                                editor.commands.setNode('heading', { level: 2 });
+                                break;
+                            case 'h3':
+                                editor.commands.setNode('heading', { level: 3 });
+                                break;
+                            case 'paragraph':
+                                editor.commands.setNode('paragraph');
+                                break;
+                            case 'bulletList':
+                                editor.commands.toggleBulletList();
+                                break;
+                            case 'orderedList':
+                                editor.commands.toggleOrderedList();
+                                break;
+                            case 'blockquote':
+                                editor.commands.toggleBlockquote();
+                                break;
+                            case 'codeBlock':
+                                editor.commands.toggleCodeBlock();
+                                break;
+                            case 'hr':
+                                editor.commands.insertContent({ type: 'horizontalRule' });
+                                break;
+                            case 'callout':
+                                editor.commands.insertContent({
+                                    type: 'callout',
+                                    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nhập nội dung lưu ý...' }] }],
+                                });
+                                break;
+                            case 'step': {
+                                const stepNum = editor.state.doc.content.content.filter((n) => n.type.name === 'step').length + 1;
+                                editor.commands.insertContent({
+                                    type: 'step',
+                                    attrs: { number: stepNum },
+                                    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Mô tả bước thực hiện...' }] }],
+                                });
+                                break;
+                            }
+                            case 'section':
+                                editor.commands.insertContent({
+                                    type: 'section',
+                                    attrs: { icon: '📌', title: 'Tên mục...' },
+                                    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nội dung mục...' }] }],
+                                });
+                                break;
+                            case 'image':
+                                setImageModalOpen(true);
+                                break;
+                            case 'youtube':
+                                editor.commands.insertContent({ type: 'youtube', attrs: { id: '' } });
+                                break;
+                            default:
+                                break;
             }
             editor.commands.focus();
         },

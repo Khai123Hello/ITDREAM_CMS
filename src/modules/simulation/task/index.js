@@ -82,14 +82,14 @@ const TaskListPage = ({ pageOptions }) => {
 
     const apiConfiguration = isEducator
         ? {
-              getList: apiConfig.task.listByEducator,
-              delete: apiConfig.task.delete,
-              create: apiConfig.task.create,
-              update: apiConfig.task.update,
-          }
+            getList: apiConfig.task.listByEducator,
+            delete: apiConfig.task.delete,
+            create: apiConfig.task.create,
+            update: apiConfig.task.update,
+        }
         : {
-              getList: apiConfig.task.getList,
-          };
+            getList: apiConfig.task.getList,
+        };
 
     const [taskItems, setTaskItems] = useState([]);
     // Ref luôn giữ giá trị mới nhất của taskItems để closure trong getCreateLink đọc được
@@ -166,15 +166,15 @@ const TaskListPage = ({ pageOptions }) => {
                                                 dataRow.kind === TaskTypes.SUBTASK
                                                     ? dataRow.parent
                                                         ? {
-                                                              id: dataRow.parent.id,
-                                                              name: dataRow.parent.name,
-                                                              title: dataRow.parent.title,
-                                                          }
+                                                            id: dataRow.parent.id,
+                                                            name: dataRow.parent.name,
+                                                            title: dataRow.parent.title,
+                                                        }
                                                         : {
-                                                              id: dataRow.parentId,
-                                                              name: '',
-                                                              title: '',
-                                                          }
+                                                            id: dataRow.parentId,
+                                                            name: '',
+                                                            title: '',
+                                                        }
                                                     : null,
                                             parentOrder,
                                             taskOrder,
@@ -233,12 +233,12 @@ const TaskListPage = ({ pageOptions }) => {
                                     navigate(`/simulation/${simulationId}/task/${dataRow.id}/question`, {
                                         state: dataRow.parent
                                             ? {
-                                                  parentTask: {
-                                                      id: dataRow.parent.id,
-                                                      name: dataRow.parent.name,
-                                                      title: dataRow.parent.title,
-                                                  },
-                                              }
+                                                parentTask: {
+                                                    id: dataRow.parent.id,
+                                                    name: dataRow.parent.name,
+                                                    title: dataRow.parent.title,
+                                                },
+                                            }
                                             : null,
                                     });
                                 }}
@@ -260,23 +260,23 @@ const TaskListPage = ({ pageOptions }) => {
                                         state:
                                             dataRow.kind === TaskTypes.SUBTASK
                                                 ? {
-                                                      parentTask: dataRow.parent
-                                                          ? {
-                                                                id: dataRow.parent.id,
-                                                                name: dataRow.parent.name,
-                                                                title: dataRow.parent.title,
-                                                            }
-                                                          : {
-                                                                id: dataRow.parentId,
-                                                                name: '',
-                                                                title: '',
-                                                            },
-                                                      parentOrder,
-                                                      taskOrder,
-                                                  }
+                                                    parentTask: dataRow.parent
+                                                        ? {
+                                                            id: dataRow.parent.id,
+                                                            name: dataRow.parent.name,
+                                                            title: dataRow.parent.title,
+                                                        }
+                                                        : {
+                                                            id: dataRow.parentId,
+                                                            name: '',
+                                                            title: '',
+                                                        },
+                                                    parentOrder,
+                                                    taskOrder,
+                                                }
                                                 : {
-                                                      taskOrder,
-                                                  },
+                                                    taskOrder,
+                                                },
                                     });
                                 }}
                                 title={labels.viewDetails}
@@ -714,13 +714,13 @@ const TaskListPage = ({ pageOptions }) => {
             state:
                 record.kind === TaskTypes.SUBTASK
                     ? {
-                          parentTask: getParentTaskState(record),
-                          parentOrder,
-                          taskOrder,
-                      }
+                        parentTask: getParentTaskState(record),
+                        parentOrder,
+                        taskOrder,
+                    }
                     : {
-                          taskOrder,
-                      },
+                        taskOrder,
+                    },
         });
     };
 
@@ -791,16 +791,16 @@ const TaskListPage = ({ pageOptions }) => {
                         {!isSubTask &&
                             isEducator &&
                             mixinFuncs.hasPermission([apiConfig.task.create.permissionCode]) && (
-                                <Button
-                                    type="text"
-                                    icon={<PlusOutlined />}
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        createSubTaskForTask(task);
-                                    }}
-                                    title={labels.createSubTask}
-                                />
-                            )}
+                            <Button
+                                type="text"
+                                icon={<PlusOutlined />}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    createSubTaskForTask(task);
+                                }}
+                                title={labels.createSubTask}
+                            />
+                        )}
                         {isEducator && mixinFuncs.hasPermission([apiConfig.task.delete.permissionCode]) && (
                             <Button
                                 type="text"

@@ -30,15 +30,15 @@ const BlogSavePage = ({ pageOptions = {} }) => {
 
     const apiConfiguration = isEducator
         ? {
-              getById: apiConfig.blog.educatorGet,
-              create: apiConfig.blog.create,
-              update: apiConfig.blog.update,
-          }
+            getById: apiConfig.blog.educatorGet,
+            create: apiConfig.blog.create,
+            update: apiConfig.blog.update,
+        }
         : {
-              getById: apiConfig.blog.getById,
-              create: apiConfig.blog.create,
-              update: apiConfig.blog.update,
-          };
+            getById: apiConfig.blog.getById,
+            create: apiConfig.blog.create,
+            update: apiConfig.blog.update,
+        };
 
     const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing, title } = useSaveBase({
         apiConfig: apiConfiguration,

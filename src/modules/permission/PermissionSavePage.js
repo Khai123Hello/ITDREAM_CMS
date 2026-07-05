@@ -76,13 +76,13 @@ const PermissionSavePage = ({ pageOptions = {} }) => {
     const breadcrumbs = pageOptions.renderBreadcrumbs
         ? pageOptions.renderBreadcrumbs(commonMessage, translate, title)
         : [
-              { breadcrumbName: 'Quyền hạn', path: '/group-permission' },
-              {
-                  breadcrumbName: 'Quản lý Quyền',
-                  path: '/permission',
-              },
-              { breadcrumbName: title },
-          ];
+            { breadcrumbName: 'Quyền hạn', path: '/group-permission' },
+            {
+                breadcrumbName: 'Quản lý Quyền',
+                path: '/permission',
+            },
+            { breadcrumbName: title },
+        ];
 
     return (
         <PageWrapper loading={loading} routes={breadcrumbs}>

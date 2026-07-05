@@ -611,10 +611,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             const progress = progressList?.find((p) => String(p.task?.id) === String(subId));
             const dbReview = progress
                 ? filteredEducatorReviews?.find(
-                      (r) =>
-                          String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                    (r) =>
+                        String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
                           String(progress.id),
-                  )
+                )
                 : null;
             const dbContent = dbReview?.content || '';
 
@@ -629,10 +629,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         const progress = progressList?.find((p) => String(p.task?.id) === String(selectedSubtaskId));
         const dbReview = progress
             ? filteredEducatorReviews?.find(
-                  (r) =>
-                      String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                (r) =>
+                    String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
                       String(progress.id),
-              )
+            )
             : null;
         const dbContent = dbReview?.content || '';
 
@@ -1308,8 +1308,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                 hasUnsavedDrafts
                                     ? 'Đồng bộ các bản nháp và hoàn tất nhận xét'
                                     : isCompleted
-                                      ? 'Đã hoàn tất nhận xét'
-                                      : 'Hoàn tất nhận xét & gửi thông báo cho học viên'
+                                        ? 'Đã hoàn tất nhận xét'
+                                        : 'Hoàn tất nhận xét & gửi thông báo cho học viên'
                             }
                         >
                             <Button
@@ -1367,8 +1367,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
                         const dbReview = subProgress
                             ? filteredEducatorReviews?.find(
-                                  (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
-                              )
+                                (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
+                            )
                             : null;
                         return draft.content.trim() !== (dbReview?.content || '').trim();
                     });
@@ -1392,17 +1392,17 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
                     const isSubReviewed = subProgress
                         ? filteredEducatorReviews?.some(
-                              (r) =>
-                                  String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                            (r) =>
+                                String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
                                   String(subProgress.id),
-                          )
+                        )
                         : reviewedTaskIds.has(st.id);
                     const dbReviewForSub = subProgress
                         ? filteredEducatorReviews?.find(
-                              (r) =>
-                                  String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                            (r) =>
+                                String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
                                   String(subProgress.id),
-                          )
+                        )
                         : null;
                     const draftForSub = draftReviews[st.id];
                     const hasDraftForSub =
