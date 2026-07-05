@@ -102,7 +102,8 @@ const BlogForm = (props) => {
         subject: form.getFieldValue('subject') || '',
         image: imageUrl,
         category: categories?.find((c) => c.value === form.getFieldValue('categoryId'))?.label || '',
-        authorName: dataDetail?.educator?.account?.fullName || dataDetail?.educator?.profileAccountDto?.fullName || 'Tác giả',
+        authorName:
+            dataDetail?.educator?.account?.fullName || dataDetail?.educator?.profileAccountDto?.fullName || 'Tác giả',
     };
 
     return (
@@ -188,7 +189,9 @@ const BlogForm = (props) => {
                             <TextField name="content" />
                         </div>
 
-                        <label style={{ fontWeight: 600, display: 'block', marginBottom: 12, marginTop: 16, fontSize: 14 }}>
+                        <label
+                            style={{ fontWeight: 600, display: 'block', marginBottom: 12, marginTop: 16, fontSize: 14 }}
+                        >
                             Nội dung bài viết
                         </label>
 
@@ -204,7 +207,9 @@ const BlogForm = (props) => {
                     </Col>
                 </Row>
 
-                <div className="footer-card-form" style={{ marginTop: '24px' }}>{actions}</div>
+                <div className="footer-card-form" style={{ marginTop: '24px' }}>
+                    {actions}
+                </div>
             </Card>
         </BaseForm>
     );

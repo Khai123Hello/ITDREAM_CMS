@@ -58,57 +58,65 @@ const TaskSavePage = ({ pageOptions }) => {
         : { getById: apiConfig.task.getById, create: apiConfig.task.create, update: apiConfig.task.update };
 
     // ─── Lưu câu hỏi cho task đã có ID ──────────────────────────────────
-    const saveQuestionsForTask = useCallback(async (taskId) => {
-        const currentQuestions = localQuestionsRef.current;
-        if (!taskId || !currentQuestions) return;
+    const saveQuestionsForTask = useCallback(
+        async (taskId) => {
+            const currentQuestions = localQuestionsRef.current;
+            if (!taskId || !currentQuestions) return;
 
-        try {
-            // 1. Lấy câu hỏi hiện có
-            const response = await getExistingQuestions({ params: { taskId, page: 0, size: 100 } });
-            const resData = response?.data || response;
-            const existingQuestions = resData?.content || [];
-            const existingIds = existingQuestions.map((q) => String(q.id));
+            try {
+                // 1. Lấy câu hỏi hiện có
+                const response = await getExistingQuestions({ params: { taskId, page: 0, size: 100 } });
+                const resData = response?.data || response;
+                const existingQuestions = resData?.content || [];
+                const existingIds = existingQuestions.map((q) => String(q.id));
 
-            // 2. Xóa câu hỏi bị remove
-            const localIds = currentQuestions.map((q) => String(q.id)).filter(Boolean);
-            const idsToDelete = existingIds.filter((dbId) => !localIds.includes(dbId));
-            for (const idToDelete of idsToDelete) {
-                await deleteQuestion({ pathParams: { id: idToDelete } });
-            }
-
-            // 3. Tạo mới hoặc cập nhật
-            for (const q of currentQuestions) {
-                const payloadOptions = JSON.stringify(
-                    (q.options || []).map(({ option, answer }) => ({ option, answer })),
-                );
-                const isNewQuestion = !q.id || (typeof q.id === 'string' && q.id.startsWith('id_'));
-                if (!isNewQuestion && existingIds.includes(String(q.id))) {
-                    const existingQ = existingQuestions.find(eq => String(eq.id) === String(q.id));
-                    // Compare before updating
-                    let existingOptions = [];
-                    try {
-                        existingOptions = typeof existingQ.options === 'string' ? JSON.parse(existingQ.options) : (existingQ.options || []);
-                    } catch (e) {
-                        // eslint-disable-next-line no-empty
-                    }
-                    const existingOptionsString = JSON.stringify(
-                        existingOptions.map(({ option, answer }) => ({ option, answer })),
-                    );
-                    
-                    const isChanged = existingQ.question !== q.question || existingOptionsString !== payloadOptions;
-                    
-                    if (isChanged) {
-                        await updateQuestion({ data: { id: q.id, question: q.question, options: payloadOptions, taskId } });
-                    }
-                } else {
-                    await createQuestion({ data: { question: q.question, options: payloadOptions, taskId } });
+                // 2. Xóa câu hỏi bị remove
+                const localIds = currentQuestions.map((q) => String(q.id)).filter(Boolean);
+                const idsToDelete = existingIds.filter((dbId) => !localIds.includes(dbId));
+                for (const idToDelete of idsToDelete) {
+                    await deleteQuestion({ pathParams: { id: idToDelete } });
                 }
+
+                // 3. Tạo mới hoặc cập nhật
+                for (const q of currentQuestions) {
+                    const payloadOptions = JSON.stringify(
+                        (q.options || []).map(({ option, answer }) => ({ option, answer })),
+                    );
+                    const isNewQuestion = !q.id || (typeof q.id === 'string' && q.id.startsWith('id_'));
+                    if (!isNewQuestion && existingIds.includes(String(q.id))) {
+                        const existingQ = existingQuestions.find((eq) => String(eq.id) === String(q.id));
+                        // Compare before updating
+                        let existingOptions = [];
+                        try {
+                            existingOptions =
+                                typeof existingQ.options === 'string'
+                                    ? JSON.parse(existingQ.options)
+                                    : existingQ.options || [];
+                        } catch (e) {
+                            // eslint-disable-next-line no-empty
+                        }
+                        const existingOptionsString = JSON.stringify(
+                            existingOptions.map(({ option, answer }) => ({ option, answer })),
+                        );
+
+                        const isChanged = existingQ.question !== q.question || existingOptionsString !== payloadOptions;
+
+                        if (isChanged) {
+                            await updateQuestion({
+                                data: { id: q.id, question: q.question, options: payloadOptions, taskId },
+                            });
+                        }
+                    } else {
+                        await createQuestion({ data: { question: q.question, options: payloadOptions, taskId } });
+                    }
+                }
+            } catch (error) {
+                console.error('Error saving task questions:', error);
+                message.error('Có lỗi xảy ra khi lưu câu hỏi trắc nghiệm.');
             }
-        } catch (error) {
-            console.error('Error saving task questions:', error);
-            message.error('Có lỗi xảy ra khi lưu câu hỏi trắc nghiệm.');
-        }
-    }, [createQuestion, updateQuestion, deleteQuestion, getExistingQuestions]);
+        },
+        [createQuestion, updateQuestion, deleteQuestion, getExistingQuestions],
+    );
 
     // ─── useSaveBase: chỉ dùng để load detail + update ──────────────────
     const { detail, mixinFuncs, loading, setIsChangedFormValues, isEditing, title } = useSaveBase({
@@ -157,7 +165,11 @@ const TaskSavePage = ({ pageOptions }) => {
 
             // Kiểm tra kết quả create
             if (!response || response.result !== true) {
-                const errMsg = response?.response?.data?.message || response?.data?.message || response?.message || 'Tạo nhiệm vụ thất bại.';
+                const errMsg =
+                    response?.response?.data?.message ||
+                    response?.data?.message ||
+                    response?.message ||
+                    'Tạo nhiệm vụ thất bại.';
                 message.error(errMsg);
                 if (callback) callback(response);
                 return;
@@ -178,8 +190,15 @@ const TaskSavePage = ({ pageOptions }) => {
             navigate(`/simulation/${simulationId}/task`);
         },
         [
-            isEditing, mixinFuncs, simulationId, executeCreate,
-            saveQuestionsForTask, notification, intl, translate, navigate,
+            isEditing,
+            mixinFuncs,
+            simulationId,
+            executeCreate,
+            saveQuestionsForTask,
+            notification,
+            intl,
+            translate,
+            navigate,
             pageOptions,
         ],
     );

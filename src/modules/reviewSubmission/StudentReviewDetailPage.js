@@ -611,10 +611,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             const progress = progressList?.find((p) => String(p.task?.id) === String(subId));
             const dbReview = progress
                 ? filteredEducatorReviews?.find(
-                    (r) =>
-                        String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                      (r) =>
+                          String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
                           String(progress.id),
-                )
+                  )
                 : null;
             const dbContent = dbReview?.content || '';
 
@@ -629,10 +629,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
         const progress = progressList?.find((p) => String(p.task?.id) === String(selectedSubtaskId));
         const dbReview = progress
             ? filteredEducatorReviews?.find(
-                (r) =>
-                    String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                  (r) =>
+                      String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
                       String(progress.id),
-            )
+              )
             : null;
         const dbContent = dbReview?.content || '';
 
@@ -882,8 +882,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             },
         });
     };
-
-
 
     // Navigation subtask indices
     const activeSubtaskIndex = useMemo(() => {
@@ -1201,7 +1199,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
     };
 
     const renderCollaborationPanel = () => {
-        const hasQuiz = (subtaskDetail && Number(subtaskDetail.totalQuestion) > 0) || (quizHistory && quizHistory.length > 0);
+        const hasQuiz =
+            (subtaskDetail && Number(subtaskDetail.totalQuestion) > 0) || (quizHistory && quizHistory.length > 0);
         const isReviewRequired = !hasQuiz;
         const hasSubmitted = submissions && submissions.length > 0;
 
@@ -1223,11 +1222,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         <ClockCircleOutlined className="tfo-review-empty__icon" style={{ color: '#fa8c16' }} />
                         <p className="tfo-review-empty__text">Học viên chưa nộp bài làm để nhận xét</p>
                     </div>
-                ) : (subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview
-                    ? renderReviewDisplay()
-                    : canWriteReview
-                        ? renderReviewEditor()
-                        : renderReviewEmpty()}
+                ) : (subtaskReview || draftReviews[selectedSubtaskId]?.content) && !isEditingReview ? (
+                    renderReviewDisplay()
+                ) : canWriteReview ? (
+                    renderReviewEditor()
+                ) : (
+                    renderReviewEmpty()
+                )}
             </div>
         );
     };
@@ -1300,8 +1301,6 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                         </Tooltip>
                     </div>
 
-
-
                     {/* Complete Review Button */}
                     {canWriteReview && (
                         <Tooltip
@@ -1309,8 +1308,8 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                                 hasUnsavedDrafts
                                     ? 'Đồng bộ các bản nháp và hoàn tất nhận xét'
                                     : isCompleted
-                                        ? 'Đã hoàn tất nhận xét'
-                                        : 'Hoàn tất nhận xét & gửi thông báo cho học viên'
+                                      ? 'Đã hoàn tất nhận xét'
+                                      : 'Hoàn tất nhận xét & gửi thông báo cho học viên'
                             }
                         >
                             <Button
@@ -1331,7 +1330,10 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
             <TaskContentLayout
                 parentTasks={parentTasks}
                 selectedParentTaskId={selectedParentTaskId}
-                onSelectParentTask={(id) => { setSelectedParentTaskId(id); setSelectedSubtaskId(null); }}
+                onSelectParentTask={(id) => {
+                    setSelectedParentTaskId(id);
+                    setSelectedSubtaskId(null);
+                }}
                 subtasks={subtasks}
                 selectedSubtaskId={selectedSubtaskId}
                 onSelectSubtask={setSelectedSubtaskId}
@@ -1356,16 +1358,18 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                 customTaskCircle={(task, idx, isActive, isLast) => {
                     const taskCount = reviewCountByParentTask[task.id];
                     const allReviewed = taskCount && taskCount.total > 0 && taskCount.reviewed === taskCount.total;
-                    const parentSubtasks = tasks?.filter(
-                        (t) => t.kind === 2 && (t.parent?.id === task.id || t.parentId === task.id),
-                    ) || [];
+                    const parentSubtasks =
+                        tasks?.filter((t) => t.kind === 2 && (t.parent?.id === task.id || t.parentId === task.id)) ||
+                        [];
                     const hasParentDrafts = parentSubtasks.some((st) => {
                         const draft = draftReviews[st.id];
                         if (!draft || !draft.content?.trim()) return false;
                         const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
-                        const dbReview = subProgress ? filteredEducatorReviews?.find(
-                            (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
-                        ) : null;
+                        const dbReview = subProgress
+                            ? filteredEducatorReviews?.find(
+                                  (r) => r.studentSubmission?.studentTaskProgress?.id === subProgress.id,
+                              )
+                            : null;
                         return draft.content.trim() !== (dbReview?.content || '').trim();
                     });
                     let cls = 'tfo-task-circle';
@@ -1373,7 +1377,13 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     if (allReviewed && !hasParentDrafts) cls += ' reviewed';
                     if (hasParentDrafts) cls += ' has-draft';
                     return (
-                        <button className={cls} onClick={() => { setSelectedParentTaskId(task.id); setSelectedSubtaskId(null); }}>
+                        <button
+                            className={cls}
+                            onClick={() => {
+                                setSelectedParentTaskId(task.id);
+                                setSelectedSubtaskId(null);
+                            }}
+                        >
                             {allReviewed && !hasParentDrafts ? <CheckOutlined style={{ fontSize: 12 }} /> : idx + 1}
                         </button>
                     );
@@ -1382,17 +1392,25 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                     const subProgress = progressList?.find((p) => String(p.task?.id) === String(st.id));
                     const isSubReviewed = subProgress
                         ? filteredEducatorReviews?.some(
-                            (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
-                        )
+                              (r) =>
+                                  String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                                  String(subProgress.id),
+                          )
                         : reviewedTaskIds.has(st.id);
-                    const dbReviewForSub = subProgress ? filteredEducatorReviews?.find(
-                        (r) => String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) === String(subProgress.id),
-                    ) : null;
+                    const dbReviewForSub = subProgress
+                        ? filteredEducatorReviews?.find(
+                              (r) =>
+                                  String(r.studentTaskProgressId || r.studentSubmission?.studentTaskProgress?.id) ===
+                                  String(subProgress.id),
+                          )
+                        : null;
                     const draftForSub = draftReviews[st.id];
-                    const hasDraftForSub = draftForSub && draftForSub.content?.trim() !== (dbReviewForSub?.content || '').trim();
+                    const hasDraftForSub =
+                        draftForSub && draftForSub.content?.trim() !== (dbReviewForSub?.content || '').trim();
 
                     // Check if there is an unreviewed submission waiting for review
-                    const { requiresFileUpload: reqFile, requiresTextResponse: reqText } = getSubmissionRequirements(st);
+                    const { requiresFileUpload: reqFile, requiresTextResponse: reqText } =
+                        getSubmissionRequirements(st);
                     const isSubReq = reqFile || reqText;
                     const subs = getSubmissions(subProgress);
                     const hasSub = subs.some((s) => !s.taskQuestion && getSubmissionAnswer(s));
@@ -1406,12 +1424,36 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
 
                     return (
                         <Tooltip key={st.id} title={tooltipTitle}>
-                            <button className={btnCls} onClick={() => setSelectedSubtaskId(st.id)} style={{ position: 'relative' }}>
+                            <button
+                                className={btnCls}
+                                onClick={() => setSelectedSubtaskId(st.id)}
+                                style={{ position: 'relative' }}
+                            >
                                 {hasDraftForSub && (
-                                    <span style={{ position: 'absolute', top: 2, right: 2, width: 6, height: 6, borderRadius: '50%', backgroundColor: '#fa8c16' }} />
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            top: 2,
+                                            right: 2,
+                                            width: 6,
+                                            height: 6,
+                                            borderRadius: '50%',
+                                            backgroundColor: '#fa8c16',
+                                        }}
+                                    />
                                 )}
                                 {hasSubmissionToReview && (
-                                    <span style={{ position: 'absolute', top: 2, right: 2, width: 6, height: 6, borderRadius: '50%', backgroundColor: '#f5222d' }} />
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            top: 2,
+                                            right: 2,
+                                            width: 6,
+                                            height: 6,
+                                            borderRadius: '50%',
+                                            backgroundColor: '#f5222d',
+                                        }}
+                                    />
                                 )}
                                 {isSubReviewed && !isActiveSub ? <CheckOutlined style={{ fontSize: 11 }} /> : index + 1}
                             </button>
@@ -1431,18 +1473,45 @@ const StudentReviewDetailPage = ({ pageOptions }) => {
                             pagination={{ pageSize: 5 }}
                             size="small"
                             columns={[
-                                { title: 'Câu hỏi', dataIndex: 'questionText', render: (text) => <span style={{ fontWeight: 500 }}>{text}</span> },
-                                { title: 'Đáp án đúng', dataIndex: 'options', render: (optsStr) => { try { const opts = JSON.parse(optsStr || '[]'); const correct = opts.find((o) => o.answer === true || o.answer === 'true'); return correct ? correct.option || correct.value || 'N/A' : 'N/A'; } catch { return 'N/A'; } } },
+                                {
+                                    title: 'Câu hỏi',
+                                    dataIndex: 'questionText',
+                                    render: (text) => <span style={{ fontWeight: 500 }}>{text}</span>,
+                                },
+                                {
+                                    title: 'Đáp án đúng',
+                                    dataIndex: 'options',
+                                    render: (optsStr) => {
+                                        try {
+                                            const opts = JSON.parse(optsStr || '[]');
+                                            const correct = opts.find((o) => o.answer === true || o.answer === 'true');
+                                            return correct ? correct.option || correct.value || 'N/A' : 'N/A';
+                                        } catch {
+                                            return 'N/A';
+                                        }
+                                    },
+                                },
                                 { title: 'Đáp án chọn', dataIndex: 'selectedAnswer' },
-                                { title: 'Kết quả', dataIndex: 'isCorrect', width: 100, align: 'center', render: (isCorr) => <Tag color={isCorr ? 'green' : 'red'}>{isCorr ? 'Đúng' : 'Sai'}</Tag> },
-                                { title: 'Thời gian', dataIndex: 'createdDate', width: 150, render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-') },
+                                {
+                                    title: 'Kết quả',
+                                    dataIndex: 'isCorrect',
+                                    width: 100,
+                                    align: 'center',
+                                    render: (isCorr) => (
+                                        <Tag color={isCorr ? 'green' : 'red'}>{isCorr ? 'Đúng' : 'Sai'}</Tag>
+                                    ),
+                                },
+                                {
+                                    title: 'Thời gian',
+                                    dataIndex: 'createdDate',
+                                    width: 150,
+                                    render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-'),
+                                },
                             ]}
                         />
                     </div>
                 )}
             </TaskContentLayout>
-
-
         </PageWrapper>
     );
 };

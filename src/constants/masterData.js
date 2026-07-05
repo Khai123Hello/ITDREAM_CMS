@@ -75,6 +75,8 @@ export const simulationStatusOptions = [
     { value: STATUS_ACTIVE, label: commonMessage.statusActive, color: '#00A648' },
     { value: STATUS_WAITING_APPROVE, label: commonMessage.statusWaitingApprove, color: '#1890ff' },
     { value: STATUS_WAITING_APPROVE_DELETE, label: commonMessage.statusWaitingApproveDelete, color: '#fa8c16' },
+    { value: 0, label: commonMessage.statusInactive, color: '#faad14' },
+    { value: -1, label: commonMessage.statusLock, color: '#ff4d4f' },
 ];
 
 export const formSize = {

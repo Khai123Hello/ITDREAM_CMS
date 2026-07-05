@@ -99,20 +99,20 @@ const BlogListPage = ({ pageOptions = {} }) => {
     // Configure APIs depending on role
     const apiConfiguration = isEducator
         ? {
-            getList: apiConfig.blog.educatorList,
-            getById: apiConfig.blog.educatorGet,
-            create: apiConfig.blog.create,
-            update: apiConfig.blog.update,
-            delete: apiConfig.blog.delete,
-        }
+              getList: apiConfig.blog.educatorList,
+              getById: apiConfig.blog.educatorGet,
+              create: apiConfig.blog.create,
+              update: apiConfig.blog.update,
+              delete: apiConfig.blog.delete,
+          }
         : {
-            getList: apiConfig.blog.getList,
-            getById: apiConfig.blog.getById,
-            create: apiConfig.blog.create,
-            update: apiConfig.blog.update,
-            delete: apiConfig.blog.delete,
-            reject: apiConfig.blog.reject,
-        };
+              getList: apiConfig.blog.getList,
+              getById: apiConfig.blog.getById,
+              create: apiConfig.blog.create,
+              update: apiConfig.blog.update,
+              delete: apiConfig.blog.delete,
+              reject: apiConfig.blog.reject,
+          };
 
     const { data, mixinFuncs, queryFilter, loading, pagination } = useListBase({
         apiConfig: apiConfiguration,
@@ -235,7 +235,11 @@ const BlogListPage = ({ pageOptions = {} }) => {
         {
             title: 'Người viết',
             width: '150px',
-            render: (_, record) => record.educator?.account?.fullName || record.educator?.profileAccountDto?.fullName || record.author || '-',
+            render: (_, record) =>
+                record.educator?.account?.fullName ||
+                record.educator?.profileAccountDto?.fullName ||
+                record.author ||
+                '-',
         },
         {
             title: 'Trạng thái',

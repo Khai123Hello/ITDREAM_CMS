@@ -137,8 +137,8 @@ const SimulationPreview = ({ data }) => {
                                     badges: Array.isArray(parsed.bager)
                                         ? parsed.bager
                                         : Array.isArray(parsed.barger)
-                                            ? parsed.barger
-                                            : parsed.hero?.badges || [],
+                                          ? parsed.barger
+                                          : parsed.hero?.badges || [],
                                     button: '',
                                     skills: Array.isArray(parsed.skills) ? parsed.skills : [],
                                 },

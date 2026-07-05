@@ -21,9 +21,9 @@ const DraggableRow = ({ children, ...props }) => {
         transition,
         ...(isDragging
             ? {
-                position: 'relative',
-                zIndex: 9999,
-            }
+                  position: 'relative',
+                  zIndex: 9999,
+              }
             : {}),
     };
     return (

@@ -521,16 +521,44 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
 
     const renderCommentPane = () => {
         return (
-            <div className="tfo-review-tab-pane" style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '16px', background: '#ffffff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                <div className="tfo-review-section-header" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-                    <span className="tfo-review-section-title" style={{ fontSize: '16px', fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+                className="tfo-review-tab-pane"
+                style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '16px',
+                    background: '#ffffff',
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                }}
+            >
+                <div
+                    className="tfo-review-section-header"
+                    style={{
+                        marginBottom: 16,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderBottom: '1px solid #f1f5f9',
+                        paddingBottom: '12px',
+                    }}
+                >
+                    <span
+                        className="tfo-review-section-title"
+                        style={{
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            color: '#1e293b',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                        }}
+                    >
                         <CommentOutlined style={{ color: '#1890ff' }} /> Thảo luận & Bình luận
                     </span>
                     {commentsData?.content?.length > 0 && (
-                        <Badge
-                            count={commentsData.content.length}
-                            style={{ backgroundColor: '#1890ff' }}
-                        />
+                        <Badge count={commentsData.content.length} style={{ backgroundColor: '#1890ff' }} />
                     )}
                 </div>
                 <div style={{ flex: 1, minHeight: 0 }}>
@@ -621,7 +649,10 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
             <TaskContentLayout
                 parentTasks={parentTasks}
                 selectedParentTaskId={selectedParentTaskId}
-                onSelectParentTask={(id) => { setSelectedParentTaskId(id); setSelectedSubtaskId(null); }}
+                onSelectParentTask={(id) => {
+                    setSelectedParentTaskId(id);
+                    setSelectedSubtaskId(null);
+                }}
                 subtasks={subtasks}
                 selectedSubtaskId={selectedSubtaskId}
                 onSelectSubtask={setSelectedSubtaskId}
@@ -647,7 +678,13 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                     let cls = 'tfo-task-circle';
                     if (isActive) cls += ' active';
                     return (
-                        <button className={cls} onClick={() => { setSelectedParentTaskId(task.id); setSelectedSubtaskId(null); }}>
+                        <button
+                            className={cls}
+                            onClick={() => {
+                                setSelectedParentTaskId(task.id);
+                                setSelectedSubtaskId(null);
+                            }}
+                        >
                             {idx + 1}
                         </button>
                     );
@@ -676,11 +713,40 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                             pagination={{ pageSize: 5 }}
                             size="small"
                             columns={[
-                                { title: 'Câu hỏi', dataIndex: 'questionText', render: (text) => <span style={{ fontWeight: 500 }}>{text}</span> },
-                                { title: 'Đáp án đúng', dataIndex: 'options', render: (optsStr) => { try { const opts = JSON.parse(optsStr || '[]'); const correct = opts.find((o) => o.answer === true || o.answer === 'true'); return correct ? correct.option || correct.value || 'N/A' : 'N/A'; } catch { return 'N/A'; } } },
+                                {
+                                    title: 'Câu hỏi',
+                                    dataIndex: 'questionText',
+                                    render: (text) => <span style={{ fontWeight: 500 }}>{text}</span>,
+                                },
+                                {
+                                    title: 'Đáp án đúng',
+                                    dataIndex: 'options',
+                                    render: (optsStr) => {
+                                        try {
+                                            const opts = JSON.parse(optsStr || '[]');
+                                            const correct = opts.find((o) => o.answer === true || o.answer === 'true');
+                                            return correct ? correct.option || correct.value || 'N/A' : 'N/A';
+                                        } catch {
+                                            return 'N/A';
+                                        }
+                                    },
+                                },
                                 { title: 'Đáp án chọn', dataIndex: 'selectedAnswer' },
-                                { title: 'Kết quả', dataIndex: 'isCorrect', width: 100, align: 'center', render: (isCorr) => <Tag color={isCorr ? 'green' : 'red'}>{isCorr ? 'Đúng' : 'Sai'}</Tag> },
-                                { title: 'Thời gian', dataIndex: 'createdDate', width: 150, render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-') },
+                                {
+                                    title: 'Kết quả',
+                                    dataIndex: 'isCorrect',
+                                    width: 100,
+                                    align: 'center',
+                                    render: (isCorr) => (
+                                        <Tag color={isCorr ? 'green' : 'red'}>{isCorr ? 'Đúng' : 'Sai'}</Tag>
+                                    ),
+                                },
+                                {
+                                    title: 'Thời gian',
+                                    dataIndex: 'createdDate',
+                                    width: 150,
+                                    render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-'),
+                                },
                             ]}
                         />
                     </div>

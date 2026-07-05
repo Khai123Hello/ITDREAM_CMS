@@ -1,19 +1,7 @@
 import React from 'react';
 import { Button, Input, Checkbox, Tag, Empty, Tooltip, Popconfirm } from 'antd';
-import {
-    PlusOutlined,
-    DeleteOutlined,
-    CheckCircleOutlined,
-    DragOutlined,
-} from '@ant-design/icons';
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-} from '@dnd-kit/core';
+import { PlusOutlined, DeleteOutlined, CheckCircleOutlined, DragOutlined } from '@ant-design/icons';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import {
     arrayMove,
     SortableContext,
@@ -41,14 +29,7 @@ const SortableQuestionItem = React.memo(function SortableQuestionItem({
     handleCorrectChange,
     disabled,
 }) {
-    const {
-        attributes,
-        listeners,
-        setNodeRef,
-        transform,
-        transition,
-        isDragging,
-    } = useSortable({ id: question.id });
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: question.id });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -90,9 +71,7 @@ const SortableQuestionItem = React.memo(function SortableQuestionItem({
                     >
                         <DragOutlined style={{ fontSize: 16 }} />
                     </span>
-                    <span style={{ fontWeight: 600, color: '#262626', fontSize: 15 }}>
-                        Câu hỏi {index + 1}
-                    </span>
+                    <span style={{ fontWeight: 600, color: '#262626', fontSize: 15 }}>Câu hỏi {index + 1}</span>
                 </div>
                 {!disabled && (
                     <Popconfirm
@@ -161,9 +140,7 @@ const SortableQuestionItem = React.memo(function SortableQuestionItem({
                                     <TextArea
                                         placeholder={`Nội dung đáp án ${String.fromCharCode(65 + optIndex)}...`}
                                         value={option.option}
-                                        onChange={(e) =>
-                                            updateOption(question.id, option.id, 'option', e.target.value)
-                                        }
+                                        onChange={(e) => updateOption(question.id, option.id, 'option', e.target.value)}
                                         rows={1}
                                         autoSize={{ minRows: 1, maxRows: 3 }}
                                         disabled={disabled}
@@ -199,7 +176,6 @@ const SortableQuestionItem = React.memo(function SortableQuestionItem({
     );
 });
 
-
 // -------------------------------------------------------------
 // Main TaskQuestionManager Component
 // -------------------------------------------------------------
@@ -213,10 +189,10 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
 
     // Ensure options always have unique IDs for React keys and updating
     const normalizeQuestions = (qs) => {
-        return (qs || []).map(q => ({
+        return (qs || []).map((q) => ({
             ...q,
             id: q.id || generateId(),
-            options: (q.options || []).map(o => ({
+            options: (q.options || []).map((o) => ({
                 ...o,
                 id: o.id || generateId(),
             })),
@@ -228,7 +204,7 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
     // ---- OPTIMIZATION: Use refs for latest state so callbacks are stable ----
     const latestQuestions = React.useRef(questions);
     latestQuestions.current = questions;
-    
+
     const latestOnChange = React.useRef(onChange);
     latestOnChange.current = onChange;
 
@@ -250,81 +226,102 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
         triggerChange([...latestQuestions.current, newQuestion]);
     }, [triggerChange]);
 
-    const updateQuestion = React.useCallback((qId, field, val) => {
-        const newQs = latestQuestions.current.map(q => q.id === qId ? { ...q, [field]: val } : q);
-        triggerChange(newQs);
-    }, [triggerChange]);
+    const updateQuestion = React.useCallback(
+        (qId, field, val) => {
+            const newQs = latestQuestions.current.map((q) => (q.id === qId ? { ...q, [field]: val } : q));
+            triggerChange(newQs);
+        },
+        [triggerChange],
+    );
 
-    const removeQuestion = React.useCallback((qId) => {
-        const newQs = latestQuestions.current.filter(q => q.id !== qId);
-        triggerChange(newQs);
-    }, [triggerChange]);
+    const removeQuestion = React.useCallback(
+        (qId) => {
+            const newQs = latestQuestions.current.filter((q) => q.id !== qId);
+            triggerChange(newQs);
+        },
+        [triggerChange],
+    );
 
-    const addOption = React.useCallback((qId) => {
-        const newQs = latestQuestions.current.map(q => {
-            if (q.id === qId) {
-                return {
-                    ...q,
-                    options: [...q.options, { id: generateId(), option: '', answer: false }],
-                };
+    const addOption = React.useCallback(
+        (qId) => {
+            const newQs = latestQuestions.current.map((q) => {
+                if (q.id === qId) {
+                    return {
+                        ...q,
+                        options: [...q.options, { id: generateId(), option: '', answer: false }],
+                    };
+                }
+                return q;
+            });
+            triggerChange(newQs);
+        },
+        [triggerChange],
+    );
+
+    const updateOption = React.useCallback(
+        (qId, optId, field, val) => {
+            const newQs = latestQuestions.current.map((q) => {
+                if (q.id === qId) {
+                    return {
+                        ...q,
+                        options: q.options.map((o) => (o.id === optId ? { ...o, [field]: val } : o)),
+                    };
+                }
+                return q;
+            });
+            triggerChange(newQs);
+        },
+        [triggerChange],
+    );
+
+    const removeOption = React.useCallback(
+        (qId, optId) => {
+            const newQs = latestQuestions.current.map((q) => {
+                if (q.id === qId && q.options.length > 2) {
+                    return {
+                        ...q,
+                        options: q.options.filter((o) => o.id !== optId),
+                    };
+                }
+                return q;
+            });
+            triggerChange(newQs);
+        },
+        [triggerChange],
+    );
+
+    const handleCorrectChange = React.useCallback(
+        (qId, optId, checked) => {
+            // Enforce single correct answer per question
+            const newQs = latestQuestions.current.map((q) => {
+                if (q.id === qId) {
+                    return {
+                        ...q,
+                        options: q.options.map((o) => ({
+                            ...o,
+                            answer: o.id === optId ? checked : false,
+                        })),
+                    };
+                }
+                return q;
+            });
+            triggerChange(newQs);
+        },
+        [triggerChange],
+    );
+
+    const handleDragEnd = React.useCallback(
+        (event) => {
+            const { active, over } = event;
+            if (active.id !== over?.id) {
+                const currentQs = latestQuestions.current;
+                const oldIndex = currentQs.findIndex((q) => q.id === active.id);
+                const newIndex = currentQs.findIndex((q) => q.id === over.id);
+                triggerChange(arrayMove(currentQs, oldIndex, newIndex));
             }
-            return q;
-        });
-        triggerChange(newQs);
-    }, [triggerChange]);
-
-    const updateOption = React.useCallback((qId, optId, field, val) => {
-        const newQs = latestQuestions.current.map(q => {
-            if (q.id === qId) {
-                return {
-                    ...q,
-                    options: q.options.map(o => o.id === optId ? { ...o, [field]: val } : o),
-                };
-            }
-            return q;
-        });
-        triggerChange(newQs);
-    }, [triggerChange]);
-
-    const removeOption = React.useCallback((qId, optId) => {
-        const newQs = latestQuestions.current.map(q => {
-            if (q.id === qId && q.options.length > 2) {
-                return {
-                    ...q,
-                    options: q.options.filter(o => o.id !== optId),
-                };
-            }
-            return q;
-        });
-        triggerChange(newQs);
-    }, [triggerChange]);
-
-    const handleCorrectChange = React.useCallback((qId, optId, checked) => {
-        // Enforce single correct answer per question
-        const newQs = latestQuestions.current.map(q => {
-            if (q.id === qId) {
-                return {
-                    ...q,
-                    options: q.options.map(o => ({
-                        ...o,
-                        answer: o.id === optId ? checked : false,
-                    })),
-                };
-            }
-            return q;
-        });
-        triggerChange(newQs);
-    }, [triggerChange]);
-
-    const handleDragEnd = React.useCallback((event) => {
-        const { active, over } = event;
-        if (active.id !== over?.id) {
-            const currentQs = latestQuestions.current;
-            const oldIndex = currentQs.findIndex(q => q.id === active.id);
-            const newIndex = currentQs.findIndex(q => q.id === over.id);
-            triggerChange(arrayMove(currentQs, oldIndex, newIndex));
-        }
-    }, [triggerChange]);
+        },
+        [triggerChange],
+    );
 
     return (
         <div style={{ marginTop: 8 }}>
@@ -345,15 +342,8 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
                 </Empty>
             ) : (
                 <>
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            items={questions.map(q => q.id)}
-                            strategy={verticalListSortingStrategy}
-                        >
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                        <SortableContext items={questions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
                             {questions.map((q, index) => (
                                 <SortableQuestionItem
                                     key={q.id}
@@ -370,7 +360,7 @@ const TaskQuestionManager = ({ value = [], onChange, disabled = false }) => {
                             ))}
                         </SortableContext>
                     </DndContext>
-                    
+
                     {!disabled && (
                         <Button
                             type="dashed"
