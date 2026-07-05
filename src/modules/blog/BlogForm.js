@@ -109,12 +109,21 @@ const BlogForm = (props) => {
     return (
         <BaseForm id={formId} onFinish={handleSubmit} form={form} onValuesChange={handleValuesChange}>
             <Card className="card-form" bordered={false}>
-                {/* ── Meta fields ── */}
+                {/* ── SECTION 1: Thông tin bài viết ── */}
+                <div style={{ marginBottom: 4 }}>
+                    <Typography.Text
+                        strong
+                        style={{ fontSize: 15, color: '#1e293b', display: 'block', marginBottom: 16 }}
+                    >
+                        📋 Thông tin bài viết
+                    </Typography.Text>
+                </div>
+
                 <Row gutter={16}>
-                    <Col span={12}>
-                        <TextField label="Tiêu đề" name="name" required placeholder="Nhập tiêu đề bài viết" />
+                    <Col span={16}>
+                        <TextField label="Tiêu đề" name="name" required placeholder="Nhập tiêu đề bài viết..." />
                     </Col>
-                    <Col span={12}>
+                    <Col span={8}>
                         <SelectField
                             label="Danh mục"
                             name="categoryId"
@@ -125,23 +134,34 @@ const BlogForm = (props) => {
                     </Col>
                 </Row>
 
-                <Row gutter={16}>
-                    <Col span={24}>
-                        <CropImageField
-                            label="Ảnh bìa"
-                            name="image"
-                            imageUrl={imageUrl ? getDisplayImageUrl(imageUrl) : null}
-                            uploadFile={uploadFile}
-                            aspect={16 / 9}
-                            required={!imageUrlInput.trim()}
-                        />
-                        {/* Nhập URL ảnh ngoài */}
-                        <div style={{ marginTop: 8 }}>
-                            <Typography.Text
-                                type="secondary"
-                                style={{ fontSize: 12, display: 'block', marginBottom: 4 }}
-                            >
-                                Hoặc dán đường link ảnh bìa (URL ngoài)
+                {/* ── Ảnh bìa ── */}
+                <div
+                    style={{
+                        border: '1px solid #e2e8f0',
+                        borderRadius: 10,
+                        padding: '16px 20px',
+                        background: '#f8fafc',
+                        marginBottom: 16,
+                    }}
+                >
+                    <Typography.Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12, color: '#475569' }}>
+                        🖼 Ảnh bìa bài viết
+                    </Typography.Text>
+
+                    <Row gutter={24} align="top">
+                        <Col span={12}>
+                            <CropImageField
+                                label={null}
+                                name="image"
+                                imageUrl={imageUrl ? getDisplayImageUrl(imageUrl) : null}
+                                uploadFile={uploadFile}
+                                aspect={16 / 9}
+                                required={!imageUrlInput.trim()}
+                            />
+                        </Col>
+                        <Col span={12}>
+                            <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>
+                                Hoặc dán đường link ảnh bìa từ URL ngoài:
                             </Typography.Text>
                             <Input
                                 value={imageUrlInput}
@@ -159,12 +179,12 @@ const BlogForm = (props) => {
                             {imageUrlInput && (
                                 <div
                                     style={{
-                                        marginTop: 8,
+                                        marginTop: 10,
                                         borderRadius: 8,
                                         overflow: 'hidden',
                                         border: '1px solid #e2e8f0',
                                         aspectRatio: '16/9',
-                                        background: '#f8fafc',
+                                        background: '#f1f5f9',
                                     }}
                                 >
                                     <img
@@ -177,23 +197,40 @@ const BlogForm = (props) => {
                                     />
                                 </div>
                             )}
-                        </div>
-                    </Col>
-                </Row>
+                            {!imageUrlInput && (
+                                <Typography.Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 8, fontStyle: 'italic' }}>
+                                    Để trống nếu đã upload ảnh từ máy tính.
+                                </Typography.Text>
+                            )}
+                        </Col>
+                    </Row>
+                </div>
 
-                {/* ── BlogDesigner ── */}
+                {/* ── SECTION 2: Nội dung bài viết ── */}
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        marginBottom: 16,
+                        paddingTop: 8,
+                        borderTop: '2px solid #e2e8f0',
+                    }}
+                >
+                    <Typography.Text strong style={{ fontSize: 15, color: '#1e293b', whiteSpace: 'nowrap' }}>
+                        ✍️ Nội dung bài viết
+                    </Typography.Text>
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                        Sử dụng toolbar để định dạng, gõ <Typography.Text code style={{ fontSize: 11 }}>/</Typography.Text> để chèn block đặc biệt.
+                    </Typography.Text>
+                </div>
+
                 <Row gutter={16}>
                     <Col span={24}>
                         {/* Hidden field for form validation */}
                         <div style={{ display: 'none' }}>
                             <TextField name="content" />
                         </div>
-
-                        <label
-                            style={{ fontWeight: 600, display: 'block', marginBottom: 12, marginTop: 16, fontSize: 14 }}
-                        >
-                            Nội dung bài viết
-                        </label>
 
                         <BlogDesigner
                             key={dataDetail?.id || 'new'}

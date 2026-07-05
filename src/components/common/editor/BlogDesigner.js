@@ -455,7 +455,7 @@ function ChapterManager({
         <div className="bd-chapter-panel">
             <div className="bd-chapter-header">
                 <Icons.Chapter />
-                <span>Chapters</span>
+                <span>Mục lục</span>
             </div>
             <div className="bd-chapter-list">
                 {chapters.map((ch, idx) => (
@@ -476,7 +476,7 @@ function ChapterManager({
                             <>
                                 <button type="button" className="bd-chapter-name" onClick={() => onSelectChapter(idx)}>
                                     <span className="bd-chapter-num">{idx + 1}</span>
-                                    <span className="bd-chapter-title">{ch.title || `Chapter ${idx + 1}`}</span>
+                                    <span className="bd-chapter-title">{ch.title || `Phần ${idx + 1}`}</span>
                                 </button>
                                 <div className="bd-chapter-actions">
                                     <button
@@ -515,10 +515,6 @@ function ChapterManager({
 // ─────────────────────────────────────────────────────────────
 function PreviewModal({ open, onClose, blog, chapters }) {
     const [tocActiveId, setTocActiveId] = useState('');
-    const [activeChapterPreview, setActiveChapterPreview] = useState(0);
-
-    const currentContent =
-        chapters && chapters.length > 0 ? chapters[activeChapterPreview]?.content || '' : blog?.content || '';
 
     const getImageUrl = (img) => {
         if (!img) return null;
@@ -528,12 +524,12 @@ function PreviewModal({ open, onClose, blog, chapters }) {
 
     useEffect(() => {
         if (!open) return;
-        setActiveChapterPreview(0);
         setTocActiveId('');
     }, [open]);
 
+    // Theo dõi heading khi scroll (toàn bộ nội dung)
     useEffect(() => {
-        if (!open || !currentContent) return;
+        if (!open) return;
         const headings = document.querySelectorAll(
             '.bd-preview-article h1, .bd-preview-article h2, .bd-preview-article h3',
         );
@@ -546,7 +542,15 @@ function PreviewModal({ open, onClose, blog, chapters }) {
         );
         headings.forEach((el) => observer.observe(el));
         return () => headings.forEach((el) => observer.unobserve(el));
-    }, [open, currentContent, activeChapterPreview]);
+    }, [open]);
+
+    // Gom nội dung để hiển thị liên tục
+    const allContents = chapters && chapters.length > 0
+        ? chapters
+        : [{ title: blog?.name || '', content: blog?.content || '' }];
+
+    // Dùng nội dung phần đầu cho TOC (hoặc gom nếu cần)
+    const tocContent = allContents.map((c) => c.content).join(' ');
 
     return (
         <Modal
@@ -566,20 +570,6 @@ function PreviewModal({ open, onClose, blog, chapters }) {
                         <span className="bd-preview-badge">PREVIEW</span>
                         <span className="bd-preview-title">{blog?.name || 'Blog Preview'}</span>
                     </div>
-                    {chapters && chapters.length > 1 && (
-                        <div className="bd-preview-chapters-tabs">
-                            {chapters.map((ch, idx) => (
-                                <button
-                                    key={idx}
-                                    type="button"
-                                    className={`bd-preview-chapter-tab${idx === activeChapterPreview ? ' active' : ''}`}
-                                    onClick={() => setActiveChapterPreview(idx)}
-                                >
-                                    {ch.title || `Chapter ${idx + 1}`}
-                                </button>
-                            ))}
-                        </div>
-                    )}
                     <button type="button" className="bd-preview-close" onClick={onClose}>
                         ✕ Đóng xem trước
                     </button>
@@ -605,7 +595,7 @@ function PreviewModal({ open, onClose, blog, chapters }) {
                 <aside className="bd-preview-toc">
                     <div className="bd-preview-toc-inner">
                         <p className="bd-preview-toc-title">📋 Mục lục</p>
-                        <TableOfContents content={currentContent} activeId={tocActiveId} />
+                        <TableOfContents content={tocContent} activeId={tocActiveId} />
                     </div>
                 </aside>
 
@@ -630,18 +620,24 @@ function PreviewModal({ open, onClose, blog, chapters }) {
                         </div>
                     </div>
 
-                    {/* Chapter sub-title if multi-chapter */}
-                    {chapters && chapters.length > 1 && (
-                        <div className="bd-preview-chapter-header">
-                            <span className="bd-preview-chapter-num">Chapter {activeChapterPreview + 1}</span>
-                            <h2 className="bd-preview-chapter-title">{chapters[activeChapterPreview]?.title || ''}</h2>
+                    {/* Render toàn bộ các phần liên tục */}
+                    {allContents.map((ch, idx) => (
+                        <div key={idx} className="bd-preview-section">
+                            {/* Tiêu đề phần (nếu có nhiều phần) */}
+                            {allContents.length > 1 && (
+                                <div className="bd-preview-section-header">
+                                    <span className="bd-preview-section-title">{ch.title || `Phần ${idx + 1}`}</span>
+                                </div>
+                            )}
+                            <div className="bd-preview-content">
+                                <TipTapJsonRenderer content={ch.content || ''} />
+                            </div>
+                            {/* Đường phân cách giữa các phần */}
+                            {allContents.length > 1 && idx < allContents.length - 1 && (
+                                <hr className="bd-preview-section-divider" />
+                            )}
                         </div>
-                    )}
-
-                    {/* Content */}
-                    <div className="bd-preview-content">
-                        <TipTapJsonRenderer content={currentContent} />
-                    </div>
+                    ))}
                 </article>
 
                 {/* Right sidebar */}
@@ -651,7 +647,7 @@ function PreviewModal({ open, onClose, blog, chapters }) {
                         <div className="bd-preview-widget-body">
                             {chapters && chapters.length > 1 && (
                                 <div className="bd-preview-stat">
-                                    <span>Số chapters</span>
+                                    <span>Số phần</span>
                                     <strong>{chapters.length}</strong>
                                 </div>
                             )}
@@ -673,7 +669,7 @@ function PreviewModal({ open, onClose, blog, chapters }) {
 // 8. Main BlogDesigner Component
 // ─────────────────────────────────────────────────────────────
 
-const DEFAULT_CHAPTER = { title: 'Chapter 1', content: '' };
+const DEFAULT_CHAPTER = { title: 'Phần 1', content: '' };
 
 export default function BlogDesigner({
     initialContent = '',
@@ -700,6 +696,7 @@ export default function BlogDesigner({
     const [linkUrlInput, setLinkUrlInput] = useState('');
     const [slashVisible, setSlashVisible] = useState(false);
     const [slashPos, setSlashPos] = useState({ top: 0, left: 0 });
+    const [paletteOpen, setPaletteOpen] = useState(false);
 
     const onChangeRef = useRef(onChange);
     useEffect(() => {
@@ -753,9 +750,9 @@ export default function BlogDesigner({
             });
         },
         onSelectionUpdate({ editor: ed }) {
-            const { selection, view } = ed;
-            const { from, to, empty } = selection;
-            if (empty || !view.focused) return;
+            if (!ed?.state?.selection) return;
+            const { from, to, empty } = ed.state.selection;
+            if (empty || !ed.view?.focused) return;
             // Selection-based bubble menu handled via CSS/library
         },
     });
@@ -770,9 +767,8 @@ export default function BlogDesigner({
 
     // Slash command detection
     const handleKeyUp = useCallback(() => {
-        if (!editor) return;
-        const { selection, state } = editor;
-        const { $from } = selection;
+        if (!editor || !editor.state?.selection) return;
+        const { $from } = editor.state.selection;
         const parent = $from.parent;
         if (parent.type.name === 'paragraph' && parent.textContent === '/') {
             const coords = editor.view.coordsAtPos($from.pos);
@@ -904,7 +900,7 @@ export default function BlogDesigner({
 
     // Chapter management
     const handleAddChapter = () => {
-        const newChapters = [...chapters, { title: `Chapter ${chapters.length + 1}`, content: '' }];
+        const newChapters = [...chapters, { title: `Phần ${chapters.length + 1}`, content: '' }];
         setChapters(newChapters);
         setActiveChapterIndex(newChapters.length - 1);
         notifyChange(newChapters);
@@ -953,7 +949,7 @@ export default function BlogDesigner({
             {/* ── TOP TOOLBAR ── */}
             <div className="bd-toolbar">
                 <div className="bd-toolbar-left">
-                    {/* Headings */}
+                    {/* Group 1: Headings */}
                     <TB
                         title="Heading 1"
                         active={activeMarks.h1}
@@ -975,8 +971,10 @@ export default function BlogDesigner({
                     >
                         <Icons.H3 />
                     </TB>
+
                     <ToolbarSep />
-                    {/* Marks */}
+
+                    {/* Group 2: Text Marks */}
                     <TB title="Bold (Ctrl+B)" active={activeMarks.bold} onClick={() => editor?.commands.toggleBold()}>
                         <Icons.Bold />
                     </TB>
@@ -1001,9 +999,6 @@ export default function BlogDesigner({
                     >
                         <Icons.Strike />
                     </TB>
-                    <TB title="Inline Code" active={activeMarks.code} onClick={() => editor?.commands.toggleCode()}>
-                        <Icons.Code />
-                    </TB>
                     <TB
                         title="Highlight"
                         active={activeMarks.highlight}
@@ -1014,8 +1009,10 @@ export default function BlogDesigner({
                     <TB title="Link" active={activeMarks.link} onClick={openLinkModal}>
                         <Icons.Link />
                     </TB>
+
                     <ToolbarSep />
-                    {/* Lists & Blocks */}
+
+                    {/* Group 3: Lists & Structure */}
                     <TB
                         title="Bullet List"
                         active={activeMarks.bulletList}
@@ -1044,14 +1041,23 @@ export default function BlogDesigner({
                     >
                         <Icons.Code />
                     </TB>
-                    <TB title="Insert Image" onClick={() => setImageModalOpen(true)}>
+                    <TB title="Inline Code" active={activeMarks.code} onClick={() => editor?.commands.toggleCode()}>
+                        <Icons.Code />
+                    </TB>
+
+                    <ToolbarSep />
+
+                    {/* Group 4: Media */}
+                    <TB title="Chèn ảnh" onClick={() => setImageModalOpen(true)}>
                         <Icons.Image />
                     </TB>
-                    <TB title="Horizontal Rule" onClick={() => editor?.commands.setHorizontalRule()}>
+                    <TB title="Đường kẻ ngang" onClick={() => editor?.commands.setHorizontalRule()}>
                         <Icons.HR />
                     </TB>
+
                     <ToolbarSep />
-                    {/* History */}
+
+                    {/* Group 5: History */}
                     <TB title="Undo (Ctrl+Z)" onClick={() => editor?.commands.undo()} disabled={!editor?.can().undo()}>
                         <Icons.Undo />
                     </TB>
@@ -1061,10 +1067,34 @@ export default function BlogDesigner({
                 </div>
 
                 <div className="bd-toolbar-right">
+                    {/* Word count badge */}
+                    {editor && (
+                        <span className="bd-word-count">
+                            {editor.storage?.characterCount?.words?.() ?? 0} từ
+                        </span>
+                    )}
+
                     <div className="bd-slash-hint">
                         <span className="bd-slash-key">/</span>
-                        <span>để chèn block</span>
+                        <span>block</span>
                     </div>
+
+                    {/* Toggle Block Palette */}
+                    <button
+                        type="button"
+                        className={`bd-palette-toggle-btn${paletteOpen ? ' active' : ''}`}
+                        onClick={() => setPaletteOpen((o) => !o)}
+                        title="Blocks"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                        Blocks
+                    </button>
+
                     <button type="button" className="bd-preview-btn" onClick={() => setPreviewOpen(true)}>
                         <Icons.Eye />
                         Xem trước
@@ -1088,8 +1118,8 @@ export default function BlogDesigner({
                 <div className="bd-editor-canvas">
                     <div className="bd-chapter-label">
                         <span className="bd-chapter-pill">
-                            Chapter {activeChapterIndex + 1}:{' '}
-                            {activeChapter.title || `Chapter ${activeChapterIndex + 1}`}
+                            Phần {activeChapterIndex + 1}:{' '}
+                            {activeChapter.title || `Phần ${activeChapterIndex + 1}`}
                         </span>
                     </div>
 
@@ -1107,17 +1137,26 @@ export default function BlogDesigner({
 
                     {/* Word count footer */}
                     <div className="bd-editor-footer">
-                        <span>{editor?.storage?.characterCount?.words() ?? 0} từ</span>
-                        <span>{editor?.storage?.characterCount?.characters() ?? 0} ký tự</span>
+                        <span>{editor?.storage?.characterCount?.characters?.() ?? 0} ký tự</span>
                         <span className="bd-footer-hint">
                             Gõ <kbd>/</kbd> để chèn block đặc biệt
                         </span>
                     </div>
                 </div>
 
-                {/* Block palette sidebar */}
-                <div className="bd-block-palette">
-                    <p className="bd-palette-title">Blocks</p>
+                {/* Block palette sidebar — toggleable */}
+                <div className={`bd-block-palette${paletteOpen ? ' bd-block-palette--open' : ''}`}>
+                    <div className="bd-palette-header">
+                        <p className="bd-palette-title">⊞ Blocks</p>
+                        <button
+                            type="button"
+                            className="bd-palette-close-btn"
+                            onClick={() => setPaletteOpen(false)}
+                            title="Đóng"
+                        >
+                            ✕
+                        </button>
+                    </div>
                     {BLOCK_PALETTE.map((b) => (
                         <Tooltip key={b.type} title={b.desc} placement="left" mouseEnterDelay={0.4}>
                             <button

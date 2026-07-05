@@ -174,6 +174,141 @@
 }
 
 // ─────────────────────────────────────────────────────────────────
+// BLOCK PALETTE SIDEBAR (toggleable)
+// ─────────────────────────────────────────────────────────────────
+.bd-block-palette {
+    width: 0;
+    overflow: hidden;
+    background: var(--bd-surface);
+    border-left: 0 solid var(--bd-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+                border-left-width 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &--open {
+        width: 145px;
+        border-left-width: 1px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: var(--bd-surface-3) transparent;
+    }
+}
+
+.bd-palette-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 10px 6px;
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--bd-border);
+}
+
+.bd-palette-title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--bd-text-muted);
+    margin: 0;
+    white-space: nowrap;
+}
+
+.bd-palette-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--bd-text-subtle);
+    font-size: 12px;
+    padding: 2px 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: background var(--bd-transition), color var(--bd-transition);
+
+    &:hover {
+        background: var(--bd-surface-3);
+        color: var(--bd-text);
+    }
+}
+
+.bd-palette-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding: 7px 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 0;
+    transition: background var(--bd-transition);
+    white-space: nowrap;
+
+    &:hover {
+        background: var(--bd-surface-2);
+    }
+}
+
+.bd-palette-icon {
+    font-size: 15px;
+    flex-shrink: 0;
+    width: 20px;
+    text-align: center;
+}
+
+.bd-palette-label {
+    font-size: 12px;
+    color: var(--bd-text-muted);
+    font-weight: 500;
+}
+
+// ── Block Palette Toggle Button (in toolbar) ──
+.bd-palette-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 7px;
+    border: 1px solid var(--bd-border);
+    background: var(--bd-surface-2);
+    color: var(--bd-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--bd-transition);
+
+    &:hover {
+        background: var(--bd-surface-3);
+        color: var(--bd-text);
+        border-color: var(--bd-border-hover);
+    }
+
+    &.active {
+        background: var(--bd-accent-glow);
+        color: var(--bd-accent);
+        border-color: var(--bd-accent);
+    }
+
+    svg { flex-shrink: 0; }
+}
+
+// ── Word Count Badge (in toolbar) ──
+.bd-word-count {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: var(--bd-surface-2);
+    border: 1px solid var(--bd-border);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--bd-text-subtle);
+    white-space: nowrap;
+}
+
+// ─────────────────────────────────────────────────────────────────
 // CHAPTER SIDEBAR
 // ─────────────────────────────────────────────────────────────────
 .bd-chapter-panel {
