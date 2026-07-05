@@ -76,6 +76,7 @@ export default function EducatorDashboard() {
     // Chart data states
     const [simPerformanceData, setSimPerformanceData] = useState([]);
     const [starDistribution, setStarDistribution] = useState([]);
+    const [trendingCareersData, setTrendingCareersData] = useState([]);
 
     // ─── API Hooks ───
     const { execute: getEducatorSims } = useFetch(apiConfig.simulation.getListForEducator);
@@ -133,6 +134,20 @@ export default function EducatorDashboard() {
             }));
             setSimPerformanceData(performanceChart);
 
+            // 4.1. Trending Careers Chart Data
+            const catMap = {};
+            sims.forEach(s => {
+                if (s.category && s.category.name) {
+                    const catName = s.category.name;
+                    catMap[catName] = (catMap[catName] || 0) + (s.totalParticipant || 0);
+                }
+            });
+            const trendingChart = Object.keys(catMap).map(name => ({
+                name: name.length > 20 ? name.substring(0, 18) + '...' : name,
+                'Lượt đăng ký': catMap[name],
+            })).sort((a, b) => b['Lượt đăng ký'] - a['Lượt đăng ký']);
+            setTrendingCareersData(trendingChart);
+
             // 5. Feedback & star distribution
             const activeSimId = selectedSimId === 'all' ? sims[0]?.id || null : selectedSimId;
             if (activeSimId) {
@@ -163,6 +178,8 @@ export default function EducatorDashboard() {
             setLoading(false);
         }
     };
+
+
 
     useEffect(() => {
         loadDashboardData();
@@ -397,87 +414,120 @@ export default function EducatorDashboard() {
             key: 'analytics',
             label: 'Thống kê',
             children: (
-                <Row gutter={[16, 16]}>
-                    {/* Performance Bar Chart */}
-                    <Col xs={24} xl={16}>
-                        <Card
-                            size="small"
-                            title="Hiệu suất mô phỏng"
-                            extra={
-                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Lượt đăng ký vs hoàn thành
-                                </Text>
-                            }
-                        >
-                            <div style={{ height: 220 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart
-                                        data={simPerformanceData}
-                                        margin={{ top: 8, right: 8, left: -20, bottom: 0 }}
-                                    >
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                        <XAxis
-                                            dataKey="name"
-                                            tickLine={false}
-                                            axisLine={false}
-                                            style={{ fontSize: 10 }}
-                                        />
-                                        <YAxis tickLine={false} axisLine={false} style={{ fontSize: 10 }} />
-                                        <ReTooltip contentStyle={{ fontSize: 12, borderRadius: 6 }} />
-                                        <Legend
-                                            verticalAlign="top"
-                                            height={28}
-                                            iconType="circle"
-                                            iconSize={8}
-                                            style={{ fontSize: 12 }}
-                                        />
-                                        <Bar dataKey="Lượt đăng ký" fill="#1890ff" radius={[3, 3, 0, 0]} />
-                                        <Bar dataKey="Hoàn thành" fill="#52c41a" radius={[3, 3, 0, 0]} />
-                                    </BarChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </Card>
-                    </Col>
-
-                    {/* Star Distribution */}
-                    <Col xs={24} xl={8}>
-                        <Card
-                            size="small"
-                            title="Phân bố đánh giá sao"
-                            style={{ height: '100%' }}
-                        >
-                            <div style={{ height: 180 }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={starDistribution}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={45}
-                                            outerRadius={65}
-                                            paddingAngle={4}
-                                            dataKey="value"
+                <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                    <Row gutter={[16, 16]}>
+                        {/* Performance Bar Chart */}
+                        <Col xs={24} xl={16}>
+                            <Card
+                                size="small"
+                                title="Hiệu suất mô phỏng"
+                                extra={
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        Lượt đăng ký vs hoàn thành
+                                    </Text>
+                                }
+                            >
+                                <div style={{ height: 220 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={simPerformanceData}
+                                            margin={{ top: 8, right: 8, left: -20, bottom: 0 }}
                                         >
-                                            {starDistribution.map((entry, index) => (
-                                                <Cell
-                                                    key={`cell-${index}`}
-                                                    fill={CHART_COLORS[index % CHART_COLORS.length]}
-                                                />
-                                            ))}
-                                        </Pie>
-                                        <ReTooltip
-                                            formatter={(value) => [`${value} đánh giá`]}
-                                            contentStyle={{ fontSize: 12, borderRadius: 6 }}
-                                        />
-                                        <Legend iconType="circle" iconSize={8} style={{ fontSize: 11 }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </Card>
-                    </Col>
-                </Row>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                            <XAxis
+                                                dataKey="name"
+                                                tickLine={false}
+                                                axisLine={false}
+                                                style={{ fontSize: 10 }}
+                                            />
+                                            <YAxis tickLine={false} axisLine={false} style={{ fontSize: 10 }} />
+                                            <ReTooltip contentStyle={{ fontSize: 12, borderRadius: 6 }} />
+                                            <Legend
+                                                verticalAlign="top"
+                                                height={28}
+                                                iconType="circle"
+                                                iconSize={8}
+                                                style={{ fontSize: 12 }}
+                                            />
+                                            <Bar dataKey="Lượt đăng ký" fill="#1890ff" radius={[3, 3, 0, 0]} />
+                                            <Bar dataKey="Hoàn thành" fill="#52c41a" radius={[3, 3, 0, 0]} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </Card>
+                        </Col>
+
+                        {/* Star Distribution */}
+                        <Col xs={24} xl={8}>
+                            <Card
+                                size="small"
+                                title="Phân bố đánh giá sao"
+                                style={{ height: '100%' }}
+                            >
+                                <div style={{ height: 180 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <PieChart>
+                                            <Pie
+                                                data={starDistribution}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={45}
+                                                outerRadius={65}
+                                                paddingAngle={4}
+                                                dataKey="value"
+                                            >
+                                                {starDistribution.map((entry, index) => (
+                                                    <Cell
+                                                        key={`cell-${index}`}
+                                                        fill={CHART_COLORS[index % CHART_COLORS.length]}
+                                                    />
+                                                ))}
+                                            </Pie>
+                                            <ReTooltip
+                                                formatter={(value) => [`${value} đánh giá`]}
+                                                contentStyle={{ fontSize: 12, borderRadius: 6 }}
+                                            />
+                                            <Legend iconType="circle" iconSize={8} style={{ fontSize: 11 }} />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    <Row gutter={[16, 16]}>
+                        <Col span={24}>
+                            <Card
+                                size="small"
+                                title="Xu hướng chuyên ngành được quan tâm nhất"
+                                extra={<Text type="secondary" style={{ fontSize: 12 }}>Xếp hạng chuyên môn theo lượt đăng ký thực tế của học viên</Text>}
+                            >
+                                <div style={{ height: 260 }}>
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart
+                                            data={trendingCareersData}
+                                            margin={{ top: 12, right: 8, left: -20, bottom: 12 }}
+                                        >
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                                            <XAxis
+                                                dataKey="name"
+                                                tickLine={false}
+                                                axisLine={false}
+                                                style={{ fontSize: 11, fontWeight: 500 }}
+                                            />
+                                            <YAxis tickLine={false} axisLine={false} style={{ fontSize: 10 }} />
+                                            <ReTooltip contentStyle={{ fontSize: 12, borderRadius: 6 }} />
+                                            <Bar dataKey="Lượt đăng ký" fill="#722ed1" radius={[4, 4, 0, 0]} barSize={40} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </Card>
+                        </Col>
+                    </Row>
+                </Space>
             ),
         },
+
     ];
 
     return (

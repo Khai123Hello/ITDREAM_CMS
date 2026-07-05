@@ -17,7 +17,7 @@ import ListPage from '@components/common/layout/ListPage';
 import PageWrapper from '@components/common/layout/PageWrapper';
 import TipTapJsonRenderer from '@components/common/editor/TipTapJsonRenderer';
 
-import '@components/common/editor/BlogEditor.scss';
+import '@components/common/editor/BlogDesigner.scss';
 
 const { TextArea } = Input;
 
@@ -192,12 +192,12 @@ const BlogModerationListPage = () => {
             width: '280px',
             ellipsis: true,
         },
-        {
-            title: 'Chủ đề',
-            dataIndex: 'subject',
-            width: '220px',
-            ellipsis: true,
-        },
+        // {
+        //     title: 'Chủ đề',
+        //     dataIndex: 'subject',
+        //     width: '220px',
+        //     ellipsis: true,
+        // },
         {
             title: 'Danh mục',
             dataIndex: ['category', 'name'],
@@ -371,7 +371,7 @@ const BlogModerationListPage = () => {
                         >
                             <div className="blog-editor-preview-panel" style={{ background: 'transparent', height: 'auto', overflow: 'visible' }}>
                                 <div className="blog-main-article-card" style={{ padding: 0, border: 'none', boxShadow: 'none', minHeight: 'auto', background: 'transparent' }}>
-                                    <div className="article-body-editor" style={{ fontSize: '15px', lineHeight: '1.6', color: '#262626' }}>
+                                    <div className="bd-preview-content" style={{ fontSize: '15px', lineHeight: '1.6', color: '#262626' }}>
                                         <TipTapJsonRenderer content={previewRecord.content} />
                                     </div>
                                 </div>

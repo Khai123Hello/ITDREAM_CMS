@@ -35,7 +35,7 @@ const EducatorListPage = ({ pageOptions }) => {
         status: translate.formatMessage(commonMessage.status),
         noData: translate.formatMessage(commonMessage.noData),
         action: translate.formatMessage(commonMessage.action),
-        educator: 'khoa chuyên môn',
+        educator: translate.formatMessage(commonMessage.educator),
     };
 
     const statusValues = formattedStatusOptions.map((item) => ({

@@ -733,7 +733,7 @@ const SimulationListPage = ({ pageOptions }) => {
                                             flexShrink: 0,
                                         }}
                                     >
-                                        {orgName ? orgName.substring(0, 2).toUpperCase() : 'K'}
+                                        {orgName ? orgName.substring(0, 2).toUpperCase() : 'G'}
                                     </div>
                                 )}
                                 <div style={{ minWidth: 0, flex: 1 }}>
@@ -746,9 +746,9 @@ const SimulationListPage = ({ pageOptions }) => {
                                             overflow: 'hidden',
                                             whiteSpace: 'nowrap',
                                         }}
-                                        title={orgName || 'Khoa chuyên môn'}
+                                        title={orgName || 'Giảng viên'}
                                     >
-                                        {orgName || 'Khoa'}
+                                        {orgName || 'Giảng viên'}
                                     </div>
                                     <div
                                         style={{

@@ -221,11 +221,11 @@ const BlogListPage = ({ pageOptions = {} }) => {
             dataIndex: 'name',
             width: '250px',
         },
-        {
-            title: 'Chủ đề',
-            dataIndex: 'subject',
-            width: '250px',
-        },
+        // {
+        //     title: 'Chủ đề',
+        //     dataIndex: 'subject',
+        //     width: '250px',
+        // },
         {
             title: 'Danh mục',
             dataIndex: ['category', 'name'],

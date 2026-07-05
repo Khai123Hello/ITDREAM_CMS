@@ -59,7 +59,7 @@ const LoginPage = () => {
                     navigate('/dashboard');
                 },
                 onError: () => {
-                    antMessage.error('Không thể tải thông tin Khoa chuyên môn!');
+                    antMessage.error('Không thể tải thông tin Giảng viên!');
                 },
             });
         } else {
@@ -202,7 +202,7 @@ const LoginPage = () => {
 
                         <Segmented
                             options={[
-                                { label: 'Khoa chuyên môn', value: UserTypes.EDUCATOR },
+                                { label: 'Giảng viên', value: UserTypes.EDUCATOR },
                                 { label: 'Quản trị viên', value: UserTypes.ADMIN },
                             ]}
                             value={userType}
