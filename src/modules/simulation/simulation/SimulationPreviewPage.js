@@ -217,8 +217,12 @@ const SimulationPreviewPage = ({ pageOptions }) => {
                     onNext={handleNextPreviewSubtask}
                     quizSubmissionMap={{}}
                     questionMap={{}}
-                    requiresFileUpload={previewSubtaskDetail?.submissionType === 1 || previewSubtaskDetail?.submissionType === 3}
-                    requiresTextResponse={previewSubtaskDetail?.submissionType === 2 || previewSubtaskDetail?.submissionType === 3}
+                    requiresFileUpload={
+                        previewSubtaskDetail?.submissionType === 1 || previewSubtaskDetail?.submissionType === 3
+                    }
+                    requiresTextResponse={
+                        previewSubtaskDetail?.submissionType === 2 || previewSubtaskDetail?.submissionType === 3
+                    }
                     previousFile={null}
                     previousText={''}
                     hasCompleted={false}

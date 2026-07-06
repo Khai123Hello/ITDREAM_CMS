@@ -6,7 +6,9 @@ import SimulationListForDiscussion from './SimulationListForDiscussion';
 
 const SimulationDiscussionListPage = ({ pageOptions }) => {
     const translate = useTranslate();
-    const breadcrumbs = pageOptions ? pageOptions.renderBreadcrumbs(commonMessage, translate) : [{ breadcrumbName: 'Thảo luận bài mô phỏng' }];
+    const breadcrumbs = pageOptions
+        ? pageOptions.renderBreadcrumbs(commonMessage, translate)
+        : [{ breadcrumbName: 'Thảo luận bài mô phỏng' }];
 
     return (
         <PageWrapper routes={breadcrumbs}>

@@ -221,11 +221,11 @@ const BlogListPage = ({ pageOptions = {} }) => {
             dataIndex: 'name',
             width: '250px',
         },
-        {
-            title: 'Chủ đề',
-            dataIndex: 'subject',
-            width: '250px',
-        },
+        // {
+        //     title: 'Chủ đề',
+        //     dataIndex: 'subject',
+        //     width: '250px',
+        // },
         {
             title: 'Danh mục',
             dataIndex: ['category', 'name'],
@@ -235,7 +235,11 @@ const BlogListPage = ({ pageOptions = {} }) => {
         {
             title: 'Người viết',
             width: '150px',
-            render: (_, record) => record.educator?.account?.fullName || record.educator?.profileAccountDto?.fullName || record.author || '-',
+            render: (_, record) =>
+                record.educator?.account?.fullName ||
+                record.educator?.profileAccountDto?.fullName ||
+                record.author ||
+                '-',
         },
         {
             title: 'Trạng thái',

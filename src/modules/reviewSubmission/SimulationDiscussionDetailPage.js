@@ -3,12 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Button, Tooltip, Badge } from 'antd';
 import TaskContentLayout from '@components/simulation/TaskContentLayout';
 import CommentPanel from '@components/simulation/CommentPanel';
-import {
-    ArrowLeftOutlined,
-    CommentOutlined,
-    PicRightOutlined,
-    VerticalAlignBottomOutlined,
-} from '@ant-design/icons';
+import { ArrowLeftOutlined, CommentOutlined, PicRightOutlined, VerticalAlignBottomOutlined } from '@ant-design/icons';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
 import useFetch from '@hooks/useFetch';
@@ -175,9 +170,11 @@ const SimulationDiscussionDetailPage = ({ pageOptions }) => {
     };
 
     const getSubtasksForParent = (parentId) => {
-        return tasks
-            ?.filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
-            .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || [];
+        return (
+            tasks
+                ?.filter((t) => t.kind === 2 && (t.parent?.id === parentId || t.parentId === parentId))
+                .sort((a, b) => (a.orderInParent || 0) - (b.orderInParent || 0)) || []
+        );
     };
 
     const activeParentTaskIndex = parentTasks.findIndex((p) => p.id === selectedParentTaskId);
@@ -216,16 +213,44 @@ const SimulationDiscussionDetailPage = ({ pageOptions }) => {
 
     const renderCommentPane = () => {
         return (
-            <div className="tfo-review-tab-pane" style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '16px', background: '#ffffff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.02)' }}>
-                <div className="tfo-review-section-header" style={{ marginBottom: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-                    <span className="tfo-review-section-title" style={{ fontSize: '16px', fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div
+                className="tfo-review-tab-pane"
+                style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '16px',
+                    background: '#ffffff',
+                    borderRadius: '12px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.02)',
+                }}
+            >
+                <div
+                    className="tfo-review-section-header"
+                    style={{
+                        marginBottom: 16,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderBottom: '1px solid #f1f5f9',
+                        paddingBottom: '12px',
+                    }}
+                >
+                    <span
+                        className="tfo-review-section-title"
+                        style={{
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            color: '#1e293b',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                        }}
+                    >
                         <CommentOutlined style={{ color: '#1890ff' }} /> Thảo luận bài học
                     </span>
                     {commentsData?.content?.length > 0 && (
-                        <Badge
-                            count={commentsData.content.length}
-                            style={{ backgroundColor: '#1890ff' }}
-                        />
+                        <Badge count={commentsData.content.length} style={{ backgroundColor: '#1890ff' }} />
                     )}
                 </div>
                 <div style={{ flex: 1, minHeight: 0 }}>
@@ -283,7 +308,10 @@ const SimulationDiscussionDetailPage = ({ pageOptions }) => {
             <TaskContentLayout
                 parentTasks={parentTasks}
                 selectedParentTaskId={selectedParentTaskId}
-                onSelectParentTask={(id) => { setSelectedParentTaskId(id); setSelectedSubtaskId(null); }}
+                onSelectParentTask={(id) => {
+                    setSelectedParentTaskId(id);
+                    setSelectedSubtaskId(null);
+                }}
                 subtasks={subtasks}
                 selectedSubtaskId={selectedSubtaskId}
                 onSelectSubtask={setSelectedSubtaskId}
@@ -309,7 +337,13 @@ const SimulationDiscussionDetailPage = ({ pageOptions }) => {
                     let cls = 'tfo-task-circle';
                     if (isActive) cls += ' active';
                     return (
-                        <button className={cls} onClick={() => { setSelectedParentTaskId(task.id); setSelectedSubtaskId(null); }}>
+                        <button
+                            className={cls}
+                            onClick={() => {
+                                setSelectedParentTaskId(task.id);
+                                setSelectedSubtaskId(null);
+                            }}
+                        >
                             {idx + 1}
                         </button>
                     );

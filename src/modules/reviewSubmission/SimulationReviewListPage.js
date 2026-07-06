@@ -1,7 +1,15 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Empty, Tag, Button, Card, Row, Col, Spin, Input, Radio, Progress, Statistic, Table } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined, SearchOutlined, RightOutlined, CheckCircleOutlined, ArrowLeftOutlined, SolutionOutlined, CommentOutlined } from '@ant-design/icons';
+import {
+    UserOutlined,
+    SearchOutlined,
+    RightOutlined,
+    CheckCircleOutlined,
+    ArrowLeftOutlined,
+    SolutionOutlined,
+    CommentOutlined,
+} from '@ant-design/icons';
 
 import useTranslate from '@hooks/useTranslate';
 import useFetch from '@hooks/useFetch';
@@ -242,9 +250,12 @@ const SimulationReviewListPage = ({ pageOptions }) => {
                             icon={<SolutionOutlined />}
                             style={{ borderRadius: 6, fontWeight: 600 }}
                             onClick={() => {
-                                navigate(`/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`, {
-                                    state: { simulationEnrollmentId: item.id },
-                                });
+                                navigate(
+                                    `/student-review-detail/${selectedSimulationId}/${profileAccountDto.username}`,
+                                    {
+                                        state: { simulationEnrollmentId: item.id },
+                                    },
+                                );
                             }}
                         >
                             Nhận xét

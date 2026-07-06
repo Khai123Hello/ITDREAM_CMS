@@ -13,7 +13,7 @@ export default {
         title: 'Job Management',
         auth: true,
         component: JobListPage,
-        permissions: [apiConfig.job.list.permissionCode],
+        permissions: [apiConfig.job.list.permissionCode, apiConfig.job.educatorList.permissionCode],
         pageOptions: {
             objectName: 'cơ hội việc làm',
             renderBreadcrumbs: () => [{ breadcrumbName: 'Cơ hội việc làm' }],
@@ -24,7 +24,11 @@ export default {
         title: 'Job Save',
         auth: true,
         component: JobSavePage,
-        permissions: [apiConfig.job.create.permissionCode, apiConfig.job.update.permissionCode],
+        permissions: [
+            apiConfig.job.create.permissionCode,
+            apiConfig.job.update.permissionCode,
+            apiConfig.job.getById.permissionCode,
+        ],
         pageOptions: {
             objectName: 'cơ hội việc làm',
             listPageUrl: paths.jobListPage,

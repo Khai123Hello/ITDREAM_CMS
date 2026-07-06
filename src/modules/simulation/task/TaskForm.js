@@ -1,5 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, Col, Row, Button, Input, Space, Modal, Divider, Tag, Alert, message, Tabs, Upload, Checkbox } from 'antd';
+import {
+    Card,
+    Col,
+    Row,
+    Button,
+    Input,
+    Space,
+    Modal,
+    Divider,
+    Tag,
+    Alert,
+    message,
+    Tabs,
+    Upload,
+    Checkbox,
+} from 'antd';
 import { BookOutlined, UploadOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 
@@ -18,10 +33,7 @@ import { AppConstants, TaskTypes, UserTypes, storageKeys, UploadFileTypes } from
 import { getData } from '@utils/localStorage';
 import apiConfig from '@constants/apiConfig';
 import { taskKindOptions } from '@constants/masterData';
-import {
-    isJsonBlocks,
-    blocksToMarkdoc,
-} from '@utils/markdocBlockConverter';
+import { isJsonBlocks, blocksToMarkdoc } from '@utils/markdocBlockConverter';
 import TaskQuestionManager from './TaskQuestionManager';
 
 // ─────────────────────────────────────────────
@@ -258,7 +270,22 @@ const TaskForm = (props) => {
         }, 1000);
 
         return () => clearTimeout(timer);
-    }, [isDirty, content, imagePath, videoUrl, filePath, changeTrigger, form, isEditing, dataDetail?.id, simulationId, title, description, requiresFileUpload, requiresTextResponse]);
+    }, [
+        isDirty,
+        content,
+        imagePath,
+        videoUrl,
+        filePath,
+        changeTrigger,
+        form,
+        isEditing,
+        dataDetail?.id,
+        simulationId,
+        title,
+        description,
+        requiresFileUpload,
+        requiresTextResponse,
+    ]);
 
     const handleRestoreDraft = () => {
         if (!draftData) return;
@@ -299,10 +326,10 @@ const TaskForm = (props) => {
             onCompleted: (response) => {
                 const resData = response?.data || (response?.result === undefined ? response : null);
                 if (resData) {
-                    const fetchedQuestions = (resData.content || []).map(q => {
+                    const fetchedQuestions = (resData.content || []).map((q) => {
                         let parsedOptions = [];
                         try {
-                            parsedOptions = typeof q.options === 'string' ? JSON.parse(q.options) : (q.options || []);
+                            parsedOptions = typeof q.options === 'string' ? JSON.parse(q.options) : q.options || [];
                         } catch (e) {
                             console.error('Failed to parse options for question', q.id);
                         }
@@ -426,8 +453,6 @@ const TaskForm = (props) => {
                         <TextField name="description" />
                     </div>
 
-
-
                     {/* BlockEditor for Title, Description & Content */}
                     <Row gutter={16} style={{ marginBottom: 16 }}>
                         <Col span={24}>
@@ -511,13 +536,15 @@ const TaskForm = (props) => {
                     {Number(taskKind) === TaskTypes.SUBTASK && (
                         <Row gutter={16} style={{ marginBottom: 16 }}>
                             <Col span={24}>
-                                <div style={{
-                                    border: '1px solid #d9d9d9',
-                                    borderRadius: 8,
-                                    padding: '16px',
-                                    background: enableQuestions ? '#fafafa' : '#fff',
-                                    transition: 'all 0.3s',
-                                }}>
+                                <div
+                                    style={{
+                                        border: '1px solid #d9d9d9',
+                                        borderRadius: 8,
+                                        padding: '16px',
+                                        background: enableQuestions ? '#fafafa' : '#fff',
+                                        transition: 'all 0.3s',
+                                    }}
+                                >
                                     <Checkbox
                                         checked={enableQuestions}
                                         onChange={(e) => {
@@ -529,7 +556,7 @@ const TaskForm = (props) => {
                                     >
                                         Đính kèm câu hỏi trắc nghiệm cho nhiệm vụ này
                                     </Checkbox>
-                                    
+
                                     {enableQuestions && (
                                         <div style={{ marginTop: 16 }}>
                                             <Divider style={{ margin: '12px 0' }} />
@@ -585,7 +612,12 @@ const TaskForm = (props) => {
                                                                 imageUrl={getMediaUrl(imagePath)}
                                                                 aspect={16 / 9}
                                                                 uploadFile={(file, onSuccess, onError) =>
-                                                                    uploadFile(file, onSuccess, onError, UploadFileTypes.IMAGE)
+                                                                    uploadFile(
+                                                                        file,
+                                                                        onSuccess,
+                                                                        onError,
+                                                                        UploadFileTypes.IMAGE,
+                                                                    )
                                                                 }
                                                                 disabled={!isEducator}
                                                             />
@@ -644,8 +676,8 @@ const TaskForm = (props) => {
                                             disabled={!isEducator}
                                         />
                                         {videoUrl &&
-                                (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
-                                videoUrl.endsWith('.mp4') ? (
+                                        (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
+                                        videoUrl.endsWith('.mp4') ? (
                                                 <div
                                                     style={{
                                                         marginTop: 8,
@@ -667,7 +699,7 @@ const TaskForm = (props) => {
                                                 </div>
                                             ) : videoUrl ? (
                                                 <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
-                                        Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
+                                                Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
                                                 </div>
                                             ) : null}
                                     </div>
@@ -684,7 +716,12 @@ const TaskForm = (props) => {
                                                     <Upload.Dragger
                                                         accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
                                                         customRequest={({ file, onSuccess, onError }) =>
-                                                            uploadFile(file, onSuccess, onError, UploadFileTypes.DOCUMENT)
+                                                            uploadFile(
+                                                                file,
+                                                                onSuccess,
+                                                                onError,
+                                                                UploadFileTypes.DOCUMENT,
+                                                            )
                                                         }
                                                         showUploadList={false}
                                                         disabled={!isEducator}
@@ -786,7 +823,7 @@ const TaskForm = (props) => {
     useEffect(() => {
         const isCurrentlyEmpty = !dataDetail || Object.keys(dataDetail).length === 0;
         const wasPreviouslyEmpty = !prevDataDetailRef.current || Object.keys(prevDataDetailRef.current).length === 0;
-        
+
         if (isCurrentlyEmpty && wasPreviouslyEmpty) {
             prevDataDetailRef.current = dataDetail || {};
             return;
@@ -815,12 +852,10 @@ const TaskForm = (props) => {
             setImagePath(dataDetail.imagePath || '');
             setVideoUrl(dataDetail.videoPath || '');
             setFilePath(dataDetail.filePath || '');
-            
+
             const rawContent = dataDetail.content || dataDetail.introduction || '';
-            const markdownContent = isJsonBlocks(rawContent)
-                ? blocksToMarkdoc(JSON.parse(rawContent))
-                : rawContent;
-            
+            const markdownContent = isJsonBlocks(rawContent) ? blocksToMarkdoc(JSON.parse(rawContent)) : rawContent;
+
             setContent(markdownContent);
             contentRef.current = markdownContent;
             setTitle(dataDetail.title || '');
@@ -875,7 +910,11 @@ const TaskForm = (props) => {
         try {
             const result = await mixinFuncs.handleSubmit(submitData);
             if (result?.result === false) {
-                const msg = result?.response?.data?.message || result?.data?.message || result?.message || 'Không thể lưu nhiệm vụ. Vui lòng thử lại.';
+                const msg =
+                    result?.response?.data?.message ||
+                    result?.data?.message ||
+                    result?.message ||
+                    'Không thể lưu nhiệm vụ. Vui lòng thử lại.';
                 setSubmitError(msg);
                 message.error(msg);
                 return false;
@@ -895,20 +934,23 @@ const TaskForm = (props) => {
 
     // Hàm tiện ích tạo Random Hash (VD: a7f2b)
     const generateShortHash = () => {
-        return Math.random().toString(36).substring(2, 7); 
+        return Math.random().toString(36).substring(2, 7);
     };
 
     // Hàm tiện ích tạo slug từ tiếng Việt + Hash
     const generateUniqueSlug = (str) => {
         if (!str) return '';
-        const baseSlug = str.toString().toLowerCase()
-            .normalize('NFD').replace(/[\u0300-\u036f]/g, '') 
+        const baseSlug = str
+            .toString()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
             .replace(/[đĐ]/g, 'd')
-            .replace(/([^0-9a-z-\s])/g, '') 
+            .replace(/([^0-9a-z-\s])/g, '')
             .replace(/(\s+)/g, '-')
             .replace(/-+/g, '-')
             .replace(/^-+|-+$/g, '');
-        
+
         return `${baseSlug}-${generateShortHash()}`;
     };
 
@@ -919,7 +961,8 @@ const TaskForm = (props) => {
 
             const formValues = form.getFieldsValue(true);
             const titleVal = titleRef.current || title || formValues.title || values?.title || '';
-            const descVal = descriptionRef.current || description || formValues.description || values?.description || '';
+            const descVal =
+                descriptionRef.current || description || formValues.description || values?.description || '';
             const currentKind = isEditing ? dataDetail.kind : taskKind;
             const isSubtask = Number(currentKind) === TaskTypes.SUBTASK;
             let submissionTypeVal = 0;
@@ -935,9 +978,8 @@ const TaskForm = (props) => {
 
             const oldTitle = dataDetail?.title?.trim() || '';
             const newTitle = titleVal?.trim() || '';
-            const currentName = (isEditing && dataDetail?.name && oldTitle === newTitle) 
-                ? dataDetail.name 
-                : generateUniqueSlug(newTitle);
+            const currentName =
+                isEditing && dataDetail?.name && oldTitle === newTitle ? dataDetail.name : generateUniqueSlug(newTitle);
 
             const submitData = {
                 name: currentName,
@@ -947,9 +989,9 @@ const TaskForm = (props) => {
                 simulationId: simulationId || 0,
                 // Dùng contentRef.current để lấy nội dung mới nhất dù debounce chưa fire
                 content: contentRef.current || content,
-                imagePath: isSubtask ? (imagePath || null) : null,
-                videoPath: isSubtask ? (videoUrl || null) : null,
-                filePath: isSubtask ? (filePath || null) : null,
+                imagePath: isSubtask ? imagePath || null : null,
+                videoPath: isSubtask ? videoUrl || null : null,
+                filePath: isSubtask ? filePath || null : null,
                 // Tính submissionType từ 2 checkbox: 0=none, 1=file, 2=text, 3=file+text
                 submissionType: submissionTypeVal,
             };

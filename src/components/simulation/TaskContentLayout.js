@@ -65,7 +65,10 @@ function QuizBlock({
     };
 
     return (
-        <div className={`tfo-block-quiz${effectiveSubmitted ? (isCorrect ? ' quiz-correct' : ' quiz-wrong') : ''}`} style={{ marginTop: 24 }}>
+        <div
+            className={`tfo-block-quiz${effectiveSubmitted ? (isCorrect ? ' quiz-correct' : ' quiz-wrong') : ''}`}
+            style={{ marginTop: 24 }}
+        >
             {/* Question */}
             <div className="tfo-block-quiz-question">
                 <span className="tfo-block-quiz-icon">❓</span>
@@ -119,7 +122,12 @@ function QuizBlock({
                             {isCorrect ? '🎉 Chính xác!' : '😅 Chưa đúng, hãy thử lại!'}
                         </span>
                         {!isCorrect && (
-                            <button className="tfo-quiz-retry-btn" disabled={hasCompleted} onClick={handleReset} type="button">
+                            <button
+                                className="tfo-quiz-retry-btn"
+                                disabled={hasCompleted}
+                                onClick={handleReset}
+                                type="button"
+                            >
                                 Làm lại
                             </button>
                         )}
@@ -408,13 +416,20 @@ export default function TaskContentLayout({
     previousFile = null,
     previousText = '',
     onFileChange = (fileOrLink) => {
-        message.info('Đây là chế độ xem trước (Preview). File nộp thử: ' + (typeof fileOrLink === 'string' ? fileOrLink : fileOrLink.name));
+        message.info(
+            'Đây là chế độ xem trước (Preview). File nộp thử: ' +
+            (typeof fileOrLink === 'string' ? fileOrLink : fileOrLink.name),
+        );
     },
     onTextResponseSubmit = (text) => {
         message.info('Đây là chế độ xem trước (Preview). Nội dung nộp thử: ' + text);
     },
     onQuizAnswerSubmit = (ans) => {
-        message.info('Đây là chế độ xem trước (Preview). Trả lời quiz: ' + ans.answer + (ans.isCorrect ? ' (Đúng)' : ' (Chưa đúng)'));
+        message.info(
+            'Đây là chế độ xem trước (Preview). Trả lời quiz: ' +
+            ans.answer +
+            (ans.isCorrect ? ' (Đúng)' : ' (Chưa đúng)'),
+        );
     },
     hasCompleted = false,
 
@@ -438,9 +453,10 @@ export default function TaskContentLayout({
             onCompleted: (response) => {
                 const resData = response?.data || (response?.result === undefined ? response : null);
                 if (resData) {
-                    const fetched = (resData.content || []).map(q => {
+                    const fetched = (resData.content || []).map((q) => {
                         let parsedOptions = [];
-                        const rawOptions = q.options ?? q.answers ?? q.choices ?? q.questionOptions ?? q.taskQuestionOptions;
+                        const rawOptions =
+                            q.options ?? q.answers ?? q.choices ?? q.questionOptions ?? q.taskQuestionOptions;
                         if (rawOptions) {
                             if (Array.isArray(rawOptions)) {
                                 parsedOptions = rawOptions;
@@ -563,17 +579,22 @@ export default function TaskContentLayout({
     }, [previousText]);
 
     const selectedSubtask = useMemo(() => {
-        return subtasks.find(st => st.id === selectedSubtaskId);
+        return subtasks.find((st) => st.id === selectedSubtaskId);
     }, [subtasks, selectedSubtaskId]);
 
     const subType = selectedSubtask ? Number(selectedSubtask.submissionType) : 0;
-    const finalRequiresFileUpload = requiresFileUploadProp !== undefined ? requiresFileUploadProp : (subType === 1 || subType === 3);
-    const finalRequiresTextResponse = requiresTextResponseProp !== undefined ? requiresTextResponseProp : (subType === 2 || subType === 3);
+    const finalRequiresFileUpload =
+        requiresFileUploadProp !== undefined ? requiresFileUploadProp : subType === 1 || subType === 3;
+    const finalRequiresTextResponse =
+        requiresTextResponseProp !== undefined ? requiresTextResponseProp : subType === 2 || subType === 3;
     const isCompleted = hasCompleted || false;
 
     if (loading || !questionsLoaded) {
         return (
-            <div className="tfo-content-area" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+            <div
+                className="tfo-content-area"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}
+            >
                 <Spin size="large" />
             </div>
         );
@@ -715,9 +736,7 @@ export default function TaskContentLayout({
                                     {/* Text response section */}
                                     {finalRequiresTextResponse && (
                                         <div className="tfo-text-response-section">
-                                            <div className="tfo-text-response-label">
-                                                Câu trả lời của học viên
-                                            </div>
+                                            <div className="tfo-text-response-label">Câu trả lời của bạn</div>
                                             <textarea
                                                 className="tfo-text-response-textarea"
                                                 placeholder="Nhập câu trả lời của bạn ở đây..."
@@ -730,11 +749,7 @@ export default function TaskContentLayout({
                                                 <button
                                                     className="tfo-btn-next tfo-text-submit-btn"
                                                     onClick={() => onTextResponseSubmit(textInput)}
-                                                    disabled={
-                                                        isCompleted ||
-                                                        Boolean(previousText) ||
-                                                        !textInput.trim()
-                                                    }
+                                                    disabled={isCompleted || Boolean(previousText) || !textInput.trim()}
                                                     type="button"
                                                 >
                                                     Nộp câu trả lời
@@ -747,18 +762,10 @@ export default function TaskContentLayout({
                                 </div>
                             </div>
 
-                            {reviewPane && (
-                                <div className="tfo-review-pane-inline">
-                                    {reviewPane}
-                                </div>
-                            )}
+                            {reviewPane && <div className="tfo-review-pane-inline">{reviewPane}</div>}
                         </div>
 
-                        {rightPane && (
-                            <div className="tfo-pane-right">
-                                {rightPane}
-                            </div>
-                        )}
+                        {rightPane && <div className="tfo-pane-right">{rightPane}</div>}
                     </div>
 
                     <footer className="tfo-footer-nav">

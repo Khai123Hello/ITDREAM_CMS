@@ -519,7 +519,6 @@ Nhập hướng dẫn các bước tiếp theo (ví dụ: Ví dụ này bao gồ
 Nhập lưu ý hoặc thông tin đặc biệt nhấn mạnh ở đây (ví dụ: Hãy đảm bảo rằng bạn đã cài đặt phiên bản Node.js LTS trở lên)
 {% /callout %}`,
     },
-
 };
 
 // ---------------------------------------------------------------------------
@@ -1026,8 +1025,6 @@ export default function BlockEditor({
                             >
                                 <PlusOutlined /> Mục lớn
                             </button>
-
-
                         </div>
                     </div>
                 </div>
@@ -1160,5 +1157,3 @@ export default function BlockEditor({
         </div>
     );
 }
-
-
