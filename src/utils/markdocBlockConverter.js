@@ -346,7 +346,7 @@ const tagAttrMap = {
 
 const attrNameMap = {
     'data-question-code': 'dataQuestionCode',
-    'correct': 'correct',
+    correct: 'correct',
 };
 
 function parseAttrs(el) {
@@ -630,7 +630,7 @@ export function extractQuizFromMarkdoc(markdown) {
                 if (blk && blk.type === 'quiz') {
                     const question = blk.question || '';
                     const options = (Array.isArray(blk.options) ? blk.options : []).map((opt) => ({
-                        option: opt && (opt.option || opt.text || opt.content || '') || '',
+                        option: (opt && (opt.option || opt.text || opt.content || '')) || '',
                         answer: Boolean(opt && opt.answer),
                     }));
                     quizzesFromJson.push({
@@ -690,7 +690,9 @@ export function extractQuizFromMarkdoc(markdown) {
                             if (Array.isArray(child.children) && child.children.length > 0) {
                                 optionText = child.children.map(getTextFromNode).join('').trim();
                             } else {
-                                optionText = String(child.content ?? child.value ?? child.attributes?.content ?? '').trim();
+                                optionText = String(
+                                    child.content ?? child.value ?? child.attributes?.content ?? '',
+                                ).trim();
                             }
                             console.debug('[extractQuizFromMarkdoc] option extracted', { optionText, correct });
                             options.push({ option: optionText, answer: correct });
@@ -727,12 +729,18 @@ export function parseTaskQuestionOptions(options) {
 }
 
 export function normalizeTaskQuestionText(text) {
-    return String(text || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    return String(text || '')
+        .trim()
+        .replace(/\s+/g, ' ')
+        .toLowerCase();
 }
 
 export function normalizeTaskQuestionOptions(options) {
     return parseTaskQuestionOptions(options).map((opt) => ({
-        option: String(opt.option || opt.text || '').trim().replace(/\s+/g, ' ').toLowerCase(),
+        option: String(opt.option || opt.text || '')
+            .trim()
+            .replace(/\s+/g, ' ')
+            .toLowerCase(),
         answer: Boolean(opt.answer),
     }));
 }
@@ -748,9 +756,10 @@ export function dedupeTaskQuestions(questions) {
 
     for (const rawQuestion of questions || []) {
         const key = buildTaskQuestionKey(rawQuestion);
-        const normalizedOptions = typeof rawQuestion.options === 'string'
-            ? rawQuestion.options
-            : JSON.stringify(parseTaskQuestionOptions(rawQuestion.options));
+        const normalizedOptions =
+            typeof rawQuestion.options === 'string'
+                ? rawQuestion.options
+                : JSON.stringify(parseTaskQuestionOptions(rawQuestion.options));
 
         if (!questionMap.has(key)) {
             questionMap.set(key, {

@@ -47,7 +47,7 @@ const ValidateAccess = ({
     }
     const getRedirect = (authRequire) => {
         const routes = require('.').default;
-        
+
         if (authRequire === accessRouteTypeEnum.NOT_LOGIN && isAuthenticated) {
             const initRoutes = getInitRoute(navMenuConfig);
             if (initRoutes?.length > 0) {

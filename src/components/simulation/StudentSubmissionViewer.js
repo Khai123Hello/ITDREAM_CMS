@@ -169,7 +169,7 @@ const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuest
                 }
             }
 
-            const createdDate = matchedSub ? (matchedSub.createdDate || getTimestampFromSnowflake(matchedSub.id)) : null;
+            const createdDate = matchedSub ? matchedSub.createdDate || getTimestampFromSnowflake(matchedSub.id) : null;
 
             return {
                 id: matchedSub?.id || `mock-${index}`,

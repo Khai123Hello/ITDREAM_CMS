@@ -235,7 +235,11 @@ const BlogListPage = ({ pageOptions = {} }) => {
         {
             title: 'Người viết',
             width: '150px',
-            render: (_, record) => record.educator?.account?.fullName || record.educator?.profileAccountDto?.fullName || record.author || '-',
+            render: (_, record) =>
+                record.educator?.account?.fullName ||
+                record.educator?.profileAccountDto?.fullName ||
+                record.author ||
+                '-',
         },
         {
             title: 'Trạng thái',

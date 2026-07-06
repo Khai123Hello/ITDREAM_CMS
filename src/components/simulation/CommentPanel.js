@@ -137,13 +137,19 @@ function CommentPanel({
         );
     };
 
-    const currentUsername = profile?.username || profile?.account?.username || profile?.profileAccountDto?.username || '';
+    const currentUsername =
+        profile?.username || profile?.account?.username || profile?.profileAccountDto?.username || '';
     const currentUserId = profile?.id || profile?.account?.id || profile?.profileAccountDto?.id || '';
 
     const renderCommentCard = (comment, isReply = false) => {
-        const commentUsername = comment.user?.username || comment.user?.account?.username || comment.user?.profileAccountDto?.username || '';
-        const commentUserId = comment.user?.id || comment.user?.account?.id || comment.user?.profileAccountDto?.id || '';
-        const isSelf = 
+        const commentUsername =
+            comment.user?.username ||
+            comment.user?.account?.username ||
+            comment.user?.profileAccountDto?.username ||
+            '';
+        const commentUserId =
+            comment.user?.id || comment.user?.account?.id || comment.user?.profileAccountDto?.id || '';
+        const isSelf =
             (currentUsername && commentUsername && currentUsername === commentUsername) ||
             (currentUserId && commentUserId && currentUserId === commentUserId) ||
             false;

@@ -49,10 +49,7 @@ export default {
         path: paths.studentDiscussionDetail,
         auth: true,
         component: StudentDiscussionDetailPage,
-        permissions: [
-            apiConfig.taskQuestionProgress.answerList.permissionCode,
-            apiConfig.comment.list.permissionCode,
-        ],
+        permissions: [apiConfig.taskQuestionProgress.answerList.permissionCode, apiConfig.comment.list.permissionCode],
         pageOptions: {
             objectName: commonMessage.student,
             renderBreadcrumbs: (messages, t, simulationId, username) => {

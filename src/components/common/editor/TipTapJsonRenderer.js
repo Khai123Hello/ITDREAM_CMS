@@ -121,26 +121,15 @@ function renderNode(node, index, quizCtx) {
 
                     case 'youtube': {
                         const videoId = node.attrs?.id || '';
+                        if (!videoId) return null;
                         return (
-                            <div
-                                key={index}
-                                className="blog-youtube-wrapper"
-                                style={{
-                                    margin: '24px 0',
-                                    borderRadius: '12px',
-                                    overflow: 'hidden',
-                                    aspectRatio: '16/9',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                                    background: '#000',
-                                }}
-                            >
+                            <div key={index} className="bd-youtube-node">
                                 <iframe
                                     src={`https://www.youtube.com/embed/${videoId}`}
                                     title="YouTube video player"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                     allowFullScreen
-                                    style={{ width: '100%', height: '100%', display: 'block' }}
                                 ></iframe>
                             </div>
                         );
@@ -151,31 +140,28 @@ function renderNode(node, index, quizCtx) {
 
                     case 'callout':
                         return (
-                            <div key={index} className="tfo-block-callout">
-                                <span className="tfo-block-callout-icon">{node.attrs?.icon || '💡'}</span>
-                                <div className="tfo-block-callout-text">{children}</div>
+                            <div key={index} className="bd-callout-node">
+                                <span className="bd-callout-icon">{node.attrs?.icon || '💡'}</span>
+                                <div className="bd-callout-content">{children}</div>
                             </div>
                         );
 
                     case 'step':
                         return (
-                            <div key={index} className="tfo-block-step">
-                                <div className="tfo-block-step-badge">{index + 1}</div>
-                                <div className="tfo-block-step-content">
-                                    {node.attrs?.label && <span className="tfo-block-step-label">{node.attrs.label}</span>}
-                                    <div className="tfo-block-step-body">{children}</div>
-                                </div>
+                            <div key={index} className="bd-step-node">
+                                <span className="bd-step-num">{node.attrs?.number || index + 1}</span>
+                                <div className="bd-step-body">{children}</div>
                             </div>
                         );
 
                     case 'section':
                         return (
-                            <div key={index} className="tfo-block-section">
-                                <div className="tfo-block-section-header">
-                                    <span className="tfo-block-section-icon">{node.attrs?.icon || '🎓'}</span>
-                                    <span className="tfo-block-section-title">{node.attrs?.title}</span>
+                            <div key={index} className="bd-section-node">
+                                <div className="bd-section-header">
+                                    <span>{node.attrs?.icon || '📜'}</span>
+                                    <strong>{node.attrs?.title}</strong>
                                 </div>
-                                <div className="tfo-block-section-content">{children}</div>
+                                <div className="bd-section-content">{children}</div>
                             </div>
                         );
 
@@ -183,9 +169,7 @@ function renderNode(node, index, quizCtx) {
                         const options = (node.content || []).filter((c) => c.type === 'option');
                         const questionKey = (node.attrs?.question || '').trim();
                         const dataQId = node.attrs?.dataQuestionCode || '';
-                        const questionId = dataQId
-                            ? quizCtx?.questionMap?.[dataQId]
-                            : quizCtx?.questionMap?.[questionKey];
+                        const questionId = dataQId ? quizCtx?.questionMap?.[dataQId] : quizCtx?.questionMap?.[questionKey];
                         const studentAnswer = quizCtx?.quizSubmissionMap?.[questionId];
                         const hasAnswerInfo = !!studentAnswer;
                         const isCorrect = studentAnswer?.isCorrect === true;
@@ -199,7 +183,7 @@ function renderNode(node, index, quizCtx) {
                             const correct = opt.attrs?.correct === true;
                             const letter = String.fromCharCode(65 + i);
                             const text = opt.content?.[0]?.text || '';
-                            const isSelected = studentAnswer && (studentAnswer.answer === text);
+                            const isSelected = studentAnswer && studentAnswer.answer === text;
                             let optClass = 'tfo-quiz-option';
                             if (quizCtx?.quizSubmissionMap) {
                                 if (isSelected) optClass += ' selected';
@@ -257,7 +241,7 @@ function renderNode(node, index, quizCtx) {
 export default function TipTapJsonRenderer({ content, quizSubmissionMap, questionMap, onQuestionRendered }) {
     const json = useMemo(() => {
         if (!content) return { type: 'doc', content: [] };
-        
+
         let parsed = content;
         if (typeof content === 'string') {
             const trimmed = content.trim();
@@ -271,16 +255,16 @@ export default function TipTapJsonRenderer({ content, quizSubmissionMap, questio
                 return markdocToTipTapJson(content);
             }
         }
-        
+
         if (parsed && parsed.type === 'doc') {
             return parsed;
         }
-        
+
         if (Array.isArray(parsed)) {
             const markdocStr = blocksToMarkdoc(parsed);
             return markdocToTipTapJson(markdocStr);
         }
-        
+
         return { type: 'doc', content: [] };
     }, [content]);
 
@@ -296,9 +280,7 @@ export default function TipTapJsonRenderer({ content, quizSubmissionMap, questio
                 if (n.type === 'quiz') {
                     const questionKey = (n.attrs?.question || '').trim();
                     const dataQId = n.attrs?.dataQuestionCode || '';
-                    const questionId = dataQId
-                        ? quizCtx?.questionMap?.[dataQId]
-                        : quizCtx?.questionMap?.[questionKey];
+                    const questionId = dataQId ? quizCtx?.questionMap?.[dataQId] : quizCtx?.questionMap?.[questionKey];
                     if (questionId) {
                         ids.add(String(questionId));
                     }
@@ -308,14 +290,14 @@ export default function TipTapJsonRenderer({ content, quizSubmissionMap, questio
         };
         walk(json.content);
         return Array.from(ids);
-    }, [ json, quizCtx ]);
+    }, [json, quizCtx]);
 
     // Notify parent component about rendered questions in useEffect
     useEffect(() => {
         if (onQuestionRendered) {
             onQuestionRendered(inlineQuestionIds);
         }
-    }, [ inlineQuestionIds, onQuestionRendered ]);
+    }, [inlineQuestionIds, onQuestionRendered]);
 
     const rendered = useMemo(() => {
         return (json.content || []).map((node, i) => renderNode(node, i, quizCtx));

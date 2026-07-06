@@ -264,6 +264,12 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'SI_ED_D',
         },
+        updateStatus: {
+            baseURL: `${apiUrl}v1/simulation/update-status`,
+            method: `PUT`,
+            headers: baseHeader,
+            permissionCode: 'SI_UST',
+        },
     },
 
     // Task APIs
@@ -1284,6 +1290,11 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'NAT_L',
         },
+        client_list: {
+            baseURL: `${apiUrl}v1/nation/client-list`,
+            method: 'GET',
+            headers: baseHeader,
+        },
         getClientById: {
             baseURL: `${apiUrl}v1/nation/client-get/:id`,
             method: `GET`,
@@ -1385,34 +1396,52 @@ const apiConfig = {
     },
     job: {
         list: {
-            baseURL: `${apiUrl}v1/job/list`,
+            baseURL: `${apiUrl}v1/job-post/list`,
             method: 'GET',
             headers: baseHeader,
-            permissionCode: 'JOB_L',
+            permissionCode: 'JP_L',
+        },
+        educatorList: {
+            baseURL: `${apiUrl}v1/job-post/educator-list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'JP_ED_L',
         },
         getById: {
-            baseURL: `${apiUrl}v1/job/get/:id`,
+            baseURL: `${apiUrl}v1/job-post/get/:id`,
             method: 'GET',
             headers: baseHeader,
-            permissionCode: 'JOB_V',
+            permissionCode: 'JP_V',
+        },
+        educatorGetById: {
+            baseURL: `${apiUrl}v1/job-post/educator-get/:id`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'JP_ED_V',
         },
         create: {
-            baseURL: `${apiUrl}v1/job/create`,
+            baseURL: `${apiUrl}v1/job-post/create`,
             method: 'POST',
             headers: baseHeader,
-            permissionCode: 'JOB_C',
+            permissionCode: 'JP_ED_C',
         },
         update: {
-            baseURL: `${apiUrl}v1/job/update`,
+            baseURL: `${apiUrl}v1/job-post/update`,
             method: 'PUT',
             headers: baseHeader,
-            permissionCode: 'JOB_U',
+            permissionCode: 'JP_ED_U',
+        },
+        updateStatus: {
+            baseURL: `${apiUrl}v1/job-post/update-status`,
+            method: 'PUT',
+            headers: baseHeader,
+            permissionCode: 'JP_UST',
         },
         delete: {
-            baseURL: `${apiUrl}v1/job/delete/:id`,
+            baseURL: `${apiUrl}v1/job-post/delete/:id`,
             method: 'DELETE',
             headers: baseHeader,
-            permissionCode: 'JOB_D',
+            permissionCode: 'JP_ED_D',
         },
     },
 };

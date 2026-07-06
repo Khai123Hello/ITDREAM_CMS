@@ -313,8 +313,6 @@ const TaskListPage = ({ pageOptions }) => {
         immediate: false,
     });
 
-
-
     const { execute: executeDeleteTask } = useFetch(apiConfig.task.delete, {
         immediate: false,
     });
@@ -644,11 +642,13 @@ const TaskListPage = ({ pageOptions }) => {
                 id: activeId,
                 newOrder: overIndex + 1,
                 newParentId: overContainer,
-                updatedItems: buildSubtaskUpdatedItems(taskItems.map((t) =>
-                    t.id === activeContainer
-                        ? { ...t, children: arrayMove(t.children, activeIndex, overIndex) }
-                        : t,
-                )),
+                updatedItems: buildSubtaskUpdatedItems(
+                    taskItems.map((t) =>
+                        t.id === activeContainer
+                            ? { ...t, children: arrayMove(t.children, activeIndex, overIndex) }
+                            : t,
+                    ),
+                ),
             });
         } else {
             setTaskItems((prevTasks) => {
@@ -656,7 +656,10 @@ const TaskListPage = ({ pageOptions }) => {
                 const nextTasks = prevTasks.map((task) => {
                     if (task.id === activeContainer) {
                         const updatedChildren = task.children.filter((item) => {
-                            if (item.id === activeId) { movingItem = item; return false; }
+                            if (item.id === activeId) {
+                                movingItem = item;
+                                return false;
+                            }
                             return true;
                         });
                         return { ...task, children: updatedChildren };

@@ -449,20 +449,20 @@ const SimulationListPage = ({ pageOptions }) => {
                         </Button>
                     ),
                     // Nút xem thông báo - hiển thị khi có notice
-                    viewNotice: ({ notice }) =>
-                        notice && notice.trim() ? (
-                            <Button
-                                type="link"
-                                style={{ padding: 0 }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    showNoticeModal(notice);
-                                }}
-                                title="Xem thông báo"
-                            >
-                                <BellOutlined />
-                            </Button>
-                        ) : null,
+                    // viewNotice: ({ notice }) =>
+                    //     notice && notice.trim() ? (
+                    //         <Button
+                    //             type="link"
+                    //             style={{ padding: 0 }}
+                    //             onClick={(e) => {
+                    //                 e.stopPropagation();
+                    //                 showNoticeModal(notice);
+                    //             }}
+                    //             title="Xem thông báo"
+                    //         >
+                    //             <BellOutlined />
+                    //         </Button>
+                    //     ) : null,
                 };
 
                 if (isEducator) {
@@ -639,6 +639,19 @@ const SimulationListPage = ({ pageOptions }) => {
                             >
                                 {text}
                             </Button>
+                            {record.notice && record.notice.trim() && (
+                                <span
+                                    style={{
+                                        fontSize: '12px',
+                                        color: '#ff4d4f',
+                                        fontWeight: '500',
+                                        display: 'block',
+                                        marginTop: '2px',
+                                    }}
+                                >
+                                    ⚠️ Lý do từ chối/khóa: {record.notice}
+                                </span>
+                            )}
                             <div
                                 style={{
                                     display: 'flex',
@@ -782,7 +795,7 @@ const SimulationListPage = ({ pageOptions }) => {
                     educatorDelete: (dataRow) =>
                         dataRow.status === STATUS_WAITING_APPROVE &&
                           mixinFuncs.hasPermission([apiConfig.simulation.educatorDelete.permissionCode]),
-                    viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
+                    // viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
                     edit: (dataRow) =>
                         dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
                           mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
@@ -793,7 +806,7 @@ const SimulationListPage = ({ pageOptions }) => {
                     reject: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
                     approveDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
                     rejectDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
-                    viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
+                    // viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
                     edit: () => mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
                 },
             { width: '300px', title: labels.action },
@@ -838,7 +851,11 @@ const SimulationListPage = ({ pageOptions }) => {
                             style: { backgroundColor: idx % 2 ? '#f9f9f9' : '#ffffff' },
                             onDoubleClick: () => {
                                 console.log('[Index] double-click record:', record.title);
-                                try { localStorage.setItem('simulationPreviewTitle', record.title || ''); } catch (e) { /* ignore */ }
+                                try {
+                                    localStorage.setItem('simulationPreviewTitle', record.title || '');
+                                } catch (e) {
+                                    /* ignore */
+                                }
                                 navigate(`/simulation/${record.id}/preview`, { state: { title: record.title } });
                             },
                         })}
