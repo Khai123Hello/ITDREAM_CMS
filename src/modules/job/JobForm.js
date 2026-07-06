@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Divider, Input, Select, Form, Checkbox } from 'antd';
+import { Card, Col, Row, Divider, Input, Select, Form, Checkbox, Tabs, Typography } from 'antd';
 import dayjs from 'dayjs';
 
 import { BaseForm } from '@components/common/form/BaseForm';
@@ -24,6 +24,7 @@ const opportunityTypeOptions = [
 ];
 
 const roleTypeOptions = [
+    { value: '', label: 'Không yêu cầu vị trí' },
     { value: 1, label: 'Thực tập sinh (Internship)' },
     { value: 2, label: 'Bán thời gian (Part-time)' },
     { value: 3, label: 'Toàn thời gian (Full-time)' },
@@ -122,12 +123,35 @@ const JobForm = (props) => {
             }
         }
 
+        let finalContent = values.content;
+        if (finalContent === '<p></p>' || finalContent === '' || finalContent === undefined) {
+            finalContent = null;
+        } else if (typeof finalContent === 'string' && finalContent.startsWith('{')) {
+            try {
+                const parsed = JSON.parse(finalContent);
+                if (
+                    parsed &&
+                    parsed.type === 'doc' &&
+                    parsed.content &&
+                    parsed.content.length === 1 &&
+                    parsed.content[0].type === 'paragraph' &&
+                    !parsed.content[0].content
+                ) {
+                    finalContent = null;
+                }
+            } catch (e) {
+                // Ignore
+            }
+        }
+
         const payload = {
             ...values,
             image: finalImage,
             address: isOnline ? 'online' : values.address,
             provinceId: isOnline ? null : values.provinceId,
             wardId: isOnline ? null : values.wardId,
+            roleType: values.roleType === undefined || values.roleType === '' || values.roleType === null ? null : values.roleType,
+            content: finalContent,
         };
 
         return mixinFuncs.handleSubmit(payload);
@@ -163,7 +187,7 @@ const JobForm = (props) => {
                 title: dataDetail.title || '',
                 content: dataDetail.content || '',
                 type: dataDetail.type || null,
-                roleType: dataDetail.roleType || null,
+                roleType: dataDetail.roleType || '',
                 jobUrl: dataDetail.jobUrl || '',
                 address: dataDetail.address || '',
                 provinceId: dataDetail.provinceId || null,
@@ -201,36 +225,95 @@ const JobForm = (props) => {
                 </Divider>
 
                 <Row gutter={16}>
-                    <Col xs={24} md={8}>
-                        <CropImageField
-                            disabled={!isEducator}
-                            label="Ảnh bìa cơ hội"
-                            name="image"
-                            imageUrl={previewUrl}
-                            aspect={16 / 9}
-                            uploadFile={uploadFile}
-                            required={isEducator}
-                            requiredMsg="Vui lòng tải lên ảnh bìa"
-                        />
-                        {isEducator && (
-                            <TextField
-                                label="Hoặc nhập URL ảnh bìa"
-                                name="imagePath"
-                                placeholder="https://..."
-                                onChange={(e) => {
-                                    const v = e?.target?.value || e;
-                                    setImage(v);
-                                    form.setFieldsValue({ image: v });
-                                    if (v) {
-                                        setPreviewUrl(v.startsWith('http') ? v : `${AppConstants.contentRootUrl}${v}`);
-                                    } else {
-                                        setPreviewUrl(null);
-                                    }
-                                }}
+                    <Col xs={24} md={24}>
+                        <div
+                            style={{
+                                border: '1px solid #e2e8f0',
+                                borderRadius: 10,
+                                padding: '16px 20px',
+                                background: '#f8fafc',
+                                marginBottom: 24,
+                            }}
+                        >
+                            <Typography.Text strong style={{ fontSize: 14, display: 'block', marginBottom: 16, color: '#1e293b' }}>
+                                🖼 Phần ảnh bìa
+                            </Typography.Text>
+                            <Tabs
+                                defaultActiveKey="1"
+                                items={[
+                                    {
+                                        key: '1',
+                                        label: 'Tải ảnh lên',
+                                        children: (
+                                            <div style={{ maxWidth: 600 }}>
+                                                <CropImageField
+                                                    disabled={!isEducator}
+                                                    label={null}
+                                                    name="image"
+                                                    imageUrl={previewUrl}
+                                                    aspect={16 / 9}
+                                                    uploadFile={uploadFile}
+                                                    required={isEducator && !image}
+                                                    requiredMsg="Vui lòng tải lên ảnh bìa"
+                                                />
+                                            </div>
+                                        ),
+                                    },
+                                    isEducator
+                                        ? {
+                                            key: '2',
+                                            label: 'Nhập đường dẫn (URL)',
+                                            children: (
+                                                <div style={{ maxWidth: 600 }}>
+                                                    <Typography.Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
+                                                        Nhập đường dẫn hình ảnh (bắt đầu bằng http hoặc https):
+                                                    </Typography.Text>
+                                                    <Input
+                                                        placeholder="https://example.com/image.jpg"
+                                                        value={typeof image === 'string' && image.startsWith('http') ? image : ''}
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            setImage(v);
+                                                            form.setFieldsValue({ image: v });
+                                                            if (v) {
+                                                                setPreviewUrl(v.startsWith('http') ? v : `${AppConstants.contentRootUrl}${v}`);
+                                                            } else {
+                                                                setPreviewUrl(null);
+                                                            }
+                                                        }}
+                                                        allowClear
+                                                        style={{ borderRadius: 6 }}
+                                                    />
+                                                    {typeof image === 'string' && image.startsWith('http') && (
+                                                        <div
+                                                            style={{
+                                                                marginTop: 16,
+                                                                borderRadius: 8,
+                                                                overflow: 'hidden',
+                                                                border: '1px solid #e2e8f0',
+                                                                aspectRatio: '16/9',
+                                                                background: '#f1f5f9',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={image}
+                                                                alt="preview"
+                                                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ),
+                                        }
+                                        : null,
+                                ].filter(Boolean)}
                             />
-                        )}
+                        </div>
                     </Col>
-                    <Col xs={24} md={16}>
+                    <Col xs={24} md={24}>
                         <Row gutter={16}>
                             <Col span={24}>
                                 <TextField
@@ -263,20 +346,19 @@ const JobForm = (props) => {
                         <SelectField
                             required={isEducator}
                             disabled={!isEducator}
-                            label="Loại cơ hội"
+                            label="Thể loại"
                             name="type"
-                            placeholder="Chọn loại cơ hội"
+                            placeholder="Chọn thể loại"
                             options={opportunityTypeOptions}
                             onChange={(val) => setCurrentType(val)}
                         />
                     </Col>
                     <Col span={12}>
                         <SelectField
-                            required={isEducator}
                             disabled={!isEducator}
-                            label="Vai trò"
+                            label="Vị trí cần tuyển"
                             name="roleType"
-                            placeholder="Chọn vai trò"
+                            placeholder="Chọn vị trí"
                             options={roleTypeOptions}
                         />
                     </Col>
@@ -358,7 +440,6 @@ const JobForm = (props) => {
                         <Form.Item
                             name="content"
                             label={<span style={{ fontWeight: 600 }}>Nội dung chi tiết</span>}
-                            rules={isEducator ? [{ required: true, message: 'Vui lòng nhập nội dung chi tiết' }] : []}
                         >
                             <TipTapEditor
                                 disabled={!isEducator}
