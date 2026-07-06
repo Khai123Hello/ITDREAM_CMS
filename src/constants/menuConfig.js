@@ -81,12 +81,12 @@ export const navMenuConfig = [
         ],
     },
     {
-        label: <FormattedMessage defaultMessage="Quản lý Job" />,
+        label: <FormattedMessage defaultMessage="Quản lý tin tuyển dụng" />,
         key: 'quan-ly-job',
         icon: <IconSettings size={16} />,
         children: [
             {
-                label: <FormattedMessage defaultMessage="Cơ hội việc làm" />,
+                label: <FormattedMessage defaultMessage="Danh sách tin tuyển dụng" />,
                 key: 'job',
                 path: '/job',
                 permission: [apiConfig.job.list.permissionCode, apiConfig.job.educatorList.permissionCode],
