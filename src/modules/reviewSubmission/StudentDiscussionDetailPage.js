@@ -378,17 +378,27 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
 
     const fileSub = useMemo(() => {
         if (!requiresFileUpload) return null;
-        return submissions.find(
-            (s) => !s.taskQuestion && (getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-        );
-    }, [submissions, requiresFileUpload]);
+        return submissions.find((s) => {
+            if (s.taskQuestion) return false;
+            const ans = getSubmissionAnswer(s);
+            if (requiresFileUpload && requiresTextResponse) {
+                return !ans.includes('\n') && !ans.includes(' ') && (ans.includes('/') || ans.includes('.'));
+            }
+            return true;
+        });
+    }, [submissions, requiresFileUpload, requiresTextResponse]);
 
     const textSub = useMemo(() => {
         if (!requiresTextResponse) return null;
-        return submissions.find(
-            (s) => !s.taskQuestion && !(getSubmissionAnswer(s).includes('/') || getSubmissionAnswer(s).includes('.')),
-        );
-    }, [submissions, requiresTextResponse]);
+        return submissions.find((s) => {
+            if (s.taskQuestion) return false;
+            const ans = getSubmissionAnswer(s);
+            if (requiresFileUpload && requiresTextResponse) {
+                return ans.includes('\n') || ans.includes(' ') || !(ans.includes('/') || ans.includes('.'));
+            }
+            return true;
+        });
+    }, [submissions, requiresTextResponse, requiresFileUpload]);
 
     // 7. Fetch Comments API
     const {
