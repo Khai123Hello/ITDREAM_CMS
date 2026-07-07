@@ -120,7 +120,7 @@ export const commonStatus = {
     LOCK: -1,
 };
 
-export const DEFAULT_TABLE_ITEM_SIZE = 100;
+export const DEFAULT_TABLE_ITEM_SIZE = 10;
 export const DEFAULT_TABLE_PAGE_START = 0;
 
 export const CATEGORY_KIND_SPECIALIZATION = 1;

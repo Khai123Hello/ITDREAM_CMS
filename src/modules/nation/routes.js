@@ -25,7 +25,7 @@ export default {
                         breadcrumbName: options.parentName,
                         path: `/nation?parentId=${parentId}`,
                     });
-                    breadcrumbs.push({ breadcrumbName: 'Quận huyện' });
+                    breadcrumbs.push({ breadcrumbName: 'Phường xã' });
                 }
                 return breadcrumbs;
             },
@@ -49,7 +49,7 @@ export default {
                         breadcrumbName: options.parentName || 'Đơn vị cha',
                         path: `/nation?parentId=${options.parentId}`,
                     });
-                    breadcrumbs.push({ breadcrumbName: 'Quận huyện', path: `/nation?parentId=${options.parentId}` });
+                    breadcrumbs.push({ breadcrumbName: 'Phường xã', path: `/nation?parentId=${options.parentId}` });
                 }
                 breadcrumbs.push({ breadcrumbName: title });
                 return breadcrumbs;

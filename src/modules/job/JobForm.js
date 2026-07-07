@@ -150,7 +150,10 @@ const JobForm = (props) => {
             address: isOnline ? 'online' : values.address,
             provinceId: isOnline ? null : values.provinceId,
             wardId: isOnline ? null : values.wardId,
-            roleType: values.roleType === undefined || values.roleType === '' || values.roleType === null ? null : values.roleType,
+            roleType:
+                values.roleType === undefined || values.roleType === '' || values.roleType === null
+                    ? null
+                    : values.roleType,
             content: finalContent,
         };
 
@@ -235,7 +238,10 @@ const JobForm = (props) => {
                                 marginBottom: 24,
                             }}
                         >
-                            <Typography.Text strong style={{ fontSize: 14, display: 'block', marginBottom: 16, color: '#1e293b' }}>
+                            <Typography.Text
+                                strong
+                                style={{ fontSize: 14, display: 'block', marginBottom: 16, color: '#1e293b' }}
+                            >
                                 🖼 Phần ảnh bìa
                             </Typography.Text>
                             <Tabs
@@ -265,18 +271,29 @@ const JobForm = (props) => {
                                             label: 'Nhập đường dẫn (URL)',
                                             children: (
                                                 <div style={{ maxWidth: 600 }}>
-                                                    <Typography.Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>
-                                                        Nhập đường dẫn hình ảnh (bắt đầu bằng http hoặc https):
+                                                    <Typography.Text
+                                                        type="secondary"
+                                                        style={{ fontSize: 13, display: 'block', marginBottom: 8 }}
+                                                    >
+                                                          Nhập đường dẫn hình ảnh (bắt đầu bằng http hoặc https):
                                                     </Typography.Text>
                                                     <Input
                                                         placeholder="https://example.com/image.jpg"
-                                                        value={typeof image === 'string' && image.startsWith('http') ? image : ''}
+                                                        value={
+                                                            typeof image === 'string' && image.startsWith('http')
+                                                                ? image
+                                                                : ''
+                                                        }
                                                         onChange={(e) => {
                                                             const v = e.target.value;
                                                             setImage(v);
                                                             form.setFieldsValue({ image: v });
                                                             if (v) {
-                                                                setPreviewUrl(v.startsWith('http') ? v : `${AppConstants.contentRootUrl}${v}`);
+                                                                setPreviewUrl(
+                                                                    v.startsWith('http')
+                                                                        ? v
+                                                                        : `${AppConstants.contentRootUrl}${v}`,
+                                                                );
                                                             } else {
                                                                 setPreviewUrl(null);
                                                             }
@@ -298,7 +315,12 @@ const JobForm = (props) => {
                                                             <img
                                                                 src={image}
                                                                 alt="preview"
-                                                                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                                                                style={{
+                                                                    width: '100%',
+                                                                    height: '100%',
+                                                                    objectFit: 'cover',
+                                                                    display: 'block',
+                                                                }}
                                                                 onError={(e) => {
                                                                     e.target.style.display = 'none';
                                                                 }}
@@ -407,10 +429,7 @@ const JobForm = (props) => {
 
                 <Row gutter={16} style={{ marginTop: 16 }}>
                     <Col span={24}>
-                        <Form.Item
-                            name="content"
-                            label={<span style={{ fontWeight: 600 }}>Nội dung chi tiết</span>}
-                        >
+                        <Form.Item name="content" label={<span style={{ fontWeight: 600 }}>Nội dung chi tiết</span>}>
                             <TipTapEditor
                                 disabled={!isEducator}
                                 placeholder="Nhập nội dung chi tiết tin tuyển dụng..."
@@ -470,7 +489,7 @@ const JobForm = (props) => {
                             <Col span={12}>
                                 <SelectField
                                     disabled={!isEducator || !selectedProvinceId}
-                                    label="Quận / Huyện / Xã / Phường"
+                                    label="Phường / Xã"
                                     name="wardId"
                                     placeholder="Chọn địa chỉ phụ thuộc"
                                     options={wardOptions}

@@ -38,7 +38,9 @@ const NationListPage = ({ pageOptions = {} }) => {
             pageSize: DEFAULT_TABLE_ITEM_SIZE,
         },
         override: (funcs) => {
-            funcs.prepareGetListParams = (params) => {
+            const originalPrepareGetListParams = funcs.prepareGetListParams;
+            funcs.prepareGetListParams = (filter) => {
+                const params = originalPrepareGetListParams(filter);
                 const parentId = queryFilter.parentId;
                 return {
                     ...params,
@@ -112,7 +114,7 @@ const NationListPage = ({ pageOptions = {} }) => {
                         icon={<UnorderedListOutlined />}
                         onClick={() => navigate(`/nation?parentId=${record.id}`)}
                     >
-                        Quận / Huyện
+                        Phường / Xã
                     </Button>
                 );
             },
@@ -152,7 +154,7 @@ const NationListPage = ({ pageOptions = {} }) => {
                     breadcrumbName: parentData.name,
                     path: `/nation?parentId=${queryFilter.parentId}`,
                 });
-                crumbs.push({ breadcrumbName: 'Quận huyện' });
+                crumbs.push({ breadcrumbName: 'Phường xã' });
             }
             return crumbs;
         })();
@@ -168,11 +170,16 @@ const NationListPage = ({ pageOptions = {} }) => {
                 })}
                 actionBar={
                     queryFilter.parentId ? (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', width: '100%', gap: 8 }}>
-                            <Button
-                                onClick={() => navigate('/nation')}
-                                icon={<ArrowLeftOutlined />}
-                            >
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'flex-end',
+                                width: '100%',
+                                gap: 8,
+                            }}
+                        >
+                            <Button onClick={() => navigate('/nation')} icon={<ArrowLeftOutlined />}>
                                 Quay lại
                             </Button>
                             {mixinFuncs.renderActionBar()}

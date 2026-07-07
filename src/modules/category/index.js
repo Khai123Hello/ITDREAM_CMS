@@ -37,10 +37,14 @@ const CategoryListPage = ({ pageOptions = {} }) => {
             pageSize: DEFAULT_TABLE_ITEM_SIZE,
         },
         override: (funcs) => {
-            funcs.prepareGetListParams = (params) => ({
-                ...params,
-                kind: params.kind || CATEGORY_KIND_SPECIALIZATION,
-            });
+            const originalPrepareGetListParams = funcs.prepareGetListParams;
+            funcs.prepareGetListParams = (filter) => {
+                const params = originalPrepareGetListParams(filter);
+                return {
+                    ...params,
+                    kind: params.kind || CATEGORY_KIND_SPECIALIZATION,
+                };
+            };
 
             funcs.getCreateLink = () => {
                 const kind = queryFilter.kind || CATEGORY_KIND_SPECIALIZATION;
