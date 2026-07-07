@@ -117,9 +117,9 @@ export default function EducatorDashboard() {
             } else if (filterType === 'year' && filterDate) {
                 startDate = dayjs(filterDate).startOf('year').format('DD/MM/YYYY HH:mm:ss');
                 endDate = dayjs(filterDate).endOf('year').format('DD/MM/YYYY HH:mm:ss');
-            } else if (filterType === 'range' && filterRange && filterRange.length === 2) {
-                startDate = dayjs(filterRange[0]).startOf('day').format('DD/MM/YYYY HH:mm:ss');
-                endDate = dayjs(filterRange[1]).endOf('day').format('DD/MM/YYYY HH:mm:ss');
+            } else if (filterType === 'range' && filterRange) {
+                if (filterRange[0]) startDate = dayjs(filterRange[0]).startOf('day').format('DD/MM/YYYY HH:mm:ss');
+                if (filterRange[1]) endDate = dayjs(filterRange[1]).endOf('day').format('DD/MM/YYYY HH:mm:ss');
             }
 
             const apiParams = {};
@@ -505,12 +505,24 @@ export default function EducatorDashboard() {
                                     />
                                 )}
                                 {filterType === 'range' && (
-                                    <DatePicker.RangePicker
-                                        placeholder={['Ngày bắt đầu', 'Ngày kết thúc']}
-                                        value={filterRange}
-                                        onChange={(val) => setFilterRange(val || [])}
-                                        format="DD/MM/YYYY"
-                                    />
+                                    <Space>
+                                        <DatePicker
+                                            placeholder="Ngày bắt đầu"
+                                            value={filterRange[0] || null}
+                                            onChange={(val) => setFilterRange([val, filterRange[1] || null])}
+                                            format="DD/MM/YYYY"
+                                            style={{ width: 140 }}
+                                        />
+                                        <span style={{ color: '#bfbfbf' }}>-</span>
+                                        <DatePicker
+                                            placeholder="Ngày kết thúc"
+                                            value={filterRange[1] || null}
+                                            onChange={(val) => setFilterRange([filterRange[0] || null, val])}
+                                            format="DD/MM/YYYY"
+                                            style={{ width: 140 }}
+                                            defaultPickerValue={filterRange[0] || null}
+                                        />
+                                    </Space>
                                 )}
                             </Space>
                             <Button icon={<ReloadOutlined />} onClick={loadDashboardData} size="small">

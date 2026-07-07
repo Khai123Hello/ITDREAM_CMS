@@ -26,7 +26,7 @@ const BaseTable = ({
         scroll={scroll}
         {...props}
         className={classNames(styles.baseTable, props.className)}
-        pagination={pagination ? { ...pagination, showSizeChanger: false, hideOnSinglePage: true } : false}
+        pagination={pagination ? { showSizeChanger: false, hideOnSinglePage: true, ...pagination } : false}
     />
 );
 
