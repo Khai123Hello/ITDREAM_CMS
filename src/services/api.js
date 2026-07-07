@@ -15,7 +15,7 @@ const jsonBigIntParser = (data) => {
     if (typeof data === 'string') {
         try {
             // Handle large IDs (15+ digits) by converting them to strings to prevent JS Number precision loss
-            const parsed = data.replace(/([\[:])\s*(-?\d{16,})\s*([,\}\]])/g, '$1"$2"$3');
+            const parsed = data.replace(/([[:])(\s*)(-?\d{16,})(\s*)([,}\]])/g, '$1$2"$3"$4$5');
             return JSON.parse(parsed);
         } catch (e) {
             try {

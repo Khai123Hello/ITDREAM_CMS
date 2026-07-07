@@ -366,47 +366,17 @@ const JobForm = (props) => {
 
                 <Row gutter={16} style={{ marginTop: 16 }}>
                     {currentType === 1 && (
-                        <>
-                            <Col span={6}>
-                                <DatePickerField
-                                    required={isEducator}
-                                    disabled={!isEducator}
-                                    label="Bắt đầu sự kiện"
-                                    name="date"
-                                    placeholder="Chọn ngày bắt đầu"
-                                    format="DD/MM/YYYY"
-                                    disabledDate={(current) => current && current < dayjs().startOf('day')}
-                                    onChange={() => {
-                                        const dateVal = form.getFieldValue('date');
-                                        const endDateVal = form.getFieldValue('endDate');
-                                        if (dateVal && endDateVal && endDateVal.isBefore(dateVal, 'day')) {
-                                            form.setFieldsValue({ endDate: null });
-                                        }
-                                    }}
-                                />
-                            </Col>
-                            <Col span={6}>
-                                <DatePickerField
-                                    required={isEducator}
-                                    disabled={!isEducator}
-                                    label="Kết thúc sự kiện"
-                                    name="endDate"
-                                    placeholder="Chọn ngày kết thúc"
-                                    format="DD/MM/YYYY"
-                                    disabledDate={(current) => {
-                                        const startDate = form.getFieldValue('date');
-                                        if (startDate) {
-                                            return (
-                                                current &&
-                                                (current < dayjs().startOf('day') ||
-                                                    current < dayjs(startDate).startOf('day'))
-                                            );
-                                        }
-                                        return current && current < dayjs().startOf('day');
-                                    }}
-                                />
-                            </Col>
-                        </>
+                        <Col span={12}>
+                            <DatePickerField
+                                required={isEducator}
+                                disabled={!isEducator}
+                                label="Ngày tổ chức sự kiện"
+                                name="date"
+                                placeholder="Chọn ngày tổ chức"
+                                format="DD/MM/YYYY"
+                                disabledDate={(current) => current && current < dayjs().startOf('day')}
+                            />
+                        </Col>
                     )}
                     {currentType === 2 && (
                         <Col span={12}>

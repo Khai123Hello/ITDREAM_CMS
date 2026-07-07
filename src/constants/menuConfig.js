@@ -48,6 +48,12 @@ export const navMenuConfig = [
                 path: '/organization',
                 permission: [apiConfig.organization.list.permissionCode],
             },
+            {
+                label: <FormattedMessage defaultMessage="Địa chỉ" />,
+                key: 'nation',
+                path: '/nation',
+                permission: [apiConfig.nation.getList.permissionCode],
+            },
         ],
     },
     {
@@ -72,12 +78,6 @@ export const navMenuConfig = [
                 path: '/simulation-discussion',
                 permission: [apiConfig.simulation.getListForEducator.permissionCode],
             },
-            // {
-            //     label: <FormattedMessage defaultMessage="Quản lý Bình luận" />,
-            //     key: 'comment',
-            //     path: '/comment',
-            //     permission: [apiConfig.comment.list.permissionCode],
-            // },
         ],
     },
     {

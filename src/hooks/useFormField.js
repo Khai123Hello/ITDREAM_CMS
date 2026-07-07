@@ -3,7 +3,7 @@ const useFormField = ({ requiredMsg, placeholder, required, rules, initialValue,
 
     const getRequiredMsg = () => {
         // Use intl instead
-        return requiredMsg || 'Required';
+        return requiredMsg || 'Bắt buộc';
     };
 
     const getPlaceHolder = () => {

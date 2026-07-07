@@ -23,6 +23,7 @@ import commentRoutes from '@modules/comment/routes';
 import jobRoutes from '@modules/job/routes';
 
 import permissionRoutes from '@modules/permission/routes';
+import nationRoutes from '@modules/nation/routes';
 
 /*
     auth
@@ -101,6 +102,7 @@ const routes = {
     ...jobRoutes,
 
     ...permissionRoutes,
+    ...nationRoutes,
     // keep this at last
     notFound: {
         component: PageNotFound,

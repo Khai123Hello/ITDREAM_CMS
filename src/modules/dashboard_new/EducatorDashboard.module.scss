@@ -1,1 +1,15 @@
 /* EducatorDashboard — minimal overrides only, antd handles the rest */
+.cardDivider {
+    border-left: 1px solid #f0f0f0;
+    padding-left: 24px;
+}
+
+@media (max-width: 1199px) {
+    .cardDivider {
+        border-left: none;
+        padding-left: 0;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 24px;
+        margin-top: 8px;
+    }
+}
