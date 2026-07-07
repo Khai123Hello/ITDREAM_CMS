@@ -116,37 +116,39 @@ export default function AdminDashboard() {
             const feedbacksRes = await getFeedbacks({ params: { page: 0, size: 5 } });
             if (feedbacksRes?.data) setRecentFeedbacks(feedbacksRes.data.content || []);
 
-            const pEducators = educatorsList.filter(e => e.account?.status === 2);
-            const pSimulations = sims.filter(s => s.status === 2 || s.status === 3);
-            const pBlogs = blogsList.filter(b => b.status === 0);
+            const pEducators = educatorsList.filter((e) => e.account?.status === 2);
+            const pSimulations = sims.filter((s) => s.status === 2 || s.status === 3);
+            const pBlogs = blogsList.filter((b) => b.status === 0);
 
             setPendingEducators(pEducators);
             setPendingSimulations(pSimulations);
             setPendingBlogs(pBlogs);
 
             setStats({
-                simulationsCount: sims.filter(s => s.status === 1).length,
+                simulationsCount: sims.filter((s) => s.status === 1).length,
                 studentsCount: studentsList.length,
-                educatorsCount: educatorsList.filter(e => e.account?.status === 1).length,
+                educatorsCount: educatorsList.filter((e) => e.account?.status === 1).length,
                 pendingBlogsCount: pBlogs.length,
                 pendingEducatorsCount: pEducators.length,
-                pendingSimulationsCount: pSimulations.filter(s => s.status === 2).length,
-                pendingDeletesCount: pSimulations.filter(s => s.status === 3).length,
+                pendingSimulationsCount: pSimulations.filter((s) => s.status === 2).length,
+                pendingDeletesCount: pSimulations.filter((s) => s.status === 3).length,
             });
 
             // Growth chart
             const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
             const monthlyGrowth = {};
-            months.forEach(m => { monthlyGrowth[m] = { Students: 0, Educators: 0 }; });
+            months.forEach((m) => {
+                monthlyGrowth[m] = { Students: 0, Educators: 0 };
+            });
 
-            studentsList.forEach(st => {
+            studentsList.forEach((st) => {
                 const dateStr = st.account?.createdDate;
                 if (dateStr) {
                     const mName = months[new Date(dateStr).getMonth()];
                     if (monthlyGrowth[mName]) monthlyGrowth[mName].Students += 1;
                 }
             });
-            educatorsList.forEach(ed => {
+            educatorsList.forEach((ed) => {
                 const dateStr = ed.account?.createdDate;
                 if (dateStr) {
                     const mName = months[new Date(dateStr).getMonth()];
@@ -156,19 +158,21 @@ export default function AdminDashboard() {
 
             let cumulativeSt = 0;
             let cumulativeEd = 0;
-            setGrowthData(months.map(m => {
-                cumulativeSt += monthlyGrowth[m].Students;
-                cumulativeEd += monthlyGrowth[m].Educators;
-                return { month: m, Students: cumulativeSt || 10, Educators: cumulativeEd || 2 };
-            }));
+            setGrowthData(
+                months.map((m) => {
+                    cumulativeSt += monthlyGrowth[m].Students;
+                    cumulativeEd += monthlyGrowth[m].Educators;
+                    return { month: m, Students: cumulativeSt, Educators: cumulativeEd };
+                }),
+            );
 
             // Category donut
             const categoriesCount = {};
-            sims.forEach(sim => {
+            sims.forEach((sim) => {
                 const catName = sim.category?.name || 'Khác';
                 categoriesCount[catName] = (categoriesCount[catName] || 0) + 1;
             });
-            const donutData = Object.keys(categoriesCount).map(key => ({ name: key, value: categoriesCount[key] }));
+            const donutData = Object.keys(categoriesCount).map((key) => ({ name: key, value: categoriesCount[key] }));
             setCategoryData(donutData.length > 0 ? donutData : [{ name: 'Không có dữ liệu', value: 1 }]);
         } catch (err) {
             console.error('Lỗi khi tải thông tin Dashboard', err);
@@ -177,7 +181,9 @@ export default function AdminDashboard() {
         }
     };
 
-    useEffect(() => { loadData(); }, []);
+    useEffect(() => {
+        loadData();
+    }, []);
 
     const handleEducatorApprove = async (id, approve) => {
         const fetchAction = approve ? approveEducator : rejectEducator;
@@ -244,7 +250,9 @@ export default function AdminDashboard() {
                     <Avatar icon={<UserOutlined />} size={28} style={{ backgroundColor: '#1890ff' }} />
                     <div>
                         <div style={{ fontWeight: 600, lineHeight: 1.3 }}>{r.account?.fullName}</div>
-                        <Text type="secondary" style={{ fontSize: 11 }}>{r.account?.email}</Text>
+                        <Text type="secondary" style={{ fontSize: 11 }}>
+                            {r.account?.email}
+                        </Text>
                     </div>
                 </Space>
             ),
@@ -255,7 +263,9 @@ export default function AdminDashboard() {
             render: (_, r) => (
                 <Space size={4}>
                     <BankOutlined style={{ color: '#bfbfbf' }} />
-                    <Text type="secondary" style={{ fontSize: 12 }}>{r.organization?.name || '—'}</Text>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        {r.organization?.name || '—'}
+                    </Text>
                 </Space>
             ),
         },
@@ -294,9 +304,7 @@ export default function AdminDashboard() {
             title: 'Yêu cầu',
             key: 'status',
             render: (_, r) =>
-                r.status === 2
-                    ? <Tag color="blue">Tạo mới</Tag>
-                    : <Tag color="orange">Yêu cầu xóa</Tag>,
+                r.status === 2 ? <Tag color="blue">Tạo mới</Tag> : <Tag color="orange">Yêu cầu xóa</Tag>,
         },
         {
             title: '',
@@ -316,12 +324,17 @@ export default function AdminDashboard() {
             title: 'Tiêu đề bài viết',
             dataIndex: 'name',
             key: 'name',
-            render: (text) => <Text strong style={{ fontSize: 13 }}>{text}</Text>,
+            render: (text) => (
+                <Text strong style={{ fontSize: 13 }}>
+                    {text}
+                </Text>
+            ),
         },
         {
             title: 'Tác giả',
             key: 'authorName',
-            render: (_, r) => r.educator?.account?.fullName || r.educator?.profileAccountDto?.fullName || r.author || '—',
+            render: (_, r) =>
+                r.educator?.account?.fullName || r.educator?.profileAccountDto?.fullName || r.author || '—',
         },
         {
             title: '',
@@ -352,7 +365,11 @@ export default function AdminDashboard() {
                     rowKey="id"
                     size="small"
                     pagination={false}
-                    locale={{ emptyText: <Empty description="Không có giảng viên chờ duyệt" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                    locale={{
+                        emptyText: (
+                            <Empty description="Không có giảng viên chờ duyệt" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                        ),
+                    }}
                 />
             ),
         },
@@ -370,7 +387,11 @@ export default function AdminDashboard() {
                     rowKey="id"
                     size="small"
                     pagination={false}
-                    locale={{ emptyText: <Empty description="Không có mô phỏng chờ duyệt" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                    locale={{
+                        emptyText: (
+                            <Empty description="Không có mô phỏng chờ duyệt" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                        ),
+                    }}
                 />
             ),
         },
@@ -388,7 +409,11 @@ export default function AdminDashboard() {
                     rowKey="id"
                     size="small"
                     pagination={false}
-                    locale={{ emptyText: <Empty description="Không có bài viết chờ duyệt" image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+                    locale={{
+                        emptyText: (
+                            <Empty description="Không có bài viết chờ duyệt" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                        ),
+                    }}
                 />
             ),
         },
@@ -421,12 +446,7 @@ export default function AdminDashboard() {
                             }
                             bodyStyle={{ padding: '0 12px 12px' }}
                         >
-                            <Tabs
-                                activeKey={activeTab}
-                                onChange={setActiveTab}
-                                size="small"
-                                items={queueTabItems}
-                            />
+                            <Tabs activeKey={activeTab} onChange={setActiveTab} size="small" items={queueTabItems} />
                         </Card>
                     </Col>
 
@@ -445,26 +465,50 @@ export default function AdminDashboard() {
                             bodyStyle={{ padding: '8px 12px' }}
                         >
                             {recentFeedbacks.length === 0 ? (
-                                <Empty description="Chưa có phản hồi" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ margin: '12px 0' }} />
+                                <Empty
+                                    description="Chưa có phản hồi"
+                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                    style={{ margin: '12px 0' }}
+                                />
                             ) : (
                                 <List
                                     size="small"
                                     dataSource={recentFeedbacks}
-                                    renderItem={fb => (
-                                        <List.Item style={{ padding: '8px 0', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                    renderItem={(fb) => (
+                                        <List.Item
+                                            style={{
+                                                padding: '8px 0',
+                                                flexDirection: 'column',
+                                                alignItems: 'flex-start',
+                                            }}
+                                        >
                                             <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-                                                <Text strong style={{ fontSize: 12 }}>{fb.student?.account?.fullName}</Text>
+                                                <Text strong style={{ fontSize: 12 }}>
+                                                    {fb.student?.account?.fullName}
+                                                </Text>
                                                 <Text type="secondary" style={{ fontSize: 11 }}>
-                                                    {fb.createdDate ? new Date(fb.createdDate).toLocaleDateString('vi-VN') : ''}
+                                                    {fb.createdDate
+                                                        ? new Date(fb.createdDate).toLocaleDateString('vi-VN')
+                                                        : ''}
                                                 </Text>
                                             </Space>
                                             <Space size={1} style={{ margin: '2px 0' }}>
                                                 {[...Array(5)].map((_, i) => (
-                                                    <StarFilled key={i} style={{ fontSize: 11, color: i < fb.star ? '#faad14' : '#d9d9d9' }} />
+                                                    <StarFilled
+                                                        key={i}
+                                                        style={{
+                                                            fontSize: 11,
+                                                            color: i < fb.star ? '#faad14' : '#d9d9d9',
+                                                        }}
+                                                    />
                                                 ))}
                                             </Space>
-                                            <Text type="secondary" style={{ fontSize: 11 }}>{fb.simulation?.title}</Text>
-                                            <Text style={{ fontSize: 12, fontStyle: 'italic', color: '#595959' }}>{`"${fb.content}"`}</Text>
+                                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                                {fb.simulation?.title}
+                                            </Text>
+                                            <Text
+                                                style={{ fontSize: 12, fontStyle: 'italic', color: '#595959' }}
+                                            >{`"${fb.content}"`}</Text>
                                         </List.Item>
                                     )}
                                 />
@@ -472,13 +516,9 @@ export default function AdminDashboard() {
                         </Card>
 
                         {/* Quick Shortcuts */}
-                        <Card
-                            size="small"
-                            title="Phím tắt vận hành"
-                            bodyStyle={{ padding: '8px 12px' }}
-                        >
+                        <Card size="small" title="Phím tắt vận hành" bodyStyle={{ padding: '8px 12px' }}>
                             <Row gutter={[8, 8]}>
-                                {shortcuts.map(s => (
+                                {shortcuts.map((s) => (
                                     <Col xs={12} key={s.href}>
                                         <a href={s.href} className={styles.shortcutLink}>
                                             {s.icon}
@@ -502,7 +542,11 @@ export default function AdminDashboard() {
                         <Card
                             size="small"
                             title="Xu hướng tăng trưởng thành viên"
-                            extra={<Text type="secondary" style={{ fontSize: 12 }}>Học viên và giảng viên lũy kế theo tháng</Text>}
+                            extra={
+                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                    Học viên và giảng viên lũy kế theo tháng
+                                </Text>
+                            }
                         >
                             <div style={{ height: 220 }}>
                                 <ResponsiveContainer width="100%" height="100%">
@@ -518,12 +562,39 @@ export default function AdminDashboard() {
                                             </linearGradient>
                                         </defs>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                                        <XAxis dataKey="month" tickLine={false} axisLine={false} style={{ fontSize: 11 }} />
+                                        <XAxis
+                                            dataKey="month"
+                                            tickLine={false}
+                                            axisLine={false}
+                                            style={{ fontSize: 11 }}
+                                        />
                                         <YAxis tickLine={false} axisLine={false} style={{ fontSize: 11 }} />
                                         <ReTooltip contentStyle={{ fontSize: 12, borderRadius: 6 }} />
-                                        <Legend verticalAlign="top" height={28} iconType="circle" iconSize={8} style={{ fontSize: 12 }} />
-                                        <Area type="monotone" dataKey="Students" stroke="#1890ff" strokeWidth={2} fillOpacity={1} fill="url(#colorStudents)" name="Học viên" />
-                                        <Area type="monotone" dataKey="Educators" stroke="#722ed1" strokeWidth={2} fillOpacity={1} fill="url(#colorEducators)" name="Giảng viên" />
+                                        <Legend
+                                            verticalAlign="top"
+                                            height={28}
+                                            iconType="circle"
+                                            iconSize={8}
+                                            style={{ fontSize: 12 }}
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="Students"
+                                            stroke="#1890ff"
+                                            strokeWidth={2}
+                                            fillOpacity={1}
+                                            fill="url(#colorStudents)"
+                                            name="Học viên"
+                                        />
+                                        <Area
+                                            type="monotone"
+                                            dataKey="Educators"
+                                            stroke="#722ed1"
+                                            strokeWidth={2}
+                                            fillOpacity={1}
+                                            fill="url(#colorEducators)"
+                                            name="Giảng viên"
+                                        />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -535,18 +606,36 @@ export default function AdminDashboard() {
                         <Card
                             size="small"
                             title="Mô phỏng theo danh mục"
-                            extra={<Text type="secondary" style={{ fontSize: 12 }}>Tỷ lệ phân chia đề tài</Text>}
+                            extra={
+                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                    Tỷ lệ phân chia đề tài
+                                </Text>
+                            }
                             style={{ height: '100%' }}
                         >
                             <div style={{ height: 160 }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={categoryData} cx="50%" cy="50%" innerRadius={45} outerRadius={65} paddingAngle={4} dataKey="value">
+                                        <Pie
+                                            data={categoryData}
+                                            cx="50%"
+                                            cy="50%"
+                                            innerRadius={45}
+                                            outerRadius={65}
+                                            paddingAngle={4}
+                                            dataKey="value"
+                                        >
                                             {categoryData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                                                <Cell
+                                                    key={`cell-${index}`}
+                                                    fill={CHART_COLORS[index % CHART_COLORS.length]}
+                                                />
                                             ))}
                                         </Pie>
-                                        <ReTooltip formatter={(value) => `${value} mô phỏng`} contentStyle={{ fontSize: 12, borderRadius: 6 }} />
+                                        <ReTooltip
+                                            formatter={(value) => `${value} mô phỏng`}
+                                            contentStyle={{ fontSize: 12, borderRadius: 6 }}
+                                        />
                                         <Legend iconType="circle" iconSize={8} style={{ fontSize: 11 }} />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -600,11 +689,7 @@ export default function AdminDashboard() {
                     </Card>
                 </Col>
                 <Col xs={24} sm={12} lg={6}>
-                    <Card
-                        size="small"
-                        hoverable
-                        style={{ borderColor: pendingTotal > 0 ? '#faad14' : undefined }}
-                    >
+                    <Card size="small" hoverable style={{ borderColor: pendingTotal > 0 ? '#faad14' : undefined }}>
                         <Statistic
                             title="Chờ Phê Duyệt"
                             value={pendingTotal}
