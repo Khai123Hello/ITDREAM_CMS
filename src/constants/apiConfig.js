@@ -889,6 +889,11 @@ const apiConfig = {
             headers: baseHeader,
             permissionCode: 'FB_L',
         },
+        educatorList: {
+            baseURL: `${apiUrl}v1/feedback/client_list`,
+            method: 'GET',
+            headers: baseHeader,
+        },
         delete: {
             baseURL: `${apiUrl}v1/feedback/delete/:id`,
             method: 'DELETE',

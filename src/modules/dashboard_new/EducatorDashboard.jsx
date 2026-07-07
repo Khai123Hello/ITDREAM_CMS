@@ -95,7 +95,7 @@ export default function EducatorDashboard() {
             method: 'GET',
         },
     );
-    const { execute: getFeedbacks } = useFetch(apiConfig.feedback.list);
+    const { execute: getFeedbacks } = useFetch(apiConfig.feedback.educatorList);
     const { execute: submitReview } = useFetch(apiConfig.reviewSubmission.create);
     const { execute: markReviewComplete } = useFetch(apiConfig.reviewSubmission.completeReview);
 
