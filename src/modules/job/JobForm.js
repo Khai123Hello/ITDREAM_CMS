@@ -123,6 +123,12 @@ const JobForm = (props) => {
             }
         }
 
+        // Critical: image bắt buộc với Educator, chặn trước khi gửi BE
+        if (isEducator && !finalImage) {
+            form.setFields([{ name: 'image', errors: ['Vui lòng tải lên ảnh bìa'] }]);
+            return;
+        }
+
         let finalContent = values.content;
         if (finalContent === '<p></p>' || finalContent === '' || finalContent === undefined) {
             finalContent = null;
@@ -373,6 +379,7 @@ const JobForm = (props) => {
                             placeholder="Chọn thể loại"
                             options={opportunityTypeOptions}
                             onChange={(val) => setCurrentType(val)}
+                            rules={isEducator ? [{ required: true, message: 'Vui lòng chọn thể loại' }] : []}
                         />
                     </Col>
                     <Col span={12}>

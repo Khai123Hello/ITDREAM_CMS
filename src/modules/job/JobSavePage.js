@@ -43,8 +43,8 @@ const JobSavePage = () => {
                         address: data.address,
                         provinceId: data.provinceId,
                         wardId: data.wardId,
-                        date: data.date ? dayjs(data.date).toISOString() : null,
-                        endDate: data.endDate ? dayjs(data.endDate).toISOString() : null,
+                        date: data.date ? dayjs(data.date).format('DD/MM/YYYY HH:mm:ss') : null,
+                        endDate: data.endDate ? dayjs(data.endDate).format('DD/MM/YYYY HH:mm:ss') : null,
                         simulationIds: data.simulationIds || [],
                         status: data.status,
                         id: parseInt(id),
@@ -68,8 +68,8 @@ const JobSavePage = () => {
                 address: data.address,
                 provinceId: data.provinceId,
                 wardId: data.wardId,
-                date: data.date ? dayjs(data.date).toISOString() : null,
-                endDate: data.endDate ? dayjs(data.endDate).toISOString() : null,
+                date: data.date ? dayjs(data.date).format('DD/MM/YYYY HH:mm:ss') : null,
+                endDate: data.endDate ? dayjs(data.endDate).format('DD/MM/YYYY HH:mm:ss') : null,
                 simulationIds: data.simulationIds || [],
             });
 
