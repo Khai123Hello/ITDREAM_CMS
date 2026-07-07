@@ -160,12 +160,18 @@ export default function EducatorDashboard() {
             // Filter simulations: if date filter is active, only show simulations that had completions in that range.
             const filteredSims = sims.filter((s) => !startDate || completionsMap[s.id] > 0);
 
-            const performanceChart = filteredSims.map((s) => ({
-                id: s.id,
-                name: s.title,
-                'Đã đăng ký': s.totalParticipant || 0,
-                'Hoàn thành': completionsMap[s.id] || 0,
-            }));
+            const performanceChart = filteredSims.map((s) => {
+                const registered = s.totalParticipant || 0;
+                const completed = completionsMap[s.id] || 0;
+                const rate = registered > 0 ? Math.round((completed / registered) * 100) : 0;
+                return {
+                    id: s.id,
+                    name: s.title,
+                    'Tỷ lệ hoàn thành': Math.min(rate, 100),
+                    'Đăng ký': registered,
+                    'Hoàn thành': completed,
+                };
+            });
             setSimPerformanceData(performanceChart);
 
             // 4.1. Trending Careers Chart Data
@@ -530,10 +536,10 @@ export default function EducatorDashboard() {
                                     }}
                                 >
                                     <Text strong style={{ fontSize: 14 }}>
-                                        Hiệu suất mô phỏng
+                                        Tỷ lệ hoàn thành mô phỏng
                                     </Text>
                                     <Text type="secondary" style={{ fontSize: 12 }}>
-                                        Đã đăng ký vs hoàn thành
+                                        Phần trăm học viên hoàn thành / đăng ký
                                     </Text>
                                 </div>
                                 <div style={{ height: 220 }}>
@@ -558,8 +564,20 @@ export default function EducatorDashboard() {
                                                 axisLine={false}
                                                 style={{ fontSize: 10 }}
                                             />
-                                            <YAxis tickLine={false} axisLine={false} style={{ fontSize: 10 }} />
-                                            <ReTooltip contentStyle={{ fontSize: 12, borderRadius: 6 }} />
+                                            <YAxis
+                                                domain={[0, 100]}
+                                                tickFormatter={(v) => `${v}%`}
+                                                tickLine={false}
+                                                axisLine={false}
+                                                style={{ fontSize: 10 }}
+                                            />
+                                            <ReTooltip
+                                                contentStyle={{ fontSize: 12, borderRadius: 6 }}
+                                                formatter={(value, name, props) => {
+                                                    if (name === 'Tỷ lệ hoàn thành') return [`${value}%`, name];
+                                                    return [value, name];
+                                                }}
+                                            />
                                             <Legend
                                                 verticalAlign="top"
                                                 height={28}
@@ -567,8 +585,12 @@ export default function EducatorDashboard() {
                                                 iconSize={8}
                                                 style={{ fontSize: 12 }}
                                             />
-                                            <Bar dataKey="Đã đăng ký" fill="#1890ff" radius={[3, 3, 0, 0]} />
-                                            <Bar dataKey="Hoàn thành" fill="#52c41a" radius={[3, 3, 0, 0]} />
+                                            <Bar
+                                                dataKey="Tỷ lệ hoàn thành"
+                                                fill="#13c2c2"
+                                                radius={[3, 3, 0, 0]}
+                                                barSize={30}
+                                            />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>

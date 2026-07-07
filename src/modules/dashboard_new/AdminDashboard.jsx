@@ -75,6 +75,7 @@ export default function AdminDashboard() {
 
     const [categoryData, setCategoryData] = useState([]);
     const [growthData, setGrowthData] = useState([]);
+    const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
     // API fetches
     const { execute: getSims } = useFetch(apiConfig.simulation.getList);
@@ -134,24 +135,47 @@ export default function AdminDashboard() {
                 pendingDeletesCount: pSimulations.filter((s) => s.status === 3).length,
             });
 
-            // Growth chart
-            const months = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+            // Growth chart — only count registrations in the current year
+            const currentYear = new Date().getFullYear();
+            const currentMonth = new Date().getMonth(); // 0-indexed (Jan=0, Jul=6)
+            const allMonths = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'];
+            // Only include months up to and including current month
+            const months = allMonths.slice(0, currentMonth + 1);
             const monthlyGrowth = {};
             months.forEach((m) => {
                 monthlyGrowth[m] = { Students: 0, Educators: 0 };
             });
 
+            // Parse date in 'dd/MM/yyyy HH:mm:ss' format returned by backend
+            const parseDate = (dateStr) => {
+                if (!dateStr) return null;
+                // Try ISO format first
+                const iso = new Date(dateStr);
+                if (!isNaN(iso.getTime())) return iso;
+                // Try 'dd/MM/yyyy HH:mm:ss'
+                const parts = dateStr.split(' ');
+                if (parts.length >= 1) {
+                    const dateParts = parts[0].split('/');
+                    if (dateParts.length === 3) {
+                        const [dd, mm, yyyy] = dateParts;
+                        const timePart = parts[1] || '00:00:00';
+                        return new Date(`${yyyy}-${mm}-${dd}T${timePart}`);
+                    }
+                }
+                return null;
+            };
+
             studentsList.forEach((st) => {
-                const dateStr = st.account?.createdDate;
-                if (dateStr) {
-                    const mName = months[new Date(dateStr).getMonth()];
+                const d = parseDate(st.account?.createdDate);
+                if (d && d.getFullYear() === currentYear) {
+                    const mName = months[d.getMonth()];
                     if (monthlyGrowth[mName]) monthlyGrowth[mName].Students += 1;
                 }
             });
             educatorsList.forEach((ed) => {
-                const dateStr = ed.account?.createdDate;
-                if (dateStr) {
-                    const mName = months[new Date(dateStr).getMonth()];
+                const d = parseDate(ed.account?.createdDate);
+                if (d && d.getFullYear() === currentYear) {
+                    const mName = months[d.getMonth()];
                     if (monthlyGrowth[mName]) monthlyGrowth[mName].Educators += 1;
                 }
             });
@@ -165,6 +189,7 @@ export default function AdminDashboard() {
                     return { month: m, Students: cumulativeSt, Educators: cumulativeEd };
                 }),
             );
+            setCurrentYear(currentYear);
 
             // Category donut
             const categoriesCount = {};
@@ -544,7 +569,7 @@ export default function AdminDashboard() {
                             title="Xu hướng tăng trưởng thành viên"
                             extra={
                                 <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Học viên và giảng viên lũy kế theo tháng
+                                    Học viên và giảng viên lũy kế theo tháng — năm {currentYear}
                                 </Text>
                             }
                         >
