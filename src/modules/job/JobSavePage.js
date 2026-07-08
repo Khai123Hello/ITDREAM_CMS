@@ -28,7 +28,7 @@ const JobSavePage = () => {
             },
         options: {
             getListUrl: '/job',
-            objectName: 'cơ hội việc làm',
+            objectName: 'tin tuyển dụng',
         },
         override: (funcs) => {
             funcs.prepareUpdateData = (data) => {
@@ -90,12 +90,12 @@ const JobSavePage = () => {
         },
     });
 
-    const title = isCreating ? 'Tạo cơ hội việc làm' : detail?.title || 'Chi tiết cơ hội việc làm';
+    const title = isCreating ? 'Tạo tin tuyển dụng' : detail?.title || 'Chi tiết tin tuyển dụng';
 
     return (
         <PageWrapper
             loading={loading}
-            routes={[{ breadcrumbName: 'Cơ hội việc làm', path: '/job' }, { breadcrumbName: title }]}
+            routes={[{ breadcrumbName: 'Tin tuyển dụng', path: '/job' }, { breadcrumbName: title }]}
         >
             <JobForm
                 setIsChangedFormValues={setIsChangedFormValues}
