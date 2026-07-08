@@ -52,7 +52,7 @@ const JobListPage = () => {
         } else {
             Modal.confirm({
                 title: 'Xác nhận thay đổi trạng thái',
-                content: 'Bạn có chắc chắn muốn thay đổi trạng thái cơ hội việc làm này?',
+                content: 'Bạn có chắc chắn muốn thay đổi trạng thái tin tuyển dụng này?',
                 okText: 'Xác nhận',
                 cancelText: 'Hủy',
                 onOk: () => {
@@ -101,7 +101,7 @@ const JobListPage = () => {
                 if (response.result === true) {
                     notificationApi({
                         type: 'success',
-                        message: 'Khóa cơ hội việc làm thành công',
+                        message: 'Khóa tin tuyển dụng thành công',
                     });
                     mixinFuncs.getList(); // Tải lại danh sách
                 } else {
@@ -131,7 +131,7 @@ const JobListPage = () => {
         roleType: 'Vai trò',
         noData: translate.formatMessage(commonMessage.noData),
         action: translate.formatMessage(commonMessage.action),
-        job: 'Cơ hội việc làm',
+        job: 'Tin tuyển dụng',
     };
 
     const { data, mixinFuncs, loading, pagination, queryFilter } = useListBase({
@@ -167,7 +167,7 @@ const JobListPage = () => {
             render: (_, __, index) => (pagination.current - 1) * pagination.pageSize + index + 1,
         },
         {
-            title: 'Cơ hội việc làm',
+            title: 'Tin tuyển dụng',
             dataIndex: 'title',
             render: (text, record) => {
                 const image = record.image;
@@ -477,7 +477,7 @@ const JobListPage = () => {
             />
 
             <Modal
-                title="Khóa cơ hội việc làm"
+                title="Khóa tin tuyển dụng"
                 open={isLockModalVisible}
                 onOk={handleLockSubmit}
                 onCancel={() => {

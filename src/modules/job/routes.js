@@ -15,8 +15,8 @@ export default {
         component: JobListPage,
         permissions: [apiConfig.job.list.permissionCode, apiConfig.job.educatorList.permissionCode],
         pageOptions: {
-            objectName: 'cơ hội việc làm',
-            renderBreadcrumbs: () => [{ breadcrumbName: 'Cơ hội việc làm' }],
+            objectName: 'Tin tuyển dụng',
+            renderBreadcrumbs: () => [{ breadcrumbName: 'Tin tuyển dụng' }],
         },
     },
     jobSavePage: {
@@ -30,10 +30,10 @@ export default {
             apiConfig.job.getById.permissionCode,
         ],
         pageOptions: {
-            objectName: 'cơ hội việc làm',
+            objectName: 'Tin tuyển dụng',
             listPageUrl: paths.jobListPage,
             renderBreadcrumbs: (messages, t, title) => [
-                { breadcrumbName: 'Cơ hội việc làm', path: paths.jobListPage },
+                { breadcrumbName: 'Tin tuyển dụng', path: paths.jobListPage },
                 { breadcrumbName: title },
             ],
         },
