@@ -325,7 +325,7 @@ const OverviewEditor = ({ value, onChange, canEdit, uploadFile }) => {
                     margin: 16px auto;
                     padding: 24px;
                     background: white;
-                    font-family: Inter, Arial, sans-serif;
+                    font-family: var(--font-sans);
                     border: 1px solid #edf2f7;
                     border-radius: 12px;
                     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
@@ -479,7 +479,7 @@ const OverviewEditor = ({ value, onChange, canEdit, uploadFile }) => {
                     font-size: 15px !important;
                     line-height: 1.6 !important;
                     color: #4b5563 !important;
-                    font-family: Inter, Arial, sans-serif !important;
+                    font-family: var(--font-sans) !important;
                     padding: 0 !important;
                     min-height: 80px;
                 }

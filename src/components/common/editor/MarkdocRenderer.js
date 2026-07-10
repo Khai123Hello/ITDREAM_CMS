@@ -137,8 +137,8 @@ const OptionComponent = ({ correct, index = 0, children }) => {
         typeof children === 'string'
             ? children.trim()
             : children && children.toString
-                ? children.toString().trim()
-                : '';
+              ? children.toString().trim()
+              : '';
 
     const isSelected = studentAnswer && (studentAnswer.answer === optionText || studentAnswer.answer === children);
     const isCorrectOpt = correct === true;

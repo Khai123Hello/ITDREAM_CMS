@@ -14,7 +14,8 @@ import { commonMessage } from '@locales/intl';
 
 const NationForm = (props) => {
     const translate = useTranslate();
-    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, isEditing, kind, parentId, parentName } = props;
+    const { formId, actions, dataDetail, onSubmit, setIsChangedFormValues, isEditing, kind, parentId, parentName } =
+        props;
 
     const { form, mixinFuncs, onValuesChange } = useBasicForm({
         onSubmit,
@@ -43,10 +44,11 @@ const NationForm = (props) => {
                 params: { kind: 1, page: 0, size: 100 },
                 onCompleted: (res) => {
                     if (res.result) {
-                        const provinceOptions = res.data?.content?.map((item) => ({
-                            value: item.id,
-                            label: item.name,
-                        })) || [];
+                        const provinceOptions =
+                            res.data?.content?.map((item) => ({
+                                value: item.id,
+                                label: item.name,
+                            })) || [];
                         provincesFetchedRef.current = true;
                         setProvinces(provinceOptions);
                     }

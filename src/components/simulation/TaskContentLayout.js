@@ -13,7 +13,7 @@ function QuizBlock({
     block,
     submittedAnswer = null,
     questionId = null,
-    onQuizAnswerSubmit = () => { },
+    onQuizAnswerSubmit = () => {},
     hasCompleted = false,
 }) {
     const [selected, setSelected] = useState(null);
@@ -143,7 +143,7 @@ const isExternalUrl = (str) => {
     return /^(https?:\/\/|www\.)/i.test(str.trim());
 };
 
-function FileDropzone({ onFileChange = () => { }, previousFile = null, urlBase = '', disabled = false }) {
+function FileDropzone({ onFileChange = () => {}, previousFile = null, urlBase = '', disabled = false }) {
     const defaultMode = previousFile && isExternalUrl(previousFile) ? 'link' : 'file';
     const [mode, setMode] = useState(defaultMode);
     const [dragging, setDragging] = useState(false);
@@ -407,8 +407,8 @@ export default function TaskContentLayout({
     canGoBack = false,
     canGoNext = false,
     isLastSubtask = false,
-    onBack = () => { },
-    onNext = () => { },
+    onBack = () => {},
+    onNext = () => {},
 
     quizSubmissionMap,
     requiresFileUpload: requiresFileUploadProp,
@@ -418,7 +418,7 @@ export default function TaskContentLayout({
     onFileChange = (fileOrLink) => {
         message.info(
             'Đây là chế độ xem trước (Preview). File nộp thử: ' +
-            (typeof fileOrLink === 'string' ? fileOrLink : fileOrLink.name),
+                (typeof fileOrLink === 'string' ? fileOrLink : fileOrLink.name),
         );
     },
     onTextResponseSubmit = (text) => {
@@ -427,8 +427,8 @@ export default function TaskContentLayout({
     onQuizAnswerSubmit = (ans) => {
         message.info(
             'Đây là chế độ xem trước (Preview). Trả lời quiz: ' +
-            ans.answer +
-            (ans.isCorrect ? ' (Đúng)' : ' (Chưa đúng)'),
+                ans.answer +
+                (ans.isCorrect ? ' (Đúng)' : ' (Chưa đúng)'),
         );
     },
     hasCompleted = false,

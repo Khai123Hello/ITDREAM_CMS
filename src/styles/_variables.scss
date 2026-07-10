@@ -11,6 +11,12 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
+  /* Typography Variables (Vietnamese Optimized) */
+  --font-sans: 'Be Vietnam Pro', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: 'Be Vietnam Pro', 'Inter', 'Plus Jakarta Sans', var(--font-sans);
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', Courier, monospace;
+  --font-serif: 'Lora', Georgia, 'Times New Roman', Times, serif;
+
   /****************** 
   Colors variables
   ******************/

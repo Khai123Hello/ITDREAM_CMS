@@ -144,7 +144,10 @@ const BlogForm = (props) => {
                         marginBottom: 16,
                     }}
                 >
-                    <Typography.Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12, color: '#475569' }}>
+                    <Typography.Text
+                        strong
+                        style={{ fontSize: 13, display: 'block', marginBottom: 12, color: '#475569' }}
+                    >
                         🖼 Ảnh bìa bài viết
                     </Typography.Text>
 
@@ -160,7 +163,10 @@ const BlogForm = (props) => {
                             />
                         </Col>
                         <Col span={12}>
-                            <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>
+                            <Typography.Text
+                                type="secondary"
+                                style={{ fontSize: 12, display: 'block', marginBottom: 6 }}
+                            >
                                 Hoặc dán đường link ảnh bìa từ URL ngoài:
                             </Typography.Text>
                             <Input
@@ -198,7 +204,10 @@ const BlogForm = (props) => {
                                 </div>
                             )}
                             {!imageUrlInput && (
-                                <Typography.Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 8, fontStyle: 'italic' }}>
+                                <Typography.Text
+                                    type="secondary"
+                                    style={{ fontSize: 11, display: 'block', marginTop: 8, fontStyle: 'italic' }}
+                                >
                                     Để trống nếu đã upload ảnh từ máy tính.
                                 </Typography.Text>
                             )}
@@ -221,7 +230,11 @@ const BlogForm = (props) => {
                         ✍️ Nội dung bài viết
                     </Typography.Text>
                     <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-                        Sử dụng toolbar để định dạng, gõ <Typography.Text code style={{ fontSize: 11 }}>/</Typography.Text> để chèn block đặc biệt.
+                        Sử dụng toolbar để định dạng, gõ{' '}
+                        <Typography.Text code style={{ fontSize: 11 }}>
+                            /
+                        </Typography.Text>{' '}
+                        để chèn block đặc biệt.
                     </Typography.Text>
                 </div>
 

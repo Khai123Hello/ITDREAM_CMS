@@ -12,8 +12,26 @@ html {
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Poppins';
+    font-family: var(--font-sans);
 }
+
+/* Ép thừa kế font cho các phần tử tương tác và thư viện UI (Ant Design) */
+button, input, select, textarea,
+.ant-input, .ant-btn, .ant-select, .ant-picker, .ant-table, .ant-modal, .ant-dropdown {
+    font-family: var(--font-sans) !important;
+}
+
+/* Áp dụng font tiếng Việt chuẩn cho khung soạn thảo Rich Text (Quill) và vùng xem trước nội dung */
+.ql-container, .ql-editor, .preview-content {
+    font-family: var(--font-sans) !important;
+}
+
+/* Đảm bảo các khối mã nguồn (code blocks) trong editor và preview vẫn sử dụng font monospace */
+.ql-editor pre, .ql-editor code, .ql-editor .ql-syntax, 
+.preview-content pre, .preview-content code, .preview-content .ql-syntax {
+    font-family: var(--font-mono) !important;
+}
+
 
 #root {
     min-height: 100vh;

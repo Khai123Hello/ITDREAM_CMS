@@ -479,8 +479,8 @@ const TaskForm = (props) => {
                                             isEditing && Number(dataDetail?.type) === 2
                                                 ? 'quiz'
                                                 : Number(taskKind) === TaskTypes.TASK
-                                                    ? 'task'
-                                                    : 'guide'
+                                                  ? 'task'
+                                                  : 'guide'
                                         }
                                         onTemplateLoad={(snapshot) => setTemplateSnapshot(snapshot)}
                                         onTitleChange={(val) => {
@@ -678,30 +678,30 @@ const TaskForm = (props) => {
                                         {videoUrl &&
                                         (videoUrl.startsWith('http') || videoUrl.startsWith('https')) &&
                                         videoUrl.endsWith('.mp4') ? (
-                                                <div
+                                            <div
+                                                style={{
+                                                    marginTop: 8,
+                                                    borderRadius: 8,
+                                                    overflow: 'hidden',
+                                                    border: '1px solid #d9d9d9',
+                                                }}
+                                            >
+                                                <video
+                                                    controls
                                                     style={{
-                                                        marginTop: 8,
-                                                        borderRadius: 8,
-                                                        overflow: 'hidden',
-                                                        border: '1px solid #d9d9d9',
+                                                        width: '100%',
+                                                        maxHeight: 400,
+                                                        objectFit: 'contain',
+                                                        background: '#000',
                                                     }}
-                                                >
-                                                    <video
-                                                        controls
-                                                        style={{
-                                                            width: '100%',
-                                                            maxHeight: 400,
-                                                            objectFit: 'contain',
-                                                            background: '#000',
-                                                        }}
-                                                        src={videoUrl}
-                                                    />
-                                                </div>
-                                            ) : videoUrl ? (
-                                                <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
+                                                    src={videoUrl}
+                                                />
+                                            </div>
+                                        ) : videoUrl ? (
+                                            <div style={{ marginTop: 6, color: '#ff4d4f', fontSize: 12 }}>
                                                 Đường dẫn không hợp lệ. Vui lòng nhập link http/https kết thúc bằng .mp4
-                                                </div>
-                                            ) : null}
+                                            </div>
+                                        ) : null}
                                     </div>
                                 </Col>
 

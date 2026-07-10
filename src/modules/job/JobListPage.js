@@ -137,16 +137,16 @@ const JobListPage = () => {
     const { data, mixinFuncs, loading, pagination, queryFilter } = useListBase({
         apiConfig: isEducator
             ? {
-                getList: apiConfig.job.educatorList,
-                getById: apiConfig.job.educatorGetById,
-                update: apiConfig.job.update,
-                delete: apiConfig.job.delete,
-            }
+                  getList: apiConfig.job.educatorList,
+                  getById: apiConfig.job.educatorGetById,
+                  update: apiConfig.job.update,
+                  delete: apiConfig.job.delete,
+              }
             : {
-                getList: apiConfig.job.list,
-                getById: apiConfig.job.getById,
-                update: apiConfig.job.update,
-            },
+                  getList: apiConfig.job.list,
+                  getById: apiConfig.job.getById,
+                  update: apiConfig.job.update,
+              },
         options: {
             objectName: labels.job,
             pageSize: DEFAULT_TABLE_ITEM_SIZE,
@@ -391,14 +391,14 @@ const JobListPage = () => {
 
                 const options = isEducator
                     ? [
-                        { value: 1, label: <span style={{ color: '#00A648' }}>● Hoạt động</span> },
-                        { value: 0, label: <span style={{ color: '#faad14' }}>● Ẩn</span> },
-                    ]
+                          { value: 1, label: <span style={{ color: '#00A648' }}>● Hoạt động</span> },
+                          { value: 0, label: <span style={{ color: '#faad14' }}>● Ẩn</span> },
+                      ]
                     : [
-                        { value: 1, label: <span style={{ color: '#00A648' }}>● Hoạt động</span> },
-                        { value: 0, label: <span style={{ color: '#faad14' }}>● Ẩn</span> },
-                        { value: -1, label: <span style={{ color: '#ff4d4f' }}>● Khóa</span> },
-                    ];
+                          { value: 1, label: <span style={{ color: '#00A648' }}>● Hoạt động</span> },
+                          { value: 0, label: <span style={{ color: '#faad14' }}>● Ẩn</span> },
+                          { value: -1, label: <span style={{ color: '#ff4d4f' }}>● Khóa</span> },
+                      ];
 
                 return (
                     <Select
@@ -442,14 +442,14 @@ const JobListPage = () => {
             type: FieldTypes.SELECT,
             options: isEducator
                 ? [
-                    { value: 1, label: 'Hoạt động' },
-                    { value: 0, label: 'Ẩn' },
-                ]
+                      { value: 1, label: 'Hoạt động' },
+                      { value: 0, label: 'Ẩn' },
+                  ]
                 : [
-                    { value: 1, label: 'Hoạt động' },
-                    { value: 0, label: 'Ẩn' },
-                    { value: -1, label: 'Khóa' },
-                ],
+                      { value: 1, label: 'Hoạt động' },
+                      { value: 0, label: 'Ẩn' },
+                      { value: -1, label: 'Khóa' },
+                  ],
             colSpan: 5,
         },
     ];

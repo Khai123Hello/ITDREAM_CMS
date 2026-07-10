@@ -140,24 +140,24 @@ const NationListPage = ({ pageOptions = {} }) => {
 
     const breadcrumbs = pageOptions.renderBreadcrumbs
         ? pageOptions.renderBreadcrumbs(commonMessage, translate, queryFilter.parentId, {
-            parentName: parentData?.name,
-        })
+              parentName: parentData?.name,
+          })
         : (() => {
-            const crumbs = [
-                {
-                    breadcrumbName: 'Tỉnh thành',
-                    path: queryFilter.parentId ? '/nation' : undefined,
-                },
-            ];
-            if (parentData) {
-                crumbs.push({
-                    breadcrumbName: parentData.name,
-                    path: `/nation?parentId=${queryFilter.parentId}`,
-                });
-                crumbs.push({ breadcrumbName: 'Phường xã' });
-            }
-            return crumbs;
-        })();
+              const crumbs = [
+                  {
+                      breadcrumbName: 'Tỉnh thành',
+                      path: queryFilter.parentId ? '/nation' : undefined,
+                  },
+              ];
+              if (parentData) {
+                  crumbs.push({
+                      breadcrumbName: parentData.name,
+                      path: `/nation?parentId=${queryFilter.parentId}`,
+                  });
+                  crumbs.push({ breadcrumbName: 'Phường xã' });
+              }
+              return crumbs;
+          })();
 
     return (
         <PageWrapper routes={breadcrumbs}>

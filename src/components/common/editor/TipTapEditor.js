@@ -254,12 +254,7 @@ export default function TipTapEditor({ value = '', onChange, disabled = false, p
                         >
                             <LinkOutlined />
                         </button>
-                        <button
-                            type="button"
-                            className="toolbar-btn"
-                            onClick={handleImageClick}
-                            title="Chèn ảnh"
-                        >
+                        <button type="button" className="toolbar-btn" onClick={handleImageClick} title="Chèn ảnh">
                             <PictureOutlined />
                         </button>
                     </div>

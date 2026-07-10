@@ -545,9 +545,8 @@ function PreviewModal({ open, onClose, blog, chapters }) {
     }, [open]);
 
     // Gom nội dung để hiển thị liên tục
-    const allContents = chapters && chapters.length > 0
-        ? chapters
-        : [{ title: blog?.name || '', content: blog?.content || '' }];
+    const allContents =
+        chapters && chapters.length > 0 ? chapters : [{ title: blog?.name || '', content: blog?.content || '' }];
 
     // Dùng nội dung phần đầu cho TOC (hoặc gom nếu cần)
     const tocContent = allContents.map((c) => c.content).join(' ');
@@ -800,60 +799,60 @@ export default function BlogDesigner({
             editor.commands.deleteRange({ from: from - 1, to: from });
 
             switch (type) {
-                            case 'h2':
-                                editor.commands.setNode('heading', { level: 2 });
-                                break;
-                            case 'h3':
-                                editor.commands.setNode('heading', { level: 3 });
-                                break;
-                            case 'paragraph':
-                                editor.commands.setNode('paragraph');
-                                break;
-                            case 'bulletList':
-                                editor.commands.toggleBulletList();
-                                break;
-                            case 'orderedList':
-                                editor.commands.toggleOrderedList();
-                                break;
-                            case 'blockquote':
-                                editor.commands.toggleBlockquote();
-                                break;
-                            case 'codeBlock':
-                                editor.commands.toggleCodeBlock();
-                                break;
-                            case 'hr':
-                                editor.commands.insertContent({ type: 'horizontalRule' });
-                                break;
-                            case 'callout':
-                                editor.commands.insertContent({
-                                    type: 'callout',
-                                    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nhập nội dung lưu ý...' }] }],
-                                });
-                                break;
-                            case 'step': {
-                                const stepNum = editor.state.doc.content.content.filter((n) => n.type.name === 'step').length + 1;
-                                editor.commands.insertContent({
-                                    type: 'step',
-                                    attrs: { number: stepNum },
-                                    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Mô tả bước thực hiện...' }] }],
-                                });
-                                break;
-                            }
-                            case 'section':
-                                editor.commands.insertContent({
-                                    type: 'section',
-                                    attrs: { icon: '📌', title: 'Tên mục...' },
-                                    content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nội dung mục...' }] }],
-                                });
-                                break;
-                            case 'image':
-                                setImageModalOpen(true);
-                                break;
-                            case 'youtube':
-                                editor.commands.insertContent({ type: 'youtube', attrs: { id: '' } });
-                                break;
-                            default:
-                                break;
+                case 'h2':
+                    editor.commands.setNode('heading', { level: 2 });
+                    break;
+                case 'h3':
+                    editor.commands.setNode('heading', { level: 3 });
+                    break;
+                case 'paragraph':
+                    editor.commands.setNode('paragraph');
+                    break;
+                case 'bulletList':
+                    editor.commands.toggleBulletList();
+                    break;
+                case 'orderedList':
+                    editor.commands.toggleOrderedList();
+                    break;
+                case 'blockquote':
+                    editor.commands.toggleBlockquote();
+                    break;
+                case 'codeBlock':
+                    editor.commands.toggleCodeBlock();
+                    break;
+                case 'hr':
+                    editor.commands.insertContent({ type: 'horizontalRule' });
+                    break;
+                case 'callout':
+                    editor.commands.insertContent({
+                        type: 'callout',
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nhập nội dung lưu ý...' }] }],
+                    });
+                    break;
+                case 'step': {
+                    const stepNum = editor.state.doc.content.content.filter((n) => n.type.name === 'step').length + 1;
+                    editor.commands.insertContent({
+                        type: 'step',
+                        attrs: { number: stepNum },
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Mô tả bước thực hiện...' }] }],
+                    });
+                    break;
+                }
+                case 'section':
+                    editor.commands.insertContent({
+                        type: 'section',
+                        attrs: { icon: '📌', title: 'Tên mục...' },
+                        content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Nội dung mục...' }] }],
+                    });
+                    break;
+                case 'image':
+                    setImageModalOpen(true);
+                    break;
+                case 'youtube':
+                    editor.commands.insertContent({ type: 'youtube', attrs: { id: '' } });
+                    break;
+                default:
+                    break;
             }
             editor.commands.focus();
         },
@@ -1069,9 +1068,7 @@ export default function BlogDesigner({
                 <div className="bd-toolbar-right">
                     {/* Word count badge */}
                     {editor && (
-                        <span className="bd-word-count">
-                            {editor.storage?.characterCount?.words?.() ?? 0} từ
-                        </span>
+                        <span className="bd-word-count">{editor.storage?.characterCount?.words?.() ?? 0} từ</span>
                     )}
 
                     <div className="bd-slash-hint">
@@ -1086,7 +1083,14 @@ export default function BlogDesigner({
                         onClick={() => setPaletteOpen((o) => !o)}
                         title="Blocks"
                     >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                        >
                             <rect x="3" y="3" width="7" height="7" rx="1" />
                             <rect x="14" y="3" width="7" height="7" rx="1" />
                             <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -1118,8 +1122,7 @@ export default function BlogDesigner({
                 <div className="bd-editor-canvas">
                     <div className="bd-chapter-label">
                         <span className="bd-chapter-pill">
-                            Phần {activeChapterIndex + 1}:{' '}
-                            {activeChapter.title || `Phần ${activeChapterIndex + 1}`}
+                            Phần {activeChapterIndex + 1}: {activeChapter.title || `Phần ${activeChapterIndex + 1}`}
                         </span>
                     </div>
 

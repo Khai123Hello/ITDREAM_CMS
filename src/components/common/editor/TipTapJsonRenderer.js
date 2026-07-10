@@ -44,197 +44,197 @@ function renderNode(node, index, quizCtx) {
     const children = (node.content || []).map((child, i) => renderNode(child, i, quizCtx));
 
     switch (node.type) {
-                    case 'doc':
-                        return (
-                            <div key={index} className="tfo-blocks-content">
-                                {children}
-                            </div>
-                        );
+        case 'doc':
+            return (
+                <div key={index} className="tfo-blocks-content">
+                    {children}
+                </div>
+            );
 
-                    case 'paragraph':
-                        return <p key={index}>{children.length > 0 ? children : <br />}</p>;
+        case 'paragraph':
+            return <p key={index}>{children.length > 0 ? children : <br />}</p>;
 
-                    case 'heading': {
-                        const level = node.attrs?.level || 1;
-                        const text = node.content?.map((c) => c.text || '').join('') || '';
-                        const id = text
-                            .toLowerCase()
-                            .trim()
-                            .replace(/[^a-z0-9\u00C0-\u017F]+/g, '-');
-                        const Tag = `h${level}`;
-                        return (
-                            <Tag key={index} id={id}>
-                                {children}
-                            </Tag>
-                        );
-                    }
+        case 'heading': {
+            const level = node.attrs?.level || 1;
+            const text = node.content?.map((c) => c.text || '').join('') || '';
+            const id = text
+                .toLowerCase()
+                .trim()
+                .replace(/[^a-z0-9\u00C0-\u017F]+/g, '-');
+            const Tag = `h${level}`;
+            return (
+                <Tag key={index} id={id}>
+                    {children}
+                </Tag>
+            );
+        }
 
-                    case 'bulletList':
-                        return <ul key={index}>{children}</ul>;
+        case 'bulletList':
+            return <ul key={index}>{children}</ul>;
 
-                    case 'orderedList':
-                        return <ol key={index}>{children}</ol>;
+        case 'orderedList':
+            return <ol key={index}>{children}</ol>;
 
-                    case 'listItem':
-                        return <li key={index}>{children}</li>;
+        case 'listItem':
+            return <li key={index}>{children}</li>;
 
-                    case 'taskList':
-                        return (
-                            <ul key={index} data-type="taskList" className="tfo-task-list">
-                                {children}
-                            </ul>
-                        );
+        case 'taskList':
+            return (
+                <ul key={index} data-type="taskList" className="tfo-task-list">
+                    {children}
+                </ul>
+            );
 
-                    case 'taskItem':
-                        return (
-                            <li key={index} className="tfo-task-item" data-checked={node.attrs?.checked}>
-                                <input type="checkbox" checked={!!node.attrs?.checked} readOnly />
-                                <span>{children}</span>
-                            </li>
-                        );
+        case 'taskItem':
+            return (
+                <li key={index} className="tfo-task-item" data-checked={node.attrs?.checked}>
+                    <input type="checkbox" checked={!!node.attrs?.checked} readOnly />
+                    <span>{children}</span>
+                </li>
+            );
 
-                    case 'codeBlock': {
-                        const lang = node.attrs?.language;
-                        return (
-                            <pre key={index} className={lang ? `language-${lang}` : ''}>
-                                <code>{node.content?.[0]?.text || ''}</code>
-                            </pre>
-                        );
-                    }
+        case 'codeBlock': {
+            const lang = node.attrs?.language;
+            return (
+                <pre key={index} className={lang ? `language-${lang}` : ''}>
+                    <code>{node.content?.[0]?.text || ''}</code>
+                </pre>
+            );
+        }
 
-                    case 'blockquote':
-                        return <blockquote key={index}>{children}</blockquote>;
+        case 'blockquote':
+            return <blockquote key={index}>{children}</blockquote>;
 
-                    case 'horizontalRule':
-                        return <hr key={index} />;
+        case 'horizontalRule':
+            return <hr key={index} />;
 
-                    case 'image':
-                        return (
-                            <img
-                                key={index}
-                                src={node.attrs?.src}
-                                alt={node.attrs?.alt || ''}
-                                title={node.attrs?.title}
-                                style={{ maxWidth: '100%', height: 'auto' }}
-                            />
-                        );
+        case 'image':
+            return (
+                <img
+                    key={index}
+                    src={node.attrs?.src}
+                    alt={node.attrs?.alt || ''}
+                    title={node.attrs?.title}
+                    style={{ maxWidth: '100%', height: 'auto' }}
+                />
+            );
 
-                    case 'youtube': {
-                        const videoId = node.attrs?.id || '';
-                        if (!videoId) return null;
-                        return (
-                            <div key={index} className="bd-youtube-node">
-                                <iframe
-                                    src={`https://www.youtube.com/embed/${videoId}`}
-                                    title="YouTube video player"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                ></iframe>
-                            </div>
-                        );
-                    }
+        case 'youtube': {
+            const videoId = node.attrs?.id || '';
+            if (!videoId) return null;
+            return (
+                <div key={index} className="bd-youtube-node">
+                    <iframe
+                        src={`https://www.youtube.com/embed/${videoId}`}
+                        title="YouTube video player"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    ></iframe>
+                </div>
+            );
+        }
 
-                    case 'hardBreak':
-                        return <br key={index} />;
+        case 'hardBreak':
+            return <br key={index} />;
 
-                    case 'callout':
-                        return (
-                            <div key={index} className="bd-callout-node">
-                                <span className="bd-callout-icon">{node.attrs?.icon || '💡'}</span>
-                                <div className="bd-callout-content">{children}</div>
-                            </div>
-                        );
+        case 'callout':
+            return (
+                <div key={index} className="bd-callout-node">
+                    <span className="bd-callout-icon">{node.attrs?.icon || '💡'}</span>
+                    <div className="bd-callout-content">{children}</div>
+                </div>
+            );
 
-                    case 'step':
-                        return (
-                            <div key={index} className="bd-step-node">
-                                <span className="bd-step-num">{node.attrs?.number || index + 1}</span>
-                                <div className="bd-step-body">{children}</div>
-                            </div>
-                        );
+        case 'step':
+            return (
+                <div key={index} className="bd-step-node">
+                    <span className="bd-step-num">{node.attrs?.number || index + 1}</span>
+                    <div className="bd-step-body">{children}</div>
+                </div>
+            );
 
-                    case 'section':
-                        return (
-                            <div key={index} className="bd-section-node">
-                                <div className="bd-section-header">
-                                    <span>{node.attrs?.icon || '📜'}</span>
-                                    <strong>{node.attrs?.title}</strong>
-                                </div>
-                                <div className="bd-section-content">{children}</div>
-                            </div>
-                        );
+        case 'section':
+            return (
+                <div key={index} className="bd-section-node">
+                    <div className="bd-section-header">
+                        <span>{node.attrs?.icon || '📜'}</span>
+                        <strong>{node.attrs?.title}</strong>
+                    </div>
+                    <div className="bd-section-content">{children}</div>
+                </div>
+            );
 
-                    case 'quiz': {
-                        const options = (node.content || []).filter((c) => c.type === 'option');
-                        const questionKey = (node.attrs?.question || '').trim();
-                        const dataQId = node.attrs?.dataQuestionCode || '';
-                        const questionId = dataQId ? quizCtx?.questionMap?.[dataQId] : quizCtx?.questionMap?.[questionKey];
-                        const studentAnswer = quizCtx?.quizSubmissionMap?.[questionId];
-                        const hasAnswerInfo = !!studentAnswer;
-                        const isCorrect = studentAnswer?.isCorrect === true;
+        case 'quiz': {
+            const options = (node.content || []).filter((c) => c.type === 'option');
+            const questionKey = (node.attrs?.question || '').trim();
+            const dataQId = node.attrs?.dataQuestionCode || '';
+            const questionId = dataQId ? quizCtx?.questionMap?.[dataQId] : quizCtx?.questionMap?.[questionKey];
+            const studentAnswer = quizCtx?.quizSubmissionMap?.[questionId];
+            const hasAnswerInfo = !!studentAnswer;
+            const isCorrect = studentAnswer?.isCorrect === true;
 
-                        let quizClass = 'tfo-block-quiz';
-                        if (quizCtx?.quizSubmissionMap) {
-                            quizClass += hasAnswerInfo ? (isCorrect ? ' quiz-correct' : ' quiz-wrong') : '';
-                        }
+            let quizClass = 'tfo-block-quiz';
+            if (quizCtx?.quizSubmissionMap) {
+                quizClass += hasAnswerInfo ? (isCorrect ? ' quiz-correct' : ' quiz-wrong') : '';
+            }
 
-                        const optionElements = options.map((opt, i) => {
-                            const correct = opt.attrs?.correct === true;
-                            const letter = String.fromCharCode(65 + i);
-                            const text = opt.content?.[0]?.text || '';
-                            const isSelected = studentAnswer && studentAnswer.answer === text;
-                            let optClass = 'tfo-quiz-option';
-                            if (quizCtx?.quizSubmissionMap) {
-                                if (isSelected) optClass += ' selected';
-                                if (correct) optClass += ' answer-correct';
-                                if (isSelected && !correct) optClass += ' answer-wrong';
-                            } else if (correct) {
-                                optClass += ' answer-correct';
-                            }
-                            return (
-                                <div key={i} className={optClass}>
-                                    <span className="tfo-quiz-option-letter">{letter}.</span>
-                                    <span className="tfo-quiz-option-text">{text}</span>
-                                    {quizCtx?.quizSubmissionMap && correct && (
-                                        <span className="tfo-quiz-option-badge correct">✓ Đúng</span>
-                                    )}
-                                    {quizCtx?.quizSubmissionMap && isSelected && !correct && (
-                                        <span className="tfo-quiz-option-badge wrong">✗ Học viên chọn</span>
-                                    )}
-                                    {!quizCtx?.quizSubmissionMap && correct && (
-                                        <span className="tfo-quiz-option-badge correct">✓ Đáp án đúng</span>
-                                    )}
-                                </div>
-                            );
-                        });
+            const optionElements = options.map((opt, i) => {
+                const correct = opt.attrs?.correct === true;
+                const letter = String.fromCharCode(65 + i);
+                const text = opt.content?.[0]?.text || '';
+                const isSelected = studentAnswer && studentAnswer.answer === text;
+                let optClass = 'tfo-quiz-option';
+                if (quizCtx?.quizSubmissionMap) {
+                    if (isSelected) optClass += ' selected';
+                    if (correct) optClass += ' answer-correct';
+                    if (isSelected && !correct) optClass += ' answer-wrong';
+                } else if (correct) {
+                    optClass += ' answer-correct';
+                }
+                return (
+                    <div key={i} className={optClass}>
+                        <span className="tfo-quiz-option-letter">{letter}.</span>
+                        <span className="tfo-quiz-option-text">{text}</span>
+                        {quizCtx?.quizSubmissionMap && correct && (
+                            <span className="tfo-quiz-option-badge correct">✓ Đúng</span>
+                        )}
+                        {quizCtx?.quizSubmissionMap && isSelected && !correct && (
+                            <span className="tfo-quiz-option-badge wrong">✗ Học viên chọn</span>
+                        )}
+                        {!quizCtx?.quizSubmissionMap && correct && (
+                            <span className="tfo-quiz-option-badge correct">✓ Đáp án đúng</span>
+                        )}
+                    </div>
+                );
+            });
 
-                        return (
-                            <div key={index} className={quizClass}>
-                                <div className="tfo-block-quiz-question">
-                                    <span className="tfo-block-quiz-icon">❓</span>
-                                    <span className="tfo-block-quiz-text">{node.attrs?.question}</span>
-                                </div>
-                                <div className="tfo-block-quiz-options">{optionElements}</div>
-                                {quizCtx?.quizSubmissionMap && (
-                                    <div className="tfo-block-quiz-footer">
-                                        {hasAnswerInfo ? (
-                                            <span className={`tfo-quiz-result-label ${isCorrect ? 'correct' : 'wrong'}`}>
-                                                {isCorrect ? '🎉 Học viên trả lời chính xác!' : '😅 Học viên trả lời chưa đúng!'}
-                                            </span>
-                                        ) : (
-                                            <span className="tfo-quiz-result-label" style={{ color: '#8c8c8c' }}>
+            return (
+                <div key={index} className={quizClass}>
+                    <div className="tfo-block-quiz-question">
+                        <span className="tfo-block-quiz-icon">❓</span>
+                        <span className="tfo-block-quiz-text">{node.attrs?.question}</span>
+                    </div>
+                    <div className="tfo-block-quiz-options">{optionElements}</div>
+                    {quizCtx?.quizSubmissionMap && (
+                        <div className="tfo-block-quiz-footer">
+                            {hasAnswerInfo ? (
+                                <span className={`tfo-quiz-result-label ${isCorrect ? 'correct' : 'wrong'}`}>
+                                    {isCorrect ? '🎉 Học viên trả lời chính xác!' : '😅 Học viên trả lời chưa đúng!'}
+                                </span>
+                            ) : (
+                                <span className="tfo-quiz-result-label" style={{ color: '#8c8c8c' }}>
                                     Học viên chưa làm câu này.
-                                            </span>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        );
-                    }
+                                </span>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
-                    default:
-                        return <React.Fragment key={index}>{children}</React.Fragment>;
+        default:
+            return <React.Fragment key={index}>{children}</React.Fragment>;
     }
 }
 
