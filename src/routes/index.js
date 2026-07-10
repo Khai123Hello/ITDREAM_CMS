@@ -24,6 +24,7 @@ import jobRoutes from '@modules/job/routes';
 
 import permissionRoutes from '@modules/permission/routes';
 import nationRoutes from '@modules/nation/routes';
+import achievementRoutes from '@modules/achievement/routes';
 
 /*
     auth
@@ -103,6 +104,7 @@ const routes = {
 
     ...permissionRoutes,
     ...nationRoutes,
+    ...achievementRoutes,
     // keep this at last
     notFound: {
         component: PageNotFound,

@@ -18,14 +18,14 @@ const JobSavePage = () => {
     const { detail, mixinFuncs, loading, onSave, setIsChangedFormValues, isEditing } = useSaveBase({
         apiConfig: isEducator
             ? {
-                  getById: apiConfig.job.educatorGetById,
-                  create: apiConfig.job.create,
-                  update: apiConfig.job.update,
-              }
+                getById: apiConfig.job.educatorGetById,
+                create: apiConfig.job.create,
+                update: apiConfig.job.update,
+            }
             : {
-                  getById: apiConfig.job.getById,
-                  update: apiConfig.job.updateStatus,
-              },
+                getById: apiConfig.job.getById,
+                update: apiConfig.job.updateStatus,
+            },
         options: {
             getListUrl: '/job',
             objectName: 'tin tuyển dụng',

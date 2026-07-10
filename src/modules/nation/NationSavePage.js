@@ -89,24 +89,24 @@ const NationSavePage = ({ pageOptions = {} }) => {
 
     const breadcrumbs = pageOptions.renderBreadcrumbs
         ? pageOptions.renderBreadcrumbs(commonMessage, translate, title, {
-              parentId: currentParentId,
-              parentName: parentName,
-          })
+            parentId: currentParentId,
+            parentName: parentName,
+        })
         : [
-              {
-                  breadcrumbName: 'Tỉnh thành / Địa chỉ',
-                  path: '/nation',
-              },
-              ...(currentParentId
-                  ? [
-                        {
-                            breadcrumbName: parentName,
-                            path: `/nation?parentId=${currentParentId}`,
-                        },
-                    ]
-                  : []),
-              { breadcrumbName: title },
-          ];
+            {
+                breadcrumbName: 'Tỉnh thành / Địa chỉ',
+                path: '/nation',
+            },
+            ...(currentParentId
+                ? [
+                    {
+                        breadcrumbName: parentName,
+                        path: `/nation?parentId=${currentParentId}`,
+                    },
+                ]
+                : []),
+            { breadcrumbName: title },
+        ];
 
     return (
         <PageWrapper loading={loading} routes={breadcrumbs}>

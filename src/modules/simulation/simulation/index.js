@@ -107,21 +107,21 @@ const SimulationListPage = ({ pageOptions }) => {
     // Cấu hình API theo role
     const apiConfiguration = isEducator
         ? {
-              create: apiConfig.simulation.create,
-              getList: apiConfig.simulation.getListForEducator,
-              update: apiConfig.simulation.update,
-              changeStatus: apiConfig.simulation.approve,
-              requestDelete: apiConfig.simulation.requestDelete,
-              educatorDelete: apiConfig.simulation.educatorDelete,
-          }
+            create: apiConfig.simulation.create,
+            getList: apiConfig.simulation.getListForEducator,
+            update: apiConfig.simulation.update,
+            changeStatus: apiConfig.simulation.approve,
+            requestDelete: apiConfig.simulation.requestDelete,
+            educatorDelete: apiConfig.simulation.educatorDelete,
+        }
         : {
-              getList: apiConfig.simulation.getList,
-              changeStatus: null,
-              approve: apiConfig.simulation.approve,
-              approveDelete: apiConfig.simulation.approveDelete,
-              reject: apiConfig.simulation.reject,
-              rejectDelete: apiConfig.simulation.rejectDelete,
-          };
+            getList: apiConfig.simulation.getList,
+            changeStatus: null,
+            approve: apiConfig.simulation.approve,
+            approveDelete: apiConfig.simulation.approveDelete,
+            reject: apiConfig.simulation.reject,
+            rejectDelete: apiConfig.simulation.rejectDelete,
+        };
 
     const { data, mixinFuncs, queryFilter, loading, pagination, setData, setLoading } = useListBase({
         apiConfig: apiConfiguration,
@@ -707,108 +707,108 @@ const SimulationListPage = ({ pageOptions }) => {
         },
         ...(!isEducator
             ? [
-                  {
-                      title: labels.educator,
-                      width: '200px',
-                      render: (_, record) => {
-                          const name =
+                {
+                    title: labels.educator,
+                    width: '200px',
+                    render: (_, record) => {
+                        const name =
                               record.educator?.profileAccountDto?.fullName ||
                               record.educator?.fullName ||
                               record.educator?.account?.fullName ||
                               record.educator?.name ||
                               '-';
-                          const orgName =
+                        const orgName =
                               record.educator?.organization?.shortName || record.educator?.organization?.name;
-                          const logo = record.educator?.organization?.logoUrl;
-                          const logoUrl = logo
-                              ? logo.startsWith('http')
-                                  ? logo
-                                  : `${AppConstants.contentRootUrl}${logo}`
-                              : null;
-                          return (
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                  {logoUrl ? (
-                                      <AvatarField size={30} shape="circle" src={logoUrl} />
-                                  ) : (
-                                      <div
-                                          style={{
-                                              width: '30px',
-                                              height: '30px',
-                                              borderRadius: '50%',
-                                              background: '#f1f5f9',
-                                              border: '1px solid #e2e8f0',
-                                              display: 'flex',
-                                              alignItems: 'center',
-                                              justifyContent: 'center',
-                                              fontSize: '11px',
-                                              color: '#64748b',
-                                              fontWeight: 'bold',
-                                              flexShrink: 0,
-                                          }}
-                                      >
-                                          {orgName ? orgName.substring(0, 2).toUpperCase() : 'G'}
-                                      </div>
-                                  )}
-                                  <div style={{ minWidth: 0, flex: 1 }}>
-                                      <div
-                                          style={{
-                                              fontWeight: '600',
-                                              fontSize: '13px',
-                                              color: '#334155',
-                                              textOverflow: 'ellipsis',
-                                              overflow: 'hidden',
-                                              whiteSpace: 'nowrap',
-                                          }}
-                                          title={orgName || 'Giảng viên'}
-                                      >
-                                          {orgName || 'Giảng viên'}
-                                      </div>
-                                      <div
-                                          style={{
-                                              fontSize: '12px',
-                                              color: '#64748b',
-                                              marginTop: '2px',
-                                              textOverflow: 'ellipsis',
-                                              overflow: 'hidden',
-                                              whiteSpace: 'nowrap',
-                                          }}
-                                          title={name}
-                                      >
-                                          {name}
-                                      </div>
-                                  </div>
-                              </div>
-                          );
-                      },
-                  },
-              ]
+                        const logo = record.educator?.organization?.logoUrl;
+                        const logoUrl = logo
+                            ? logo.startsWith('http')
+                                ? logo
+                                : `${AppConstants.contentRootUrl}${logo}`
+                            : null;
+                        return (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {logoUrl ? (
+                                    <AvatarField size={30} shape="circle" src={logoUrl} />
+                                ) : (
+                                    <div
+                                        style={{
+                                            width: '30px',
+                                            height: '30px',
+                                            borderRadius: '50%',
+                                            background: '#f1f5f9',
+                                            border: '1px solid #e2e8f0',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '11px',
+                                            color: '#64748b',
+                                            fontWeight: 'bold',
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        {orgName ? orgName.substring(0, 2).toUpperCase() : 'G'}
+                                    </div>
+                                )}
+                                <div style={{ minWidth: 0, flex: 1 }}>
+                                    <div
+                                        style={{
+                                            fontWeight: '600',
+                                            fontSize: '13px',
+                                            color: '#334155',
+                                            textOverflow: 'ellipsis',
+                                            overflow: 'hidden',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                        title={orgName || 'Giảng viên'}
+                                    >
+                                        {orgName || 'Giảng viên'}
+                                    </div>
+                                    <div
+                                        style={{
+                                            fontSize: '12px',
+                                            color: '#64748b',
+                                            marginTop: '2px',
+                                            textOverflow: 'ellipsis',
+                                            overflow: 'hidden',
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                        title={name}
+                                    >
+                                        {name}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    },
+                },
+            ]
             : []),
         mixinFuncs.renderStatusColumn({ width: '120px' }),
         mixinFuncs.renderActionColumn(
             isEducator
                 ? {
-                      task: () => mixinFuncs.hasPermission([apiConfig.task.listByEducator.permissionCode]),
-                      requestDelete: (dataRow) =>
-                          dataRow.status !== STATUS_WAITING_APPROVE &&
+                    task: () => mixinFuncs.hasPermission([apiConfig.task.listByEducator.permissionCode]),
+                    requestDelete: (dataRow) =>
+                        dataRow.status !== STATUS_WAITING_APPROVE &&
                           dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
                           mixinFuncs.hasPermission([apiConfig.simulation.requestDelete.permissionCode]),
-                      educatorDelete: (dataRow) =>
-                          dataRow.status === STATUS_WAITING_APPROVE &&
+                    educatorDelete: (dataRow) =>
+                        dataRow.status === STATUS_WAITING_APPROVE &&
                           mixinFuncs.hasPermission([apiConfig.simulation.educatorDelete.permissionCode]),
-                      // viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
-                      edit: (dataRow) =>
-                          dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
+                    // viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
+                    edit: (dataRow) =>
+                        dataRow.status !== STATUS_WAITING_APPROVE_DELETE &&
                           mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
-                  }
+                }
                 : {
-                      task: () => mixinFuncs.hasPermission([apiConfig.task.getList.permissionCode]),
-                      approve: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
-                      reject: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
-                      approveDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
-                      rejectDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
-                      // viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
-                      edit: () => mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
-                  },
+                    task: () => mixinFuncs.hasPermission([apiConfig.task.getList.permissionCode]),
+                    approve: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
+                    reject: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE,
+                    approveDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
+                    rejectDelete: (dataRow) => dataRow.status === STATUS_WAITING_APPROVE_DELETE,
+                    // viewNotice: (dataRow) => dataRow.notice && dataRow.notice.trim(),
+                    edit: () => mixinFuncs.hasPermission([apiConfig.simulation.update.permissionCode]),
+                },
             { width: '300px', title: labels.action },
         ),
     ];

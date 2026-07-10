@@ -273,69 +273,69 @@ const JobForm = (props) => {
                                     },
                                     isEducator
                                         ? {
-                                              key: '2',
-                                              label: 'Nhập đường dẫn (URL)',
-                                              children: (
-                                                  <div style={{ maxWidth: 600 }}>
-                                                      <Typography.Text
-                                                          type="secondary"
-                                                          style={{ fontSize: 13, display: 'block', marginBottom: 8 }}
-                                                      >
+                                            key: '2',
+                                            label: 'Nhập đường dẫn (URL)',
+                                            children: (
+                                                <div style={{ maxWidth: 600 }}>
+                                                    <Typography.Text
+                                                        type="secondary"
+                                                        style={{ fontSize: 13, display: 'block', marginBottom: 8 }}
+                                                    >
                                                           Nhập đường dẫn hình ảnh (bắt đầu bằng http hoặc https):
-                                                      </Typography.Text>
-                                                      <Input
-                                                          placeholder="https://example.com/image.jpg"
-                                                          value={
-                                                              typeof image === 'string' && image.startsWith('http')
-                                                                  ? image
-                                                                  : ''
-                                                          }
-                                                          onChange={(e) => {
-                                                              const v = e.target.value;
-                                                              setImage(v);
-                                                              form.setFieldsValue({ image: v });
-                                                              if (v) {
-                                                                  setPreviewUrl(
-                                                                      v.startsWith('http')
-                                                                          ? v
-                                                                          : `${AppConstants.contentRootUrl}${v}`,
-                                                                  );
-                                                              } else {
-                                                                  setPreviewUrl(null);
-                                                              }
-                                                          }}
-                                                          allowClear
-                                                          style={{ borderRadius: 6 }}
-                                                      />
-                                                      {typeof image === 'string' && image.startsWith('http') && (
-                                                          <div
-                                                              style={{
-                                                                  marginTop: 16,
-                                                                  borderRadius: 8,
-                                                                  overflow: 'hidden',
-                                                                  border: '1px solid #e2e8f0',
-                                                                  aspectRatio: '16/9',
-                                                                  background: '#f1f5f9',
-                                                              }}
-                                                          >
-                                                              <img
-                                                                  src={image}
-                                                                  alt="preview"
-                                                                  style={{
-                                                                      width: '100%',
-                                                                      height: '100%',
-                                                                      objectFit: 'cover',
-                                                                      display: 'block',
-                                                                  }}
-                                                                  onError={(e) => {
-                                                                      e.target.style.display = 'none';
-                                                                  }}
-                                                              />
-                                                          </div>
-                                                      )}
-                                                  </div>
-                                              ),
-                                          }
+                                                    </Typography.Text>
+                                                    <Input
+                                                        placeholder="https://example.com/image.jpg"
+                                                        value={
+                                                            typeof image === 'string' && image.startsWith('http')
+                                                                ? image
+                                                                : ''
+                                                        }
+                                                        onChange={(e) => {
+                                                            const v = e.target.value;
+                                                            setImage(v);
+                                                            form.setFieldsValue({ image: v });
+                                                            if (v) {
+                                                                setPreviewUrl(
+                                                                    v.startsWith('http')
+                                                                        ? v
+                                                                        : `${AppConstants.contentRootUrl}${v}`,
+                                                                );
+                                                            } else {
+                                                                setPreviewUrl(null);
+                                                            }
+                                                        }}
+                                                        allowClear
+                                                        style={{ borderRadius: 6 }}
+                                                    />
+                                                    {typeof image === 'string' && image.startsWith('http') && (
+                                                        <div
+                                                            style={{
+                                                                marginTop: 16,
+                                                                borderRadius: 8,
+                                                                overflow: 'hidden',
+                                                                border: '1px solid #e2e8f0',
+                                                                aspectRatio: '16/9',
+                                                                background: '#f1f5f9',
+                                                            }}
+                                                        >
+                                                            <img
+                                                                src={image}
+                                                                alt="preview"
+                                                                style={{
+                                                                    width: '100%',
+                                                                    height: '100%',
+                                                                    objectFit: 'cover',
+                                                                    display: 'block',
+                                                                }}
+                                                                onError={(e) => {
+                                                                    e.target.style.display = 'none';
+                                                                }}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ),
+                                        }
                                         : null,
                                 ].filter(Boolean)}
                             />

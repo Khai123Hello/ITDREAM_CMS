@@ -78,6 +78,12 @@ export const navMenuConfig = [
                 path: '/simulation-discussion',
                 permission: [apiConfig.simulation.getListForEducator.permissionCode],
             },
+            {
+                label: <FormattedMessage defaultMessage="Quản lý thành tựu" />,
+                key: 'achievement',
+                path: '/achievement',
+                permission: [apiConfig.achievement.list.permissionCode],
+            },
         ],
     },
     {

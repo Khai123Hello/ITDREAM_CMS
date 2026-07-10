@@ -684,82 +684,82 @@ export default function BlockEditor({
         editor.commands.focus();
 
         switch (commandType) {
-            case 'bold':
-                editor.chain().focus().toggleBold().run();
-                break;
-            case 'italic':
-                editor.chain().focus().toggleItalic().run();
-                break;
-            case 'underline':
-                editor.chain().focus().toggleUnderline().run();
-                break;
-            case 'strike':
-                editor.chain().focus().toggleStrike().run();
-                break;
-            case 'highlight':
-                editor.chain().focus().toggleHighlight().run();
-                break;
-            case 'subscript':
-                editor.chain().focus().toggleSubscript().run();
-                break;
-            case 'superscript':
-                editor.chain().focus().toggleSuperscript().run();
-                break;
-            case 'taskList':
-                editor.chain().focus().toggleTaskList().run();
-                break;
-            case 'horizontalRule':
-                editor.chain().focus().setHorizontalRule().run();
-                break;
-            case 'link':
-                setLinkUrl(editor.getAttributes('link').href || '');
-                setLinkModalVisible(true);
-                break;
-            case 'image':
-                setImageUrl('');
-                setImageModalVisible(true);
-                break;
-            case 'h1':
-                editor.chain().focus().toggleHeading({ level: 1 }).run();
-                break;
-            case 'h2':
-                editor.chain().focus().toggleHeading({ level: 2 }).run();
-                break;
-            case 'h3':
-                editor.chain().focus().toggleHeading({ level: 3 }).run();
-                break;
-            case 'bullet':
-                editor.chain().focus().toggleBulletList().run();
-                break;
-            case 'ordered':
-                editor.chain().focus().toggleOrderedList().run();
-                break;
-            case 'callout':
-                editor
-                    .chain()
-                    .focus()
-                    .insertContent('<callout-block><p>Nhập nội dung lưu ý của bạn ở đây...</p></callout-block>')
-                    .run();
-                break;
-            case 'step':
-                editor
-                    .chain()
-                    .focus()
-                    .insertContent('<step-block label="Bước mới"><p>Nhập mô tả bước ở đây...</p></step-block>')
-                    .run();
-                break;
-            case 'section':
-                editor
-                    .chain()
-                    .focus()
-                    .insertContent(
-                        '<section-block icon="🎓" title="Kiến thức đạt được"><ul><li>Kiến thức 1</li></ul></section-block>',
-                    )
-                    .run();
-                break;
+                        case 'bold':
+                            editor.chain().focus().toggleBold().run();
+                            break;
+                        case 'italic':
+                            editor.chain().focus().toggleItalic().run();
+                            break;
+                        case 'underline':
+                            editor.chain().focus().toggleUnderline().run();
+                            break;
+                        case 'strike':
+                            editor.chain().focus().toggleStrike().run();
+                            break;
+                        case 'highlight':
+                            editor.chain().focus().toggleHighlight().run();
+                            break;
+                        case 'subscript':
+                            editor.chain().focus().toggleSubscript().run();
+                            break;
+                        case 'superscript':
+                            editor.chain().focus().toggleSuperscript().run();
+                            break;
+                        case 'taskList':
+                            editor.chain().focus().toggleTaskList().run();
+                            break;
+                        case 'horizontalRule':
+                            editor.chain().focus().setHorizontalRule().run();
+                            break;
+                        case 'link':
+                            setLinkUrl(editor.getAttributes('link').href || '');
+                            setLinkModalVisible(true);
+                            break;
+                        case 'image':
+                            setImageUrl('');
+                            setImageModalVisible(true);
+                            break;
+                        case 'h1':
+                            editor.chain().focus().toggleHeading({ level: 1 }).run();
+                            break;
+                        case 'h2':
+                            editor.chain().focus().toggleHeading({ level: 2 }).run();
+                            break;
+                        case 'h3':
+                            editor.chain().focus().toggleHeading({ level: 3 }).run();
+                            break;
+                        case 'bullet':
+                            editor.chain().focus().toggleBulletList().run();
+                            break;
+                        case 'ordered':
+                            editor.chain().focus().toggleOrderedList().run();
+                            break;
+                        case 'callout':
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent('<callout-block><p>Nhập nội dung lưu ý của bạn ở đây...</p></callout-block>')
+                                .run();
+                            break;
+                        case 'step':
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent('<step-block label="Bước mới"><p>Nhập mô tả bước ở đây...</p></step-block>')
+                                .run();
+                            break;
+                        case 'section':
+                            editor
+                                .chain()
+                                .focus()
+                                .insertContent(
+                                    '<section-block icon="🎓" title="Kiến thức đạt được"><ul><li>Kiến thức 1</li></ul></section-block>',
+                                )
+                                .run();
+                            break;
 
-            default:
-                break;
+                        default:
+                            break;
         }
     };
 

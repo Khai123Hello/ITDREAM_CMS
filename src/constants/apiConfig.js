@@ -1449,6 +1449,14 @@ const apiConfig = {
             permissionCode: 'JP_ED_D',
         },
     },
+    achievement: {
+        list: {
+            baseURL: `${apiUrl}v1/achievement/list`,
+            method: 'GET',
+            headers: baseHeader,
+            permissionCode: 'ACH_L',
+        },
+    },
 };
 
 export default apiConfig;

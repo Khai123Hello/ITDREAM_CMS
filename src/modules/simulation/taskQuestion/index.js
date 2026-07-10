@@ -39,15 +39,15 @@ const TaskQuestionListPage = ({ pageOptions }) => {
     // Cấu hình API theo role
     const apiConfiguration = isEducator
         ? {
-              getList: apiConfig.taskQuestion.educatorList,
-              delete: apiConfig.taskQuestion.delete,
-              create: apiConfig.taskQuestion.create,
-              update: apiConfig.taskQuestion.update,
-          }
+            getList: apiConfig.taskQuestion.educatorList,
+            delete: apiConfig.taskQuestion.delete,
+            create: apiConfig.taskQuestion.create,
+            update: apiConfig.taskQuestion.update,
+        }
         : {
-              getList: apiConfig.taskQuestion.getList,
-              // Admin không có quyền delete, create, update
-          };
+            getList: apiConfig.taskQuestion.getList,
+            // Admin không có quyền delete, create, update
+        };
 
     const { data, mixinFuncs, queryFilter, loading, pagination } = useListBase({
         apiConfig: apiConfiguration,
