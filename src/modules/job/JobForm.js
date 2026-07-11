@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Divider, Input, Select, Form, Checkbox, Tabs, Typography } from 'antd';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 import { BaseForm } from '@components/common/form/BaseForm';
 import TextField from '@components/common/form/TextField';
@@ -201,8 +206,8 @@ const JobForm = (props) => {
                 address: dataDetail.address || '',
                 provinceId: dataDetail.provinceId || null,
                 wardId: dataDetail.wardId || null,
-                date: dataDetail.date ? dayjs(dataDetail.date) : null,
-                endDate: dataDetail.endDate ? dayjs(dataDetail.endDate) : null,
+                date: dataDetail.date ? dayjs.utc(dataDetail.date, 'DD/MM/YYYY HH:mm:ss').tz('Asia/Ho_Chi_Minh') : null,
+                endDate: dataDetail.endDate ? dayjs.utc(dataDetail.endDate, 'DD/MM/YYYY HH:mm:ss').tz('Asia/Ho_Chi_Minh') : null,
                 simulationIds: dataDetail.simulationIds || [],
                 status: dataDetail.status ?? 1,
                 notice: dataDetail.notice || '',

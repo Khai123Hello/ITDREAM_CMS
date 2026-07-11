@@ -2,6 +2,7 @@ import React from 'react';
 import { Empty, Button, Tooltip } from 'antd';
 import { FilePdfOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { convertUtcToLocalTime } from '@utils';
 
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
@@ -91,7 +92,7 @@ const AchievementListPage = ({ pageOptions = {} }) => {
             render: (_, record) => {
                 const title = record.simulation?.title || '-';
                 const createdDate = record.createdDate;
-                const formattedDate = createdDate ? dayjs(createdDate).format('DD/MM/YYYY HH:mm') : '-';
+                const formattedDate = createdDate ? convertUtcToLocalTime(createdDate, 'DD/MM/YYYY HH:mm:ss', 'DD/MM/YYYY HH:mm') : '-';
                 return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ fontWeight: '500', color: '#0f172a', fontSize: '14px' }}>

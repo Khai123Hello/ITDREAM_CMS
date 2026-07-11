@@ -18,9 +18,13 @@ import { commonMessage } from '@locales/intl';
 import { showErrorMessage } from '@services/notifyService';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import DatePickerField from '@components/common/form/DatePickerField';
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 const mapStudents = (res) => res.data?.content || [];
 
@@ -106,7 +110,7 @@ const StudentForm = (props) => {
         return mixinFuncs.handleSubmit({
             ...values,
             avatarPath: imageUrl,
-            birthday: values.birthday?.format('DD/MM/YYYY HH:mm:ss') || null,
+            birthday: values.birthday ? values.birthday.utc().format('DD/MM/YYYY HH:mm:ss') : null,
         });
     };
 
@@ -116,7 +120,7 @@ const StudentForm = (props) => {
             fullName: dataDetail?.fullName,
             phone: dataDetail?.phone,
             username: dataDetail?.username,
-            birthday: dataDetail?.birthday ? dayjs(dataDetail.birthday, 'DD/MM/YYYY HH:mm:ss') : null,
+            birthday: dataDetail?.birthday ? dayjs.utc(dataDetail.birthday, 'DD/MM/YYYY HH:mm:ss').tz('Asia/Ho_Chi_Minh') : null,
             status: dataDetail?.status,
             avatarPath: dataDetail?.avatarPath,
         });

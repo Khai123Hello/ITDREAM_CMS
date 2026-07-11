@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 import { Empty, Tag, Avatar, Tooltip, Select, Modal, Input } from 'antd';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
@@ -336,8 +341,8 @@ const JobListPage = () => {
             render: (_, record) => {
                 if (record.type === 1) {
                     if (!record.date) return '';
-                    const eventDate = dayjs(record.date);
-                    const isPast = eventDate.isBefore(dayjs(), 'day');
+                    const eventDate = dayjs.utc(record.date, 'DD/MM/YYYY HH:mm:ss').tz('Asia/Ho_Chi_Minh');
+                    const isPast = eventDate.isBefore(dayjs().tz('Asia/Ho_Chi_Minh'), 'day');
                     return (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span style={{ fontSize: '13px' }}>{eventDate.format('DD/MM/YYYY')}</span>
@@ -355,8 +360,8 @@ const JobListPage = () => {
                 }
 
                 if (!record.endDate) return '';
-                const deadline = dayjs(record.endDate);
-                const isExpired = deadline.isBefore(dayjs(), 'day');
+                const deadline = dayjs.utc(record.endDate, 'DD/MM/YYYY HH:mm:ss').tz('Asia/Ho_Chi_Minh');
+                const isExpired = deadline.isBefore(dayjs().tz('Asia/Ho_Chi_Minh'), 'day');
                 return (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                         <span style={{ fontSize: '13px' }}>Hạn chót: {deadline.format('DD/MM/YYYY')}</span>

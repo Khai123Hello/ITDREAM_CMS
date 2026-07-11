@@ -1,6 +1,11 @@
 import { Card, Col, Row, Spin } from 'antd';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 import { confirmPasswordValidator, emailValidator, passwordValidator, phoneValidator } from '@utils/formValidator';
 
@@ -158,7 +163,7 @@ const AdminForm = (props) => {
             }
 
             // Format birthday
-            const formattedBirthday = values.birthday ? dayjs(values.birthday).format(DEFAULT_FORMAT) : null;
+            const formattedBirthday = values.birthday ? values.birthday.utc().format(DEFAULT_FORMAT) : null;
 
             // Chuẩn bị data để submit
             const submitData = {
@@ -188,7 +193,7 @@ const AdminForm = (props) => {
         console.log('📊 Data Detail Changed:', dataDetail);
 
         // Chuyển chuỗi ngày tháng từ dataDetail thành đối tượng dayjs
-        const initialBirthday = dataDetail?.birthday ? dayjs(dataDetail.birthday, DEFAULT_FORMAT) : null;
+        const initialBirthday = dataDetail?.birthday ? dayjs.utc(dataDetail.birthday, DEFAULT_FORMAT).tz('Asia/Ho_Chi_Minh') : null;
 
         form.setFieldsValue({
             username: dataDetail?.username || '',

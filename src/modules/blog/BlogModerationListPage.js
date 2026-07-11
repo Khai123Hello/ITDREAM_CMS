@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Empty, Button, Drawer, Modal, Input, Space, Divider } from 'antd';
 import { CheckCircleOutlined, CloseCircleOutlined, EyeOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { convertUtcToLocalTime } from '@utils';
 
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
@@ -326,7 +327,7 @@ const BlogModerationListPage = () => {
                             </span>
                             <Divider type="vertical" />
                             <span>
-                                Ngày tạo: <strong>{dayjs(previewRecord.createdDate).format('DD/MM/YYYY HH:mm')}</strong>
+                                 Ngày tạo: <strong>{convertUtcToLocalTime(previewRecord.createdDate, 'DD/MM/YYYY HH:mm:ss', 'DD/MM/YYYY HH:mm')}</strong>
                             </span>
                         </div>
 

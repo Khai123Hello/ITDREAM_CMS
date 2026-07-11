@@ -4,6 +4,7 @@ import { Spin, Table, Tag } from 'antd';
 import { DownloadOutlined, FileTextOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { AppConstants } from '@constants';
+import { convertUtcToLocalTime } from '@utils';
 
 import '../../modules/reviewSubmission/StudentReviewDetailPage.scss';
 import TipTapJsonRenderer from '@components/common/editor/TipTapJsonRenderer';
@@ -344,7 +345,7 @@ const StudentSubmissionViewer = ({ subtaskDetail, submissions = [], apiQuizQuest
                                         title: 'Thời gian',
                                         dataIndex: 'createdDate',
                                         width: '150px',
-                                        render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-'),
+                                        render: (date) => (date ? convertUtcToLocalTime(date, 'DD/MM/YYYY HH:mm:ss', 'DD/MM/YYYY HH:mm:ss') : '-'),
                                     },
                                 ]}
                             />

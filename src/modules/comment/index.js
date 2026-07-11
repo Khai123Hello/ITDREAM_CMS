@@ -2,6 +2,7 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { Empty, Tag, Button, Pagination, Spin, Modal, message } from 'antd';
 import { DeleteOutlined, MessageOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import { convertUtcToLocalTime } from '@utils';
 
 import useListBase from '@hooks/useListBase';
 import useTranslate from '@hooks/useTranslate';
@@ -409,7 +410,7 @@ const CommentListPage = () => {
                         <div style={{ fontSize: 10, color: '#64748b' }}>{username || 'Học viên'}</div>
                     </div>
                     <span style={{ fontSize: 10, color: '#94a3b8' }}>
-                        {comment.createdDate ? dayjs(comment.createdDate).format('DD/MM/YYYY HH:mm') : ''}
+                        {comment.createdDate ? convertUtcToLocalTime(comment.createdDate, 'DD/MM/YYYY HH:mm:ss', 'DD/MM/YYYY HH:mm') : ''}
                     </span>
                 </div>
 

@@ -9,8 +9,12 @@ import SelectField from '@components/common/form/SelectField';
 import DatePickerField from '@components/common/form/DatePickerField';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 import useBasicForm from '@hooks/useBasicForm';
 import useFetch from '@hooks/useFetch';
@@ -124,7 +128,7 @@ const EducatorForm = (props) => {
         return mixinFuncs.handleSubmit({
             ...values,
             avatarPath: imageUrl,
-            birthday: values.birthday?.format('DD/MM/YYYY 00:00:00') || null,
+            birthday: values.birthday ? values.birthday.utc().format('DD/MM/YYYY HH:mm:ss') : null,
         });
     };
 
@@ -136,7 +140,7 @@ const EducatorForm = (props) => {
             username: dataDetail?.account?.username,
             groupId: dataDetail?.account?.group?.id,
             departmentId: dataDetail?.department?.id,
-            birthday: dataDetail?.account?.birthday ? dayjs(dataDetail.account.birthday, 'DD/MM/YYYY HH:mm:ss') : null,
+            birthday: dataDetail?.account?.birthday ? dayjs.utc(dataDetail.account.birthday, 'DD/MM/YYYY HH:mm:ss').tz('Asia/Ho_Chi_Minh') : null,
             status: dataDetail?.account?.status,
             avatarPath: dataDetail?.account?.avatar,
         });

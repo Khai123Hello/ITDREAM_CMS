@@ -3,6 +3,12 @@ import DatePickerField from '@components/common/form/DatePickerField';
 import CropImageField from '@components/common/form/CropImageField';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 import useBasicForm from '@hooks/useBasicForm';
 import { defineMessages } from 'react-intl';
 import useTranslate from '@hooks/useTranslate';
@@ -21,10 +27,10 @@ const parseDateString = (dateStr) => {
             const yearTime = parts[2].split(' ');
             const year = yearTime[0];
             const time = yearTime[1] || '00:00:00';
-            return dayjs(`${year}-${month}-${day}T${time}`);
+            return dayjs.utc(`${year}-${month}-${day}T${time}`).tz('Asia/Ho_Chi_Minh');
         }
     }
-    return dayjs(dateStr);
+    return dayjs.utc(dateStr).tz('Asia/Ho_Chi_Minh');
 };
 
 const messages = defineMessages({
@@ -94,7 +100,7 @@ const ProfileForm = (props) => {
             username: values.username,
             fullname: values.fullName,
             phone: values.phone,
-            birthday: values.birthday ? values.birthday.format(DEFAULT_FORMAT) : null,
+            birthday: values.birthday ? values.birthday.utc().format(DEFAULT_FORMAT) : null,
             avatarPath: values.avatar || null,
         };
 

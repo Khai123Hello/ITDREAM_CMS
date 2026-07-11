@@ -1,6 +1,9 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 import PageWrapper from '@components/common/layout/PageWrapper';
 import apiConfig from '@constants/apiConfig';
@@ -43,8 +46,8 @@ const JobSavePage = () => {
                         address: data.address,
                         provinceId: data.provinceId,
                         wardId: data.wardId,
-                        date: data.date ? dayjs(data.date).format('DD/MM/YYYY HH:mm:ss') : null,
-                        endDate: data.endDate ? dayjs(data.endDate).format('DD/MM/YYYY HH:mm:ss') : null,
+                        date: data.date ? dayjs(data.date).utc().format('DD/MM/YYYY HH:mm:ss') : null,
+                        endDate: data.endDate ? dayjs(data.endDate).utc().format('DD/MM/YYYY HH:mm:ss') : null,
                         simulationIds: data.simulationIds || [],
                         status: data.status,
                         id: parseInt(id),
@@ -68,8 +71,8 @@ const JobSavePage = () => {
                 address: data.address,
                 provinceId: data.provinceId,
                 wardId: data.wardId,
-                date: data.date ? dayjs(data.date).format('DD/MM/YYYY HH:mm:ss') : null,
-                endDate: data.endDate ? dayjs(data.endDate).format('DD/MM/YYYY HH:mm:ss') : null,
+                date: data.date ? dayjs(data.date).utc().format('DD/MM/YYYY HH:mm:ss') : null,
+                endDate: data.endDate ? dayjs(data.endDate).utc().format('DD/MM/YYYY HH:mm:ss') : null,
                 simulationIds: data.simulationIds || [],
             });
 

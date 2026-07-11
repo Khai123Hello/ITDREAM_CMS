@@ -11,11 +11,14 @@ import {
     apiUrl,
 } from '@constants';
 import dayjs from 'dayjs';
-import moment from 'moment/moment';
 import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { useNavigate } from 'react-router-dom';
 
 dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 
 export const convertGlobImportToObject = (modules) =>
     modules
@@ -45,16 +48,35 @@ export const destructCamelCaseString = (string) => {
     return newArrString.join('');
 };
 
-export const convertUtcToLocalTime = (utcTime, inputFormat = DATE_FORMAT_DISPLAY, format = DATE_FORMAT_DISPLAY) => {
+export const convertUtcToLocalTime = (utcTime, inputFormat = DEFAULT_FORMAT, format = DATE_FORMAT_DISPLAY) => {
     try {
-        if (utcTime) return moment(moment.utc(utcTime, inputFormat).toDate()).format(format);
-        return '';
+        if (!utcTime) return '';
+        let parsed;
+        if (typeof utcTime === 'string') {
+            parsed = dayjs.utc(utcTime, inputFormat);
+            if (!parsed.isValid()) {
+                parsed = dayjs.utc(utcTime, DEFAULT_FORMAT);
+            }
+            if (!parsed.isValid()) {
+                parsed = dayjs.utc(utcTime);
+            }
+        } else {
+            parsed = dayjs.utc(utcTime);
+        }
+        if (!parsed.isValid()) return '';
+        return parsed.tz('Asia/Ho_Chi_Minh').format(format);
     } catch (err) {
         return '';
     }
 };
+
+export const convertLocalTimeToUtc = (localTime, inputFormat = DEFAULT_FORMAT, format = DEFAULT_FORMAT) => {
+    if (!localTime) return '';
+    return dayjs.tz(localTime, inputFormat, 'Asia/Ho_Chi_Minh').utc().format(format);
+};
+
 export function convertUtcToIso(date) {
-    return dayjs(convertUtcToLocalTime(date, DEFAULT_FORMAT, DEFAULT_FORMAT), DEFAULT_FORMAT);
+    return dayjs.tz(convertUtcToLocalTime(date, DEFAULT_FORMAT, DEFAULT_FORMAT), DEFAULT_FORMAT, 'Asia/Ho_Chi_Minh');
 }
 
 export const getBrowserTheme = () => {
@@ -114,7 +136,7 @@ export const formatNumber = (value, setting) => {
 };
 
 export const formatDateString = (dateString, formatDate = DATE_SHORT_MONTH_FORMAT) => {
-    return dayjs(dateString).format(formatDate);
+    return convertUtcToLocalTime(dateString, DEFAULT_FORMAT, formatDate);
 };
 
 export const removeAccents = (str) => {
@@ -263,25 +285,25 @@ export const convertTimeFormatFullToSeconds = (timeValue) => {
 
 export const formatDateToZeroTimeUTC = (date) => {
     if (!date) return '';
-    const parsedDate = dayjs(date);
+    const parsedDate = dayjs.tz(date, 'Asia/Ho_Chi_Minh');
     if (!parsedDate.isValid()) return '';
 
     const dateString = parsedDate.format(DATE_FORMAT_ZERO_TIME);
-    return dayjs(dateString, DEFAULT_FORMAT).utc().format(DEFAULT_FORMAT);
+    return dayjs.tz(dateString, DEFAULT_FORMAT, 'Asia/Ho_Chi_Minh').utc().format(DEFAULT_FORMAT);
 };
 
 export const formatDateToEndOfDayTimeUTC = (date) => {
     if (!date) return '';
-    const parsedDate = dayjs(date);
+    const parsedDate = dayjs.tz(date, 'Asia/Ho_Chi_Minh');
     if (!parsedDate.isValid()) return '';
 
     const dateString = parsedDate.format(DATE_FORMAT_END_OF_DAY_TIME);
-    return dayjs(dateString, DEFAULT_FORMAT).utc().format(DEFAULT_FORMAT);
+    return dayjs.tz(dateString, DEFAULT_FORMAT, 'Asia/Ho_Chi_Minh').utc().format(DEFAULT_FORMAT);
 };
 
 export const formatDateToZeroTime = (date) => {
     if (!date) return '';
-    const parsedDate = dayjs(date);
+    const parsedDate = dayjs.tz(date, 'Asia/Ho_Chi_Minh');
     if (!parsedDate.isValid()) return '';
 
     return parsedDate.startOf('day').format(DATE_FORMAT_ZERO_TIME);
@@ -290,7 +312,7 @@ export const formatDateToZeroTime = (date) => {
 export const formatDateToEndOfDayTime = (date) => {
     if (!date) return '';
 
-    const parsedDate = dayjs(date);
+    const parsedDate = dayjs.tz(date, 'Asia/Ho_Chi_Minh');
     if (!parsedDate.isValid()) return '';
 
     const endOfDayLocal = parsedDate.hour(23).minute(59).second(59);

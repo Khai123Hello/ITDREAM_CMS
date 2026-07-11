@@ -15,6 +15,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { convertUtcToLocalTime } from '@utils';
 
 import PageWrapper from '@components/common/layout/PageWrapper';
 import useFetch from '@hooks/useFetch';
@@ -755,7 +756,7 @@ const StudentDiscussionDetailPage = ({ pageOptions }) => {
                                     title: 'Thời gian',
                                     dataIndex: 'createdDate',
                                     width: 150,
-                                    render: (date) => (date ? dayjs(date).format('DD/MM/YYYY HH:mm:ss') : '-'),
+                                    render: (date) => (date ? convertUtcToLocalTime(date, 'DD/MM/YYYY HH:mm:ss', 'DD/MM/YYYY HH:mm:ss') : '-'),
                                 },
                             ]}
                         />
