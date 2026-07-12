@@ -1,5 +1,6 @@
-import React from 'react';
-import { Card, Space, Tag, Divider } from 'antd';
+import React, { useState } from 'react';
+import ReactPlayer from 'react-player';
+import { Card, Row, Col, Typography, Button, Badge, Collapse, Space, Modal, Divider, Popconfirm, Tag } from 'antd';
 import { ClockCircleOutlined, BookOutlined, TrophyOutlined } from '@ant-design/icons';
 import { AppConstants } from '@constants';
 import 'react-quill/dist/quill.snow.css';
@@ -341,17 +342,18 @@ const SimulationPreview = ({ data }) => {
                                         overflow: 'hidden',
                                         boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
                                     }}
-                                >
-                                    <video controls style={{ width: '100%', display: 'block' }}>
-                                        <source
-                                            src={
+                                    <div style={{ background: '#000', width: '100%' }}>
+                                        <ReactPlayer
+                                            url={
                                                 data.videoPath.startsWith('http')
                                                     ? data.videoPath
-                                                    : `${AppConstants.contentRootUrl}${data.videoPath}`
+                                                    : `${process.env.REACT_APP_PORTAL_VIDEO || ''}${data.videoPath}`
                                             }
+                                            controls
+                                            width="100%"
+                                            height="auto"
                                         />
-                                        Trình duyệt của bạn không hỗ trợ phát video.
-                                    </video>
+                                    </div>
                                 </div>
                             </div>
                         )}
