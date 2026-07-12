@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Empty, Modal, Upload, Input, Button, Tabs, message, Spin } from 'antd';
+import ReactPlayer from 'react-player';
 import { UploadOutlined, FileAddOutlined, BookOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import useFetch from '@hooks/useFetch';
@@ -64,7 +65,11 @@ function SimulationDetailPreview({
         if (path.startsWith('http://') || path.startsWith('https://')) {
             return path;
         }
-        return `${AppConstants.contentRootUrl}${path}`;
+        if (editable) {
+            return '';
+        }
+        const portalVideoUrl = process.env.REACT_APP_PORTAL_VIDEO || '';
+        return `${portalVideoUrl}${path}`;
     };
 
     // ── Map previewData → simulation ─────────────────────────────────────────
@@ -354,16 +359,22 @@ function SimulationDetailPreview({
                                 <section className={styles.section} style={{ marginTop: 24 }}>
                                     <h2 className={styles.sectionTitle}>Video</h2>
                                     {previewData.videoPath ? (
-                                        <div style={{ position: 'relative', width: '100%', borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
-                                            <video
-                                                controls
-                                                style={{ width: '100%', display: 'block' }}
-                                                key={previewData.videoPath}
-                                            >
-                                                <source src={getVideoUrl(previewData.videoPath)} />
-                                                Trình duyệt của bạn không hỗ trợ phát video.
-                                            </video>
-                                        </div>
+                                        getVideoUrl(previewData.videoPath) ? (
+                                            <div style={{ position: 'relative', width: '100%', borderRadius: 12, overflow: 'hidden', boxShadow: '0 4px 16px rgba(0,0,0,0.08)' }}>
+                                                <video
+                                                    controls
+                                                    style={{ width: '100%', display: 'block' }}
+                                                    key={previewData.videoPath}
+                                                >
+                                                    <source src={getVideoUrl(previewData.videoPath)} />
+                                                    Trình duyệt của bạn không hỗ trợ phát video.
+                                                </video>
+                                            </div>
+                                        ) : (
+                                            <div style={{ padding: '24px', border: '1px dashed #d9d9d9', borderRadius: 8, textAlign: 'center', background: '#fafafa', color: '#888' }}>
+                                                Video đã được tải lên. Vui lòng lưu bài mô phỏng để xem.
+                                            </div>
+                                        )
                                     ) : (
                                         <div style={{ padding: '24px', border: '1px dashed #d9d9d9', borderRadius: 8, textAlign: 'center', background: '#fafafa', color: '#888' }}>
                                             Chưa có video giới thiệu.
